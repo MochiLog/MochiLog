@@ -439,6 +439,42 @@
             "state" : "translated",
             "value" : "バッテリー情報はありますが、データ形式を読み取れませんでした。設定のデバッグログから対象ログを確認できます。"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "发现电池信息，但无法读取其格式。可在设置中的调试日志查看此文件。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "發現電池資訊，但無法讀取其格式。可在設定中的除錯日誌查看此檔案。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "배터리 정보는 있지만 형식을 읽을 수 없습니다. 설정의 디버그 로그에서 파일을 확인하세요."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se encontró información de batería, pero no se pudo leer su formato. Revise el archivo en Ajustes > Registros de depuración."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Des informations de batterie ont été trouvées, mais leur format est illisible. Consultez le fichier dans Réglages > Journaux de débogage."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Batteriedaten gefunden, ihr Format konnte jedoch nicht gelesen werden. Prüfen Sie die Datei unter Einstellungen > Debug-Logs."
+          }
         }
       }
     },
@@ -455,6 +491,42 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "この解析ログにはバッテリーの容量・サイクル数が含まれていません。バッテリー情報を含む別のAnalyticsログを選んでください。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此分析日志不含电池容量或循环次数。请选择包含电池信息的其他分析日志。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此分析日誌不含電池容量或循環次數。請選擇包含電池資訊的其他分析日誌。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 분석 로그에는 배터리 용량이나 사이클 수가 없습니다. 배터리 정보가 포함된 다른 로그를 선택하세요."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este registro no contiene capacidad ni ciclos de batería. Elija otro registro de análisis con información de batería."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce journal ne contient ni capacité ni cycles de batterie. Choisissez un autre journal d’analyse contenant ces informations."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieses Analyse-Log enthält keine Batteriekapazität oder Zyklenzahl. Wählen Sie ein anderes Analyse-Log mit Batteriedaten."
           }
         }
       }

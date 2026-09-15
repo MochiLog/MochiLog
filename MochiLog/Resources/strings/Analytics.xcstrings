@@ -2151,6 +2151,42 @@
             "state" : "translated",
             "value" : "この期間には記録がありません。"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此期间没有记录。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此期間沒有記錄。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 기간에는 기록이 없습니다."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay registros en este período."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun relevé sur cette période."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Einträge in diesem Zeitraum."
+          }
         }
       }
     },
@@ -2160,13 +2196,49 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Grouped by device for the displayed period. Latest values use each device’s last record; averages include all its records in the period."
+            "value" : "Grouped by device for the displayed period. Change compares the latest reading with the first."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "表示期間内の記録を端末ごとに集計。最新値は各端末の最終記録、平均は期間内の全記録から算出します。"
+            "value" : "表示期間内の記録を端末ごとに集計。変化は最初と最新の記録の差です。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按设备汇总所示期间的记录。变化为最新与最早记录之差。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "依裝置彙整所示期間的記錄。變化為最新與最早記錄之差。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "표시 기간의 기록을 기기별로 집계합니다. 변화는 최신 기록과 첫 기록의 차이입니다."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registros por dispositivo del período mostrado. El cambio compara el último registro con el primero."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Relevés par appareil sur la période affichée. L’évolution compare le dernier relevé au premier."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einträge je Gerät im angezeigten Zeitraum. Die Änderung vergleicht den letzten mit dem ersten Eintrag."
           }
         }
       }
