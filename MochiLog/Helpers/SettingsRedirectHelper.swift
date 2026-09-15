@@ -41,7 +41,13 @@ enum SettingsRedirectHelper {
       + "x-error=mochilog://shortcut-error"
 
     if let url = URL(string: urlString) {
-      UIApplication.shared.open(url)
+      UIApplication.shared.open(url) { opened in
+        guard !opened else { return }
+        DispatchQueue.main.async {
+          AppSettings.shared.isShortcutInstalled = false
+          NotificationCenter.default.post(name: NSNotification.Name("ShortcutNotFound"), object: nil)
+        }
+      }
     }
   }
 

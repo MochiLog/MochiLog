@@ -88,7 +88,7 @@ struct StatisticsView: View {
         VStack(alignment: .leading, spacing: 6) {
           let canCompare = first != nil && health(latest).isFinite && health(latest) > 0
           metric(L10n.string("stat_health_change", table: "Analytics"),
-            value: canCompare ? signedPoints(health(latest) - health(first!)) : "—",
+            value: canCompare ? capacityChange(health(latest) - health(first!)) : "—",
             icon: "arrow.left.arrow.right")
           if canCompare, let first {
             Text("\(first.logDate.formatted(date: .abbreviated, time: .omitted)) – \(latest.logDate.formatted(date: .abbreviated, time: .omitted))")
@@ -119,9 +119,12 @@ struct StatisticsView: View {
     return (value / 100).formatted(.percent.precision(.fractionLength(1)))
   }
 
-  private func signedPoints(_ value: Double) -> String {
+  private func capacityChange(_ value: Double) -> String {
     let rounded = (value * 10).rounded() / 10
-    return rounded.formatted(.number.precision(.fractionLength(1)).sign(strategy: .always())) + " pt"
+    guard rounded != 0 else { return L10n.string("stat_health_unchanged", table: "Analytics") }
+    let amount = (abs(rounded) / 100).formatted(.percent.precision(.fractionLength(1)))
+    let format = L10n.string(rounded < 0 ? "stat_health_decreased" : "stat_health_increased", table: "Analytics")
+    return String(format: format, amount)
   }
 
   private func metric(_ title: String, value: String, icon: String) -> some View {
