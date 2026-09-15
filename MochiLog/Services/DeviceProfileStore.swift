@@ -44,7 +44,7 @@ final class DeviceProfileStore: ObservableObject {
   func soc(_ name: String) -> String? { lock.lock(); defer { lock.unlock() }; return socMap[name] }
   func capacityVariant(for name: String, productSku: String?) -> DeviceCapacityVariant? {
     lock.lock(); defer { lock.unlock() }
-    let configuration: SIMConfiguration = productSku == "ZP/A" ? .physicalSIM : .esim
+    let configuration: SIMConfiguration = ["ZP/A", "CH/A"].contains(productSku ?? "") ? .physicalSIM : .esim
     return resolved.first(where: { $0.name == name })?.capacityVariants.first {
       $0.configuration == configuration
     }

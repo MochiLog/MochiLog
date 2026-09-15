@@ -67,6 +67,7 @@ struct DeviceProfileTests {
     ]
     try store.save(simDevice)
     precondition(store.capacityVariant(for: simDevice.name, productSku: "ZP/A")?.capacity == 4056)
+    precondition(store.capacityVariant(for: simDevice.name, productSku: "CH/A")?.capacity == 4056)
     for sku in ["J/A", "C/A", "", "zp/a"] {
       precondition(store.capacityVariant(for: simDevice.name, productSku: sku)?.capacity == 4288)
     }

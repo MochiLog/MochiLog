@@ -661,7 +661,7 @@ struct DeviceLibrary {
   private static func simVariants(esim: Int, physicalSIM: Int?) -> [DeviceCapacityVariant] {
     [
       DeviceCapacityVariant(configuration: .esim, capacity: esim, region: nil),
-      DeviceCapacityVariant(configuration: .physicalSIM, capacity: physicalSIM, region: "HK"),
+      DeviceCapacityVariant(configuration: .physicalSIM, capacity: physicalSIM, region: "HK/CN"),
     ]
   }
 

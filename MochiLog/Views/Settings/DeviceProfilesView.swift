@@ -333,7 +333,7 @@ private struct DeviceProfileEditor: View {
         case .esim:
           return DeviceCapacityVariant(configuration: .esim, capacity: Int(esimCapacity), region: nil)
         case .physicalSIM:
-          return DeviceCapacityVariant(configuration: .physicalSIM, capacity: Int(physicalSIMCapacity), region: "HK")
+          return DeviceCapacityVariant(configuration: .physicalSIM, capacity: Int(physicalSIMCapacity), region: "HK/CN")
         }
       })
   }

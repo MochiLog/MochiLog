@@ -56,8 +56,12 @@ struct StatisticsView: View {
       return $0.id.uuidString < $1.id.uuidString
     }
     if let latest {
-      let values = records.map { health($0) }.filter { $0.isFinite }
-      let average = values.isEmpty ? nil : values.reduce(0, +) / Double(values.count)
+      let first = records.filter { $0.logDate < latest.logDate && health($0).isFinite && health($0) > 0 }
+        .min {
+          if $0.logDate != $1.logDate { return $0.logDate < $1.logDate }
+          if $0.createdAt != $1.createdAt { return $0.createdAt < $1.createdAt }
+          return $0.id.uuidString < $1.id.uuidString
+        }
       VStack(alignment: .leading, spacing: 18) {
         VStack(alignment: .leading, spacing: 5) {
           Text(DeviceLibrary.localizedName(for: name)).font(.headline)
@@ -81,9 +85,21 @@ struct StatisticsView: View {
           metric(L10n.string("record_count", table: "Analytics"), value: records.count.formatted(), icon: "doc.text")
           metric(L10n.string("cycle_count", table: "Analytics"), value: latest.cycleCount.formatted(), icon: "arrow.triangle.2.circlepath")
         }
-        metric(L10n.string(appSettings.analysisDataSource == .nominal
-          ? "stat_average_nominal" : "stat_average_actual", table: "Analytics"),
-          value: average.map(percent) ?? "—", icon: "chart.bar")
+        VStack(alignment: .leading, spacing: 6) {
+          let canCompare = first != nil && health(latest).isFinite && health(latest) > 0
+          metric(L10n.string("stat_health_change", table: "Analytics"),
+            value: canCompare ? signedPoints(health(latest) - health(first!)) : "—",
+            icon: "arrow.left.arrow.right")
+          if canCompare, let first {
+            Text("\(first.logDate.formatted(date: .abbreviated, time: .omitted)) – \(latest.logDate.formatted(date: .abbreviated, time: .omitted))")
+              .font(.caption).foregroundStyle(.secondary)
+            Text(L10n.string("stat_health_change_note", table: "Analytics"))
+              .font(.caption).foregroundStyle(.secondary)
+          } else {
+            Text(L10n.string("stat_health_change_insufficient", table: "Analytics"))
+              .font(.caption).foregroundStyle(.secondary)
+          }
+        }
       }
       .padding(20)
       .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -101,6 +117,11 @@ struct StatisticsView: View {
   private func percent(_ value: Double) -> String {
     guard value.isFinite else { return "—" }
     return (value / 100).formatted(.percent.precision(.fractionLength(1)))
+  }
+
+  private func signedPoints(_ value: Double) -> String {
+    let rounded = (value * 10).rounded() / 10
+    return rounded.formatted(.number.precision(.fractionLength(1)).sign(strategy: .always())) + " pt"
   }
 
   private func metric(_ title: String, value: String, icon: String) -> some View {

@@ -2763,49 +2763,49 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Modell mit physischer SIM (Hongkong)"
+            "value" : "Modell mit physischer SIM (Hongkong / Festlandchina)"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Physical SIM model (Hong Kong)"
+            "value" : "Physical SIM model (Hong Kong / China mainland)"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Modelo con SIM física (Hong Kong)"
+            "value" : "Modelo con SIM física (Hong Kong / China continental)"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Modèle avec SIM physique (Hong Kong)"
+            "value" : "Modèle avec SIM physique (Hong Kong / Chine continentale)"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "物理SIMモデル（香港版）"
+            "value" : "物理SIMモデル（香港・中国本土版）"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "물리 SIM 모델(홍콩)"
+            "value" : "물리 SIM 모델(홍콩·중국 본토)"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "实体 SIM 机型（香港版）"
+            "value" : "实体 SIM 机型（香港及中国大陆版）"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "實體 SIM 機型（香港版）"
+            "value" : "實體 SIM 機型（香港及中國大陸版）"
           }
         }
       }
