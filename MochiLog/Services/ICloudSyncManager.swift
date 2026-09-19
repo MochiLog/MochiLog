@@ -138,7 +138,7 @@ final class ICloudSyncManager: ObservableObject {
       }
     }
   }
-
+xd≈Ω∂
   // MARK: - エラー解析ヘルパー
 
   /// NSErrorの中からCKErrorを掘り起こす（全階層を再帰探索）
@@ -391,27 +391,35 @@ final class ICloudSyncManager: ObservableObject {
       if let val = r.minSoC { ckRecord["CD_minSoC"] = val }
       if let val = r.maxSoC { ckRecord["CD_maxSoC"] = val }
       ckRecord["CD_createdAt"] = r.createdAt
+      ckRecord["CD_entityName"] = "BatteryRecord"
       
       ckRecords.append(ckRecord)
     }
     
     do {
       _ = try await database.modifyRecords(saving: ckRecords, deleting: [])
-      // 保存に成功したらゴミを残さないように消す
       let idsToDelete = ckRecords.map { $0.recordID }
       _ = try? await database.modifyRecords(saving: [], deleting: idsToDelete)
       
-      self.lastErrorLog = "✅ 実際のデータ10件の直接保存テスト成功！\n\nスキーマやデータの中身にはCloudKitが拒否するような問題はありませんでした。原因はCoreData自体の同期メカニズムにある可能性があります。"
+      let successMsg = "✅ 実際のデータ\(testRecords.count)件の直接保存テスト成功！\n\nスキーマやデータの中身にはCloudKitが拒否するような問題はありませんでした。原因はCoreData自体の同期メカニズムにある可能性があります。"
+      self.lastErrorLog = successMsg
       self.lastSyncStatus = .error("テスト成功")
+      ErrorLogStore.shared.saveLog(message: "直接保存テスト成功", rawText: successMsg)
     } catch let error as CKError {
       var lines: [String] = []
       lines.append("❌ 実際のデータ保存テスト エラー (生データ)")
       dumpError(error, into: &lines, indent: "")
-      self.lastErrorLog = lines.joined(separator: "\n")
+      let errorMsg = lines.joined(separator: "\n")
+      
+      self.lastErrorLog = errorMsg
       self.lastSyncStatus = .error("テスト失敗")
+      // 画面が上書きされても確認できるようにエラーログファイルに書き出す
+      ErrorLogStore.shared.saveLog(message: "直接保存テスト失敗 (CKError)", rawText: errorMsg)
     } catch {
-      self.lastErrorLog = "エラー: \(error.localizedDescription)"
+      let errorMsg = "エラー: \(error.localizedDescription)"
+      self.lastErrorLog = errorMsg
       self.lastSyncStatus = .error("テスト失敗")
+      ErrorLogStore.shared.saveLog(message: "直接保存テスト失敗", rawText: errorMsg)
     }
   }
 
