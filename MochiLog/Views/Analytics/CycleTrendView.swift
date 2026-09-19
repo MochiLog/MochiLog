@@ -26,6 +26,11 @@ struct CycleTrendView: View {
   @State private var isUserInteracted: Bool = false
 
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+  private var chartHeight: CGFloat {
+    dynamicTypeSize.isAccessibilitySize ? 320 : (horizontalSizeClass == .regular ? 280 : 200)
+  }
 
   // 使用する期間設定（親から渡されていれば親の値、なければローカル）
   private var selectedRange: RangePreset {
@@ -175,9 +180,12 @@ struct CycleTrendView: View {
             chartRecords: chartRecords, visibleDeviceNames: visibleDeviceNames,
             visibleDeviceColors: visibleDeviceColors
           )
+          if dynamicTypeSize.isAccessibilitySize {
+            AccessibleChartLegend(names: visibleDeviceNames, colors: visibleDeviceColors)
+          }
         } else {
           Color.clear
-            .frame(height: horizontalSizeClass == .regular ? 280 : 200)
+            .frame(height: chartHeight)
         }
       }
     }
@@ -329,8 +337,12 @@ struct CycleTrendView: View {
         .clipped()
         .padding(.trailing, 24)
     }
+    .chartLegend(dynamicTypeSize.isAccessibilitySize ? .hidden : .automatic)
+    // Keep numeric axes legible without letting them consume the entire plot.
+    // The external legend and the surrounding statistics retain the user's text size.
+    .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     .mochiChartRendering()
-    .frame(height: horizontalSizeClass == .regular ? 280 : 200)
+    .frame(height: chartHeight)
   }
 }
 

@@ -16,6 +16,11 @@ struct HealthTrendView: View {
   @State private var isChartReady: Bool = false  // 遅延レンダリング用
 
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+  private var chartHeight: CGFloat {
+    dynamicTypeSize.isAccessibilitySize ? 320 : (horizontalSizeClass == .regular ? 280 : 200)
+  }
   private let appSettings = AppSettings.shared
   @State private var analysisDataSource = AppSettings.shared.analysisDataSource
 
@@ -72,9 +77,12 @@ struct HealthTrendView: View {
             chartRecords: chartRecords, visibleDeviceNames: visibleDeviceNames,
             visibleDeviceColors: visibleDeviceColors
           )
+          if dynamicTypeSize.isAccessibilitySize {
+            AccessibleChartLegend(names: visibleDeviceNames, colors: visibleDeviceColors)
+          }
         } else {
           Color.clear
-            .frame(height: horizontalSizeClass == .regular ? 280 : 200)
+            .frame(height: chartHeight)
         }
 
       }
@@ -199,8 +207,12 @@ struct HealthTrendView: View {
         .clipped()
         .padding(.trailing, 24)
     }
+    .chartLegend(dynamicTypeSize.isAccessibilitySize ? .hidden : .automatic)
+    // Keep numeric axes legible without letting them consume the entire plot.
+    // The external legend and the surrounding statistics retain the user's text size.
+    .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     .mochiChartRendering()
-    .frame(height: horizontalSizeClass == .regular ? 280 : 200)
+    .frame(height: chartHeight)
   }
 }
 

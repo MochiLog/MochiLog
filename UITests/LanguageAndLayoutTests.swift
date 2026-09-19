@@ -63,6 +63,36 @@ final class LanguageAndLayoutTests: XCTestCase {
     verifyOverview(size: "UICTContentSizeCategoryL")
   }
 
+  // Run on the real Duo simulator, without MOCHI_LAYOUT_TEST or size-class overrides.
+  func testNativeDuoDetailRotationAndSharing() {
+    app.launch()
+    let sample = app.buttons["View Sample Data"]
+    if sample.waitForExistence(timeout: 5) { sample.tap() }
+    let record = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "home.record.")).firstMatch
+    XCTAssertTrue(record.waitForExistence(timeout: 15))
+    record.tap()
+    let detail = app.navigationBars["Details"]
+    XCTAssertTrue(detail.waitForExistence(timeout: 10))
+    screenshot("Native Duo detail portrait")
+    for orientation in [UIDeviceOrientation.landscapeLeft, .landscapeRight, .portrait] {
+      XCUIDevice.shared.orientation = orientation
+      XCTAssertTrue(detail.waitForExistence(timeout: 10), "Rotation must preserve the selected log")
+      let share = app.buttons["record.share"].firstMatch
+      XCTAssertTrue(share.isHittable, "Share must remain reachable beside the system bars")
+      screenshot("Native Duo detail orientation \(orientation.rawValue)")
+    }
+    app.buttons["record.share"].firstMatch.tap()
+    XCTAssertTrue(app.otherElements["ActivityListView"].waitForExistence(timeout: 15))
+    screenshot("Native Duo share sheet")
+  }
+
+  func testNativeDuoDarkOverview() {
+    let previousAppearance = XCUIDevice.shared.appearance
+    XCUIDevice.shared.appearance = .dark
+    defer { XCUIDevice.shared.appearance = previousAppearance }
+    verifyOverview(size: "UICTContentSizeCategoryL")
+  }
+
   func testRefreshedOverviewScreens() {
     verifyOverview(size: "UICTContentSizeCategoryL")
   }
@@ -277,12 +307,24 @@ final class LanguageAndLayoutTests: XCTestCase {
   }
 
   private func verifyOverview(size: String) {
+    func reveal(_ element: XCUIElement) {
+      for _ in 0..<8 {
+        if element.exists && element.isHittable { return }
+        let scroll = app.scrollViews.firstMatch
+        if scroll.exists {
+          scroll.swipeUp(velocity: .slow)
+        } else {
+          app.swipeUp()
+        }
+      }
+      XCTAssertTrue(element.exists && element.isHittable, app.debugDescription)
+    }
     app.launchArguments += ["-UIPreferredContentSizeCategoryName", size]
     app.launch()
     if app.buttons["View Sample Data"].exists { app.buttons["View Sample Data"].tap() }
     // A phone list lazily creates rows; the first device can be a Watch.
     let record = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "home.record.")).firstMatch
-    XCTAssertTrue(record.waitForExistence(timeout: 15))
+    reveal(record)
     screenshot("Refreshed Home")
     for title in ["Analytics", "Settings"] {
       let tab = app.descendants(matching: .any).matching(
@@ -290,11 +332,15 @@ final class LanguageAndLayoutTests: XCTestCase {
       XCTAssertTrue(tab.waitForExistence(timeout: 5), app.debugDescription)
       tab.tap()
       if title == "Analytics" {
-        XCTAssertTrue(app.buttons["chart.range"].firstMatch.waitForExistence(timeout: 10), app.debugDescription)
+        reveal(app.buttons["chart.range"].firstMatch)
       } else {
-        XCTAssertTrue(app.switches["settings.recordInfo"].firstMatch.waitForExistence(timeout: 10), app.debugDescription)
+        reveal(app.switches["settings.recordInfo"].firstMatch)
       }
       screenshot("Refreshed " + title)
+      if title == "Analytics" && size == "UICTContentSizeCategoryAccessibilityXXXL" {
+        app.scrollViews.firstMatch.swipeUp(velocity: .slow)
+        screenshot("Accessible health plot and legend")
+      }
     }
   }
 
@@ -322,7 +368,8 @@ final class LanguageAndLayoutTests: XCTestCase {
   }
 
   private func screenshot(_ name: String) {
-    let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+    // Duo may display the app on a screen other than XCUIScreen.main.
+    let attachment = XCTAttachment(screenshot: app.screenshot())
     attachment.name = name
     attachment.lifetime = .keepAlways
     add(attachment)

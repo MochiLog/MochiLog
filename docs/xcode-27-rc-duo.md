@@ -1,5 +1,7 @@
 # Xcode 27 RC / iPhone Duo readiness
 
+September 19 follow-up: see [native Duo simulator verification with Xcode 27.1](iphone-duo-27.1.md). The notes below preserve the earlier size-only checks.
+
 Environment checked: Xcode 27.0 RC, build 27A266a. Deployment target remains unchanged.
 
 ## RC review
