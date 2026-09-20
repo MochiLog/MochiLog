@@ -591,10 +591,10 @@ struct DeviceLibrary {
     "iPod touch (第6世代)": 1043,
 
     // Apple Watch
-    // Provisional: reuse Series 11 / Ultra 3 capacities until confirmed.
-    "Apple Watch Ultra (第4世代)": 599,
-    "Apple Watch 12 (46mm)": 363,
-    "Apple Watch 12 (42mm)": 322,
+    // Provisional capacities; update when confirmed specifications are available.
+    "Apple Watch Ultra (第4世代)": 633,
+    "Apple Watch 12 (46mm)": 378,
+    "Apple Watch 12 (42mm)": 327,
     "Apple Watch Ultra (第3世代)": 599,
     "Apple Watch Ultra (第2世代)": 564,
     "Apple Watch Ultra (第1世代)": 542,

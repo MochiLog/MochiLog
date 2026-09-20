@@ -1,0 +1,25 @@
+• Added “MochiLog (Multiple Files),” which allows you to import multiple analysis logs at once. In the Share Sheet, “MochiLog” and “MochiLog (Multiple Files)” are now available separately in the Actions section rather than the app row.
+
+• Added preliminary support for iPhone 18 Pro, iPhone 18 Pro Max, and iPhone Duo.
+
+• Added preliminary support for Apple Watch Series 12 and Apple Watch Ultra 4. Provisional battery design capacities are set to 327mAh for Series 12 (42mm), 378mAh for Series 12 (46mm), and 633mAh for Ultra 4. GPS and GPS + Cellular models use the same capacities. These values are not confirmed and may change in a future update.
+
+• Improved battery capacity handling for iPhone models where eSIM and physical SIM variants (including Hong Kong models) have different battery capacities.
+
+• Added support for adding, editing, and restoring device information to default values. Device parameters can now be reviewed and edited, and changes can also be applied to existing logs.
+
+• If the displayed battery capacity appears to be incorrect, you can now easily report it to support by email from within the app.
+
+• Completely redesigned and improved the Home, Log Details, Analysis, and Settings screens on iPhone and iPad. On the Log Details screen, you can now choose whether to show or hide the information “i” icons.
+
+• Improved graphs and statistical displays. On iPad, the display ranges for Maximum Capacity and Cycle Count can now be configured independently. The Analysis tab has also been optimized to reduce processing load.
+
+• Improved log display across multiple devices synced with iCloud, along with better handling of synchronization and conflict resolution.
+
+• Reduced rendering load on devices with lower-performance CPUs or GPUs, improving log processing and screen responsiveness.
+
+• Improved language settings and Apple Watch displays, and fixed several missing translations.
+
+• Fixed multiple issues, including crashes at launch, log import errors, and display problems in Light Mode.
+
+• This version is built with Xcode 27.
