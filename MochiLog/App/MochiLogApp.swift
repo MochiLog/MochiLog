@@ -119,6 +119,19 @@ final class MochiLogSceneDelegate: UIResponder, UIWindowSceneDelegate {
     guard let windowScene = scene as? UIWindowScene else { return }
     let window = UIWindow(windowScene: windowScene)
     #if DEBUG && targetEnvironment(simulator)
+    // Screenshot automation must be dark even if Xcode supplies a light trait override.
+    if ProcessInfo.processInfo.environment["MOCHI_STORE_SCREENSHOTS"] == "1" {
+      window.overrideUserInterfaceStyle = .dark
+      // Export the same sample records for the companion's isolated screenshot fixture.
+      do {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        let records = SampleDataProvider.generateSampleRecords().map { WatchBatteryRecord(from: $0) }
+        let destination = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+          .appendingPathComponent("store-screenshot-records.json")
+        try encoder.encode(records).write(to: destination, options: .atomic)
+      } catch { print("Screenshot fixture export failed: \(error)") }
+    }
     if ProcessInfo.processInfo.environment["MOCHI_LAYOUT_TEST"] == "1" {
       window.rootViewController = UIHostingController(rootView: LayoutValidationHost())
     } else {

@@ -42,6 +42,22 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
 
   /// Watch Connectivityセッションを開始
   func startSession() {
+    #if DEBUG && targetEnvironment(simulator)
+    if ProcessInfo.processInfo.environment["MOCHI_STORE_SCREENSHOTS"] == "1" {
+      // Same Codable payload as WatchConnectivity, supplied by the screenshot script.
+      // Keep asynchronous sync from replacing the fixture midway through a capture.
+      do {
+        let file = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+          .appendingPathComponent("store-screenshot-records.json")
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        records = try decoder.decode([WatchBatteryRecord].self, from: Data(contentsOf: file))
+          .sorted { $0.logDate > $1.logDate }
+        isSampleMode = true
+      } catch { print("Screenshot fixture load failed: \(error)") }
+      return
+    }
+    #endif
     guard WCSession.isSupported() else {
       print("[WatchConnectivity] WCSessionはこのデバイスでサポートされていません")
       return

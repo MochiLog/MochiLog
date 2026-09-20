@@ -63,6 +63,78 @@ final class LanguageAndLayoutTests: XCTestCase {
     verifyOverview(size: "UICTContentSizeCategoryL")
   }
 
+  // Store capture uses the real sample-data UI, without changing user records.
+  func testStoreScreenshotsEnglish() { captureStoreScreens(language: "en", locale: "en_US") }
+  func testStoreScreenshotsJapanese() { captureStoreScreens(language: "ja", locale: "ja_JP") }
+
+  private func captureStoreScreens(language: String, locale: String) {
+    XCUIDevice.shared.appearance = .dark
+    app.launchEnvironment["MOCHI_STORE_SCREENSHOTS"] = "1"
+    XCUIDevice.shared.orientation = .portrait
+    app.launchArguments = [
+      "-hasCompletedTutorial", "YES", "-iCloudSyncEnabled", "NO",
+      "-LastKnownAppVersion", "3.2.0", "-showPopupOnLoad", "NO",
+      "-appLanguage", language, "-AppleLanguages", "(\(language))", "-AppleLocale", locale,
+      "-selectedTabIndex", "0", "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryL"
+    ]
+    app.launch()
+    let japanese = language == "ja"
+    let sample = app.buttons[japanese ? "サンプルデータを見る" : "View Sample Data"]
+    if sample.waitForExistence(timeout: 5) { sample.tap() }
+    let record = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "home.record.")).firstMatch
+    XCTAssertTrue(record.waitForExistence(timeout: 15), app.debugDescription)
+    if UIDevice.current.userInterfaceIdiom == .phone {
+      let watchHeader = app.buttons.matching(NSPredicate(format: "label == %@", "Apple Watch Series 9")).firstMatch
+      if watchHeader.isHittable { watchHeader.tap() }
+    }
+    let phoneRecord: XCUIElement
+    if UIDevice.current.userInterfaceIdiom == .pad {
+      // Wide cards omit the repeated device name; choose a visible card under its column header.
+      let header = app.buttons.matching(NSPredicate(format: "label == %@", "iPhone 14")).firstMatch
+      XCTAssertTrue(header.waitForExistence(timeout: 10), app.debugDescription)
+      let cards = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "home.record.")).allElementsBoundByIndex
+      guard let card = cards.first(where: {
+        $0.isHittable && abs($0.frame.midX - header.frame.midX) < 10 && $0.frame.minY >= header.frame.maxY
+      }) else { XCTFail("No visible iPhone 14 card: \(app.debugDescription)"); return }
+      phoneRecord = card
+    } else {
+      phoneRecord = app.buttons.matching(NSPredicate(format:
+        "identifier BEGINSWITH %@ AND label CONTAINS %@", "home.record.", "iPhone 14")).firstMatch
+    }
+    XCTAssertTrue(phoneRecord.waitForExistence(timeout: 10), app.debugDescription)
+    Thread.sleep(forTimeInterval: 2)
+    screenshot("store_\(locale)_01_home")
+    phoneRecord.tap()
+    XCTAssertTrue(app.navigationBars[japanese ? "詳細" : "Details"].waitForExistence(timeout: 10), app.debugDescription)
+    Thread.sleep(forTimeInterval: 1)
+    let detailScroll = app!
+    if UIDevice.current.userInterfaceIdiom == .phone {
+      detailScroll.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7))
+        .press(forDuration: 0.1, thenDragTo: detailScroll.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.45)),
+          withVelocity: .slow, thenHoldForDuration: 0.3)
+    }
+    Thread.sleep(forTimeInterval: 1)
+    screenshot("store_\(locale)_02_details")
+    // Relaunch to dismiss both iPhone's sheet and iPad's pushed detail consistently.
+    app.terminate(); app.launch()
+    if sample.waitForExistence(timeout: 3) { sample.tap() }
+    for (index, title) in [("03_analytics", japanese ? "分析" : "Analytics"),
+                            ("04_settings", japanese ? "設定" : "Settings")] {
+      let tab = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", title)).firstMatch
+      XCTAssertTrue(tab.waitForExistence(timeout: 10), app.debugDescription)
+      tab.tap()
+      Thread.sleep(forTimeInterval: 2)
+      if index == "03_analytics" && UIDevice.current.userInterfaceIdiom == .phone {
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.75))
+          .press(forDuration: 0.1,
+            thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.60)),
+            withVelocity: .slow, thenHoldForDuration: 0.3)
+        Thread.sleep(forTimeInterval: 2)
+      }
+      screenshot("store_\(locale)_\(index)")
+    }
+  }
+
   func testRefreshedOverviewScreens() {
     verifyOverview(size: "UICTContentSizeCategoryL")
   }
@@ -322,7 +394,7 @@ final class LanguageAndLayoutTests: XCTestCase {
   }
 
   private func screenshot(_ name: String) {
-    let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+    let attachment = XCTAttachment(screenshot: name.hasPrefix("store_") ? app.screenshot() : XCUIScreen.main.screenshot())
     attachment.name = name
     attachment.lifetime = .keepAlways
     add(attachment)

@@ -33,6 +33,42 @@ final class WatchLayoutTests: XCTestCase {
     attach(app, "German Watch diagnostic and date")
   }
 
+  func testStoreScreenshotsEnglish() { captureStoreScreens(language: "en", locale: "en_US") }
+  func testStoreScreenshotsJapanese() { captureStoreScreens(language: "ja", locale: "ja_JP") }
+
+  private func captureStoreScreens(language: String, locale: String) {
+    continueAfterFailure = false
+    let app = XCUIApplication()
+    app.launchEnvironment["MOCHI_STORE_SCREENSHOTS"] = "1"
+    app.launchArguments = ["-appLanguage", language, "-AppleLanguages", "(\(language))", "-AppleLocale", locale]
+    app.launch()
+    let device = app.buttons["watch.device.iPhone 15 Pro"]
+    let firstDevice = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "watch.device.")).firstMatch
+    XCTAssertTrue(firstDevice.waitForExistence(timeout: 15), app.debugDescription)
+    Thread.sleep(forTimeInterval: 2)
+    attach(app, "store_\(locale)_01_devices")
+    for _ in 0..<8 {
+      if device.exists && device.isHittable { break }
+      app.swipeUp(velocity: .slow)
+    }
+    XCTAssertTrue(device.exists && device.isHittable, app.debugDescription)
+    app.staticTexts["iPhone 15 Pro"].tap()
+    let record = app.buttons.matching(identifier: "watch.record").firstMatch
+    if !record.waitForExistence(timeout: 3) {
+      XCTAssertTrue(device.exists && device.isHittable)
+      app.staticTexts["iPhone 15 Pro"].tap()
+    }
+    XCTAssertTrue(record.waitForExistence(timeout: 10), app.debugDescription)
+    Thread.sleep(forTimeInterval: 1)
+    attach(app, "store_\(locale)_02_logs")
+    record.tap()
+    Thread.sleep(forTimeInterval: 2)
+    attach(app, "store_\(locale)_03_health")
+    scrollTo(app.staticTexts[language == "ja" ? "サイクル数" : "Cycle Count"], in: app)
+    attach(app, "store_\(locale)_04_metrics")
+    app.terminate()
+  }
+
   private func scrollTo(_ element: XCUIElement, in app: XCUIApplication) {
     XCTAssertTrue(element.waitForExistence(timeout: 5))
     for _ in 0..<24 {
