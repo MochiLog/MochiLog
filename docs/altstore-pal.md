@@ -53,3 +53,5 @@ SimulatorのDebugビルド限定で `MOCHI_TEST_DISTRIBUTOR=appStore|testFlight|
 - 日英リリースノートは3.2.1の変更点と3.2.0の既存全文を保持。
 - Marketplace/App Store/TestFlightのUI切り替えテストが成功。Webの15テストも成功。
 - 公証ADPは未取得。ADP取得・権限/ハッシュ照合・R2アップロード・version公開・PAL実機検証が完了するまでは、配信中と案内しない。
+
+- 2026-09-22 01:30 JST: 3.2.1 (1015) をFastlaneでApp Reviewへ再提出済み。TestFlight日英ノート登録済み。次の作業は承認・公証後のADP取得から。
