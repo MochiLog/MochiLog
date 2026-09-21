@@ -1,3 +1,7 @@
+3.2.1
+• Fixed the iPad layout.
+
+3.2.0
 • Added “MochiLog (Multiple Files),” which allows you to import multiple analysis logs at once. In the Share Sheet, “MochiLog” and “MochiLog (Multiple Files)” are now available separately in the Actions section rather than the app row.
 
 • Added preliminary support for iPhone 18 Pro, iPhone 18 Pro Max, and iPhone Duo.
