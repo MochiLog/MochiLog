@@ -1,5 +1,8 @@
 import Combine
 import StoreKit
+#if canImport(MarketplaceKit) && !targetEnvironment(macCatalyst)
+import MarketplaceKit
+#endif
 import SwiftUI
 
 /// 寄付（アプリ内課金）を管理するクラス
@@ -16,10 +19,46 @@ final class DonationManager: ObservableObject {
     "net.ryuya_dev.net.mochilog.donation.large",
   ]
 
+  @Published private(set) var purchasesAvailable = false
+  private var distributionTask: Task<Bool, Never>?
   private var updates: Task<Void, Never>? = nil
 
+  /// Resolve once per process, never persist across installation sources.
+  func checkDistribution() async -> Bool {
+    if let distributionTask { return await distributionTask.value }
+    let task = Task<Bool, Never> {
+      #if DEBUG && targetEnvironment(simulator)
+      if let source = ProcessInfo.processInfo.environment["MOCHI_TEST_DISTRIBUTOR"] {
+        return source == "appStore" || source == "testFlight"
+      }
+      #endif
+      #if canImport(MarketplaceKit) && !targetEnvironment(macCatalyst)
+      if #available(iOS 17.4, *) {
+        do {
+          switch try await AppDistributor.current {
+          case .appStore, .testFlight, .other: return true
+          case .marketplace: return false
+          case .web: return false
+          @unknown default: return false
+          }
+        } catch {
+          // Never start a payment when the installation source is unknown.
+          return false
+        }
+      }
+      #endif
+      return true
+    }
+    distributionTask = task
+    let available = await task.value
+    purchasesAvailable = available
+    if !available { products = [] }
+    return available
+  }
+
   init() {
-    updates = Task {
+    updates = Task { [weak self] in
+      guard let self, await self.checkDistribution() else { return }
       for await update in Transaction.updates {
         if case .verified(let transaction) = update {
           await transaction.finish()
@@ -35,6 +74,7 @@ final class DonationManager: ObservableObject {
 
   /// 商品情報を取得
   func fetchProducts() async {
+    guard await checkDistribution() else { return }
     do {
       let storeProducts = try await Product.products(for: productIDs)
       self.products = storeProducts.sorted(by: { $0.price < $1.price })
@@ -45,6 +85,7 @@ final class DonationManager: ObservableObject {
 
   /// 購入処理
   func purchase(_ product: Product) async throws -> Bool {
+    guard await checkDistribution() else { return false }
     let result = try await product.purchase()
 
     switch result {
@@ -66,6 +107,7 @@ final class DonationManager: ObservableObject {
 
   /// 購入済み商品の更新
   func updatePurchasedProducts() async {
+    guard await checkDistribution() else { return }
     for await result in Transaction.currentEntitlements {
       if case .verified(let transaction) = result {
         purchasedProductIDs.insert(transaction.productID)
@@ -145,6 +187,10 @@ struct DonationView: View {
         }
       }
       .task {
+        guard await donationManager.checkDistribution() else {
+          dismiss()
+          return
+        }
         await donationManager.fetchProducts()
       }
       .alert(L10n.string("error", table: "Common"), isPresented: $showingError) {

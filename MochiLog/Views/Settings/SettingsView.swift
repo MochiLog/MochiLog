@@ -44,6 +44,7 @@ struct SettingsView: View {
   @State private var showingTutorial = false
   @State private var showingSupportForm = false
   @State private var showingDonation = false
+  @ObservedObject private var donationManager = DonationManager.shared
 
   // デバイスごとの削除機能用の状態
   @State private var showingDeviceDeletePicker = false
@@ -82,6 +83,7 @@ struct SettingsView: View {
         .onAppear {
           setupShortcutNotification()
         }
+        .task { _ = await donationManager.checkDistribution() }
         .sheet(isPresented: $showingWatchPicker) {
           HierarchicalDevicePickerView(initialCategory: .watch, lockCategory: true) {
             name, identifier in
@@ -603,9 +605,11 @@ struct SettingsView: View {
       }
       .buttonStyle(.plain)
 
+      if donationManager.purchasesAvailable {
       Button(action: { showingDonation = true }) {
         Label {
           Text(L10n.string("donation_title", table: "Settings"))
+            .accessibilityIdentifier("settings.donation")
             .foregroundStyle(.primary)
         } icon: {
           Image(systemName: "heart.fill")
@@ -615,6 +619,7 @@ struct SettingsView: View {
         .contentShape(Rectangle())
       }
       .buttonStyle(.plain)
+      }
     }
 
     // MARK: - デバッグ

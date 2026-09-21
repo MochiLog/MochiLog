@@ -77,6 +77,27 @@ final class LanguageAndLayoutTests: XCTestCase {
     }
   }
 
+  func testMarketplaceDisablesDonations() {
+    for source in ["appStore", "marketplace", "testFlight"] {
+      app.launchEnvironment["MOCHI_TEST_DISTRIBUTOR"] = source
+      app.launchArguments += ["-appLanguage", "en", "-selectedTabIndex", "2"]
+      app.launch()
+      let settings = app.descendants(matching: .any).matching(
+        NSPredicate(format: "label == %@", "Settings")).firstMatch
+      XCTAssertTrue(settings.waitForExistence(timeout: 10), app.debugDescription)
+      settings.tap()
+      let support = app.buttons["settings.category.support"]
+      if support.waitForExistence(timeout: 5) { support.tap() }
+      let donation = app.descendants(matching: .any)["settings.donation"].firstMatch
+      for _ in 0..<6 {
+        if donation.exists && donation.isHittable { break }
+        app.swipeUp()
+      }
+      XCTAssertEqual(donation.exists, source != "marketplace", source + app.debugDescription)
+      app.terminate()
+    }
+  }
+
   func testReducedEffectsOverview() {
     app.launchArguments += ["-renderingMode", "reduced"]
     verifyOverview(size: "UICTContentSizeCategoryL")

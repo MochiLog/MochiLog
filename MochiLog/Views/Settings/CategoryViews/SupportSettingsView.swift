@@ -6,6 +6,7 @@ struct SupportSettingsView: View {
   @State private var showingSupportForm = false
   @State private var showingTutorial = false
   @State private var showingDonation = false
+  @ObservedObject private var donationManager = DonationManager.shared
   @State private var showingShortcutSetupPrompt = false
 
   var body: some View {
@@ -180,6 +181,7 @@ struct SupportSettingsView: View {
         .buttonStyle(.plain)
       }
 
+      if donationManager.purchasesAvailable {
       // 支援
       GroupBox {
         Button {
@@ -193,6 +195,7 @@ struct SupportSettingsView: View {
 
             VStack(alignment: .leading, spacing: 4) {
               Text(L10n.string("donation_title", table: "Settings"))
+            .accessibilityIdentifier("settings.donation")
                 .font(.headline)
                 .foregroundStyle(.primary)
 
@@ -212,9 +215,11 @@ struct SupportSettingsView: View {
         }
         .buttonStyle(.plain)
       }
+      }
 
     }
     .padding(.horizontal)
+    .task { _ = await donationManager.checkDistribution() }
     .onAppear {
       setupShortcutNotification()
     }
