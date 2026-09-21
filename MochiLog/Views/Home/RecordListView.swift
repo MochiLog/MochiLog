@@ -120,10 +120,7 @@ struct RecordListView<Header: View>: View {
   private var iPadGridLayout: some View {
     GeometryReader { geometry in
       ScrollView {
-        VStack(spacing: 16) {
-          header
-          LibrarySummaryView(records: records)
-        }
+        header
         .frame(maxWidth: 1200)
         .padding(.horizontal, 24)
         .padding(.top, 12)
@@ -316,13 +313,6 @@ struct RecordListView<Header: View>: View {
   // MARK: - iPad compact layout
   private var iPhoneLayout: some View {
     List {
-      if UIDevice.current.userInterfaceIdiom == .pad {
-        LibrarySummaryView(records: records)
-          .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
-          .listRowSeparator(.hidden)
-          .listRowBackground(Color.clear)
-      }
-
       header
         .listRowInsets(EdgeInsets())
         .listRowSeparator(.hidden)
@@ -350,11 +340,14 @@ struct RecordListView<Header: View>: View {
             )
           ) {
             ForEach(sectionRecords, id: \.id) { record in
-              RecordRowView(record: record)
-                .contentShape(Rectangle())
-                .onTapGesture {
-                  onRecordTap?(record)
-                }
+              Button {
+                onRecordTap?(record)
+              } label: {
+                RecordRowView(record: record)
+                  .contentShape(Rectangle())
+              }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("home.record.\(record.id)")
                 .transition(
                   .asymmetric(
                     insertion: .move(edge: .top).combined(with: .opacity),

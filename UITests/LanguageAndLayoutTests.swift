@@ -58,6 +58,25 @@ final class LanguageAndLayoutTests: XCTestCase {
     XCTAssertTrue(detail.waitForExistence(timeout: 5))
   }
 
+  func testHomeDoesNotDuplicateDeviceCards() {
+    for size in ["UICTContentSizeCategoryL", "UICTContentSizeCategoryAccessibilityXXXL"] {
+      app.launchArguments += ["-appLanguage", "en", "-selectedTabIndex", "0",
+                              "-UIPreferredContentSizeCategoryName", size]
+      app.launch()
+      let sample = app.buttons["View Sample Data"]
+      if sample.waitForExistence(timeout: 5) { sample.tap() }
+      let record = app.buttons.matching(
+        NSPredicate(format: "identifier BEGINSWITH %@", "home.record.")).firstMatch
+      XCTAssertTrue(record.waitForExistence(timeout: 15))
+      XCTAssertFalse(app.descendants(matching: .any).matching(
+        NSPredicate(format: "identifier BEGINSWITH %@", "home.deviceSummary.")).firstMatch.exists)
+      XCTAssertFalse(app.otherElements["home.librarySummary"].exists)
+      record.tap()
+      XCTAssertTrue(app.navigationBars["Details"].waitForExistence(timeout: 10))
+      app.terminate()
+    }
+  }
+
   func testReducedEffectsOverview() {
     app.launchArguments += ["-renderingMode", "reduced"]
     verifyOverview(size: "UICTContentSizeCategoryL")
