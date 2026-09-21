@@ -961,49 +961,49 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Name"
+            "value" : "Spitzname"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Name"
+            "value" : "Nickname"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nombre"
+            "value" : "Apodo"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nom"
+            "value" : "Pseudonyme"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "お名前"
+            "value" : "ニックネーム"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "이름"
+            "value" : "닉네임"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "姓名"
+            "value" : "昵称"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "姓名"
+            "value" : "暱稱"
           }
         }
       }
@@ -1703,49 +1703,49 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dein Name"
+            "value" : "Spitzname"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Your Name"
+            "value" : "Nickname"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tu nombre"
+            "value" : "Apodo"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Votre nom"
+            "value" : "Pseudonyme"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "お名前"
+            "value" : "ニックネーム"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "이름"
+            "value" : "닉네임"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "您的姓名"
+            "value" : "昵称"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "您的姓名"
+            "value" : "暱稱"
           }
         }
       }

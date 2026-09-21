@@ -45,7 +45,7 @@ struct SupportFormView: View {
       Form {
         Section {
           TextField(L10n.string("your_name", table: "Support"), text: $name)
-            .textContentType(.name)
+            .textContentType(.nickname)
 
           TextField(L10n.string("email_address", table: "Support"), text: $email)
             .textContentType(.emailAddress)
