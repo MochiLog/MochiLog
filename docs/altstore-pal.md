@@ -55,3 +55,18 @@ SimulatorのDebugビルド限定で `MOCHI_TEST_DISTRIBUTOR=appStore|testFlight|
 - 公証ADPは未取得。ADP取得・権限/ハッシュ照合・R2アップロード・version公開・PAL実機検証が完了するまでは、配信中と案内しない。
 
 - 2026-09-22 01:30 JST: 3.2.1 (1015) をFastlaneでApp Reviewへ再提出済み。TestFlight日英ノート登録済み。次の作業は承認・公証後のADP取得から。
+
+## 2026-09-22 承認後のADP確認
+
+- App Store 3.2.1 は `READY_FOR_SALE`。承認済みビルドは1015。
+- ADP ID: `468ff338-e7e3-47df-a024-e7b5427aecff`（revision 2）。AltStore APIの自動処理は `success`。
+- `dist_package_tool validate` は署名・全リソース検証成功。`display` でもApple署名の信頼を確認。4 variant / 12 delta / manifest / signature の18ファイルを保持。
+- ADP ZIP SHA-256: `4b76eccc58a3eab7f913823f79f2ea2bd56ebbc5cfe19eb8b0d84eceaa6f10e2`。
+- Appleが返す `sourceFileChecksum` は提出IPAと一致: `6e5f4e495b29b9e24b13704a96622ec51df841904a798629ca5f387318ec0f1c`。
+- ADPのmanifestで bundle `net.ryuya-dev.MochiLog`、version `3.2.1`、build `1015`、最低iOS `16.0` を確認。
+- size用variant: `5ec983f8-1ecd-32f2-9efa-190abeecd95c.ipa`、6,668,057 bytes。全variant/deltaはmanifest内のSHA-256と一致。
+- R2の `packages/net.ryuya-dev.MochiLog/3.2.1-1015/` に全18ファイルをステージ済み。**同じrelease keyへの再アップロードはしないこと。**
+- sourceへ3.2.1 (1015)を追加し、Webの日英配信案内を更新。
+- ADPのvariant/deltaは暗号化されているため、Entitlements/UsageDescriptionは直接抽出できない。元IPA（Appleのハッシュ一致）のアプリ・共有拡張・Watchから取得した一覧を候補として準備したが、ADPの最終権限と直接照合したものではない。ユーザーが提出元IPAの権限一覧での公開を明示的に承認済み。
+- PAL実機のインストール・起動・更新は未検証。
+- ローカル証跡: `/Users/ryuya/Documents/MochiLog/build/altstore-pal/3.2.1-1015/`。`source-candidate.json` は未公開の候補、`submitted-ipa-permissions.json` は提出IPAの実測値。期限付きdownloadURLを含むAPIレスポンスはgitへ入れない。
