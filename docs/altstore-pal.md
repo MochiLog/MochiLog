@@ -70,3 +70,5 @@ SimulatorのDebugビルド限定で `MOCHI_TEST_DISTRIBUTOR=appStore|testFlight|
 - ADPのvariant/deltaは暗号化されているため、Entitlements/UsageDescriptionは直接抽出できない。元IPA（Appleのハッシュ一致）のアプリ・共有拡張・Watchから取得した一覧を候補として準備したが、ADPの最終権限と直接照合したものではない。ユーザーが提出元IPAの権限一覧での公開を明示的に承認済み。
 - PAL実機のインストール・起動・更新は未検証。
 - ローカル証跡: `/Users/ryuya/Documents/MochiLog/build/altstore-pal/3.2.1-1015/`。`source-candidate.json` は未公開の候補、`submitted-ipa-permissions.json` は提出IPAの実測値。期限付きdownloadURLを含むAPIレスポンスはgitへ入れない。
+
+- 公開完了: sourceとポータルをデプロイし、3.2.1 (1015)の配信を確認。公開URLから18ファイルすべてを再取得してSHA-256一致、Rangeリクエストも確認済み。MochiLog Webの日英配信中表示も本番で確認。PAL実機確認のみ未実施。
