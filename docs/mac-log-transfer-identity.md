@@ -11,7 +11,9 @@ This document describes the experiment. It does not change record storage or ena
 
 ## Pairing and reinstall
 
-The user selects a currently connected device in the Mac app, then scans a short-lived QR code in MochiLog on that device. The app sends its pairing request to the Mac. The Mac checks that the selected UDID is still connected and binds its `physicalDeviceID` to the app. If the Mac already knows that UDID, it reuses the same `physicalDeviceID` after an iPhone app reinstall. A new UUID is created only for a genuinely new device or after an explicit user decision to replace an unrecoverable mapping.
+There are two independent pairings. The first is **OS-level Mac/iPhone trust**, required before a Mac collector can read Analytics logs. For iOS 16–26, the initial pairing requires a cable and the user's Trust approval; subsequent transfers can use Wi-Fi. Xcode 27's cable-free first pairing is available only on iOS/iPadOS 27 or later. Bonjour visibility alone does not grant Analytics-log access. The second is **MochiLog app-to-Mac identity pairing**, which can use a QR code over local Wi-Fi on any supported iOS version. This second pairing does not replace OS-level trust.
+
+After OS-level trust is established, the user selects the connected device in the Mac app, then scans a short-lived QR code in MochiLog on that device. The app sends its pairing request to the Mac. The Mac checks that the selected UDID is still connected and binds its `physicalDeviceID` to the app. If the Mac already knows that UDID, it reuses the same `physicalDeviceID` after an iPhone app reinstall. A new UUID is created only for a genuinely new device or after an explicit user decision to replace an unrecoverable mapping. The product setup must explain the one-time cable requirement for iOS 16–26; ongoing log transfer remains wireless. If the user cannot perform OS-level pairing, continue to support manual log import rather than implying automatic collection can work.
 
 The iPhone stores the received `physicalDeviceID` in its local device registry and on each new record. A Keychain copy may help recover it, but must not be the only recovery path: Keychain survival across app deletion is not a documented guarantee. `identifierForVendor` is not a substitute because it may change after all vendor apps are removed. When iCloud sync is enabled, records with the ID are synced as normal record data. When sync is disabled (including iOS 16, which does not support MochiLog's record sync), the ID and records remain local only; no cloud account is required for pairing.
 
@@ -34,3 +36,10 @@ Existing records have no `physicalDeviceID`. Add an optional field first and lea
 3. iPhone app reinstall after sync was switched off: cloud retains only the earlier prefix. Re-pairing claims its previous ID so that any later cloud import attaches to the same device.
 4. Mac IP changes and Bonjour is unavailable: QR/manual endpoint recovery does not change either device ID.
 5. Mac registry loss, iPhone local data loss, and sync off: the app asks for a manual choice and does not claim recovery.
+6. iOS 16–26 device visible through Bonjour but not trusted by the Mac: app-to-Mac discovery may work, but automatic Analytics collection remains unavailable until one-time cable pairing.
+7. iOS 27+ device: test Xcode's cable-free OS pairing independently from the MochiLog QR pairing.
+
+## Sources
+
+- [Apple: Managing simulated and physical devices in Device Hub](https://developer.apple.com/documentation/xcode/pairing-your-devices-with-your-mac) — wireless first pairing for iPhone/iPad requires iOS/iPadOS 27 or later; older versions use a cable.
+- [pymobiledevice3: protocol layers](https://github.com/doronz88/pymobiledevice3/blob/master/misc/understanding_idevice_protocol_layers.md) — lockdown over LAN requires an existing USB pairing, and Wi-Fi connections are enabled through that trusted connection.

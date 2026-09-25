@@ -31,3 +31,7 @@ Raw test copies and the Python probe environment are under `/tmp/mochilog-wirele
 ## Next gate
 
 Before promising unattended collection, measure whether an unlocked phone remains available over time and whether the Analytics file is readable after it locks. The first test showed permission denial while locked. A released Mac collector must not depend on Xcode's `devicectl`; the independent `pymobiledevice3` proof establishes another possible connection implementation but its GPLv3 licensing and packaged runtime need separate product decisions. The receiver still needs pairing, authentication, per-device identity, manifest/deduplication, retry/resume, background behavior, and an explicit handoff into `SharedImportQueue`. The synthetic transfer proves transport only, not these product behaviors.
+
+## iPhone X / iOS 16.6.1 follow-up
+
+The iPhone X appeared on the same Wi-Fi through `_apple-mobdev2._tcp` discovery, but it did not appear in Xcode/CoreDevice's paired-device list or USB device list. An iOS 16 deployment-target build of the experiment succeeded. The receiver could not yet be installed or run on this phone because the Mac has no OS-level trust pairing for it. According to Apple's Device Hub documentation, first-time wireless iPhone pairing is limited to iOS 27 or later. For this iOS 16 phone, perform one-time cable pairing and Trust approval, then disconnect the cable and repeat the receiver test over Wi-Fi. Do not treat the build or Bonjour discovery as a successful iOS 16 transfer test.
