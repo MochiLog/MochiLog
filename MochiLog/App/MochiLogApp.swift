@@ -1,4 +1,8 @@
 import Combine
+#if DEBUG
+import CryptoKit
+import Network
+#endif
 import SwiftUI
 import UIKit
 import WatchConnectivity
@@ -150,6 +154,9 @@ final class MochiLogSceneDelegate: UIResponder, UIWindowSceneDelegate {
   }
 
   func sceneDidBecomeActive(_ scene: UIScene) {
+    #if DEBUG
+    MacWirelessReceiveProbe.shared.start()
+    #endif
     guard let root = SharedLogInbox.root else { return }
     do {
       let files = try SharedLogInbox.pendingFiles(at: root)
@@ -166,6 +173,97 @@ final class MochiLogSceneDelegate: UIResponder, UIWindowSceneDelegate {
     MochiLogApp.route(contexts.map(\.url).sorted { $0.absoluteString < $1.absoluteString })
   }
 }
+
+#if DEBUG
+/// Experiment branch only. Receives a probe from the Mac without importing a battery record.
+private final class MacWirelessReceiveProbe {
+  static let shared = MacWirelessReceiveProbe()
+  private let queue = DispatchQueue(label: "net.ryuya-dev.MochiLog.mac-receive-probe")
+  private var browser: NWBrowser?
+  private var connection: NWConnection?
+  private var bytes = Data()
+  private var started = false
+
+  func start() {
+    queue.async {
+      guard !self.started else { return }
+      self.started = true
+      let browser = NWBrowser(for: .bonjour(type: "_mochiprobe._tcp", domain: nil), using: .tcp)
+      self.browser = browser
+      browser.stateUpdateHandler = { state in
+        if case .failed(let error) = state { self.report("Browse failed: \(error)") }
+      }
+      browser.browseResultsChangedHandler = { results, _ in
+        guard self.connection == nil, let endpoint = results.first?.endpoint else { return }
+        browser.cancel()
+        self.browser = nil
+        self.connect(to: endpoint)
+      }
+      browser.start(queue: self.queue)
+      self.report("Browsing for Mac probe")
+    }
+  }
+
+  private func connect(to endpoint: NWEndpoint) {
+    let connection = NWConnection(to: endpoint, using: .tcp)
+    self.connection = connection
+    connection.stateUpdateHandler = { state in
+      switch state {
+      case .ready:
+        self.report("Connected to Mac")
+        self.read(from: connection)
+      case .failed(let error):
+        self.report("Connection failed: \(error)")
+        connection.cancel()
+      default: break
+      }
+    }
+    connection.start(queue: queue)
+  }
+
+  private func read(from connection: NWConnection) {
+    connection.receive(minimumIncompleteLength: 1, maximumLength: 65_536) { data, _, complete, error in
+      if let data { self.bytes.append(data) }
+      if let error {
+        self.report("Receive failed: \(error)")
+        connection.cancel()
+      } else if complete {
+        self.finish()
+        connection.cancel()
+      } else {
+        self.read(from: connection)
+      }
+    }
+  }
+
+  private func finish() {
+    do {
+      let smallProbe = Data("MOCHILOG_WIRELESS_PROBE_v1\n".utf8)
+      let largeProbeHeader = Data("MOCHILOG_WIRELESS_PROBE_v2\n".utf8)
+      let isSmallProbe = bytes == smallProbe
+      let isLargeProbe = bytes.count == 25_000_000 && bytes.starts(with: largeProbeHeader)
+        && bytes.dropFirst(largeProbeHeader.count).allSatisfy { $0 == 0x78 }
+      guard isSmallProbe || isLargeProbe else {
+        report("Unexpected probe payload: \(bytes.count) bytes")
+        return
+      }
+      let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+      let destination = documents.appendingPathComponent(
+        isSmallProbe ? "mac-wireless-receive-probe.txt" : "mac-wireless-large-probe.bin")
+      try bytes.write(to: destination, options: .atomic)
+      let hash = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
+      report("Received Mac probe: \(bytes.count) bytes; SHA-256 \(hash); saved \(destination.lastPathComponent)")
+    } catch {
+      report("Saving probe failed: \(error)")
+    }
+  }
+
+  private func report(_ message: String) {
+    print("[Mac receive probe] \(message)")
+    ErrorLogStore.shared.saveLog(message: "[Mac receive probe] \(message)", rawText: nil)
+  }
+}
+#endif
 
 /// アプリのルートビュー。iCloud設定に応じてDataStoreを動的に切り替える責務を持つ。
 struct MochiLogRootView: View {

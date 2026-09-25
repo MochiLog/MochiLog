@@ -15,6 +15,12 @@
 	</array>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Macとのログ転送接続を検証します。</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_mochiprobe._tcp</string>
+	</array>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>shortcuts</string>
