@@ -1,41 +1,27 @@
 # Condiciones de uso de MochiLog
 
-Estas condiciones de uso (en adelante, las **«Condiciones»**) establecen los requisitos para utilizar MochiLog (en adelante, la **«App»**). Al utilizar la App, se considera que aceptas estas Condiciones.
+## 1. Alcance y resultados
 
-## Artículo 1 (Exención de responsabilidad)
+Estas condiciones se aplican a MochiLog y su app complementaria para Mac. Las cifras y diagnósticos de batería son estimaciones basadas en registros y valores de referencia del modelo. No se garantiza su precisión ni su idoneidad para decidir reparaciones. No son herramientas oficiales de Apple. La responsabilidad del desarrollador solo se limita en la medida permitida por la ley.
 
-Los datos de análisis de batería y los resultados de diagnóstico que ofrece la App son **estimaciones basadas en los registros almacenados en tu dispositivo**. El desarrollador **no garantiza la exactitud, integridad ni fiabilidad** de estos resultados.
+## 2. Beta de transferencia Mac
 
-**El desarrollador no será responsable de los daños derivados del uso de la App, incluidos, entre otros, fallos del dispositivo, pérdida de datos o problemas relacionados con la sustitución de la batería.**
+Esta función en desarrollo requiere iOS/iPadOS 27 y macOS 27 o posteriores. Necesita enlace inicial, la misma red local y el móvil desbloqueado. Los cambios del sistema, la conexión o la falta de registros pueden impedir la transferencia. Haga sus propias copias de seguridad.
 
-La App **no es** una herramienta de diagnóstico oficial de Apple Inc.
+## 3. Propinas y reembolsos
 
-## Artículo 2 (Licencia)
+La versión de App Store puede ofrecer propinas opcionales mediante compras integradas de Apple. AltStore PAL y la app Mac no incluyen este pago. Las funciones principales no requieren pago. Compras, cancelaciones y reembolsos se rigen por las condiciones de Apple y la ley. Solicite reembolsos desde el historial de compras de Apple.
 
-El desarrollador te concede un **derecho no exclusivo e intransferible** de utilizar la App con fines personales y no comerciales.
+## 4. Licencias y conductas prohibidas
 
-## Artículo 3 (Donaciones y propinas)
+El código fuente y componentes de terceros se rigen por sus licencias de código abierto. Estas condiciones no limitan los derechos que conceden para copiar, modificar, examinar o redistribuir. No incumpla la ley ni interfiera con servicios o dispositivos ajenos.
 
-La App permite apoyar al desarrollador mediante compras dentro de la app, en forma de donaciones o propinas.
+## 5. Cambios
 
-Las donaciones son voluntarias y **no constituyen** un pago para eliminar restricciones principales ni obtener funciones adicionales, salvo pequeñas ventajas visuales, como cambios de icono.
+Podemos revisar estas condiciones por cambios legales o funcionales. El texto y la fecha aparecerán en la web y la app.
 
-**Una vez realizada una donación, no podrá reembolsarse por ningún motivo.**
+## 6. Ley y contacto
 
-## Artículo 4 (Actos prohibidos)
+Se aplica la ley japonesa sin limitar los derechos imperativos de consumidores en su residencia. Contacto: support@mochilog.ryuya-dev.net.
 
-Al utilizar la App, aceptas **no**:
-
-- **Descompilar, desensamblar ni realizar ingeniería inversa de la App.**
-- **Redistribuir, vender ni prestar la App.**
-- **Realizar actos contrarios a la ley, al orden público o a las buenas costumbres.**
-
-## Artículo 5 (Modificación de las Condiciones)
-
-El desarrollador se reserva el derecho de modificar estas Condiciones en cualquier momento y sin aviso previo. Las Condiciones modificadas entrarán en vigor cuando se muestren en la App o en su página de distribución.
-
-## Artículo 6 (Legislación aplicable)
-
-Estas Condiciones se regirán e interpretarán conforme a las **leyes de Japón**.
-
-Establecidas el 24 de diciembre de 2025 © 2025 MochiLog
+Revised: 2026-09-26

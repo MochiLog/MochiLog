@@ -1,29 +1,27 @@
 # MochiLog Privacy Policy
 
-MochiLog (hereinafter referred to as "the App") establishes this Privacy Policy (hereinafter referred to as "this Policy") regarding the handling of user information in the services provided by the App.
+## 1. Data processed
 
-## 1. Collection of Personal Information
+MochiLog processes iPhone, iPad, and Apple Watch analytics logs selected by the user on the device. It stores battery records, model, date, capacity, product region, and identifiers used to distinguish physical devices. Original analytics logs may contain other device and usage information. Settings and records are generally stored on the user’s device. Analytics logs and records are not automatically sent to the developer.
 
-The developer does not collect users’ personal information through the App. Analysis data and settings are stored on the device. When iCloud sync is enabled, battery records are stored in the user’s private iCloud database and synchronized through Apple servers between devices using the same Apple ID. When using the Apple Watch app, records are also transferred to the paired Watch. If the user shares data or contacts support, the information selected for that action is sent.
+## 2. Optional sync and transfer
 
-## 2. Purpose of Use of Data
+If iCloud sync is enabled, records are synchronized through the user’s private iCloud database between devices using the same Apple Account. Records may be sent to the paired Apple Watch app. Exports, file sharing, and imports use data selected by the user. In the Mac transfer beta for iOS/iPadOS 27 and macOS 27, a paired Mac collects and temporarily stores analytics logs while the mobile device is unlocked, then sends them in encrypted form to MochiLog on the same local network. The Mac and mobile device exchange pairing data, transfer status, and diagnostics. Mac transfer does not send logs to a developer server. The Mac app contacts GitHub to check for updates; GitHub may receive network information such as the IP address.
 
-Log data and analysis results imported into the App are used solely for the purpose of display and management within the App.
+## 3. Support requests
 
-## 3. Provision to Third Parties
+If the user sends a support email, the developer receives the nickname, email address, message, and attachments supplied. Mac transfer support attaches OS and app versions, model, transfer status, device identifiers, errors, and recent diagnostic events from the mobile device and Mac when the user sends the email. Events may include filenames or file paths. Review the email before sending it. The user’s and developer’s email providers process the message. Support information is retained as needed to handle the request and keep necessary records; deletion requests are honored except where retention is required by law.
 
-The developer does not collect, sell, or provide users’ records to third parties through the App. Transfers through iCloud sync, to a Watch, or through sharing selected by the user are described in section 1.
+## 4. Storage and deletion
 
-## 4. Advertising and Analytics Tools
+Records on the mobile device can be deleted with the app’s deletion controls. Turning off iCloud sync does not automatically delete records already stored in iCloud or on another device. Pending logs and pairing information on the Mac are stored in Application Support and may remain after deleting only the app. Contact support for help deleting Mac data. Reinstallation, OS backups, and iCloud settings affect what remains or can be restored.
 
-The App does not use any external tools (such as Google AdMob or Firebase Crashlytics) for the purpose of user tracking, advertisement delivery, or usage analysis.
+## 5. External services and changes
 
-## 5. Changes to Privacy Policy
+MochiLog does not use advertising, tracking SDKs, or third-party usage analytics SDKs. Optional tips in the App Store version use Apple StoreKit. Cloudflare serves the website and may process network information such as IP addresses when the site is visited. If this policy changes, the website and in-app documents will be updated with the revision date.
 
-The contents of this Policy may be changed without notice to users due to amendments in laws or changes in the App's specifications. The revised Privacy Policy shall become effective from the time it is posted on this page.
+## 6. Contact
 
-## 6. Contact Information
+For policy questions or requests to delete support emails, contact support@mochilog.ryuya-dev.net.
 
-For inquiries regarding this Policy, please contact the support information provided on the App Store page.
-
-Established: December 24, 2025 © 2025 MochiLog
+Revised: 2026-09-26

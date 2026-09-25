@@ -1,43 +1,27 @@
 # MochiLog Terms of Use
 
-These Terms of Use (hereinafter referred to as **"Terms"**) set forth the conditions for the use of MochiLog (hereinafter referred to as **"the App"**).
-By using the App, you are deemed to have agreed to these Terms.
+## 1. Scope and results
 
-## Article 1 (Disclaimer)
+These terms apply to MochiLog and its Mac companion, MochiLog Mac. Battery figures and diagnostic results are estimates based on analytics logs and model reference values. Their accuracy or suitability for repair decisions is not guaranteed. The apps are not official Apple diagnostic services. The developer’s liability is limited only to the extent permitted by applicable law.
 
-The battery analysis data and diagnostic results provided by the App are **estimates based on logs stored on your device**. The Developer does **not guarantee the accuracy, completeness, or reliability** of these results.
+## 2. Mac transfer beta
 
-**The Developer shall not be liable for any damages arising from the use of the App (including, but not limited to, device malfunction, data loss, or issues related to battery replacement).**
+Mac transfer is an in-development feature for iOS/iPadOS 27 and macOS 27 or later. It requires conditions such as initial pairing, a shared local network, and an unlocked mobile device. Collection or transfer may fail because of OS changes, connectivity, or whether logs exist. Keep your own backup of important records.
 
-The App is **not** an official diagnostic tool of Apple Inc.
+## 3. Tips and refunds
 
-## Article 2 (License)
+The App Store version may offer optional tips through Apple In-App Purchase. This payment feature is not offered in the AltStore PAL version or Mac app. Tips are not required for core features. Purchases, cancellations, and refunds are governed by Apple’s applicable terms and law. Request a refund through your Apple purchase history.
 
-The Developer grants you a **non-exclusive, non-transferable right** to use the App for personal and non-commercial purposes.
+## 4. Licenses and prohibited conduct
 
-## Article 3 (Donations/Tips)
+MochiLog source code and bundled third-party components are governed by their respective open-source licenses. These terms do not limit rights to copy, modify, inspect, or redistribute granted by those licenses. Do not violate the law or interfere with services or another person’s device.
 
-The App includes a feature to support the Developer through In-App Purchases (Donations/Tips).
+## 5. Changes
 
-Donations are voluntary and do **not** constitute payment for unlocking core restrictions or providing additional functional features (except for minor cosmetic benefits such as icon changes).
+These terms may be revised to reflect changes in features or law. The revised terms and date will appear on the website and in the app.
 
-**Once a donation has been made, it cannot be refunded for any reason.**
+## 6. Law and contact
 
-## Article 4 (Prohibited Acts)
+Japanese law governs these terms, without limiting mandatory consumer rights in your place of residence. Contact support@mochilog.ryuya-dev.net with questions.
 
-When using the App, you agree **not** to:
-
-- **Decompile, disassemble, or reverse engineer the App.**
-- **Redistribute, sell, or lend the App.**
-- **Engage in any acts that violate laws or public order and morals.**
-
-## Article 5 (Modification of Terms)
-
-The Developer reserves the right to modify these Terms at any time without prior notice to users.
-The modified Terms shall become effective once displayed within the App or on the distribution page.
-
-## Article 6 (Governing Law)
-
-These Terms shall be governed by and construed in accordance with the **laws of Japan**.
-
-Established: December 24, 2025 © 2025 MochiLog
+Revised: 2026-09-26

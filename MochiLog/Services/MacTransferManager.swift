@@ -359,7 +359,8 @@ final class MacTransferManager: ObservableObject {
 
   func supportDiagnosticsData() -> Data {
     let defaults = UserDefaults.standard
-    let object: [String: Any] = [
+    var recentEvents = Array(Self.debugEvents().suffix(30))
+    var object: [String: Any] = [
       "schema": 1,
       "generatedAt": ISO8601DateFormatter().string(from: Date()),
       "platform": "iOS",
@@ -372,10 +373,15 @@ final class MacTransferManager: ObservableObject {
       "unconfirmedFiles": defaults.stringArray(forKey: unconfirmedKey)?.count ?? 0,
       "confirmedFiles": defaults.stringArray(forKey: confirmedKey)?.count ?? 0,
       "pendingAcknowledgement": pendingAck != nil,
-      "recentEvents": Array(Self.debugEvents().suffix(30))
+      "recentEvents": recentEvents
     ]
-    return (try? JSONSerialization.data(withJSONObject: object,
-      options: [.prettyPrinted, .sortedKeys])) ?? Data("{}".utf8)
+    while true {
+      let data = (try? JSONSerialization.data(withJSONObject: object,
+        options: [.prettyPrinted, .sortedKeys])) ?? Data("{}".utf8)
+      if data.count <= 8_192 || recentEvents.isEmpty { return data }
+      recentEvents.removeFirst()
+      object["recentEvents"] = recentEvents
+    }
   }
 
   func latestMacDiagnosticsData() -> Data? {
