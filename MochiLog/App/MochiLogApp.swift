@@ -191,9 +191,11 @@ private final class MacWirelessReceiveProbe {
       let browser = NWBrowser(for: .bonjour(type: "_mochiprobe._tcp", domain: nil), using: .tcp)
       self.browser = browser
       browser.stateUpdateHandler = { state in
+        if case .ready = state { self.report("Bonjour browser ready") }
         if case .failed(let error) = state { self.report("Browse failed: \(error)") }
       }
       browser.browseResultsChangedHandler = { results, _ in
+        self.report("Bonjour results: \(results.count)")
         guard self.connection == nil, let endpoint = results.first?.endpoint else { return }
         browser.cancel()
         self.browser = nil

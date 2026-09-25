@@ -1,6 +1,6 @@
 # Wireless Analytics log access probe (2026-09-25)
 
-Status: **wireless Analytics acquisition and app-launch Mac-to-iPhone reception confirmed**. This is a research note and an experiment-only receiver, not a product implementation.
+Status: **wireless Analytics acquisition and app-launch Mac-to-iPhone reception confirmed on iOS 27; app-launch reception confirmed on iOS 16**. This is a research note and an experiment-only receiver, not a product implementation. The proposed Mac transfer feature will target iOS 17 and later; the iOS 16 observation is research only.
 
 ## Device and connection
 
@@ -34,4 +34,8 @@ Before promising unattended collection, measure whether an unlocked phone remain
 
 ## iPhone X / iOS 16.6.1 follow-up
 
-The iPhone X appeared on the same Wi-Fi through `_apple-mobdev2._tcp` discovery, but it did not appear in Xcode/CoreDevice's paired-device list or USB device list. An iOS 16 deployment-target build of the experiment succeeded. The receiver could not yet be installed or run on this phone because the Mac has no OS-level trust pairing for it. According to Apple's Device Hub documentation, first-time wireless iPhone pairing is limited to iOS 27 or later. For this iOS 16 phone, perform one-time cable pairing and Trust approval, then disconnect the cable and repeat the receiver test over Wi-Fi. Do not treat the build or Bonjour discovery as a successful iOS 16 transfer test.
+The iPhone X appeared on the same Wi-Fi through `_apple-mobdev2._tcp` discovery. A one-time USB Trust pairing was performed, and the iOS 16 deployment-target Debug build succeeded. Xcode 27 did not offer this phone as a usable run destination: [Apple's Xcode 27 release notes](https://developer.apple.com/documentation/xcode-release-notes/xcode-27-release-notes) say on-device debugging is supported on iOS 17 and later. The already signed app included the iPhone X in its development profile, so the experiment build was installed using independent device tools (`pymobiledevice3` initially, then `ideviceinstaller` for the updated build). Xcode was not used to install on this phone.
+
+With the cable removed, MochiLog opened on iOS 16.6.1, discovered the Mac by Bonjour, connected over Wi-Fi, received a 27-byte synthetic probe, and saved it to Documents. The saved file was copied back over USB for verification, with SHA-256 `0a2f4da984fcf92222a97ea2badfd59161494240c5928b9f7de63f61ee82253f`, matching the Mac sender. The probe file was then removed. No battery record was imported. The first receiver attempt had begun browsing but received no Bonjour result; the repeat reported browser ready and one result before connecting. The temporary direct-host fallback in that repeat did not run, so the successful test proves Bonjour discovery rather than reliance on a fixed IP.
+
+The iPhone X currently has no `Analytics-*` log visible in its Settings Analytics list or the independent crash-report service. Consequently, this device cannot prove automatic Analytics acquisition. Over USB, `pymobiledevice3` and `idevicecrashreport` listed diagnostic reports without invoking Xcode. After separate device-tool Trust pairing and Wi-Fi enablement, `pymobiledevice3 --mobdev2` could read lockdown information over Wi-Fi but AFC and crash-report service attempts ended with `Connection was terminated abruptly`. The user chose to exclude iOS 16 from the proposed Mac transfer feature, so no further iOS 16 collector work is planned. This does not change MochiLog's existing iOS 16 app support.
