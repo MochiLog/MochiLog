@@ -4,7 +4,7 @@
 
 MochiLogは、iPhone・iPadの解析ログからバッテリーの容量や充電サイクルを記録し、履歴をグラフで振り返るアプリです。ペアリングしたApple Watchでも、iPhoneから転送された記録を閲覧できます。
 
-[App Store](https://apps.apple.com/app/mochilog/id6756904240) · [紹介サイト](https://mochilog.ryuya-dev.net/) · [使い方](https://mochilog.ryuya-dev.net/guide?lang=ja) · [Webリポジトリ](https://github.com/ryuya0124/MochiLog-Web)
+[App Store](https://apps.apple.com/app/mochilog/id6756904240) · [紹介サイト](https://mochilog.ryuya-dev.net/) · [使い方](https://mochilog.ryuya-dev.net/guide?lang=ja) · [Webリポジトリ](https://github.com/MochiLog/MochiLog-Web)
 
 ## このブランチについて
 
@@ -50,7 +50,7 @@ Deployment Targetは、この作業で全OS・全実機を試験したという�
 ## ビルド
 
 ```sh
-git clone --branch refactor/ios27-batch-import-adaptive-ui-20260908 https://github.com/ryuya0124/MochiLog.git
+git clone --branch refactor/ios27-batch-import-adaptive-ui-20260908 https://github.com/MochiLog/MochiLog.git
 cd MochiLog
 open MochiLog.xcodeproj
 ```
@@ -112,9 +112,9 @@ UIテストは `MochiLogUITests`、WatchのUIテストは `MochiLogWatchUITests`
 
 ## 関連プロジェクト・問い合わせ
 
-- [MochiLog-Web](https://github.com/ryuya0124/MochiLog-Web): Cloudflare Workersで動く紹介サイト
+- [MochiLog-Web](https://github.com/MochiLog/MochiLog-Web): Cloudflare Workersで動く紹介サイト
 - [サポート](https://mochilog.ryuya-dev.net/support?lang=ja)
-- [GitHub Issues](https://github.com/ryuya0124/MochiLog/issues): 不具合報告には機種・OS・アプリのバージョンと再現手順を添えてください。ログ全体の公開は避け、必要な範囲を確認して共有してください。
+- [GitHub Issues](https://github.com/MochiLog/MochiLog/issues): 不具合報告には機種・OS・アプリのバージョンと再現手順を添えてください。ログ全体の公開は避け、必要な範囲を確認して共有してください。
 
 ## License
 

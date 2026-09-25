@@ -2,7 +2,7 @@
 
 ## リポジトリと共通公開先
 
-- iOS: https://github.com/ryuya0124/MochiLog （ローカル `/Users/ryuya/Documents/MochiLog`）
+- iOS: https://github.com/MochiLog/MochiLog （ローカル `/Users/ryuya/Documents/MochiLog`）
 - Web: `/Users/ryuya/Documents/MochiLog-Web` （origin は `git remote -v` で確認）
 - 共通source: https://github.com/ryuya0124/ryuya-altstore
 - sourceローカル: `/Users/ryuya/Documents/Codex/2026-09-21/https-github-com-ryuya0124-rytmica-https/work/ryuya-altstore`
