@@ -14,7 +14,7 @@ struct AdvancedSettingsView: View {
       if #available(iOS 27, *) {
         Section {
           NavigationLink(destination: MacTransferSettingsView()) {
-            Label("Mac連携（ベータ）", systemImage: "laptopcomputer.and.iphone")
+            Label(L10n.text("mt_071", table: "MacTransfer"), systemImage: "laptopcomputer.and.iphone")
           }
         }
       }
