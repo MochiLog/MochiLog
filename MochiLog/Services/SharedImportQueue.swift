@@ -10,6 +10,7 @@ final class SharedImportQueue: ObservableObject {
   private var pending: [URL] = []
   private var known: Set<URL> = []
   private var scopes: [URL: [URL]] = [:]
+  private var sourceDeviceIDs: [URL: UUID] = [:]
   private var recentlyCompleted: [URL: Date] = [:]
   private(set) var isConsuming = false
   private(set) var shouldPresentResults = false
@@ -18,11 +19,12 @@ final class SharedImportQueue: ObservableObject {
 
   init(now: @escaping () -> Date = Date.init) { self.now = now }
 
-  func enqueue(_ url: URL, accessRoots: [URL] = [], presentsResults: Bool = true, opensDetail: Bool = false) {
+  func enqueue(_ url: URL, accessRoots: [URL] = [], presentsResults: Bool = true, opensDetail: Bool = false, physicalDeviceID: UUID? = nil) {
     recentlyCompleted = recentlyCompleted.filter { now().timeIntervalSince($0.value) < 2 }
     guard recentlyCompleted[url] == nil else { return }
     guard url.isFileURL, known.insert(url).inserted else { return }
     scopes[url] = ([url] + accessRoots).filter { $0.startAccessingSecurityScopedResource() }
+    sourceDeviceIDs[url] = physicalDeviceID
     shouldPresentResults = shouldPresentResults || presentsResults
     shouldOpenDetail = shouldOpenDetail || opensDetail
     pending.append(url)
@@ -42,6 +44,8 @@ final class SharedImportQueue: ObservableObject {
     return result
   }
 
+  func physicalDeviceID(for url: URL) -> UUID? { sourceDeviceIDs[url] }
+
   func finish() {
     isConsuming = false
     shouldPresentResults = false
@@ -59,7 +63,14 @@ final class SharedImportQueue: ObservableObject {
         try? FileManager.default.removeItem(at: url)
       }
     }
+    if saved, let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+      let macInbox = documents.appendingPathComponent("MacTransferInbox", isDirectory: true)
+        .standardizedFileURL.resolvingSymlinksInPath().path + "/"
+      let path = url.standardizedFileURL.resolvingSymlinksInPath().path
+      if path.hasPrefix(macInbox) { try? FileManager.default.removeItem(at: url) }
+    }
     for scope in scopes.removeValue(forKey: url) ?? [] { scope.stopAccessingSecurityScopedResource() }
+    sourceDeviceIDs.removeValue(forKey: url)
     known.remove(url)
     recentlyCompleted[url] = now()
     // Failed/review inputs and provider originals remain available for retry.

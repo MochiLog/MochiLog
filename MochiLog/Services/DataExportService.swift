@@ -36,6 +36,7 @@ struct DataExportService {
     let deviceModelCode: String?
     let osVersion: String?
     let productSku: String?
+    let physicalDeviceID: UUID?
 
     // ハードウェア/製造情報
     let storage: String?
@@ -76,6 +77,7 @@ struct DataExportService {
       self.deviceModelCode = record.deviceModelCode
       self.osVersion = record.osVersion
       self.productSku = record.productSku
+      self.physicalDeviceID = record.physicalDeviceID
 
       self.storage = record.storage
       self.ram = record.ram
@@ -119,7 +121,7 @@ struct DataExportService {
     let exportRecords = records.map { ExportRecord(from: $0) }
 
     let exportData = ExportData(
-      exportFormatVersion: "1.0",  // 現在のバージョン
+      exportFormatVersion: "1.1",
       exportDate: exportDate,
       appVersion: appVersion,
       recordCount: records.count,
@@ -137,12 +139,12 @@ struct DataExportService {
     // コメントヘッダーを追加
     let header = """
       # MochiLog バッテリーレコードエクスポート
-      # ファイル形式バージョン: 1.0
+      # ファイル形式バージョン: 1.1
       # エクスポート日時: \(exportDate)
       # アプリバージョン: \(appVersion)
       # レコード数: \(records.count)
       #
-      # ==================== ファイル形式仕様 (v1.0) ====================
+      # ==================== ファイル形式仕様 (v1.1) ====================
       #
       # トップレベルフィールド:
       #   exportFormatVersion: String (必須) - ファイル形式のバージョン
@@ -157,6 +159,7 @@ struct DataExportService {
       #   deviceName: String (必須) - デバイス名 (例: iPhone 15 Pro)
       #   deviceModelCode: String? (任意) - 内部モデル名 (例: iPhone16,1)
       #   osVersion: String? (任意) - OSバージョン (例: iOS 18.0)
+      #   physicalDeviceID: UUID? (任意) - MochiLogの個体ID。旧記録はnull
       #   createdAt: String (必須) - レコード作成日時 (ISO8601形式)
       #
       #   【ハードウェア/製造情報】

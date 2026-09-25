@@ -11,6 +11,13 @@ struct AdvancedSettingsView: View {
 
   var body: some View {
     List {
+      if #available(iOS 27, *) {
+        Section {
+          NavigationLink(destination: MacTransferSettingsView()) {
+            Label("Mac連携（ベータ）", systemImage: "laptopcomputer.and.iphone")
+          }
+        }
+      }
       Section {
         NavigationLink(destination: DeviceProfilesView()) {
           Label(L10n.string("profile_library", table: "Settings"), systemImage: "cpu")

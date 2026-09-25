@@ -54,6 +54,7 @@ struct DataImportService {
     var deviceModelCode: String?
     let osVersion: String?
     let productSku: String?
+    let physicalDeviceID: UUID?
     let storage: String?
     let ram: String?
     let manufactureDate: String?
@@ -135,7 +136,9 @@ struct DataImportService {
       var index = Set<RecordKey>()
       for record in existingRecords {
         let components = calendar.dateComponents([.year, .month, .day], from: record.logDate)
-        let key = "\(record.deviceName)|\(components.year ?? 0)-\(components.month ?? 0)-\(components.day ?? 0)"
+        let identity = record.physicalDeviceID.map { "id:\($0.uuidString)" }
+          ?? "legacy:\(record.deviceName)"
+        let key = "\(identity)|\(components.year ?? 0)-\(components.month ?? 0)-\(components.day ?? 0)"
         index.insert(key)
       }
       return index
@@ -180,6 +183,7 @@ struct DataImportService {
               deviceModelCode: exportRecord.deviceModelCode,
               osVersion: exportRecord.osVersion,
               productSku: exportRecord.productSku,
+              physicalDeviceID: exportRecord.physicalDeviceID,
               storage: exportRecord.storage,
               ram: exportRecord.ram,
               manufactureDate: exportRecord.manufactureDate,
@@ -216,7 +220,9 @@ struct DataImportService {
             // 重複チェック（Set<String> インデックスを参照）
             if !allowDuplicates {
               let components = calendar.dateComponents([.year, .month, .day], from: record.logDate)
-              let key = "\(record.deviceName)|\(components.year ?? 0)-\(components.month ?? 0)-\(components.day ?? 0)"
+              let identity = record.physicalDeviceID.map { "id:\($0.uuidString)" }
+                ?? "legacy:\(record.deviceName)"
+              let key = "\(identity)|\(components.year ?? 0)-\(components.month ?? 0)-\(components.day ?? 0)"
               if existingKeys.contains(key) {
                 skipCount += 1
                 continue
@@ -259,6 +265,7 @@ struct DataImportService {
             deviceModelCode: converted.deviceModelCode,
             osVersion: converted.osVersion,
             productSku: converted.productSku,
+            physicalDeviceID: converted.physicalDeviceID,
             storage: converted.storage,
             ram: converted.ram,
             manufactureDate: converted.manufactureDate,
@@ -327,7 +334,7 @@ struct DataImportService {
   /// - Throws: ImportError.unsupportedFormatVersion
   private static func validateFormatVersion(_ version: String) throws {
     // サポートされているバージョンのリスト
-    let supportedVersions = ["1.0"]
+    let supportedVersions = ["1.0", "1.1"]
 
     guard supportedVersions.contains(version) else {
       throw ImportError.unsupportedFormatVersion(version)

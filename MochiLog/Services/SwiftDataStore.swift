@@ -16,6 +16,7 @@ enum CurrentBatterySchema: VersionedSchema {
     var deviceModelCode: String?
     var osVersion: String?
     var productSku: String?
+    var physicalDeviceID: UUID?
     var storage: String?
     var ram: String?
     var manufactureDate: String?
@@ -48,6 +49,7 @@ enum CurrentBatterySchema: VersionedSchema {
       self.deviceModelCode = record.deviceModelCode
       self.osVersion = record.osVersion
       self.productSku = record.productSku
+      self.physicalDeviceID = record.physicalDeviceID
       self.storage = record.storage
       self.ram = record.ram
       self.manufactureDate = record.manufactureDate
@@ -83,6 +85,7 @@ enum CurrentBatterySchema: VersionedSchema {
         deviceModelCode: deviceModelCode,
         osVersion: osVersion,
         productSku: productSku,
+        physicalDeviceID: physicalDeviceID,
         storage: storage,
         ram: ram,
         manufactureDate: manufactureDate,
@@ -112,6 +115,7 @@ enum CurrentBatterySchema: VersionedSchema {
       self.deviceModelCode = record.deviceModelCode
       self.osVersion = record.osVersion
       self.productSku = record.productSku
+      self.physicalDeviceID = record.physicalDeviceID
       self.storage = record.storage
       self.ram = record.ram
       self.manufactureDate = record.manufactureDate
@@ -144,6 +148,15 @@ final class SwiftDataStore: DataStore {
 
   private let modelContainer: ModelContainer
   private let modelContext: ModelContext
+
+  private struct ImportFingerprint: Hashable {
+    let deviceID: UUID
+    let logSecond: Int64
+    let model: String?
+    let cycles: Int
+    let nominal: Int
+    let raw: Int
+  }
 
   init(iCloudEnabled: Bool) {
     let schema = Schema(versionedSchema: CurrentBatterySchema.self)
@@ -276,6 +289,23 @@ final class SwiftDataStore: DataStore {
     }
   }
 
+  override func reassignPhysicalDeviceID(from oldID: UUID, to newID: UUID,
+    matchingModelCode: String) throws -> Int {
+    let all = try modelContext.fetch(FetchDescriptor<SDBatteryRecord>())
+    let matches = all.filter {
+      $0.physicalDeviceID == oldID && $0.deviceModelCode == matchingModelCode
+    }
+    for record in matches { record.physicalDeviceID = newID }
+    do { try modelContext.save() }
+    catch {
+      modelContext.rollback()
+      refreshRecords()
+      throw error
+    }
+    refreshRecords()
+    return matches.count
+  }
+
   override func fetchRecords(for deviceName: String, ascending: Bool = true) -> [BatteryRecord] {
     let descriptor = FetchDescriptor<SDBatteryRecord>(
       predicate: #Predicate { $0.deviceName == deviceName },
@@ -308,7 +338,41 @@ final class SwiftDataStore: DataStore {
     let descriptor = FetchDescriptor<SDBatteryRecord>(
       sortBy: [SortDescriptor(\.logDate, order: .reverse)]
     )
-    let sdRecords = (try? modelContext.fetch(descriptor)) ?? []
+    var sdRecords = (try? modelContext.fetch(descriptor)) ?? []
+    // CloudKit and the Mac can deliver the same source log in either order.
+    // Converge only exact, ID-tagged copies; same-model legacy data stays intact.
+    var keeper: [ImportFingerprint: SDBatteryRecord] = [:]
+    var duplicates: [SDBatteryRecord] = []
+    for record in sdRecords {
+      guard let deviceID = record.physicalDeviceID else { continue }
+      let key = ImportFingerprint(deviceID: deviceID,
+        logSecond: Int64(record.logDate.timeIntervalSince1970.rounded()),
+        model: record.deviceModelCode, cycles: record.cycleCount,
+        nominal: record.nominalCapacity, raw: record.rawCapacity)
+      if let existing = keeper[key] {
+        let existingID = existing.recordID?.uuidString ?? ""
+        let recordID = record.recordID?.uuidString ?? ""
+        if recordID < existingID {
+          duplicates.append(existing)
+          keeper[key] = record
+        } else {
+          duplicates.append(record)
+        }
+      } else {
+        keeper[key] = record
+      }
+    }
+    if !duplicates.isEmpty {
+      for record in duplicates { modelContext.delete(record) }
+      do {
+        try modelContext.save()
+        sdRecords = (try? modelContext.fetch(descriptor)) ?? []
+      } catch {
+        modelContext.rollback()
+        ICloudSyncManager.shared.handleSaveError(error)
+        sdRecords = (try? modelContext.fetch(descriptor)) ?? []
+      }
+    }
     let records = sdRecords.map { $0.toBatteryRecord() }
     // toBatteryRecord() が旧レコードに recordID を付与した場合、変更を保存
     if modelContext.hasChanges {

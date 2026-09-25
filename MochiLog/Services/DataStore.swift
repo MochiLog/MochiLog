@@ -72,6 +72,11 @@ class DataStore: ObservableObject {
     fatalError("Subclass must override saveChanges()")
   }
 
+  /// Only records explicitly tagged with this installation's previous ID are
+  /// relinked after user confirmation. Legacy nil-ID records are untouched.
+  func reassignPhysicalDeviceID(from oldID: UUID, to newID: UUID,
+    matchingModelCode: String) throws -> Int { 0 }
+
   /// 特定デバイスのレコードを取得（日付昇順）
   func fetchRecords(for deviceName: String, ascending: Bool = true) -> [BatteryRecord] {
     fatalError("Subclass must override fetchRecords(for:ascending:)")

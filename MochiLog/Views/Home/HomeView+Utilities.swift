@@ -36,6 +36,7 @@ extension HomeView {
       deviceModelCode: modelCodeUsed,
       osVersion: result.osVersion,
       productSku: result.productSku,
+      physicalDeviceID: PhysicalDeviceIdentityStore.identityForLocallyRecognizedLog(modelCode: modelCodeUsed),
       storage: result.storage,
       ram: result.ram,
       manufactureDate: nil,
@@ -154,14 +155,51 @@ extension HomeView {
 // MARK: - 重複チェック
 extension HomeView {
   /// 日付とデバイス名で重複レコードを検索する（日単位）
-  func hasDuplicateRecord(on date: Date, deviceName: String) -> Bool {
-    records.contains { existing in
+  func hasDuplicateRecord(on date: Date, deviceName: String, physicalDeviceID: UUID? = nil) -> Bool {
+    let localID = physicalDeviceID == nil
+      ? PhysicalDeviceIdentityStore.identityForLocallyRecognizedLog(
+        modelCode: DeviceLibrary.getIdentifierForDeviceName(deviceName)) : nil
+    return records.contains { existing in
       // 日付を「日単位」で比較（時刻は無視）
       let sameDate = Calendar.current.isDate(existing.logDate, inSameDayAs: date)
       guard sameDate else { return false }
 
-      // デバイス名（機種名）で比較
-      return existing.deviceName == deviceName
+      if let physicalDeviceID {
+        return existing.physicalDeviceID == physicalDeviceID
+      }
+      if let localID {
+        if existing.physicalDeviceID == localID { return true }
+      }
+      // IDのない手動ログは機種名で保守的に照合する。
+      guard existing.deviceName == deviceName else { return false }
+      if localID != nil { return existing.physicalDeviceID == nil }
+      // Manual legacy imports have no reliable device identity. Preserve the
+      // conservative date/model check until the user explicitly links them.
+      return true
+    }
+  }
+
+  func hasAmbiguousLegacyRecord(on date: Date, deviceName: String) -> Bool {
+    records.contains {
+      $0.physicalDeviceID == nil && $0.deviceName == deviceName
+        && Calendar.current.isDate($0.logDate, inSameDayAs: date)
+    }
+  }
+
+  /// Exact parsed values identify an already imported log even if the older
+  /// record predates physical device IDs. A same-model/day match alone does not.
+  func hasMatchingLegacyRecord(_ result: LogParser.ParseResult, deviceName: String) -> Bool {
+    guard let date = result.logDate,
+      let cycles = result.cycleCount,
+      let nominal = result.nominalCapacity,
+      let raw = result.rawCapacity else { return false }
+    return records.contains {
+      $0.physicalDeviceID == nil && $0.deviceName == deviceName
+        && abs($0.logDate.timeIntervalSince(date)) < 1
+        && $0.cycleCount == cycles
+        && $0.nominalCapacity == nominal
+        && $0.rawCapacity == raw
+        && ($0.productSku == nil || $0.productSku == result.productSku)
     }
   }
 

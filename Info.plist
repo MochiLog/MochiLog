@@ -16,10 +16,12 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Macとのログ転送接続を検証します。</string>
+	<string>同じWi-FiのMochiLog Macから解析ログを安全に受信するために使用します。</string>
+	<key>NSCameraUsageDescription</key>
+	<string>MochiLog Macのペアリング用QRコードを読み取るために使用します。</string>
 	<key>NSBonjourServices</key>
 	<array>
-		<string>_mochiprobe._tcp</string>
+		<string>_mochilog._tcp</string>
 	</array>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>

@@ -528,7 +528,8 @@ extension HomeView {
           let url = urls[index]
           if let text, let parsedResult {
             batchImportResults[id] = processBatchItem(id: id, parseResult: parsedResult,
-              filename: url.lastPathComponent, rawText: text)
+              filename: url.lastPathComponent, rawText: text,
+              physicalDeviceID: queue.physicalDeviceID(for: url))
           } else {
             batchImportResults[id] = FileImportResult(id: id, filename: url.lastPathComponent,
               parsedDate: nil, deviceName: nil, rawText: nil, status: .error,
@@ -567,7 +568,8 @@ extension HomeView {
     id: Int,
     parseResult: LogParser.ParseResult,
     filename: String,
-    rawText: String
+    rawText: String,
+    physicalDeviceID: UUID? = nil
   ) -> FileImportResult {
 
     // 基本バリデーション（必須フィールドの確認）
@@ -675,9 +677,25 @@ extension HomeView {
       }
     }
 
+    // A same-model legacy entry cannot be assigned to this physical device
+    // automatically. Leave the incoming log for user review.
+    if physicalDeviceID != nil,
+      hasMatchingLegacyRecord(parseResult, deviceName: actualDeviceName) {
+      return FileImportResult(id: id, filename: filename, parsedDate: logDate,
+        deviceName: actualDeviceName, rawText: nil, status: .duplicate,
+        errorMessage: nil)
+    }
+    if physicalDeviceID != nil,
+      hasAmbiguousLegacyRecord(on: logDate, deviceName: actualDeviceName) {
+      return FileImportResult(id: id, filename: filename, parsedDate: logDate,
+        deviceName: actualDeviceName, rawText: rawText, status: .needsReview,
+        errorMessage: nil)
+    }
+
     // 重複チェック
     if !AppSettings.shared.allowDuplicateRecords,
-      hasDuplicateRecord(on: logDate, deviceName: actualDeviceName)
+      hasDuplicateRecord(on: logDate, deviceName: actualDeviceName,
+        physicalDeviceID: physicalDeviceID)
     {
       return FileImportResult(
         id: id,
@@ -698,6 +716,7 @@ extension HomeView {
       deviceModelCodeOverride: actualModelCode,
       designCapacityOverride: designCap
     )
+    record.physicalDeviceID = physicalDeviceID
     dataStore.insert(record)
     do {
       try dataStore.saveChanges()

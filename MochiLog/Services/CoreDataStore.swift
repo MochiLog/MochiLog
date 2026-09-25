@@ -12,6 +12,7 @@ final class CDBatteryRecord: NSManagedObject {
   @NSManaged var deviceModelCode: String?
   @NSManaged var osVersion: String?
   @NSManaged var productSku: String?
+  @NSManaged var physicalDeviceID: UUID?
   @NSManaged var storage: String?
   @NSManaged var ram: String?
   @NSManaged var manufactureDate: String?
@@ -43,6 +44,7 @@ final class CDBatteryRecord: NSManagedObject {
     cd.deviceModelCode = record.deviceModelCode
     cd.osVersion = record.osVersion
     cd.productSku = record.productSku
+    cd.physicalDeviceID = record.physicalDeviceID
     cd.storage = record.storage
     cd.ram = record.ram
     cd.manufactureDate = record.manufactureDate
@@ -75,6 +77,7 @@ final class CDBatteryRecord: NSManagedObject {
       deviceModelCode: deviceModelCode,
       osVersion: osVersion,
       productSku: productSku,
+      physicalDeviceID: physicalDeviceID,
       storage: storage,
       ram: ram,
       manufactureDate: manufactureDate,
@@ -160,6 +163,7 @@ final class CoreDataStore: DataStore {
     attributes.append(attr("deviceModelCode", .stringAttributeType, optional: true))
     attributes.append(attr("osVersion", .stringAttributeType, optional: true))
     attributes.append(attr("productSku", .stringAttributeType, optional: true))
+    attributes.append(attr("physicalDeviceID", .UUIDAttributeType, optional: true))
     attributes.append(attr("storage", .stringAttributeType, optional: true))
     attributes.append(attr("ram", .stringAttributeType, optional: true))
     attributes.append(attr("manufactureDate", .stringAttributeType, optional: true))
