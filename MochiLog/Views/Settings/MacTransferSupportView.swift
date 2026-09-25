@@ -47,6 +47,10 @@ struct MacTransferSupportView: View {
         }.disabled(!valid)
       }
     }
+    .formStyle(.grouped)
+    .frame(maxWidth: UIDevice.current.userInterfaceIdiom == .pad ? 860 : .infinity)
+    .frame(maxWidth: .infinity)
+    .background(Color(uiColor: .systemGroupedBackground))
     .navigationTitle(L10n.text("mt_022", table: "MacTransfer"))
     .sheet(isPresented: $showingComposer) {
       MailComposeView(recipients: ["support@mochilog.ryuya-dev.net"],
