@@ -677,15 +677,20 @@ extension HomeView {
       }
     }
 
+    // The Mac pairing identifies the source iPhone. A Watch log carried by that
+    // iPhone must never inherit the iPhone's physical device ID.
+    let sourcePhysicalID = isWatchDevice(parseResult: parseResult,
+      deviceName: actualDeviceName) ? nil : physicalDeviceID
+
     // A same-model legacy entry cannot be assigned to this physical device
     // automatically. Leave the incoming log for user review.
-    if physicalDeviceID != nil,
+    if sourcePhysicalID != nil,
       hasMatchingLegacyRecord(parseResult, deviceName: actualDeviceName) {
       return FileImportResult(id: id, filename: filename, parsedDate: logDate,
         deviceName: actualDeviceName, rawText: nil, status: .duplicate,
         errorMessage: nil)
     }
-    if physicalDeviceID != nil,
+    if sourcePhysicalID != nil,
       hasAmbiguousLegacyRecord(on: logDate, deviceName: actualDeviceName) {
       return FileImportResult(id: id, filename: filename, parsedDate: logDate,
         deviceName: actualDeviceName, rawText: rawText, status: .needsReview,
@@ -695,7 +700,7 @@ extension HomeView {
     // 重複チェック
     if !AppSettings.shared.allowDuplicateRecords,
       hasDuplicateRecord(on: logDate, deviceName: actualDeviceName,
-        physicalDeviceID: physicalDeviceID)
+        physicalDeviceID: sourcePhysicalID)
     {
       return FileImportResult(
         id: id,
@@ -716,7 +721,7 @@ extension HomeView {
       deviceModelCodeOverride: actualModelCode,
       designCapacityOverride: designCap
     )
-    record.physicalDeviceID = physicalDeviceID
+    record.physicalDeviceID = sourcePhysicalID
     dataStore.insert(record)
     do {
       try dataStore.saveChanges()

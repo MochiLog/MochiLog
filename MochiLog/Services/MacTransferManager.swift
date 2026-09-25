@@ -198,13 +198,45 @@ final class MacTransferManager: ObservableObject {
         isReceiving = false
         return
       }
-      guard name == URL(fileURLWithPath: name).lastPathComponent,
-        name.hasPrefix("Analytics-"), name.hasSuffix(".ips.ca.synced") else {
+      let token = name.components(separatedBy: "::")
+      let kind: String
+      let filename: String
+      let source: String?
+      if token.count == 1 {
+        kind = "Host" // flat queue from the first beta
+        filename = token[0]
+        source = nil
+      } else if token.count == 2, ["Host", "Watch"].contains(token[0]) {
+        kind = token[0]
+        filename = token[1]
+        source = nil
+      } else if token.count == 3, ["Host", "Watch"].contains(token[0]),
+        token[1].range(of: #"^ProxiedDevice-[a-fA-F0-9]+$"#,
+          options: .regularExpression) != nil {
+        kind = token[0]
+        source = token[1]
+        filename = token[2]
+      } else { throw TransferError.invalidPayload }
+      guard filename == URL(fileURLWithPath: filename).lastPathComponent,
+        filename.hasPrefix("Analytics-"), filename.hasSuffix(".ips.ca.synced") else {
         throw TransferError.invalidPayload
       }
+      if filename.localizedCaseInsensitiveContains("session") ||
+        !Self.looksLikeBatteryLog(plain.dropFirst(2 + nameLength)) {
+        pendingAck = name
+        UserDefaults.standard.set(name, forKey: "MacTransferPendingAck")
+        status = "バッテリーログではないファイルを除外しました"
+        isReceiving = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { self.pull() }
+        return
+      }
       let content = plain.dropFirst(2 + nameLength)
-      let folder = try Self.inbox(for: pairing)
-      let destination = folder.appendingPathComponent(name)
+      var folder = try Self.inbox(for: pairing).appendingPathComponent(kind,
+        isDirectory: true)
+      if let source { folder.appendPathComponent(source, isDirectory: true) }
+      try FileManager.default.createDirectory(at: folder,
+        withIntermediateDirectories: true)
+      let destination = folder.appendingPathComponent(filename)
       if !FileManager.default.fileExists(atPath: destination.path) {
         try Data(content).write(to: destination, options: .atomic)
       }
@@ -212,7 +244,7 @@ final class MacTransferManager: ObservableObject {
         physicalDeviceID: pairing.physicalDeviceID)
       pendingAck = name
       UserDefaults.standard.set(name, forKey: "MacTransferPendingAck")
-      status = "\(name)を受信しました"
+      status = "\(kind): \(filename)を受信しました"
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { self.pull() }
     } catch {
       status = "受信データを確認できません: \(error.localizedDescription)"
@@ -222,12 +254,31 @@ final class MacTransferManager: ObservableObject {
 
   private func requeueSavedFiles(for pairing: MacTransferPairing) {
     guard let folder = try? Self.inbox(for: pairing),
-      let files = try? FileManager.default.contentsOfDirectory(at: folder,
-        includingPropertiesForKeys: nil) else { return }
+      let enumerator = FileManager.default.enumerator(at: folder,
+        includingPropertiesForKeys: [.isRegularFileKey]) else { return }
+    let files = enumerator.compactMap { $0 as? URL }
     for file in files where file.lastPathComponent.hasPrefix("Analytics-") {
+      if file.lastPathComponent.localizedCaseInsensitiveContains("session") ||
+        (try? Data(contentsOf: file, options: .mappedIfSafe)).map({ !Self.looksLikeBatteryLog($0) }) == true {
+        try? FileManager.default.removeItem(at: file)
+        continue
+      }
       SharedImportQueue.shared.enqueue(file, presentsResults: true,
         physicalDeviceID: pairing.physicalDeviceID)
     }
+  }
+
+  private static func looksLikeBatteryLog(_ bytes: Data) -> Bool {
+    var lines = 0
+    for byte in bytes where byte == 10 {
+      lines += 1
+      if lines >= 100 { break }
+    }
+    guard lines >= 100 else { return false }
+    return ["last_value_CycleCount", "last_value_NominalChargeCapacity",
+      "last_value_AppleRawMaxCapacity"].allSatisfy {
+        bytes.range(of: Data($0.utf8)) != nil
+      }
   }
 
   static func inbox(for pairing: MacTransferPairing) throws -> URL {

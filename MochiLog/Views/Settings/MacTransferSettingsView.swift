@@ -19,7 +19,7 @@ struct MacTransferSettingsView: View {
           systemImage: "checkmark.circle")
         Label(japanese ? "同じWi-Fi、Bluetoothがオン" : "Same Wi-Fi, Bluetooth enabled",
           systemImage: "wifi")
-        Label(japanese ? "ログ取得時は端末のロックを解除" : "Unlock the device when collecting logs",
+        Label(japanese ? "ログ収集は端末のロック解除中のみ可能" : "Log collection works only while unlocked",
           systemImage: "lock.open")
       }
       Section(japanese ? "ペアリングの手順" : "Pairing steps") {
