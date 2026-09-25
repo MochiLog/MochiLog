@@ -64,6 +64,9 @@ final class MacTransferManager: ObservableObject {
           matchingModelCode: model)
       }
     }
+    if pairing?.hostID != host || pairing?.physicalDeviceID != device {
+      UserDefaults.standard.removeObject(forKey: macDiagnosticsKey)
+    }
     try Self.savePairing(pair)
     pairing = pair
     PhysicalDeviceIdentityStore.replace(with: device)
