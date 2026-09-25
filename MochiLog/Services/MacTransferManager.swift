@@ -16,7 +16,9 @@ struct MacTransferPairing: Codable {
 final class MacTransferManager: ObservableObject {
   static let shared = MacTransferManager()
   @Published private(set) var pairing: MacTransferPairing?
-  @Published private(set) var status = "Macとのペアリングが必要です"
+  @Published private(set) var status = MacTransferStatus.text("mt_s_00") {
+    didSet { if status != oldValue { Self.appendDebugEvent(status) } }
+  }
   @Published private(set) var isReceiving = false
   private let queue = DispatchQueue(label: "net.ryuya-dev.MochiLog.mac-transfer")
   private var browser: NWBrowser?
@@ -27,6 +29,7 @@ final class MacTransferManager: ObservableObject {
   private let unconfirmedKey = "MacTransferUnconfirmedFiles"
   private let confirmedKey = "MacTransferConfirmedFiles"
   private let macDiagnosticsKey = "MacTransferLastMacDiagnostics"
+  private static let debugEventsKey = "MacTransferDebugEvents"
 
   private init() {
     pairing = Self.loadPairing()
@@ -70,7 +73,7 @@ final class MacTransferManager: ObservableObject {
     try Self.savePairing(pair)
     pairing = pair
     PhysicalDeviceIdentityStore.replace(with: device)
-    status = "Macとペアリングしました。接続を探しています"
+    status = MacTransferStatus.text("mt_s_01")
     start()
   }
 
@@ -98,7 +101,7 @@ final class MacTransferManager: ObservableObject {
     }
     browser.stateUpdateHandler = { [weak self] state in
       if case .failed(let error) = state {
-      Task { @MainActor [weak self] in self?.status = "Macの検索に失敗: \(error.localizedDescription)" }
+      Task { @MainActor [weak self] in self?.status = MacTransferStatus.text("mt_s_02", error.localizedDescription) }
       }
     }
     browser.start(queue: queue)
@@ -148,7 +151,7 @@ final class MacTransferManager: ObservableObject {
         })
       case .failed(let error):
         Task { @MainActor in
-          self.status = "Macに接続できません: \(error.localizedDescription)"
+          self.status = MacTransferStatus.text("mt_s_03", error.localizedDescription)
           self.connection = nil
           self.isReceiving = false
         }
@@ -166,12 +169,12 @@ final class MacTransferManager: ObservableObject {
         if let data { self.accumulated.append(data) }
         if self.accumulated.count > 64 * 1024 * 1024 + 1_024 {
           connection.cancel()
-          self.status = "転送サイズが上限を超えました"
+          self.status = MacTransferStatus.text("mt_s_04")
           self.isReceiving = false
           return
         }
         if let error {
-          self.status = "受信に失敗: \(error.localizedDescription)"
+          self.status = MacTransferStatus.text("mt_s_05", error.localizedDescription)
           self.isReceiving = false
           connection.cancel()
         } else if complete {
@@ -188,11 +191,11 @@ final class MacTransferManager: ObservableObject {
   private func finish(_ bytes: Data, connection: NWConnection) {
     defer { connection.cancel(); self.connection = nil }
     guard let pairing, bytes.count >= 4 else {
-      status = "Macからの応答が不完全です"; isReceiving = false; return
+      status = MacTransferStatus.text("mt_s_06"); isReceiving = false; return
     }
     let length = bytes.prefix(4).reduce(UInt32(0)) { ($0 << 8) | UInt32($1) }
     guard length == bytes.count - 4 else {
-      status = "Macからの応答サイズが一致しません"; isReceiving = false; return
+      status = MacTransferStatus.text("mt_s_07"); isReceiving = false; return
     }
     do {
       let box = try AES.GCM.SealedBox(combined: bytes.dropFirst(4))
@@ -217,8 +220,8 @@ final class MacTransferManager: ObservableObject {
           pendingAck = nil
           UserDefaults.standard.removeObject(forKey: "MacTransferPendingAck")
         }
-        status = confirmedCount == 0 ? "Macに新しいログはありません"
-          : "Macが\(confirmedCount)件の受信を確認しました。解析を開始します"
+        status = confirmedCount == 0 ? MacTransferStatus.text("mt_s_08")
+          : MacTransferStatus.text("mt_s_09", confirmedCount)
         isReceiving = false
         return
       }
@@ -249,7 +252,7 @@ final class MacTransferManager: ObservableObject {
         !Self.looksLikeBatteryLog(plain.dropFirst(2 + nameLength)) {
         pendingAck = name
         UserDefaults.standard.set(name, forKey: "MacTransferPendingAck")
-        status = "バッテリーログではないファイルを除外しました"
+        status = MacTransferStatus.text("mt_s_10")
         isReceiving = false
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { self.pull() }
         return
@@ -269,10 +272,10 @@ final class MacTransferManager: ObservableObject {
       UserDefaults.standard.set(unconfirmed.sorted(), forKey: unconfirmedKey)
       pendingAck = name
       UserDefaults.standard.set(name, forKey: "MacTransferPendingAck")
-      status = "\(kind): \(filename)を受信。Macの確認待ち"
+      status = MacTransferStatus.text("mt_s_11", kind, filename)
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { self.pull() }
     } catch {
-      status = "受信データを確認できません: \(error.localizedDescription)"
+      status = MacTransferStatus.text("mt_s_12", error.localizedDescription)
       isReceiving = false
     }
   }
@@ -368,7 +371,8 @@ final class MacTransferManager: ObservableObject {
       "receiving": isReceiving,
       "unconfirmedFiles": defaults.stringArray(forKey: unconfirmedKey)?.count ?? 0,
       "confirmedFiles": defaults.stringArray(forKey: confirmedKey)?.count ?? 0,
-      "pendingAcknowledgement": pendingAck != nil
+      "pendingAcknowledgement": pendingAck != nil,
+      "recentEvents": Array(Self.debugEvents().suffix(30))
     ]
     return (try? JSONSerialization.data(withJSONObject: object,
       options: [.prettyPrinted, .sortedKeys])) ?? Data("{}".utf8)
@@ -376,6 +380,28 @@ final class MacTransferManager: ObservableObject {
 
   func latestMacDiagnosticsData() -> Data? {
     UserDefaults.standard.data(forKey: macDiagnosticsKey)
+  }
+
+  func debugLogText() -> String { Self.debugEvents().joined(separator: "\n") }
+
+  func macDebugLogText() -> String {
+    guard let report = latestMacDiagnosticsData(),
+      let object = try? JSONSerialization.jsonObject(with: report) as? [String: Any],
+      let events = object["recentEvents"] as? [String] else { return "" }
+    return events.joined(separator: "\n")
+  }
+
+  private static func debugEvents() -> [String] {
+    UserDefaults.standard.stringArray(forKey: debugEventsKey) ?? []
+  }
+
+  private static func appendDebugEvent(_ message: String) {
+    let normalized = String(message.replacingOccurrences(of: "\n", with: " ").prefix(140))
+    var events = debugEvents()
+    guard events.last?.hasSuffix(" | \(normalized)") != true else { return }
+    events.append("\(ISO8601DateFormatter().string(from: Date())) | \(normalized)")
+    if events.count > 80 { events.removeFirst(events.count - 80) }
+    UserDefaults.standard.set(events, forKey: debugEventsKey)
   }
 
   static func inbox(for pairing: MacTransferPairing) throws -> URL {
@@ -421,11 +447,17 @@ enum TransferError: LocalizedError {
   case invalidPairing, wrongDevice, invalidPayload, keychain, identityConflict
   var errorDescription: String? {
     switch self {
-    case .invalidPairing: "QRコードがMochiLog Mac用ではありません"
-    case .wrongDevice: "このQRコードは、この端末の機種と一致しません"
-    case .invalidPayload: "Macからのデータが不正です"
-    case .keychain: "ペアリング情報を保存できません"
-    case .identityConflict: "この端末に別の個体IDで保存された新しい記録があります。統合するか確認してください"
+    case .invalidPairing: MacTransferStatus.text("mt_s_13")
+    case .wrongDevice: MacTransferStatus.text("mt_s_14")
+    case .invalidPayload: MacTransferStatus.text("mt_s_15")
+    case .keychain: MacTransferStatus.text("mt_s_16")
+    case .identityConflict: MacTransferStatus.text("mt_s_17")
     }
+  }
+}
+
+private enum MacTransferStatus {
+  static func text(_ key: String, _ args: CVarArg...) -> String {
+    String(format: L10n.text(key, table: "MacTransfer"), locale: L10n.locale, arguments: args)
   }
 }
