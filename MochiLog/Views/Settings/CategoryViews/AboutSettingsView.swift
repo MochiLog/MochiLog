@@ -192,7 +192,7 @@ struct AboutSettingsView: View {
 
       // リンク
       GroupBox {
-        Link(destination: URL(string: "https://github.com/ryuya0124/MochiLog")!) {
+        Link(destination: URL(string: "https://github.com/MochiLog/MochiLog")!) {
           HStack(spacing: 20) {
             Image(systemName: "link")
               .font(.system(size: 32))

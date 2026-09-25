@@ -41,7 +41,7 @@ struct LicenseView: View {
         the App Store terms of service.
         """,
       fullLicenseText: Self.loadGPLv3FullText(),
-      url: "https://github.com/ryuya0124/MochiLog"
+      url: "https://github.com/MochiLog/MochiLog"
     ),
     // ZIPFoundation ライブラリ
     LicenseInfo(

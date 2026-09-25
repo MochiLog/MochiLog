@@ -93,7 +93,7 @@ struct AboutView: View {
           }
         }
 
-        Link(destination: URL(string: "https://github.com/ryuya0124/MochiLog")!) {
+        Link(destination: URL(string: "https://github.com/MochiLog/MochiLog")!) {
           Label {
             Text(L10n.string("view_on_github", table: "Support"))
               .foregroundStyle(.primary)
