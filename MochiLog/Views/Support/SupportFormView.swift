@@ -165,6 +165,7 @@ struct MailComposeView: UIViewControllerRepresentable {
   let recipients: [String]
   let subject: String
   let body: String
+  var attachments: [MailAttachment] = []
   let onComplete: (MFMailComposeResult) -> Void
 
   func makeUIViewController(context: Context) -> MFMailComposeViewController {
@@ -173,6 +174,10 @@ struct MailComposeView: UIViewControllerRepresentable {
     composer.setToRecipients(recipients)
     composer.setSubject(subject)
     composer.setMessageBody(body, isHTML: false)
+    for attachment in attachments {
+      composer.addAttachmentData(attachment.data, mimeType: attachment.mimeType,
+        fileName: attachment.fileName)
+    }
     return composer
   }
 
@@ -198,6 +203,12 @@ struct MailComposeView: UIViewControllerRepresentable {
       onComplete(result)
     }
   }
+}
+
+struct MailAttachment {
+  let data: Data
+  let mimeType: String
+  let fileName: String
 }
 
 #Preview {

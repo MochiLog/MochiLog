@@ -26,6 +26,7 @@ final class MacTransferManager: ObservableObject {
   private var pendingAck: String?
   private let unconfirmedKey = "MacTransferUnconfirmedFiles"
   private let confirmedKey = "MacTransferConfirmedFiles"
+  private let macDiagnosticsKey = "MacTransferLastMacDiagnostics"
 
   private init() {
     pairing = Self.loadPairing()
@@ -117,12 +118,19 @@ final class MacTransferManager: ObservableObject {
     let mac = HMAC<SHA256>.authenticationCode(for: Data(message.utf8),
       using: SymmetricKey(data: pairing.secret))
       .map { String(format: "%02x", $0) }.joined()
+    let diagnostics = supportDiagnosticsData()
+    let diagnosticsMAC = HMAC<SHA256>.authenticationCode(
+      for: Data("diagnostics|\(nonce.uuidString)|".utf8) + diagnostics,
+      using: SymmetricKey(data: pairing.secret))
+      .map { String(format: "%02x", $0) }.joined()
     let request: [String: String] = [
       "hostID": pairing.hostID.uuidString,
       "physicalDeviceID": pairing.physicalDeviceID.uuidString,
       "nonce": nonce.uuidString,
       "ack": ack,
-      "mac": mac
+      "mac": mac,
+      "clientDiagnostics": diagnostics.base64EncodedString(),
+      "clientDiagnosticsMAC": diagnosticsMAC
     ]
     guard let payload = try? JSONSerialization.data(withJSONObject: request) else { return }
     let connection = NWConnection(to: endpoint, using: .tcp)
@@ -194,6 +202,13 @@ final class MacTransferManager: ObservableObject {
       if name.isEmpty {
         // The Mac has processed the final file acknowledgement and returned
         // an authenticated terminal reply. Only now may imports begin.
+        let report = plain.dropFirst(2)
+        if !report.isEmpty, report.count <= 16_384,
+          let object = try? JSONSerialization.jsonObject(with: report) as? [String: Any],
+          object["schema"] as? Int == 1,
+          object["platform"] as? String == "macOS" {
+          UserDefaults.standard.set(Data(report), forKey: macDiagnosticsKey)
+        }
         let confirmedCount = confirmReceivedFiles(for: pairing)
         if pendingAck != nil {
           pendingAck = nil
@@ -334,6 +349,30 @@ final class MacTransferManager: ObservableObject {
       "last_value_AppleRawMaxCapacity"].allSatisfy {
         bytes.range(of: Data($0.utf8)) != nil
       }
+  }
+
+  func supportDiagnosticsData() -> Data {
+    let defaults = UserDefaults.standard
+    let object: [String: Any] = [
+      "schema": 1,
+      "generatedAt": ISO8601DateFormatter().string(from: Date()),
+      "platform": "iOS",
+      "osVersion": ProcessInfo.processInfo.operatingSystemVersionString,
+      "appVersion": Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown",
+      "build": Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unknown",
+      "deviceModel": DeviceLibrary.localModelIdentifier() ?? "unknown",
+      "paired": pairing != nil,
+      "receiving": isReceiving,
+      "unconfirmedFiles": defaults.stringArray(forKey: unconfirmedKey)?.count ?? 0,
+      "confirmedFiles": defaults.stringArray(forKey: confirmedKey)?.count ?? 0,
+      "pendingAcknowledgement": pendingAck != nil
+    ]
+    return (try? JSONSerialization.data(withJSONObject: object,
+      options: [.prettyPrinted, .sortedKeys])) ?? Data("{}".utf8)
+  }
+
+  func latestMacDiagnosticsData() -> Data? {
+    UserDefaults.standard.data(forKey: macDiagnosticsKey)
   }
 
   static func inbox(for pairing: MacTransferPairing) throws -> URL {

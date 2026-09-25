@@ -64,6 +64,18 @@ struct MacTransferSettingsView: View {
           ? "再インストール後は同じMacで再ペアリングすると同じ個体IDを受け取れます。iCloud同期がオフの間の記録は、アプリ削除時に復元できません。既存のIDなし記録は自動で結合しません。"
           : "After reinstalling, pair with the same Mac to recover the same device ID. Records stored only locally cannot be recovered after deleting the app. Older records without IDs are not merged automatically.")
       }
+      Section(japanese ? "Mac連携のサポート" : "Mac transfer support") {
+        NavigationLink {
+          MacTransferSupportView()
+        } label: {
+          Label(japanese ? "不具合を報告" : "Report a problem",
+            systemImage: "envelope.badge")
+        }
+        Text(japanese
+          ? "MacとiPhoneの診断情報を添付できます。解決に時間がかかる場合があり、返信できない場合もあります。"
+          : "Attach Mac and iPhone diagnostics. A fix may take time, and we may not be able to reply.")
+          .font(.caption).foregroundStyle(.secondary)
+      }
     }
     .navigationTitle(japanese ? "Mac連携（ベータ）" : "Mac transfer (Beta)")
     .sheet(isPresented: $showingScanner) {

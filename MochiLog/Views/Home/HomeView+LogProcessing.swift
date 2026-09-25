@@ -87,6 +87,14 @@ extension HomeView {
     return isWatchOS || looksLikeWatch
   }
 
+  /// Both direct imports and Mac batches use the same registered-Watch rule.
+  /// A single registered Watch can be used automatically; otherwise the
+  /// existing Watch picker resolves the model during interactive import.
+  private func automaticRegisteredWatch() -> String? {
+    let watches = AppSettings.shared.registeredWatches
+    return watches.count == 1 ? watches[0] : nil
+  }
+
   /// Watch処理を行う
   /// - Returns: (作成されたレコード, 処理を終了すべきか)
   private func handleWatchRecord(
@@ -99,7 +107,7 @@ extension HomeView {
     let registeredWatches = AppSettings.shared.registeredWatches
 
     // 複数のWatchが登録されている場合 → ユーザーに選択させる
-    if registeredWatches.count > 1 {
+    if automaticRegisteredWatch() == nil && !registeredWatches.isEmpty {
       if silent {
         // サイレントモードでは処理できない（どのWatchか選べないため）
         return (nil, true)
@@ -112,7 +120,7 @@ extension HomeView {
     }
 
     // 1つのWatchが登録されている場合 → そのWatchを使用
-    if let registeredWatch = registeredWatches.first {
+    if let registeredWatch = automaticRegisteredWatch() {
       // 重複チェック（設定に応じて）
       if !AppSettings.shared.allowDuplicateRecords,
         hasDuplicateRecord(on: logDate, deviceName: registeredWatch,
@@ -647,9 +655,8 @@ extension HomeView {
 
     // Apple Watch の処理
     if isWatchDevice(parseResult: parseResult, deviceName: actualDeviceName) {
-      let registeredWatches = AppSettings.shared.registeredWatches
-      if registeredWatches.count > 1 {
-        // Watchが複数登録されている場合はユーザーに選ばせるため手動インポートへ
+      if automaticRegisteredWatch() == nil {
+        // The interactive import below owns registration and model selection.
         return FileImportResult(
           id: id,
           filename: filename,
@@ -660,20 +667,9 @@ extension HomeView {
           errorMessage: nil,
           physicalDeviceID: physicalDeviceID
         )
-      } else if let firstWatch = registeredWatches.first {
-        actualDeviceName = firstWatch
-        actualModelCode = DeviceLibrary.getIdentifierForDeviceName(firstWatch) ?? actualModelCode
-      } else {
-        return FileImportResult(
-          id: id,
-          filename: filename,
-          parsedDate: logDate,
-          deviceName: actualDeviceName,
-          rawText: rawText,
-          status: .needsReview,
-          errorMessage: nil,
-          physicalDeviceID: physicalDeviceID
-        )
+      } else if let watch = automaticRegisteredWatch() {
+        actualDeviceName = watch
+        actualModelCode = DeviceLibrary.getIdentifierForDeviceName(watch) ?? actualModelCode
       }
     } else {
       // iPhone/iPad など通常デバイスの処理
@@ -708,7 +704,10 @@ extension HomeView {
       hasAmbiguousLegacyRecord(on: logDate, deviceName: actualDeviceName) {
       return FileImportResult(id: id, filename: filename, parsedDate: logDate,
         deviceName: actualDeviceName, rawText: rawText, status: .needsReview,
-        errorMessage: nil, physicalDeviceID: physicalDeviceID)
+        errorMessage: Locale.preferredLanguages.first?.hasPrefix("ja") == true
+          ? "同じ日付の旧記録があり、別のログか確認が必要です"
+          : "An older record exists for this date; confirm this is a different log",
+        physicalDeviceID: physicalDeviceID)
     }
 
     // 重複チェック

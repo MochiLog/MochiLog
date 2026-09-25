@@ -9,7 +9,9 @@ MochiLog Macは[専用リポジトリ](https://github.com/MochiLog/MochiLog-Mac)
 - Macから受信したログは、端末IDと日付で既存記録を確認する。同じファイルがIDなし旧記録として保存済みなら、日付・充放電回数・公称容量・生容量の一致で重複扱いにする。同じ機種・同じ日だけの一致は確認待ちとし、別個体の可能性を残す。
 - Macは受信確認後に転送済みファイル名を永続化する。iCloud同期とMac転送が競合して完全一致のID付きレコードが二つ入った場合は、SwiftDataの更新時に一方へ収束させる。
 - ペアリング済みApple WatchのAnalyticsはiPhoneの`ProxiedDevice-…/Retired`から取得する。iPhone本体の`/Retired`と取得元別に保存し、同日・同名のファイルがあっても衝突させない。ファイル先頭の`os_version`が`Watch OS`のログだけをWatch側に振り分ける。iPhone本体のログにもWatchの機種名が現れるため、本文にWatch名があるだけでは判定しない。
-- WatchログにはiPhoneの`physicalDeviceID`を付けない。Watch自体の安定した個体IDとの対応はまだ確認できていないため、誤った紐付けを防ぐ。
+- WatchログにはiPhoneの`physicalDeviceID`をそのまま付けない。Macからの`ProxiedDevice`出所とペアリング済みiPhoneのIDからWatchごとに別のIDを導出し、複数のiPhone・Watchが同じ機種でもログを区別する。Watchの機種登録・選択はiPhoneの既存の手動取り込みフローを利用する。
+- ログはiPhoneで全件受信した後、各ファイルの受信確認をMacに返す。Macが最後の確認を処理して空の終端応答を返した時点で、一括解析・記録を始める。
+- ベータ専用サポートでは、MacとiPhoneが暗号化済みの接続上で互いの診断情報を交換し、双方の問い合わせ画面からJSONを添付できる。解析ログ本文、UDID、ペアリング秘密鍵は含めない。
 
 初回OSペアリングには端末のデベロッパモードと「ペアリング済みMac」での6桁コード入力が必要。検証機ではペアリング後にデベロッパモードをオフにしてもWi-FiでAnalyticsを取得できた。使用者にPythonやXcodeをインストールさせず、署名済みDMGへ収集ツールを同梱する。
 
