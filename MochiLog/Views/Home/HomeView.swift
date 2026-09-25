@@ -295,6 +295,7 @@ struct HomeView: View {
   /// iPadでナビゲーションによる詳細表示に使用する
   @State var navigatingRecord: BatteryRecord?
   @State var pendingParseResult: LogParser.ParseResult?
+  @State var pendingSourcePhysicalDeviceID: UUID?
   @State var showingWatchSelection = false
   @State var isProcessing = false
   @State var showingMismatchAlert = false
@@ -591,6 +592,7 @@ struct HomeView: View {
               deviceModelCodeOverride: identifier,
               designCapacityOverride: DeviceLibrary.getCapacity(for: name)
             )
+            record.physicalDeviceID = pendingSourcePhysicalDeviceID
             withAnimation(.snappy) {
               dataStore.insert(record)
             }
@@ -602,6 +604,7 @@ struct HomeView: View {
             }
             selectedRecord = nil
             pendingParseResult = nil
+            pendingSourcePhysicalDeviceID = nil
 
             // 初回登録を提案
             watchNameToRegister = name
@@ -616,7 +619,8 @@ struct HomeView: View {
 
             // 重複チェック
             if !allowDuplicateRecords,
-              hasDuplicateRecord(on: logDate, deviceName: selectedWatch)
+              hasDuplicateRecord(on: logDate, deviceName: selectedWatch,
+                physicalDeviceID: pendingSourcePhysicalDeviceID)
             {
               DispatchQueue.main.async {
                 NotificationCenter.default.post(
@@ -627,6 +631,7 @@ struct HomeView: View {
               }
               selectedRecord = nil
               pendingParseResult = nil
+              pendingSourcePhysicalDeviceID = nil
               return
             }
 
@@ -637,6 +642,7 @@ struct HomeView: View {
               deviceModelCodeOverride: identifier,
               designCapacityOverride: DeviceLibrary.getCapacity(for: selectedWatch)
             )
+            record.physicalDeviceID = pendingSourcePhysicalDeviceID
             withAnimation(.snappy) {
               dataStore.insert(record)
             }
@@ -648,6 +654,7 @@ struct HomeView: View {
             }
             selectedRecord = nil
             pendingParseResult = nil
+            pendingSourcePhysicalDeviceID = nil
           }
         }
       }
@@ -745,7 +752,8 @@ struct HomeView: View {
           // 2. 少し待ってから、選択されたファイルの手動インポートを開始
           if let text = result.rawText {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-              processLogTextAsync(text, silent: false, contentHash: text.hashValue)
+              processLogTextAsync(text, silent: false, contentHash: text.hashValue,
+                physicalDeviceID: result.physicalDeviceID)
             }
           }
         } onDismiss: {

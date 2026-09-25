@@ -32,6 +32,25 @@ final class SharedImportQueue: ObservableObject {
     revision += 1
   }
 
+  /// Publish a completed Mac transfer as one import batch and one result sheet.
+  func enqueueBatch(_ items: [(url: URL, physicalDeviceID: UUID?)]) {
+    guard !items.isEmpty else { return }
+    recentlyCompleted = recentlyCompleted.filter { now().timeIntervalSince($0.value) < 2 }
+    var added = false
+    for item in items {
+      guard item.url.isFileURL, recentlyCompleted[item.url] == nil,
+        known.insert(item.url).inserted else { continue }
+      scopes[item.url] = [item.url].filter { $0.startAccessingSecurityScopedResource() }
+      sourceDeviceIDs[item.url] = item.physicalDeviceID
+      pending.append(item.url)
+      added = true
+    }
+    guard added else { return }
+    shouldPresentResults = true
+    AppSettings.shared.selectedTabIndex = 0
+    revision += 1
+  }
+
   func begin() -> Bool {
     guard !isConsuming, !pending.isEmpty else { return false }
     isConsuming = true

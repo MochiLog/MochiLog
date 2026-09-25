@@ -115,7 +115,8 @@ extension HomeView {
     if let registeredWatch = registeredWatches.first {
       // 重複チェック（設定に応じて）
       if !AppSettings.shared.allowDuplicateRecords,
-        hasDuplicateRecord(on: logDate, deviceName: registeredWatch)
+        hasDuplicateRecord(on: logDate, deviceName: registeredWatch,
+          physicalDeviceID: pendingSourcePhysicalDeviceID)
       {
         if silent {
           return (nil, true)
@@ -142,9 +143,11 @@ extension HomeView {
         deviceModelCodeOverride: registeredModelCode,
         designCapacityOverride: registeredDesignCap
       )
+      newRecord.physicalDeviceID = pendingSourcePhysicalDeviceID
 
       // レコード保存
       saveRecord(newRecord, deviceName: registeredWatch)
+      pendingSourcePhysicalDeviceID = nil
 
       return (newRecord, silent)
     }
@@ -193,7 +196,8 @@ extension HomeView {
     // 自動モード or サイレントモード: 従来の処理
     // 重複チェック（設定に応じて）
     if !AppSettings.shared.allowDuplicateRecords,
-      hasDuplicateRecord(on: logDate, deviceName: deviceName)
+      hasDuplicateRecord(on: logDate, deviceName: deviceName,
+        physicalDeviceID: pendingSourcePhysicalDeviceID)
     {
       if silent {
         return nil
@@ -218,9 +222,11 @@ extension HomeView {
       deviceModelCodeOverride: modelCode,
       designCapacityOverride: designCap
     )
+    newRecord.physicalDeviceID = pendingSourcePhysicalDeviceID
 
     // レコード保存
     saveRecord(newRecord, deviceName: deviceName)
+    pendingSourcePhysicalDeviceID = nil
 
     return newRecord
   }
@@ -232,7 +238,8 @@ extension HomeView {
 
     // 重複チェック
     if !AppSettings.shared.allowDuplicateRecords,
-      hasDuplicateRecord(on: logDate, deviceName: name)
+      hasDuplicateRecord(on: logDate, deviceName: name,
+        physicalDeviceID: pendingSourcePhysicalDeviceID)
     {
       DispatchQueue.main.async {
         NotificationCenter.default.post(
@@ -252,6 +259,7 @@ extension HomeView {
       deviceModelCodeOverride: modelCode,
       designCapacityOverride: DeviceLibrary.getCapacity(for: name)
     )
+    record.physicalDeviceID = pendingSourcePhysicalDeviceID
 
     withAnimation(.snappy) {
       dataStore.insert(record)
@@ -275,13 +283,15 @@ extension HomeView {
     }
 
     pendingParseResult = nil
+    pendingSourcePhysicalDeviceID = nil
   }
 }
 
 // MARK: - ログ処理
 extension HomeView {
   /// ログテキストを非同期で解析・処理する
-  func processLogTextAsync(_ text: String, silent: Bool = false, contentHash: Int? = nil) {
+  func processLogTextAsync(_ text: String, silent: Bool = false, contentHash: Int? = nil,
+    physicalDeviceID: UUID? = nil) {
     isProcessing = true
 
     let enableValidation = AppSettings.shared.enableCapacityValidation
@@ -315,6 +325,7 @@ extension HomeView {
         // iPadではOverlayが消えるのと遷移が競合すると詳細画面が開かないことがあるため
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
           if !silent {
+            self.pendingSourcePhysicalDeviceID = physicalDeviceID
             // Normal interactive flow: existing behavior
             if let newRecord = self.addRecordFromParseResult(parseResult) {
               // 0.5秒遅延してから通知を送信（SwiftDataの更新を待つ）
@@ -605,7 +616,8 @@ extension HomeView {
     if parseResult.isCapacityMismatch {
       return FileImportResult(id: id, filename: filename, parsedDate: logDate,
         deviceName: nil, rawText: rawText, status: .needsReview,
-        errorMessage: L10n.string("capacity_mismatch_error", table: "Home"))
+        errorMessage: L10n.string("capacity_mismatch_error", table: "Home"),
+        physicalDeviceID: physicalDeviceID)
     }
 
     // デバイス名解決
@@ -625,7 +637,8 @@ extension HomeView {
         deviceName: baseDeviceName,
         rawText: rawText,
         status: .needsReview,
-        errorMessage: nil
+        errorMessage: nil,
+        physicalDeviceID: physicalDeviceID
       )
     }
 
@@ -644,7 +657,8 @@ extension HomeView {
           deviceName: actualDeviceName,
           rawText: rawText,
           status: .needsReview,
-          errorMessage: nil
+          errorMessage: nil,
+          physicalDeviceID: physicalDeviceID
         )
       } else if let firstWatch = registeredWatches.first {
         actualDeviceName = firstWatch
@@ -656,8 +670,9 @@ extension HomeView {
           parsedDate: logDate,
           deviceName: actualDeviceName,
           rawText: rawText,
-          status: .error,
-          errorMessage: L10n.string("watch_not_registered", table: "Language")
+          status: .needsReview,
+          errorMessage: nil,
+          physicalDeviceID: physicalDeviceID
         )
       }
     } else {
@@ -672,15 +687,14 @@ extension HomeView {
           deviceName: actualDeviceName,
           rawText: rawText,
           status: .needsReview,
-          errorMessage: nil
+          errorMessage: nil,
+          physicalDeviceID: physicalDeviceID
         )
       }
     }
 
-    // The Mac pairing identifies the source iPhone. A Watch log carried by that
-    // iPhone must never inherit the iPhone's physical device ID.
-    let sourcePhysicalID = isWatchDevice(parseResult: parseResult,
-      deviceName: actualDeviceName) ? nil : physicalDeviceID
+    // Mac transfer assigns the host iPhone and each proxied Watch distinct IDs.
+    let sourcePhysicalID = physicalDeviceID
 
     // A same-model legacy entry cannot be assigned to this physical device
     // automatically. Leave the incoming log for user review.
@@ -694,7 +708,7 @@ extension HomeView {
       hasAmbiguousLegacyRecord(on: logDate, deviceName: actualDeviceName) {
       return FileImportResult(id: id, filename: filename, parsedDate: logDate,
         deviceName: actualDeviceName, rawText: rawText, status: .needsReview,
-        errorMessage: nil)
+        errorMessage: nil, physicalDeviceID: physicalDeviceID)
     }
 
     // 重複チェック

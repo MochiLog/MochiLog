@@ -24,6 +24,8 @@ final class MacTransferManager: ObservableObject {
   private var endpoint: NWEndpoint?
   private var accumulated = Data()
   private var pendingAck: String?
+  private let unconfirmedKey = "MacTransferUnconfirmedFiles"
+  private let confirmedKey = "MacTransferConfirmedFiles"
 
   private init() {
     pairing = Self.loadPairing()
@@ -74,7 +76,7 @@ final class MacTransferManager: ObservableObject {
       pull()
       return
     }
-    requeueSavedFiles(for: pairing)
+    requeueConfirmedFiles(for: pairing)
     let browser = NWBrowser(for: .bonjour(type: "_mochilog._tcp", domain: nil), using: .tcp)
     self.browser = browser
     browser.browseResultsChangedHandler = { [weak self] results, _ in
@@ -190,11 +192,15 @@ final class MacTransferManager: ObservableObject {
         let name = String(data: plain.subdata(in: 2..<(2 + nameLength)), encoding: .utf8)
       else { throw TransferError.invalidPayload }
       if name.isEmpty {
+        // The Mac has processed the final file acknowledgement and returned
+        // an authenticated terminal reply. Only now may imports begin.
+        let confirmedCount = confirmReceivedFiles(for: pairing)
         if pendingAck != nil {
           pendingAck = nil
           UserDefaults.standard.removeObject(forKey: "MacTransferPendingAck")
         }
-        status = "Macに新しいログはありません"
+        status = confirmedCount == 0 ? "Macに新しいログはありません"
+          : "Macが\(confirmedCount)件の受信を確認しました。解析を開始します"
         isReceiving = false
         return
       }
@@ -240,11 +246,12 @@ final class MacTransferManager: ObservableObject {
       if !FileManager.default.fileExists(atPath: destination.path) {
         try Data(content).write(to: destination, options: .atomic)
       }
-      SharedImportQueue.shared.enqueue(destination, presentsResults: true,
-        physicalDeviceID: pairing.physicalDeviceID)
+      var unconfirmed = Set(UserDefaults.standard.stringArray(forKey: unconfirmedKey) ?? [])
+      unconfirmed.insert(destination.path)
+      UserDefaults.standard.set(unconfirmed.sorted(), forKey: unconfirmedKey)
       pendingAck = name
       UserDefaults.standard.set(name, forKey: "MacTransferPendingAck")
-      status = "\(kind): \(filename)を受信しました"
+      status = "\(kind): \(filename)を受信。Macの確認待ち"
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { self.pull() }
     } catch {
       status = "受信データを確認できません: \(error.localizedDescription)"
@@ -252,20 +259,68 @@ final class MacTransferManager: ObservableObject {
     }
   }
 
-  private func requeueSavedFiles(for pairing: MacTransferPairing) {
+  private func requeueConfirmedFiles(for pairing: MacTransferPairing) {
+    // Files received by the previous beta were already offered for import.
+    if UserDefaults.standard.object(forKey: confirmedKey) == nil {
+      let pending = Set(UserDefaults.standard.stringArray(forKey: unconfirmedKey) ?? [])
+      let legacy = allInboxFiles(for: pairing).map(\.path).filter { !pending.contains($0) }
+      UserDefaults.standard.set(legacy, forKey: confirmedKey)
+    }
+    let confirmed = Set(UserDefaults.standard.stringArray(forKey: confirmedKey) ?? [])
+    enqueueFiles(confirmed.compactMap { FileManager.default.fileExists(atPath: $0)
+      ? URL(fileURLWithPath: $0) : nil }, for: pairing)
+  }
+
+  private func confirmReceivedFiles(for pairing: MacTransferPairing) -> Int {
+    let unconfirmed = Set(UserDefaults.standard.stringArray(forKey: unconfirmedKey) ?? [])
+    let files = unconfirmed.compactMap { FileManager.default.fileExists(atPath: $0)
+      ? URL(fileURLWithPath: $0) : nil }.sorted { $0.path < $1.path }
+    var confirmed = Set(UserDefaults.standard.stringArray(forKey: confirmedKey) ?? [])
+    confirmed.formUnion(files.map(\.path))
+    UserDefaults.standard.set(confirmed.sorted(), forKey: confirmedKey)
+    UserDefaults.standard.removeObject(forKey: unconfirmedKey)
+    enqueueFiles(files, for: pairing)
+    return files.count
+  }
+
+  private func allInboxFiles(for pairing: MacTransferPairing) -> [URL] {
     guard let folder = try? Self.inbox(for: pairing),
       let enumerator = FileManager.default.enumerator(at: folder,
-        includingPropertiesForKeys: [.isRegularFileKey]) else { return }
-    let files = enumerator.compactMap { $0 as? URL }
+        includingPropertiesForKeys: [.isRegularFileKey]) else { return [] }
+    return enumerator.compactMap { $0 as? URL }.filter {
+      $0.lastPathComponent.hasPrefix("Analytics-")
+    }
+  }
+
+  private func enqueueFiles(_ files: [URL], for pairing: MacTransferPairing) {
+    var batch: [(url: URL, physicalDeviceID: UUID?)] = []
     for file in files where file.lastPathComponent.hasPrefix("Analytics-") {
       if file.lastPathComponent.localizedCaseInsensitiveContains("session") ||
         (try? Data(contentsOf: file, options: .mappedIfSafe)).map({ !Self.looksLikeBatteryLog($0) }) == true {
         try? FileManager.default.removeItem(at: file)
         continue
       }
-      SharedImportQueue.shared.enqueue(file, presentsResults: true,
-        physicalDeviceID: pairing.physicalDeviceID)
+      batch.append((file, Self.sourcePhysicalID(for: file, pairing: pairing)))
     }
+    SharedImportQueue.shared.enqueueBatch(batch.sorted { $0.url.path < $1.url.path })
+  }
+
+  private static func sourcePhysicalID(for file: URL, pairing: MacTransferPairing) -> UUID? {
+    let parts = file.pathComponents
+    guard let watchIndex = parts.firstIndex(of: "Watch") else {
+      return pairing.physicalDeviceID
+    }
+    guard parts.indices.contains(watchIndex + 1) else { return nil }
+    let source = parts[watchIndex + 1]
+    guard source.range(of: #"^ProxiedDevice-[a-fA-F0-9]+$"#,
+      options: .regularExpression) != nil else { return nil }
+    let digest = SHA256.hash(data: Data("\(pairing.physicalDeviceID.uuidString)|\(source)".utf8))
+    var bytes = Array(digest.prefix(16))
+    bytes[6] = (bytes[6] & 0x0f) | 0x50
+    bytes[8] = (bytes[8] & 0x3f) | 0x80
+    return UUID(uuid: (bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5],
+      bytes[6], bytes[7], bytes[8], bytes[9], bytes[10], bytes[11], bytes[12],
+      bytes[13], bytes[14], bytes[15]))
   }
 
   private static func looksLikeBatteryLog(_ bytes: Data) -> Bool {

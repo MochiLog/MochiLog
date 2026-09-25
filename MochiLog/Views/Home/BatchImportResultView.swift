@@ -20,6 +20,8 @@ struct FileImportResult: Identifiable {
   let status: ImportStatus
   /// エラーメッセージ（status == .error の場合のみ）
   let errorMessage: String?
+  /// Mac経由ログの取得元個体。手動確認へ進んでも維持する。
+  var physicalDeviceID: UUID? = nil
 
   /// インポートステータス
   enum ImportStatus: Equatable {
