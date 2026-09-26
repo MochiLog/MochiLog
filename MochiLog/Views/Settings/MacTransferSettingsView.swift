@@ -14,6 +14,44 @@ struct MacTransferSettingsView: View {
 
   var body: some View {
     Form {
+      Section {
+        HStack(alignment: .top, spacing: 12) {
+          Image(systemName: connectionSymbol)
+            .font(.title3.weight(.semibold))
+            .foregroundStyle(connectionColor)
+            .frame(width: 32, height: 32)
+          VStack(alignment: .leading, spacing: 5) {
+            Text(L10n.text(connectionTitleKey, table: "MacTransfer"))
+              .font(.headline)
+              .accessibilityIdentifier("macTransfer.connectionPhase")
+            Text(manager.status)
+              .font(.subheadline)
+              .foregroundStyle(.secondary)
+          }
+          Spacer(minLength: 0)
+          if manager.isReceiving { ProgressView().controlSize(.small) }
+        }
+        .padding(.vertical, 4)
+        if let lastContact = manager.lastAuthenticatedContactAt {
+          LabeledContent(L10n.text("mt_103", table: "MacTransfer"),
+            value: lastContact.formatted(.dateTime.locale(L10n.locale)
+              .month().day().hour().minute()))
+            .font(.subheadline)
+            .accessibilityIdentifier("macTransfer.lastContact")
+        }
+        Button { manager.receiveNow() } label: {
+          Label(L10n.text("mt_105", table: "MacTransfer"),
+            systemImage: "arrow.down.doc")
+            .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.borderedProminent)
+        .disabled(manager.pairing == nil || manager.isReceiving)
+        .accessibilityIdentifier("macTransfer.receiveNow")
+      } header: {
+        Text(L10n.text("mt_093", table: "MacTransfer"))
+      } footer: {
+        Text(L10n.text("mt_102", table: "MacTransfer"))
+      }
       Section(L10n.text("mt_048", table: "MacTransfer")) {
         Link(destination: macReleaseURL) {
           Label(L10n.text("mt_049", table: "MacTransfer"),
@@ -65,9 +103,6 @@ struct MacTransferSettingsView: View {
         if let pairing = manager.pairing {
           LabeledContent(L10n.text("mt_063", table: "MacTransfer"),
             value: pairing.physicalDeviceID.uuidString).font(.caption)
-          Button(L10n.text("mt_064", table: "MacTransfer")) { manager.stop(); manager.start() }
-            .disabled(manager.isReceiving)
-          if manager.isReceiving { ProgressView() }
         }
         Button {
           showingScanner = true
@@ -75,7 +110,6 @@ struct MacTransferSettingsView: View {
           Label(L10n.text("mt_065", table: "MacTransfer"),
             systemImage: "qrcode.viewfinder")
         }
-        Text(manager.status).foregroundStyle(.secondary)
       } header: {
         Text(L10n.text("mt_066", table: "MacTransfer"))
       } footer: {
@@ -145,6 +179,39 @@ struct MacTransferSettingsView: View {
         .frame(width: 24, height: 24).background(.green, in: Circle())
       Text(text).fixedSize(horizontal: false, vertical: true)
     }.padding(.vertical, 4)
+  }
+
+  private var connectionTitleKey: String {
+    switch manager.connectionPhase {
+    case .needsPairing: "mt_094"
+    case .checkingNetwork: "mt_095"
+    case .offline: "mt_096"
+    case .waitingForWiFi: "mt_097"
+    case .searching: "mt_098"
+    case .connecting: "mt_099"
+    case .receiving: "mt_100"
+    case .available: "mt_101"
+    case .retrying: "mt_104"
+    }
+  }
+
+  private var connectionSymbol: String {
+    switch manager.connectionPhase {
+    case .needsPairing: "link.badge.plus"
+    case .checkingNetwork, .searching, .connecting, .retrying: "arrow.triangle.2.circlepath"
+    case .offline: "wifi.slash"
+    case .waitingForWiFi: "wifi.exclamationmark"
+    case .receiving: "arrow.down.doc"
+    case .available: "checkmark.circle.fill"
+    }
+  }
+
+  private var connectionColor: Color {
+    switch manager.connectionPhase {
+    case .available: .green
+    case .offline, .waitingForWiFi, .retrying: .orange
+    default: .accentColor
+    }
   }
 }
 

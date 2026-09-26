@@ -14,6 +14,12 @@ struct MacTransferPairing: Codable {
 }
 
 @available(iOS 27, *)
+enum MacTransferConnectionPhase {
+  case needsPairing, checkingNetwork, offline, waitingForWiFi
+  case searching, connecting, receiving, available, retrying
+}
+
+@available(iOS 27, *)
 @MainActor
 final class MacTransferManager: ObservableObject {
   static let shared = MacTransferManager()
@@ -22,6 +28,8 @@ final class MacTransferManager: ObservableObject {
     didSet { if status != oldValue { Self.appendDebugEvent(status) } }
   }
   @Published private(set) var isReceiving = false
+  @Published private(set) var connectionPhase: MacTransferConnectionPhase = .needsPairing
+  @Published private(set) var lastAuthenticatedContactAt: Date?
   @Published private(set) var allowsCellularTransfer = UserDefaults.standard.bool(
     forKey: "MacTransferAllowsCellularData")
   private let queue = DispatchQueue(label: "net.ryuya-dev.MochiLog.mac-transfer")
@@ -48,6 +56,7 @@ final class MacTransferManager: ObservableObject {
   private init() {
     pairing = Self.loadPairing()
     status = MacTransferStatus.text(pairing == nil ? "mt_s_00" : "mt_s_01")
+    connectionPhase = pairing == nil ? .needsPairing : .checkingNetwork
     pendingAck = UserDefaults.standard.string(forKey: "MacTransferPendingAck")
   }
 
@@ -81,6 +90,7 @@ final class MacTransferManager: ObservableObject {
     directRoutes = []
     accumulated = Data()
     isReceiving = false
+    connectionPhase = networkIsAvailable ? .waitingForWiFi : .offline
     status = MacTransferStatus.text(networkIsAvailable ? "mt_s_18" : "mt_s_19")
   }
 
@@ -127,6 +137,7 @@ final class MacTransferManager: ObservableObject {
     pairing = pair
     PhysicalDeviceIdentityStore.replace(with: device)
     status = MacTransferStatus.text("mt_s_01")
+    connectionPhase = .checkingNetwork
     stop()
     start()
   }
@@ -137,6 +148,7 @@ final class MacTransferManager: ObservableObject {
     isRunning = true
     retryDelay = 5
     hasNetworkPath = false
+    connectionPhase = .checkingNetwork
     let monitor = NWPathMonitor()
     pathMonitor = monitor
     monitor.pathUpdateHandler = { [weak self, weak monitor] path in
@@ -162,6 +174,17 @@ final class MacTransferManager: ObservableObject {
     monitor.start(queue: queue)
   }
 
+  func receiveNow() {
+    guard pairing != nil, !isReceiving else { return }
+    status = MacTransferStatus.text("mt_s_20")
+    retryDelay = 5
+    if isRunning, hasNetworkPath {
+      beginDiscovery()
+    } else if !isRunning {
+      start()
+    }
+  }
+
   private func beginDiscovery() {
     guard isRunning, let pairing else { return }
     guard networkPermitsTransfer else { pauseForNetwork(); return }
@@ -176,6 +199,7 @@ final class MacTransferManager: ObservableObject {
     directRoutes = []
     routeIndex = 0
     isReceiving = false
+    connectionPhase = .searching
     requeueConfirmedFiles(for: pairing)
     if let route = Self.tailnetRoute(address: pairing.tailnetAddress,
       port: pairing.tailnetPort) {
@@ -198,6 +222,7 @@ final class MacTransferManager: ObservableObject {
         guard let result else { return }
         Self.appendDebugEvent("Bonjour interfaces: \(result.interfaces.map(\.name).joined(separator: ", "))")
         self.endpoint = result.endpoint
+        self.connectionPhase = .connecting
         if case .bonjour(let record) = result.metadata,
           let tailnet = record["tailnet"],
           let port = (record["tailnetPort"] ?? record["port"]).flatMap(UInt16.init),
@@ -231,6 +256,7 @@ final class MacTransferManager: ObservableObject {
         case .waiting(let error):
           Self.appendDebugEvent("Bonjour: waiting (\(error.localizedDescription))")
         case .failed(let error):
+          self.connectionPhase = .retrying
           self.status = MacTransferStatus.text("mt_s_02", error.localizedDescription)
           self.scheduleRetry()
         default: break
@@ -284,6 +310,7 @@ final class MacTransferManager: ObservableObject {
     directRoutes = []
     routeIndex = 0
     isReceiving = false
+    connectionPhase = pairing == nil ? .needsPairing : .checkingNetwork
   }
 
   private static func routes(from metadata: NWBrowser.Result.Metadata) -> [NWEndpoint] {
@@ -329,6 +356,7 @@ final class MacTransferManager: ObservableObject {
       Self.appendDebugEvent("Connection: trying next route (\(routeIndex + 1))")
       pull()
     } else {
+      connectionPhase = .retrying
       status = MacTransferStatus.text("mt_s_03", error)
       scheduleRetry()
     }
@@ -346,6 +374,7 @@ final class MacTransferManager: ObservableObject {
     }
     Self.appendDebugEvent("Connection: starting")
     isReceiving = true
+    connectionPhase = .connecting
     let nonce = UUID()
     let ack = pendingAck ?? ""
     let message = "\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)|\(ack)"
@@ -433,10 +462,12 @@ final class MacTransferManager: ObservableObject {
       Task { @MainActor in
         guard self.isRunning, self.connection === connection else { return }
         if let data { self.accumulated.append(data) }
+        if let data, !data.isEmpty { self.connectionPhase = .receiving }
         if self.accumulated.count > 64 * 1024 * 1024 + 1_024 {
           connection.cancel()
           self.status = MacTransferStatus.text("mt_s_04")
           self.isReceiving = false
+          self.connectionPhase = .retrying
           return
         }
         if let error {
@@ -456,6 +487,7 @@ final class MacTransferManager: ObservableObject {
     defer { connection.cancel(); self.connection = nil }
     guard let pairing, bytes.count >= 4 else {
       status = MacTransferStatus.text("mt_s_06"); isReceiving = false
+      connectionPhase = .retrying
       scheduleRetry()
       return
     }
@@ -463,6 +495,7 @@ final class MacTransferManager: ObservableObject {
     guard length == bytes.count - 4 else {
       Self.appendDebugEvent("Transfer: frame length \(length), received \(bytes.count - 4)")
       status = MacTransferStatus.text("mt_s_07"); isReceiving = false
+      connectionPhase = .retrying
       scheduleRetry()
       return
     }
@@ -474,6 +507,7 @@ final class MacTransferManager: ObservableObject {
       guard nameLength <= 1024, plain.count >= 2 + nameLength,
         let name = String(data: plain.subdata(in: 2..<(2 + nameLength)), encoding: .utf8)
       else { throw TransferError.invalidPayload }
+      lastAuthenticatedContactAt = Date()
       if name.isEmpty {
         // The Mac has processed the final file acknowledgement and returned
         // an authenticated terminal reply. Only now may imports begin.
@@ -493,6 +527,7 @@ final class MacTransferManager: ObservableObject {
         status = confirmedCount == 0 ? MacTransferStatus.text("mt_s_08")
           : MacTransferStatus.text("mt_s_09", confirmedCount)
         isReceiving = false
+        connectionPhase = .available
         retryDelay = 5
         scheduleReconnect(after: 60)
         return
@@ -554,6 +589,7 @@ final class MacTransferManager: ObservableObject {
     } catch {
       status = MacTransferStatus.text("mt_s_12", error.localizedDescription)
       isReceiving = false
+      connectionPhase = .retrying
       scheduleRetry()
     }
   }

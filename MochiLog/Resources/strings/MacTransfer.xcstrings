@@ -4770,6 +4770,188 @@
         "zh-Hant": { "stringUnit": { "state": "translated", "value": "預設關閉。關閉時，Mac 傳輸只使用 Wi-Fi 或有線網絡。此開關不會讓 Mac 透過行動數據從裝置收集新日誌，也不會變更 iCloud 同步。" } }
       }
     },
+    "mt_093": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Connection status" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "接続状況" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Verbindungsstatus" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Estado de conexión" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "État de la connexion" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "연결 상태" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "连接状态" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "連線狀態" } }
+      }
+    },
+    "mt_094": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Pairing required" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Macとのペアリングが必要です" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Kopplung erforderlich" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Se requiere enlazar el Mac" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Jumelage requis" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Mac 페어링 필요" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "需要与 Mac 配对" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "需要與 Mac 配對" } }
+      }
+    },
+    "mt_095": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Checking network" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ネットワークを確認中" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Netzwerk wird geprüft" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Comprobando la red" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Vérification du réseau" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "네트워크 확인 중" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "正在检查网络" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "正在檢查網絡" } }
+      }
+    },
+    "mt_096": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "No network connection" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ネットワークに接続されていません" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Keine Netzwerkverbindung" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Sin conexión de red" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Aucune connexion réseau" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "네트워크에 연결되지 않음" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "未连接网络" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "未連接網絡" } }
+      }
+    },
+    "mt_097": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Waiting for Wi-Fi" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Wi-Fiを待っています" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Warte auf WLAN" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Esperando Wi-Fi" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "En attente du Wi-Fi" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Wi-Fi 대기 중" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "正在等待 Wi-Fi" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "正在等待 Wi-Fi" } }
+      }
+    },
+    "mt_098": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Looking for the Mac" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Macを探しています" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Suche nach dem Mac" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Buscando el Mac" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Recherche du Mac" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Mac 검색 중" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "正在查找 Mac" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "正在尋找 Mac" } }
+      }
+    },
+    "mt_099": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Contacting the Mac" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Macに接続しています" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Verbindung zum Mac wird hergestellt" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Conectando con el Mac" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Connexion au Mac" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Mac 연결 중" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "正在连接 Mac" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "正在連接 Mac" } }
+      }
+    },
+    "mt_100": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Receiving logs" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ログを受信中" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Logs werden empfangen" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Recibiendo registros" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Réception des journaux" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "로그 수신 중" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "正在接收日志" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "正在接收日誌" } }
+      }
+    },
+    "mt_101": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Mac response confirmed" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Macからの応答を確認しました" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Antwort des Mac bestätigt" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Respuesta del Mac confirmada" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Réponse du Mac confirmée" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Mac 응답 확인됨" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "已确认 Mac 响应" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "已確認 Mac 回應" } }
+      }
+    },
+    "mt_102": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "MochiLog checks the Mac periodically. A previous response does not mean the devices are continuously connected." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Macとの通信は定期的に確認します。応答履歴があっても、常時接続を意味するものではありません。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "MochiLog prüft den Mac regelmäßig. Eine frühere Antwort bedeutet keine dauerhafte Verbindung." } },
+        "es": { "stringUnit": { "state": "translated", "value": "MochiLog comprueba el Mac periódicamente. Una respuesta anterior no significa que haya una conexión permanente." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "MochiLog vérifie le Mac périodiquement. Une réponse précédente ne signifie pas que la connexion est permanente." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "MochiLog는 Mac을 주기적으로 확인합니다. 이전 응답이 계속 연결되어 있음을 뜻하지는 않습니다." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "MochiLog 会定期检查 Mac。之前收到响应不代表设备始终保持连接。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "MochiLog 會定期檢查 Mac。先前收到回應不代表裝置持續保持連線。" } }
+      }
+    },
+    "mt_103": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Last Mac response" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Macの最終応答" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Letzte Antwort des Mac" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Última respuesta del Mac" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Dernière réponse du Mac" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "마지막 Mac 응답" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "Mac 上次响应" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "Mac 上次回應" } }
+      }
+    },
+    "mt_104": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Waiting to reconnect" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "再接続を待っています" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Warte auf erneute Verbindung" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Esperando para reconectar" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "En attente de reconnexion" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "재연결 대기 중" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "正在等待重新连接" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "正在等待重新連線" } }
+      }
+    },
+    "mt_105": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Receive now" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "今すぐ受信" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Jetzt empfangen" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Recibir ahora" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Recevoir maintenant" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "지금 받기" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "立即接收" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "立即接收" } }
+      }
+    },
+    "mt_s_20": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Checking the Mac for new logs now" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Macに新しいログがあるか確認しています" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Prüfe den Mac jetzt auf neue Logs" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Buscando nuevos registros en el Mac" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Recherche de nouveaux journaux sur le Mac" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Mac에서 새 로그 확인 중" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "正在检查 Mac 上的新日志" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "正在檢查 Mac 上的新日誌" } }
+      }
+    },
     "mt_s_18": {
       "extractionState": "manual",
       "localizations": {

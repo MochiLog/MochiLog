@@ -16,6 +16,7 @@ struct AdvancedSettingsDetailView: View {
           NavigationLink(destination: MacTransferSettingsView()) {
             Label(L10n.text("mt_071", table: "MacTransfer"), systemImage: "laptopcomputer.and.iphone")
           }
+          .accessibilityIdentifier("settings.macTransfer")
         }
       }
       Section {

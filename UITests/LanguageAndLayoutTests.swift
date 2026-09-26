@@ -299,6 +299,10 @@ final class LanguageAndLayoutTests: XCTestCase {
     XCTAssertTrue(app.buttons["settings.category.general"].exists,
                   "The iPad settings sidebar should remain visible")
     XCTAssertTrue(app.buttons["settings.category.advanced"].exists)
+    XCTAssertTrue(app.staticTexts["macTransfer.connectionPhase"].waitForExistence(timeout: 10))
+    let receiveNow = app.buttons["macTransfer.receiveNow"]
+    XCTAssertTrue(receiveNow.exists)
+    XCTAssertFalse(receiveNow.isEnabled, "Receiving requires a Mac pairing")
     let cellular = app.switches["macTransfer.allowCellularData"]
     XCTAssertTrue(cellular.waitForExistence(timeout: 10))
     func waitForValue(_ value: String) {
@@ -316,6 +320,28 @@ final class LanguageAndLayoutTests: XCTestCase {
     cellular.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5)).tap()
     waitForValue("0")
     screenshot("Mac Transfer iPad Settings Pane")
+  }
+
+  func testMacTransferReceiveControlOnIPhone() {
+    app.launchArguments += ["-selectedTabIndex", "2"]
+    app.launch()
+    let settings = app.descendants(matching: .any).matching(
+      NSPredicate(format: "label == %@", "Settings")).firstMatch
+    XCTAssertTrue(settings.waitForExistence(timeout: 10))
+    settings.tap()
+    let advanced = app.buttons["settings.advanced"]
+    for _ in 0..<8 {
+      if advanced.exists && advanced.isHittable { break }
+      app.swipeUp()
+    }
+    XCTAssertTrue(advanced.waitForExistence(timeout: 10))
+    advanced.tap()
+    let macTransfer = app.buttons["settings.macTransfer"]
+    XCTAssertTrue(macTransfer.waitForExistence(timeout: 10))
+    macTransfer.tap()
+    XCTAssertTrue(app.staticTexts["macTransfer.connectionPhase"].waitForExistence(timeout: 10))
+    XCTAssertFalse(app.buttons["macTransfer.receiveNow"].isEnabled)
+    screenshot("Mac Transfer iPhone Connection Status")
   }
 
   func testDeviceProfileEditAndRestore() {
