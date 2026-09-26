@@ -210,16 +210,6 @@ final class SwiftDataStore: DataStore {
     )
     if let sdRecord = try? modelContext.fetch(descriptor).first {
       modelContext.delete(sdRecord)
-    } else {
-      // Fallback: recordIDが未保存の旧レコードをlogDate+deviceNameで検索
-      let logDate = record.logDate
-      let deviceName = record.deviceName
-      let fallbackDescriptor = FetchDescriptor<SDBatteryRecord>(
-        predicate: #Predicate { $0.logDate == logDate && $0.deviceName == deviceName }
-      )
-      if let sdRecord = try? modelContext.fetch(fallbackDescriptor).first {
-        modelContext.delete(sdRecord)
-      }
     }
   }
 
