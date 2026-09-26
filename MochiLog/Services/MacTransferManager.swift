@@ -109,7 +109,7 @@ final class MacTransferManager: ObservableObject {
         guard previous != nil, previous != signature else { return }
         Self.appendDebugEvent("Network changed: scheduling automatic reconnect")
         self.retryDelay = 5
-        self.scheduleReconnect(after: 1)
+        self.scheduleReconnect(after: 1, interruptActive: true)
       }
     }
     monitor.start(queue: queue)
@@ -200,13 +200,16 @@ final class MacTransferManager: ObservableObject {
     }
   }
 
-  private func scheduleReconnect(after seconds: UInt64) {
+  private func scheduleReconnect(after seconds: UInt64, interruptActive: Bool = false) {
     guard isRunning else { return }
     reconnectTask?.cancel()
     reconnectTask = Task { [weak self] in
       do { try await Task.sleep(nanoseconds: seconds * 1_000_000_000) }
       catch { return }
       guard let self, self.isRunning else { return }
+      // A discovery failure must not interrupt a transfer already using a
+      // saved direct route. Only an actual path change invalidates that route.
+      guard interruptActive || self.connection == nil else { return }
       Self.appendDebugEvent("Connection: automatic reconnect")
       self.beginDiscovery()
     }
