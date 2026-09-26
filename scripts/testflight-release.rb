@@ -124,6 +124,31 @@ def assign_existing_groups(api, build_id)
   groups.count { |group| group.dig("attributes", "isInternalGroup") == false }
 end
 
+def enable_auto_notify(api, build_id)
+  detail = api.get("/builds/#{build_id}/buildBetaDetail").fetch("data")
+  unless detail.dig("attributes", "autoNotifyEnabled")
+    api.patch("/buildBetaDetails/#{detail.fetch('id')}",
+      data: { type: "buildBetaDetails", id: detail.fetch("id"),
+        attributes: { autoNotifyEnabled: true } })
+  end
+  puts "Automatic TestFlight notification is enabled."
+end
+
+def submit_external_review_if_needed(api, build_id)
+  detail = api.get("/builds/#{build_id}/buildBetaDetail").fetch("data")
+  state = detail.dig("attributes", "externalBuildState")
+  if state == "READY_FOR_BETA_SUBMISSION"
+    api.post("/betaAppReviewSubmissions",
+      data: { type: "betaAppReviewSubmissions",
+        relationships: { build: { data: { type: "builds", id: build_id } } } })
+    puts "Submitted the build for external TestFlight beta review."
+    state = api.get("/builds/#{build_id}/buildBetaDetail")
+      .dig("data", "attributes", "externalBuildState")
+  end
+  puts "External testing state: #{state}."
+  raise "External testing is blocked: #{state}" if %w[BETA_REJECTED MISSING_EXPORT_COMPLIANCE PROCESSING_EXCEPTION].include?(state)
+end
+
 mode, marketing_version, build_number = ARGV
 abort "Usage: ruby scripts/testflight-release.rb inspect|publish VERSION BUILD" unless
   %w[inspect publish].include?(mode) && marketing_version && build_number&.match?(/\A\d+\z/)
@@ -136,8 +161,8 @@ build_id = build.fetch("id")
 puts "Found #{marketing_version} (#{build_number}), processing #{build.dig('attributes', 'processingState')}."
 if mode == "publish"
   publish_localizations(api, build_id)
+  enable_auto_notify(api, build_id)
   external_count = assign_existing_groups(api, build_id)
-  puts "Assigned to #{external_count} existing external group(s); Apple may require beta review."
-  detail = api.get("/builds/#{build_id}/buildBetaDetail")
-  puts "External testing state: #{detail.dig('data', 'attributes', 'externalBuildState')}."
+  puts "Assigned to #{external_count} existing external group(s)."
+  submit_external_review_if_needed(api, build_id) if external_count.positive?
 end
