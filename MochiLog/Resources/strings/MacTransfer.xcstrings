@@ -4718,6 +4718,19 @@
         }
       }
     },
+    "mt_089": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "After pairing, Tailscale on both devices can also connect across networks. Tailscale is optional." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ペアリング後は、両端末でTailscaleを使えば別のネットワークからも接続できます。Tailscaleは任意です。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Nach dem Koppeln können beide Geräte mit Tailscale auch über verschiedene Netzwerke verbunden werden. Tailscale ist optional." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Después de enlazar, Tailscale en ambos dispositivos permite conectar desde otras redes. Tailscale es opcional." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Après le jumelage, Tailscale sur les deux appareils permet aussi une connexion entre réseaux. Tailscale est facultatif." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "페어링 후 두 기기에서 Tailscale을 사용하면 다른 네트워크에서도 연결할 수 있습니다. Tailscale은 선택 사항입니다." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "配对后，两台设备使用 Tailscale 也可跨网络连接。Tailscale 为可选功能。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "配對後，兩部裝置使用 Tailscale 也可跨網絡連線。Tailscale 為選用功能。" } }
+      }
+    },
     "mt_s_00": {
       "extractionState": "manual",
       "localizations": {

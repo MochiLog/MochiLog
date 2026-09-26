@@ -9,6 +9,8 @@ struct MacTransferPairing: Codable {
   let physicalDeviceID: UUID
   let model: String
   let secret: Data
+  var tailnetAddress: String?
+  var tailnetPort: UInt16?
 }
 
 @available(iOS 27, *)
@@ -57,8 +59,13 @@ final class MacTransferManager: ObservableObject {
       let key = values["key"].flatMap({ Data(base64Encoded: $0) }), key.count == 32 else {
       throw TransferError.wrongDevice
     }
+    let tailnet = values["tailnet"]
+    let tailnetPort = (values["tailnetPort"] ?? values["port"]).flatMap(UInt16.init)
+    let route = Self.tailnetRoute(address: tailnet, port: tailnetPort)
     let pair = MacTransferPairing(hostID: host, physicalDeviceID: device,
-      model: model, secret: key)
+      model: model, secret: key,
+      tailnetAddress: route == nil ? nil : tailnet,
+      tailnetPort: route == nil ? nil : tailnetPort)
     let previousID = PhysicalDeviceIdentityStore.current()
     if previousID != device {
       let conflicting = dataStore.recordsDescending.contains {
@@ -87,6 +94,11 @@ final class MacTransferManager: ObservableObject {
       return
     }
     requeueConfirmedFiles(for: pairing)
+    if let route = Self.tailnetRoute(address: pairing.tailnetAddress,
+      port: pairing.tailnetPort) {
+      directRoutes = [route]
+      routeIndex = 0
+    }
     let browser = NWBrowser(for: .bonjourWithTXTRecord(type: "_mochilog._tcp", domain: nil), using: .tcp)
     self.browser = browser
     browser.browseResultsChangedHandler = { [weak self] results, _ in
@@ -102,11 +114,26 @@ final class MacTransferManager: ObservableObject {
         guard let result else { return }
         Self.appendDebugEvent("Bonjour interfaces: \(result.interfaces.map(\.name).joined(separator: ", "))")
         self.endpoint = result.endpoint
+        if case .bonjour(let record) = result.metadata,
+          let tailnet = record["tailnet"],
+          let port = (record["tailnetPort"] ?? record["port"]).flatMap(UInt16.init),
+          Self.tailnetRoute(address: tailnet, port: port) != nil,
+          (self.pairing?.tailnetAddress != tailnet || self.pairing?.tailnetPort != port),
+          var updated = self.pairing {
+          updated.tailnetAddress = tailnet
+          updated.tailnetPort = port
+          if (try? Self.savePairing(updated)) != nil { self.pairing = updated }
+        }
         let newRoutes = Self.routes(from: result.metadata)
         if newRoutes != self.directRoutes {
           self.directRoutes = newRoutes
           self.routeIndex = 0
           Self.appendDebugEvent("Bonjour: \(newRoutes.count) direct route(s) advertised")
+          if let active = self.connection, case .preparing = active.state {
+            active.cancel()
+            self.connection = nil
+            self.isReceiving = false
+          }
         }
         self.pull()
       }
@@ -126,6 +153,12 @@ final class MacTransferManager: ObservableObject {
       }
     }
     browser.start(queue: queue)
+    if !directRoutes.isEmpty {
+      DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+        guard let self, self.endpoint == nil else { return }
+        self.pull()
+      }
+    }
   }
 
   func stop() {
@@ -143,12 +176,33 @@ final class MacTransferManager: ObservableObject {
   private static func routes(from metadata: NWBrowser.Result.Metadata) -> [NWEndpoint] {
     guard case .bonjour(let record) = metadata,
       let portText = record["port"], let portValue = UInt16(portText),
-      let port = NWEndpoint.Port(rawValue: portValue), portValue != 0,
-      let addresses = record["ipv4"] else { return [] }
-    return Array(addresses.split(separator: ",").prefix(4)).compactMap { text in
+      let port = NWEndpoint.Port(rawValue: portValue), portValue != 0 else { return [] }
+    var routes: [NWEndpoint] = Array((record["ipv4"] ?? "")
+      .split(separator: ",").prefix(4)).compactMap { text in
       guard let address = IPv4Address(String(text)) else { return nil }
       return .hostPort(host: .ipv4(address), port: port)
     }
+    let tailnetPort = (record["tailnetPort"] ?? record["port"]).flatMap(UInt16.init)
+    if let tailnet = tailnetRoute(address: record["tailnet"], port: tailnetPort) {
+      #if DEBUG
+      if ProcessInfo.processInfo.environment["MOCHILOG_FORCE_TAILNET"] == "1" {
+        return [tailnet]
+      }
+      #endif
+      routes.append(tailnet)
+    }
+    return routes
+  }
+
+  private static func tailnetRoute(address: String?, port: UInt16?) -> NWEndpoint? {
+    guard let address, let port, port != 0,
+      let ipv4 = IPv4Address(address) else { return nil }
+    let parts = address.split(separator: ".").compactMap { Int($0) }
+    guard
+      parts.count == 4, parts[0] == 100,
+      (64...127).contains(parts[1]),
+      let endpointPort = NWEndpoint.Port(rawValue: port) else { return nil }
+    return .hostPort(host: .ipv4(ipv4), port: endpointPort)
   }
 
   private func routeFailed(_ failed: NWConnection, error: String) {
@@ -156,7 +210,8 @@ final class MacTransferManager: ObservableObject {
     failed.cancel()
     connection = nil
     isReceiving = false
-    if routeIndex < directRoutes.count {
+    if routeIndex < directRoutes.count &&
+      (routeIndex + 1 < directRoutes.count || endpoint != nil) {
       routeIndex += 1
       Self.appendDebugEvent("Connection: trying next route (\(routeIndex + 1))")
       pull()
@@ -166,7 +221,7 @@ final class MacTransferManager: ObservableObject {
   }
 
   private func pull() {
-    guard let pairing, let endpoint else {
+    guard let pairing, endpoint != nil || routeIndex < directRoutes.count else {
       Self.appendDebugEvent("Connection: waiting for pairing or Mac endpoint")
       return
     }
@@ -197,7 +252,8 @@ final class MacTransferManager: ObservableObject {
       "clientDiagnosticsMAC": diagnosticsMAC
     ]
     guard let payload = try? JSONSerialization.data(withJSONObject: request) else { return }
-    let route = routeIndex < directRoutes.count ? directRoutes[routeIndex] : endpoint
+    guard let route = routeIndex < directRoutes.count
+      ? directRoutes[routeIndex] : endpoint else { return }
     let connection = NWConnection(to: route, using: .tcp)
     self.connection = connection
     accumulated = Data()
@@ -280,6 +336,7 @@ final class MacTransferManager: ObservableObject {
     }
     let length = bytes.prefix(4).reduce(UInt32(0)) { ($0 << 8) | UInt32($1) }
     guard length == bytes.count - 4 else {
+      Self.appendDebugEvent("Transfer: frame length \(length), received \(bytes.count - 4)")
       status = MacTransferStatus.text("mt_s_07"); isReceiving = false; return
     }
     do {
@@ -355,8 +412,11 @@ final class MacTransferManager: ObservableObject {
         try Data(content).write(to: destination, options: .atomic)
       }
       Self.appendDebugEvent("Transfer: saved \(filename), \(content.count) bytes")
-      var unconfirmed = Set(UserDefaults.standard.stringArray(forKey: unconfirmedKey) ?? [])
-      unconfirmed.insert(destination.path)
+      var unconfirmed = Self.storedFileIDs(for: unconfirmedKey, pairing: pairing)
+      guard let identifier = Self.storedFileID(for: destination, pairing: pairing) else {
+        throw TransferError.invalidPayload
+      }
+      unconfirmed.insert(identifier)
       UserDefaults.standard.set(unconfirmed.sorted(), forKey: unconfirmedKey)
       pendingAck = name
       UserDefaults.standard.set(name, forKey: "MacTransferPendingAck")
@@ -369,23 +429,97 @@ final class MacTransferManager: ObservableObject {
   }
 
   private func requeueConfirmedFiles(for pairing: MacTransferPairing) {
+    var confirmed = Self.storedFileIDs(for: confirmedKey, pairing: pairing)
+    var unconfirmed = Self.storedFileIDs(for: unconfirmedKey, pairing: pairing)
     // Files received by the previous beta were already offered for import.
     if UserDefaults.standard.object(forKey: confirmedKey) == nil {
-      let pending = Set(UserDefaults.standard.stringArray(forKey: unconfirmedKey) ?? [])
-      let legacy = allInboxFiles(for: pairing).map(\.path).filter { !pending.contains($0) }
-      UserDefaults.standard.set(legacy, forKey: confirmedKey)
+      confirmed.formUnion(allInboxFiles(for: pairing).compactMap {
+        Self.storedFileID(for: $0, pairing: pairing)
+      }.filter { !unconfirmed.contains($0) })
     }
-    let confirmed = Set(UserDefaults.standard.stringArray(forKey: confirmedKey) ?? [])
-    enqueueFiles(confirmed.compactMap { FileManager.default.fileExists(atPath: $0)
-      ? URL(fileURLWithPath: $0) : nil }, for: pairing)
+    // A previous app run can save a file just before its acknowledgement state
+    // is persisted. Keep it behind the authenticated terminal reply instead of
+    // silently abandoning the file or importing it before the Mac confirms.
+    let orphaned = allInboxFiles(for: pairing).filter {
+      guard let identifier = Self.storedFileID(for: $0, pairing: pairing) else { return false }
+      return !confirmed.contains(identifier) && !unconfirmed.contains(identifier)
+    }
+    if !orphaned.isEmpty {
+      unconfirmed.formUnion(orphaned.compactMap {
+        Self.storedFileID(for: $0, pairing: pairing)
+      })
+      Self.appendDebugEvent("Transfer: recovered \(orphaned.count) saved file(s) awaiting confirmation")
+    }
+    UserDefaults.standard.set(confirmed.sorted(), forKey: confirmedKey)
+    UserDefaults.standard.set(unconfirmed.sorted(), forKey: unconfirmedKey)
+    if pendingAck == nil,
+      let token = unconfirmed.sorted()
+        .compactMap({ Self.fileURL(for: $0, pairing: pairing) })
+        .compactMap({ Self.queueToken(for: $0, pairing: pairing) }).first {
+      pendingAck = token
+      UserDefaults.standard.set(token, forKey: "MacTransferPendingAck")
+    }
+    enqueueFiles(confirmed.compactMap { Self.fileURL(for: $0, pairing: pairing) },
+      for: pairing)
+  }
+
+  private static func storedFileIDs(for key: String, pairing: MacTransferPairing) -> Set<String> {
+    // Older builds stored absolute sandbox paths. The container UUID may change
+    // when the app is updated, so retain only paths found in the current inbox.
+    Set((UserDefaults.standard.stringArray(forKey: key) ?? []).compactMap { value in
+      let marker = "/MacTransferInbox/\(pairing.physicalDeviceID.uuidString)/"
+      let relative: String
+      if value.hasPrefix("/") {
+        guard let range = value.range(of: marker, options: .caseInsensitive) else { return nil }
+        relative = String(value[range.upperBound...])
+      } else {
+        relative = value
+      }
+      guard let file = fileURL(for: relative, pairing: pairing) else { return nil }
+      return storedFileID(for: file, pairing: pairing)
+    })
+  }
+
+  private static func fileURL(for identifier: String, pairing: MacTransferPairing) -> URL? {
+    guard let folder = try? inbox(for: pairing), !identifier.hasPrefix("/") else { return nil }
+    let file = folder.appendingPathComponent(identifier).standardizedFileURL
+    guard queueToken(for: file, pairing: pairing) != nil,
+      FileManager.default.fileExists(atPath: file.path) else { return nil }
+    return file
+  }
+
+  private static func storedFileID(for file: URL, pairing: MacTransferPairing) -> String? {
+    guard queueToken(for: file, pairing: pairing) != nil,
+      let folder = try? inbox(for: pairing) else { return nil }
+    let prefix = folder.standardizedFileURL.path + "/"
+    return String(file.standardizedFileURL.path.dropFirst(prefix.count))
+  }
+
+  private static func queueToken(for file: URL, pairing: MacTransferPairing) -> String? {
+    guard let folder = try? inbox(for: pairing) else { return nil }
+    let prefix = folder.standardizedFileURL.path + "/"
+    guard file.standardizedFileURL.path.hasPrefix(prefix) else { return nil }
+    let parts = file.standardizedFileURL.path.dropFirst(prefix.count).split(separator: "/")
+    guard let filename = parts.last.map(String.init),
+      filename.hasPrefix("Analytics-"), filename.hasSuffix(".ips.ca.synced") else { return nil }
+    if parts.count == 1 { return filename }
+    if parts.count == 2, ["Host", "Watch"].contains(String(parts[0])) {
+      return "\(parts[0])::\(filename)"
+    }
+    if parts.count == 3, ["Host", "Watch"].contains(String(parts[0])),
+      String(parts[1]).range(of: #"^ProxiedDevice-[a-fA-F0-9]+$"#,
+        options: .regularExpression) != nil {
+      return "\(parts[0])::\(parts[1])::\(filename)"
+    }
+    return nil
   }
 
   private func confirmReceivedFiles(for pairing: MacTransferPairing) -> Int {
-    let unconfirmed = Set(UserDefaults.standard.stringArray(forKey: unconfirmedKey) ?? [])
-    let files = unconfirmed.compactMap { FileManager.default.fileExists(atPath: $0)
-      ? URL(fileURLWithPath: $0) : nil }.sorted { $0.path < $1.path }
-    var confirmed = Set(UserDefaults.standard.stringArray(forKey: confirmedKey) ?? [])
-    confirmed.formUnion(files.map(\.path))
+    let unconfirmed = Self.storedFileIDs(for: unconfirmedKey, pairing: pairing)
+    let files = unconfirmed.compactMap { Self.fileURL(for: $0, pairing: pairing) }
+      .sorted { $0.path < $1.path }
+    var confirmed = Self.storedFileIDs(for: confirmedKey, pairing: pairing)
+    confirmed.formUnion(unconfirmed)
     UserDefaults.standard.set(confirmed.sorted(), forKey: confirmedKey)
     UserDefaults.standard.removeObject(forKey: unconfirmedKey)
     enqueueFiles(files, for: pairing)

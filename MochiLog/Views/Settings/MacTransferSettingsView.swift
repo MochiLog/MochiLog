@@ -33,6 +33,8 @@ struct MacTransferSettingsView: View {
           systemImage: "wifi")
         Label(L10n.text("mt_055", table: "MacTransfer"),
           systemImage: "lock.open")
+        Text(L10n.text("mt_089", table: "MacTransfer"))
+          .font(.caption).foregroundStyle(.secondary)
       }
       Section(L10n.text("mt_056", table: "MacTransfer")) {
         step(1, L10n.text("mt_057", table: "MacTransfer"))
