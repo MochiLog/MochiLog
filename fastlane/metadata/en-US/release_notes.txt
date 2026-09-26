@@ -1,4 +1,5 @@
 3.2.2
+• Fixed a crash that could occur when creating a chart image from the share button on a record's Details screen, including when there is only one record.
 • Fixed a crash when Analysis charts displayed records for devices with localized generation names, such as iPad models, in languages other than Japanese.
 • Kept device names localized in the chart legends while stabilizing chart colors for capacity and cycle trends.
 

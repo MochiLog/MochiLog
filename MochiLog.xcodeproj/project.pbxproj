@@ -555,7 +555,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1016;
+				CURRENT_PROJECT_VERSION = 1017;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = FZ35ZF3CZV;
@@ -618,7 +618,7 @@
 				CODE_SIGN_ENTITLEMENTS = MochiLog/Resources/MochiLog.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution: ryuya watanabe (FZ35ZF3CZV)";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1016;
+				CURRENT_PROJECT_VERSION = 1017;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = FZ35ZF3CZV;
@@ -802,7 +802,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1016;
+				CURRENT_PROJECT_VERSION = 1017;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=watchos*]" = FZ35ZF3CZV;
 				ENABLE_PREVIEWS = YES;
@@ -841,7 +841,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1016;
+				CURRENT_PROJECT_VERSION = 1017;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=watchos*]" = FZ35ZF3CZV;
 				ENABLE_PREVIEWS = YES;
@@ -880,7 +880,7 @@
 				CODE_SIGN_ENTITLEMENTS = MochiLogShareExtension/Share.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1016;
+				CURRENT_PROJECT_VERSION = 1017;
 				DEVELOPMENT_TEAM = FZ35ZF3CZV;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MochiLogShareExtension/Info.plist;
@@ -924,7 +924,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = MochiLogShareExtension/Share.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1016;
+				CURRENT_PROJECT_VERSION = 1017;
 				DEVELOPMENT_TEAM = FZ35ZF3CZV;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MochiLogShareExtension/Info.plist;
