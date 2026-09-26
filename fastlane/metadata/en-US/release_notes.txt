@@ -1,3 +1,7 @@
+3.2.2
+• Fixed a crash when Analysis charts displayed records for devices with localized generation names, such as iPad models, in languages other than Japanese.
+• Kept device names localized in the chart legends while stabilizing chart colors for capacity and cycle trends.
+
 3.2.1
 • Added distribution-aware in-app purchase handling for AltStore PAL. In-app donations remain available in the App Store version.
 • Fixed the iPad layout.
