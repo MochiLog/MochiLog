@@ -1,0 +1,42 @@
+name: Publish TestFlight notes and groups
+
+on:
+  workflow_dispatch:
+    inputs:
+      marketing_version:
+        description: 'Version, such as 3.2.1'
+        required: true
+        type: string
+      build_number:
+        description: 'Uploaded build number'
+        required: true
+        type: string
+      mode:
+        description: 'inspect only, or publish notes and distribute to existing groups'
+        required: true
+        default: inspect
+        type: choice
+        options:
+          - inspect
+          - publish
+
+permissions:
+  contents: read
+
+jobs:
+  testflight:
+    runs-on: macos-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install JWT gem
+        run: gem install jwt --no-document
+      - name: Inspect or publish TestFlight build
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+          RELEASE_MODE: ${{ inputs.mode }}
+          MARKETING_VERSION: ${{ inputs.marketing_version }}
+          BUILD_NUMBER: ${{ inputs.build_number }}
+        run: ruby scripts/testflight-release.rb "$RELEASE_MODE" "$MARKETING_VERSION" "$BUILD_NUMBER"
