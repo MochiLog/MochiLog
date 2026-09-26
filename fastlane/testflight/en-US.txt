@@ -1,0 +1,11 @@
+Added the Mac transfer beta for iOS/iPadOS 27 and macOS 27. Install MochiLog Mac from its GitHub Release. The DMG is Developer ID signed and notarized, and includes the collector and its dependencies.
+
+For first-time setup, verify the device's OS pairing with the Mac, then scan the Mac app's QR code in Settings → Advanced Settings → Mac Transfer. If the Mac is not yet trusted, unlock the device, connect it once by USB, and approve “Trust This Computer.” An existing wireless pairing can be reused.
+
+The Mac collects analytics logs from an unlocked iPhone or iPad, including eligible Apple Watch logs stored on a paired iPhone. It temporarily queues the files and sends them through an encrypted connection when MochiLog opens. Parsing and recording stay on the iPhone or iPad. Both sides acknowledge delivery before the Mac removes a queued file. Retries and iCloud sync avoid duplicate records. New imports include a physical-device ID so multiple devices of the same model can be distinguished; export and import preserve that ID. Existing records are not migrated wholesale.
+
+The transfer screen shows connection state, reconnection controls, iPhone/iPad and Mac debug events, and a dedicated support flow with reviewable diagnostics. Transfers on local Wi-Fi and over Tailscale have been tested on both iPhone and iPad.
+
+Please test first-time pairing, receipt of iPhone/iPad and Apple Watch logs, duplicate prevention when a file is resent, automatic reconnection after changing networks, and device identity after iCloud sync or data export and import.
+
+Limits: The Mac can collect new on-device analytics logs only while the device is unlocked and Apple's diagnostic service is reachable over a local wireless connection. Tailscale over cellular transfers files already collected by the Mac; it cannot collect new system analytics logs from the device. Mac transfer requires iOS/iPadOS 27, while normal MochiLog features continue to support earlier versions. This is a beta feature, so fixes may take time and individual replies may not always be possible.
