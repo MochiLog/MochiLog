@@ -149,15 +149,6 @@ final class SwiftDataStore: DataStore {
   private let modelContainer: ModelContainer
   private let modelContext: ModelContext
 
-  private struct ImportFingerprint: Hashable {
-    let deviceID: UUID
-    let logSecond: Int64
-    let model: String?
-    let cycles: Int
-    let nominal: Int
-    let raw: Int
-  }
-
   init(iCloudEnabled: Bool) {
     let schema = Schema(versionedSchema: CurrentBatterySchema.self)
     let config: ModelConfiguration
@@ -191,7 +182,8 @@ final class SwiftDataStore: DataStore {
     let schema = Schema(versionedSchema: CurrentBatterySchema.self)
     let config = ModelConfiguration(
       schema: schema,
-      isStoredInMemoryOnly: true
+      isStoredInMemoryOnly: true,
+      cloudKitDatabase: .none
     )
     do {
       modelContainer = try ModelContainer(for: schema, configurations: [config])
@@ -338,41 +330,7 @@ final class SwiftDataStore: DataStore {
     let descriptor = FetchDescriptor<SDBatteryRecord>(
       sortBy: [SortDescriptor(\.logDate, order: .reverse)]
     )
-    var sdRecords = (try? modelContext.fetch(descriptor)) ?? []
-    // CloudKit and the Mac can deliver the same source log in either order.
-    // Converge only exact, ID-tagged copies; same-model legacy data stays intact.
-    var keeper: [ImportFingerprint: SDBatteryRecord] = [:]
-    var duplicates: [SDBatteryRecord] = []
-    for record in sdRecords {
-      guard let deviceID = record.physicalDeviceID else { continue }
-      let key = ImportFingerprint(deviceID: deviceID,
-        logSecond: Int64(record.logDate.timeIntervalSince1970.rounded()),
-        model: record.deviceModelCode, cycles: record.cycleCount,
-        nominal: record.nominalCapacity, raw: record.rawCapacity)
-      if let existing = keeper[key] {
-        let existingID = existing.recordID?.uuidString ?? ""
-        let recordID = record.recordID?.uuidString ?? ""
-        if recordID < existingID {
-          duplicates.append(existing)
-          keeper[key] = record
-        } else {
-          duplicates.append(record)
-        }
-      } else {
-        keeper[key] = record
-      }
-    }
-    if !duplicates.isEmpty {
-      for record in duplicates { modelContext.delete(record) }
-      do {
-        try modelContext.save()
-        sdRecords = (try? modelContext.fetch(descriptor)) ?? []
-      } catch {
-        modelContext.rollback()
-        ICloudSyncManager.shared.handleSaveError(error)
-        sdRecords = (try? modelContext.fetch(descriptor)) ?? []
-      }
-    }
+    let sdRecords = (try? modelContext.fetch(descriptor)) ?? []
     let records = sdRecords.map { $0.toBatteryRecord() }
     // toBatteryRecord() が旧レコードに recordID を付与した場合、変更を保存
     if modelContext.hasChanges {

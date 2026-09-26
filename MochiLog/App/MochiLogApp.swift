@@ -186,7 +186,30 @@ struct MochiLogRootView: View {
   @State private var isReloading = false
 
   init() {
-    let store = DataStore.create(iCloudEnabled: AppSettings.shared.iCloudSyncEnabled)
+    let store: DataStore
+    #if DEBUG
+    if ProcessInfo.processInfo.environment["MOCHI_DUPLICATE_REVIEW_TEST"] == "1", #available(iOS 17, *) {
+      let testStore = SwiftDataStore(inMemory: true)
+      let date = Date(timeIntervalSince1970: 1_780_000_000)
+      let first = BatteryRecord(id: UUID(uuidString: "10000000-0000-0000-0000-000000000001")!,
+        logDate: date, deviceName: "iPhone 17", deviceModelCode: "iPhone18,3",
+        cycleCount: 42, designCapacity: 3692, nominalCapacity: 3600, rawCapacity: 3550)
+      let duplicate = BatteryRecord(id: UUID(uuidString: "20000000-0000-0000-0000-000000000002")!,
+        logDate: date, deviceName: "iPhone 17", deviceModelCode: "iPhone18,3",
+        cycleCount: 42, designCapacity: 3692, nominalCapacity: 3600, rawCapacity: 3550)
+      let otherDevice = BatteryRecord(id: UUID(uuidString: "30000000-0000-0000-0000-000000000003")!,
+        logDate: date, deviceName: "iPhone 17", deviceModelCode: "iPhone18,3",
+        cycleCount: 42, designCapacity: 3692, nominalCapacity: 3600, rawCapacity: 3550)
+      otherDevice.physicalDeviceID = UUID(uuidString: "40000000-0000-0000-0000-000000000004")!
+      for record in [first, duplicate, otherDevice] { testStore.insert(record) }
+      testStore.save()
+      store = testStore
+    } else {
+      store = DataStore.create(iCloudEnabled: AppSettings.shared.iCloudSyncEnabled)
+    }
+    #else
+    store = DataStore.create(iCloudEnabled: AppSettings.shared.iCloudSyncEnabled)
+    #endif
     _dataStore = StateObject(wrappedValue: store)
     // CloudKitのインポートイベント完了時に自動refreshできるよう登録
     ICloudSyncManager.shared.register(dataStore: store)

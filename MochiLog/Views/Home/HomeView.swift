@@ -14,6 +14,8 @@ struct MainTabView: View {
   @State private var showingProfileConflicts = false
   @State private var showingTutorial = false
   @State private var showingDiscordAnnouncement = false
+  @State private var showingExactDuplicates = false
+  @State private var exactDuplicateExtraCount = 0
   @State private var selectedTab: AppTab
   @State private var accentColor: AppSettings.ThemeColor
 
@@ -67,11 +69,22 @@ struct MainTabView: View {
     }
     .background(RecordsObserverView())
     .safeAreaInset(edge: .top) {
-      if !deviceProfiles.conflicts.isEmpty {
-        Button { showingProfileConflicts = true } label: {
-          Label(L10n.string("profile_conflict_banner", table: "Settings"), systemImage: "exclamationmark.triangle")
-            .font(.subheadline).padding(12).frame(maxWidth: .infinity)
-            .background(.regularMaterial)
+      VStack(spacing: 0) {
+        if !deviceProfiles.conflicts.isEmpty {
+          Button { showingProfileConflicts = true } label: {
+            Label(L10n.string("profile_conflict_banner", table: "Settings"), systemImage: "exclamationmark.triangle")
+              .font(.subheadline).padding(12).frame(maxWidth: .infinity)
+              .background(.regularMaterial)
+          }
+        }
+        if !appSettings.allowDuplicateRecords && exactDuplicateExtraCount > 0 {
+          Button { showingExactDuplicates = true } label: {
+            Label(String(format: L10n.string("exact_duplicates_banner", table: "ExactDuplicates"),
+                         exactDuplicateExtraCount), systemImage: "square.on.square")
+              .font(.subheadline).padding(12).frame(maxWidth: .infinity)
+              .background(.regularMaterial)
+          }
+          .accessibilityIdentifier("home.exactDuplicatesBanner")
         }
       }
     }
@@ -84,12 +97,19 @@ struct MainTabView: View {
         }
       }
     }
+    .sheet(isPresented: $showingExactDuplicates) {
+      NavigationStack {
+        ExactDuplicatesReviewView(onClose: { showingExactDuplicates = false })
+      }
+      .environmentObject(dataStore)
+    }
     .onAppear {
       let elapsed = (CFAbsoluteTimeGetCurrent() - startTime) * 1000
       print("[Performance] MainTabView.body構築完了: \(String(format: "%.2f", elapsed))ms")
 
       // 初回起動時にチュートリアルを表示（データがない場合のみ）
       let hasRecords = !dataStore.recordsDescending.isEmpty
+      scanExactDuplicates(in: dataStore.recordsDescending, duplicatesAllowed: appSettings.allowDuplicateRecords)
 
       if !appSettings.hasCompletedTutorial {
         if hasRecords {
@@ -104,6 +124,12 @@ struct MainTabView: View {
         // チュートリアル完了済みの場合、アップデート後のDiscord案内をチェック
         checkAndShowDiscordAnnouncement()
       }
+    }
+    .onReceive(dataStore.$recordsDescending) { newRecords in
+      scanExactDuplicates(in: newRecords, duplicatesAllowed: appSettings.allowDuplicateRecords)
+    }
+    .onReceive(appSettings.$allowDuplicateRecords.removeDuplicates()) { duplicatesAllowed in
+      scanExactDuplicates(in: dataStore.recordsDescending, duplicatesAllowed: duplicatesAllowed)
     }
     .onChange(of: selectedTab) { newValue in
       print("[Performance] タブ切り替え: -> \(newValue.rawValue)")
@@ -129,6 +155,11 @@ struct MainTabView: View {
         appSettings.selectedTabIndex = newValue.rawValue
       }
     }
+  }
+
+  private func scanExactDuplicates(in records: [BatteryRecord], duplicatesAllowed: Bool) {
+    exactDuplicateExtraCount = duplicatesAllowed ? 0 :
+      ExactDuplicateRecords.groups(in: records).reduce(0) { $0 + $1.extraCount }
   }
 
   // MARK: - iOS 18+ sidebarAdaptable スタイル

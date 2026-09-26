@@ -1,8 +1,12 @@
+Fixed a possible crash when sharing a chart image from a record’s Details screen, including when the device has only one record. Also fixed Analysis charts for localized device names.
+
+When duplicate records are disallowed, the app checks for records with identical contents at launch. Review the candidates in Advanced Settings and choose which groups to clean up. It backs up all records first and keeps the same record ID on every device, preventing a second iCloud-connected device from deleting the last copy.
+
 Added the Mac transfer beta for iOS/iPadOS 27 and macOS 27. Install MochiLog Mac from its GitHub Release. The DMG is Developer ID signed and notarized, and includes the collector and its dependencies.
 
 For first-time setup, verify the device's OS pairing with the Mac, then scan the Mac app's QR code in Settings → Advanced Settings → Mac Transfer. If the Mac is not yet trusted, unlock the device, connect it once by USB, and approve “Trust This Computer.” An existing wireless pairing can be reused.
 
-The Mac collects analytics logs from an unlocked iPhone or iPad, including eligible Apple Watch logs stored on a paired iPhone. It temporarily queues the files and sends them through an encrypted connection when MochiLog opens. Parsing and recording stay on the iPhone or iPad. Both sides acknowledge delivery before the Mac removes a queued file. Retries and iCloud sync avoid duplicate records. New imports include a physical-device ID so multiple devices of the same model can be distinguished; export and import preserve that ID. Existing records are not migrated wholesale.
+The Mac collects analytics logs from an unlocked iPhone or iPad, including eligible Apple Watch logs stored on a paired iPhone. It temporarily queues the files and sends them through an encrypted connection when MochiLog opens. Parsing and recording stay on the iPhone or iPad. Both sides acknowledge delivery before the Mac removes a queued file. Retries avoid importing the same transferred file again. Exact duplicate records that remain after iCloud sync can be reviewed and cleaned up in Advanced Settings. New imports include a physical-device ID so multiple devices of the same model can be distinguished; export and import preserve that ID. Existing records are not migrated wholesale.
 
 The transfer screen shows connection state, reconnection controls, iPhone/iPad and Mac debug events, and a dedicated support flow with reviewable diagnostics. Transfers on local Wi-Fi and over Tailscale have been tested on both iPhone and iPad.
 

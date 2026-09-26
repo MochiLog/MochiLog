@@ -175,20 +175,24 @@ def submit_external_review_if_needed(api, build_id)
 end
 
 mode, marketing_version, build_number = ARGV
-abort "Usage: ruby scripts/testflight-release.rb inspect|publish VERSION BUILD" unless
-  %w[inspect publish].include?(mode) && marketing_version && build_number&.match?(/\A\d+\z/)
+abort "Usage: ruby scripts/testflight-release.rb inspect|notes|publish VERSION BUILD" unless
+  %w[inspect notes publish].include?(mode) && marketing_version && build_number&.match?(/\A\d+\z/)
 
 api = AppStoreConnect.new
 app = api.get("/apps/#{APP_ID}")
 raise "Unexpected bundle ID" unless app.dig("data", "attributes", "bundleId") == BUNDLE_ID
-build = build_for(api, marketing_version, build_number, wait: mode == "publish")
+build = build_for(api, marketing_version, build_number, wait: mode != "inspect")
 build_id = build.fetch("id")
 puts "Found #{marketing_version} (#{build_number}), processing #{build.dig('attributes', 'processingState')}."
-if mode == "publish"
+if mode != "inspect"
   publish_localizations(api, build_id)
   publish_beta_test_information(api)
   enable_auto_notify(api, build_id)
-  external_count = assign_existing_groups(api, build_id)
-  puts "Assigned to #{external_count} existing external group(s)."
-  submit_external_review_if_needed(api, build_id) if external_count.positive?
+  if mode == "publish"
+    external_count = assign_existing_groups(api, build_id)
+    puts "Assigned to #{external_count} existing external group(s)."
+    submit_external_review_if_needed(api, build_id) if external_count.positive?
+  else
+    puts "Tester group assignment and external beta review are left to App Store Connect."
+  end
 end

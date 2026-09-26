@@ -176,6 +176,11 @@ struct AdvancedSettingsDetailView: View {
           L10n.string("allow_duplicate_records", table: "Settings"),
           isOn: $appSettings.allowDuplicateRecords
         )
+        if !appSettings.allowDuplicateRecords {
+          NavigationLink(destination: ExactDuplicatesReviewView()) {
+            Label(L10n.string("exact_duplicates_title", table: "ExactDuplicates"), systemImage: "square.on.square")
+          }
+        }
       } footer: {
         Text(L10n.string("allow_duplicate_records_description", table: "Settings"))
       }

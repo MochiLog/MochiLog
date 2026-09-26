@@ -149,6 +149,11 @@ struct AdvancedSettingsView: View {
         duplicateRecordsCard
           .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
           .listRowBackground(Color.clear)
+        if !appSettings.allowDuplicateRecords {
+          NavigationLink(destination: ExactDuplicatesReviewView()) {
+            Label(L10n.string("exact_duplicates_title", table: "ExactDuplicates"), systemImage: "square.on.square")
+          }
+        }
       }
 
       // MARK: - iCloudストレージ設定

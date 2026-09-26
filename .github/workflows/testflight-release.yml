@@ -12,12 +12,13 @@ on:
         required: true
         type: string
       mode:
-        description: 'inspect only, or publish notes and distribute to existing groups'
+        description: 'inspect, publish notes only, or publish notes and distribute to existing groups'
         required: true
         default: inspect
         type: choice
         options:
           - inspect
+          - notes
           - publish
 
 permissions:

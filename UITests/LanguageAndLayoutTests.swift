@@ -77,6 +77,35 @@ final class LanguageAndLayoutTests: XCTestCase {
     }
   }
 
+  func testExactDuplicateReviewKeepsOneCopyAndOtherDevice() {
+    app.launchEnvironment["MOCHI_DUPLICATE_REVIEW_TEST"] = "1"
+    app.launchArguments += ["-appLanguage", "en", "-selectedTabIndex", "0",
+                            "-allowDuplicateRecords", "NO", "-showingSampleData", "NO"]
+    app.launch()
+
+    let banner = app.buttons["home.exactDuplicatesBanner"]
+    XCTAssertTrue(banner.waitForExistence(timeout: 15))
+    banner.tap()
+    XCTAssertTrue(app.navigationBars["Review Duplicate Records"].waitForExistence(timeout: 10))
+    XCTAssertEqual(app.buttons.matching(identifier: "duplicates.group").count, 1,
+                   "Identical measurements from a different physical device must be excluded")
+    app.buttons["duplicates.group"].tap()
+    let remove = app.buttons["duplicates.removeSelected"]
+    XCTAssertTrue(remove.isEnabled)
+    remove.tap()
+    app.alerts.firstMatch.buttons["Delete"].tap()
+    let result = app.alerts.firstMatch
+    XCTAssertTrue(result.waitForExistence(timeout: 10))
+    XCTAssertTrue(result.staticTexts["Removed 1 extra records."].exists)
+    result.buttons["OK"].tap()
+    XCTAssertTrue(app.staticTexts["No exact duplicates found"].waitForExistence(timeout: 10))
+    XCTAssertFalse(banner.exists)
+    app.buttons["Close"].tap()
+    XCTAssertEqual(app.buttons.matching(NSPredicate(
+      format: "identifier BEGINSWITH %@", "home.record.")).count, 2,
+      "The retained copy and the other physical device must remain visible")
+  }
+
   func testMarketplaceDisablesDonations() {
     for source in ["appStore", "marketplace", "testFlight"] {
       app.launchEnvironment["MOCHI_TEST_DISTRIBUTOR"] = source
