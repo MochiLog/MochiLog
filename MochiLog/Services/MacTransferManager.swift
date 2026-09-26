@@ -33,6 +33,7 @@ final class MacTransferManager: ObservableObject {
 
   private init() {
     pairing = Self.loadPairing()
+    status = MacTransferStatus.text(pairing == nil ? "mt_s_00" : "mt_s_01")
     pendingAck = UserDefaults.standard.string(forKey: "MacTransferPendingAck")
   }
 
