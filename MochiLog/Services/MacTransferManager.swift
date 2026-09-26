@@ -24,6 +24,8 @@ final class MacTransferManager: ObservableObject {
   private var browser: NWBrowser?
   private var connection: NWConnection?
   private var endpoint: NWEndpoint?
+  private var directRoutes: [NWEndpoint] = []
+  private var routeIndex = 0
   private var accumulated = Data()
   private var pendingAck: String?
   private let unconfirmedKey = "MacTransferUnconfirmedFiles"
@@ -85,7 +87,7 @@ final class MacTransferManager: ObservableObject {
       return
     }
     requeueConfirmedFiles(for: pairing)
-    let browser = NWBrowser(for: .bonjour(type: "_mochilog._tcp", domain: nil), using: .tcp)
+    let browser = NWBrowser(for: .bonjourWithTXTRecord(type: "_mochilog._tcp", domain: nil), using: .tcp)
     self.browser = browser
     browser.browseResultsChangedHandler = { [weak self] results, _ in
       guard let self else { return }
@@ -100,6 +102,12 @@ final class MacTransferManager: ObservableObject {
         guard let result else { return }
         Self.appendDebugEvent("Bonjour interfaces: \(result.interfaces.map(\.name).joined(separator: ", "))")
         self.endpoint = result.endpoint
+        let newRoutes = Self.routes(from: result.metadata)
+        if newRoutes != self.directRoutes {
+          self.directRoutes = newRoutes
+          self.routeIndex = 0
+          Self.appendDebugEvent("Bonjour: \(newRoutes.count) direct route(s) advertised")
+        }
         self.pull()
       }
     }
@@ -126,7 +134,35 @@ final class MacTransferManager: ObservableObject {
     browser = nil
     connection?.cancel()
     connection = nil
+    endpoint = nil
+    directRoutes = []
+    routeIndex = 0
     isReceiving = false
+  }
+
+  private static func routes(from metadata: NWBrowser.Result.Metadata) -> [NWEndpoint] {
+    guard case .bonjour(let record) = metadata,
+      let portText = record["port"], let portValue = UInt16(portText),
+      let port = NWEndpoint.Port(rawValue: portValue), portValue != 0,
+      let addresses = record["ipv4"] else { return [] }
+    return Array(addresses.split(separator: ",").prefix(4)).compactMap { text in
+      guard let address = IPv4Address(String(text)) else { return nil }
+      return .hostPort(host: .ipv4(address), port: port)
+    }
+  }
+
+  private func routeFailed(_ failed: NWConnection, error: String) {
+    guard connection === failed else { return }
+    failed.cancel()
+    connection = nil
+    isReceiving = false
+    if routeIndex < directRoutes.count {
+      routeIndex += 1
+      Self.appendDebugEvent("Connection: trying next route (\(routeIndex + 1))")
+      pull()
+    } else {
+      status = MacTransferStatus.text("mt_s_03", error)
+    }
   }
 
   private func pull() {
@@ -161,7 +197,8 @@ final class MacTransferManager: ObservableObject {
       "clientDiagnosticsMAC": diagnosticsMAC
     ]
     guard let payload = try? JSONSerialization.data(withJSONObject: request) else { return }
-    let connection = NWConnection(to: endpoint, using: .tcp)
+    let route = routeIndex < directRoutes.count ? directRoutes[routeIndex] : endpoint
+    let connection = NWConnection(to: route, using: .tcp)
     self.connection = connection
     accumulated = Data()
     connection.pathUpdateHandler = { path in
@@ -179,10 +216,7 @@ final class MacTransferManager: ObservableObject {
         connection.send(content: payload + Data([10]), completion: .contentProcessed { error in
           Task { @MainActor in
             if let error {
-              self.status = MacTransferStatus.text("mt_s_03", error.localizedDescription)
-              self.connection = nil
-              self.isReceiving = false
-              connection.cancel()
+              self.routeFailed(connection, error: error.localizedDescription)
             } else {
               Self.appendDebugEvent("Connection: request sent")
               self.receive(on: connection)
@@ -194,27 +228,22 @@ final class MacTransferManager: ObservableObject {
       case .failed(let error):
         Task { @MainActor in
           Self.appendDebugEvent("Connection: failed (\(error.localizedDescription))")
-          self.status = MacTransferStatus.text("mt_s_03", error.localizedDescription)
-          self.connection = nil
-          self.isReceiving = false
+          self.routeFailed(connection, error: error.localizedDescription)
         }
-        connection.cancel()
       case .cancelled:
         Task { @MainActor in Self.appendDebugEvent("Connection: cancelled") }
       default: break
       }
     }
     connection.start(queue: queue)
-    DispatchQueue.main.asyncAfter(deadline: .now() + 20) { [weak self, weak connection] in
+    let timeout: TimeInterval = routeIndex < directRoutes.count ? 6 : 20
+    DispatchQueue.main.asyncAfter(deadline: .now() + timeout) { [weak self, weak connection] in
       guard let self, let connection, self.connection === connection else { return }
       switch connection.state {
       case .ready, .failed, .cancelled: return
       default: break
       }
-      self.status = MacTransferStatus.text("mt_s_03", URLError(.timedOut).localizedDescription)
-      self.connection = nil
-      self.isReceiving = false
-      connection.cancel()
+      self.routeFailed(connection, error: URLError(.timedOut).localizedDescription)
     }
   }
 
@@ -272,6 +301,7 @@ final class MacTransferManager: ObservableObject {
           UserDefaults.standard.set(Data(report), forKey: macDiagnosticsKey)
         }
         let confirmedCount = confirmReceivedFiles(for: pairing)
+        Self.appendDebugEvent("Transfer: confirmed \(confirmedCount) received file(s)")
         if pendingAck != nil {
           pendingAck = nil
           UserDefaults.standard.removeObject(forKey: "MacTransferPendingAck")
@@ -306,6 +336,7 @@ final class MacTransferManager: ObservableObject {
       }
       if filename.localizedCaseInsensitiveContains("session") ||
         !Self.looksLikeBatteryLog(plain.dropFirst(2 + nameLength)) {
+        Self.appendDebugEvent("Transfer: ignored \(filename), \(plain.count - 2 - nameLength) bytes")
         pendingAck = name
         UserDefaults.standard.set(name, forKey: "MacTransferPendingAck")
         status = MacTransferStatus.text("mt_s_10")
@@ -323,6 +354,7 @@ final class MacTransferManager: ObservableObject {
       if !FileManager.default.fileExists(atPath: destination.path) {
         try Data(content).write(to: destination, options: .atomic)
       }
+      Self.appendDebugEvent("Transfer: saved \(filename), \(content.count) bytes")
       var unconfirmed = Set(UserDefaults.standard.stringArray(forKey: unconfirmedKey) ?? [])
       unconfirmed.insert(destination.path)
       UserDefaults.standard.set(unconfirmed.sorted(), forKey: unconfirmedKey)
