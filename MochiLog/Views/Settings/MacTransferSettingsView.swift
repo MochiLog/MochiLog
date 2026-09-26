@@ -17,6 +17,18 @@ struct MacTransferSettingsView: View {
 
   var body: some View {
     Form {
+      Section {
+        guidePoint("mt_guide_collect_title", "mt_guide_collect_detail",
+          symbol: "macbook.and.iphone")
+        guidePoint("mt_guide_import_title", "mt_guide_import_detail",
+          symbol: "arrow.down.doc")
+        guidePoint("mt_guide_without_title", "mt_guide_without_detail",
+          symbol: "iphone")
+      } header: {
+        Text(L10n.text("mt_guide_title", table: "MacTransfer"))
+      } footer: {
+        Text(L10n.text("mt_guide_footer", table: "MacTransfer"))
+      }
       if isPreparingPairing {
         Section { ProgressView(L10n.text("mt_secure_pair_connecting", table: "MacTransfer")) }
       }
@@ -224,6 +236,23 @@ struct MacTransferSettingsView: View {
       Text("\(number)").font(.caption.bold()).foregroundStyle(.white)
         .frame(width: 24, height: 24).background(.green, in: Circle())
       Text(text).fixedSize(horizontal: false, vertical: true)
+    }.padding(.vertical, 4)
+  }
+
+  private func guidePoint(_ titleKey: String, _ detailKey: String,
+    symbol: String) -> some View {
+    HStack(alignment: .top, spacing: 12) {
+      Image(systemName: symbol)
+        .font(.body.weight(.semibold))
+        .foregroundStyle(.green)
+        .frame(width: 26)
+        .accessibilityHidden(true)
+      VStack(alignment: .leading, spacing: 3) {
+        Text(L10n.text(titleKey, table: "MacTransfer")).font(.subheadline.weight(.semibold))
+        Text(L10n.text(detailKey, table: "MacTransfer"))
+          .font(.subheadline).foregroundStyle(.secondary)
+          .fixedSize(horizontal: false, vertical: true)
+      }
     }.padding(.vertical, 4)
   }
 

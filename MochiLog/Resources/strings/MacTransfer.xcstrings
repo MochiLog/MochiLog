@@ -1,6 +1,110 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "mt_guide_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "What Mac transfer does" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Mac連携でできること" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Das kann die Mac-Übertragung" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Qué hace la transferencia con Mac" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Ce que fait le transfert Mac" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Mac 연동으로 할 수 있는 일" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "Mac 传输能做什么" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "Mac 傳輸能做什麼" } }
+      }
+    },
+    "mt_guide_collect_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "The Mac collects logs" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Macがログを収集" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Der Mac sammelt Protokolle" } },
+        "es": { "stringUnit": { "state": "translated", "value": "El Mac recopila registros" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Le Mac recueille les journaux" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Mac이 로그 수집" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "Mac 收集日志" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "Mac 收集日誌" } }
+      }
+    },
+    "mt_guide_collect_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "While the device is unlocked, the Mac app collects battery analytics over Wi-Fi and keeps them ready. It can also collect paired Apple Watch logs through the iPhone." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "端末のロック解除中に、MacアプリがWi-Fi経由でバッテリー解析ログを集めて保管します。ペアリング済みApple WatchのログもiPhone経由で対象になります。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Wenn das Gerät entsperrt ist, sammelt die Mac-App Batterieanalyseprotokolle über WLAN und hält sie bereit. Protokolle einer gekoppelten Apple Watch kann sie über das iPhone erfassen." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Con el dispositivo desbloqueado, la app del Mac recoge por Wi-Fi los registros de batería y los guarda. También puede recoger los del Apple Watch enlazado a través del iPhone." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Lorsque l’appareil est déverrouillé, l’app Mac recueille les journaux de batterie en Wi-Fi et les conserve. Elle peut aussi récupérer ceux de l’Apple Watch jumelée via l’iPhone." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "기기가 잠금 해제된 동안 Mac 앱이 Wi-Fi로 배터리 분석 로그를 수집해 보관합니다. 페어링된 Apple Watch 로그도 iPhone을 통해 수집할 수 있습니다." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "设备解锁期间，Mac App 会通过 Wi-Fi 收集并暂存电池分析日志，也可通过 iPhone 收集已配对 Apple Watch 的日志。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "裝置解鎖期間，Mac App 會透過 Wi-Fi 收集並暫存電池分析日誌，也可透過 iPhone 收集已配對 Apple Watch 的日誌。" } }
+      }
+    },
+    "mt_guide_import_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "MochiLog analyzes and saves" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "スマホ側で解析・記録" } },
+        "de": { "stringUnit": { "state": "translated", "value": "MochiLog wertet aus und speichert" } },
+        "es": { "stringUnit": { "state": "translated", "value": "MochiLog analiza y guarda" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "MochiLog analyse et enregistre" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "MochiLog에서 분석·기록" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "MochiLog 分析并记录" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "MochiLog 分析並記錄" } }
+      }
+    },
+    "mt_guide_import_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Open MochiLog on the iPhone or iPad to receive pending logs securely. The app analyzes and records them; iCloud sync remains optional and separate." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "iPhone・iPadでMochiLogを開くと、保管されたログを暗号化して受信し、アプリ側で解析・記録します。iCloud同期は別の任意設定です。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Öffne MochiLog auf dem iPhone oder iPad, um wartende Protokolle verschlüsselt zu empfangen. Die App wertet sie aus und speichert sie. iCloud-Sync bleibt getrennt und optional." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Abre MochiLog en el iPhone o iPad para recibir los registros pendientes de forma cifrada. La app los analiza y guarda. La sincronización con iCloud es independiente y opcional." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Ouvrez MochiLog sur l’iPhone ou l’iPad pour recevoir les journaux en attente de façon chiffrée. L’app les analyse et les enregistre. La synchronisation iCloud reste distincte et facultative." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "iPhone 또는 iPad에서 MochiLog을 열면 대기 중인 로그를 암호화해 수신하고 앱에서 분석·기록합니다. iCloud 동기화는 별도의 선택 사항입니다." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "在 iPhone 或 iPad 上打开 MochiLog，即可加密接收待传日志，由 App 分析并记录。iCloud 同步是独立的可选设置。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "在 iPhone 或 iPad 上開啟 MochiLog，即可加密接收待傳日誌，由 App 分析並記錄。iCloud 同步是獨立的選用設定。" } }
+      }
+    },
+    "mt_guide_without_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "MochiLog works without a Mac" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Macなしでも使えます" } },
+        "de": { "stringUnit": { "state": "translated", "value": "MochiLog funktioniert auch ohne Mac" } },
+        "es": { "stringUnit": { "state": "translated", "value": "MochiLog funciona sin Mac" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "MochiLog fonctionne sans Mac" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Mac 없이도 사용 가능" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "没有 Mac 也能使用" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "沒有 Mac 也能使用" } }
+      }
+    },
+    "mt_guide_without_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "You can still share analytics logs manually from Settings to MochiLog and use your records and charts. Only automatic Mac collection requires pairing." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "これまでどおり設定アプリから解析ログを手動共有し、記録やグラフを利用できます。Macとのペアリングが必要なのはMacによる自動収集だけです。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Du kannst Analyseprotokolle weiter manuell aus den Einstellungen an MochiLog teilen und Einträge und Diagramme nutzen. Nur die automatische Sammlung per Mac erfordert eine Kopplung." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Puedes seguir compartiendo registros desde Ajustes a MochiLog y usar tus datos y gráficas. Solo la recogida automática del Mac requiere enlace." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Vous pouvez toujours partager manuellement les journaux depuis Réglages vers MochiLog et utiliser vos données et graphiques. Seule la collecte automatique par Mac exige un jumelage." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "설정에서 분석 로그를 MochiLog으로 직접 공유하고 기록과 그래프를 계속 사용할 수 있습니다. Mac 자동 수집에만 페어링이 필요합니다." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "仍可从“设置”手动将分析日志共享给 MochiLog，并使用记录和图表。只有 Mac 自动收集需要配对。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "仍可從「設定」手動將分析日誌分享給 MochiLog，並使用紀錄和圖表。只有 Mac 自動收集需要配對。" } }
+      }
+    },
+    "mt_guide_footer": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Mac transfer is an optional beta feature for macOS 27 and iOS/iPadOS 27. Follow the setup steps below to use it." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Mac連携はmacOS 27とiOS/iPadOS 27向けの任意のベータ機能です。利用する場合は以下の手順で設定してください。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Die Mac-Übertragung ist eine optionale Beta für macOS 27 und iOS/iPadOS 27. Folge zur Nutzung den Schritten unten." } },
+        "es": { "stringUnit": { "state": "translated", "value": "La transferencia con Mac es una función beta opcional para macOS 27 e iOS/iPadOS 27. Sigue los pasos siguientes para usarla." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Le transfert Mac est une fonction bêta facultative pour macOS 27 et iOS/iPadOS 27. Suivez les étapes ci-dessous pour l’utiliser." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Mac 연동은 macOS 27 및 iOS/iPadOS 27용 선택적 베타 기능입니다. 사용하려면 아래 설정 단계를 따르세요." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "Mac 传输是适用于 macOS 27 和 iOS/iPadOS 27 的可选测试功能。要使用，请按以下步骤设置。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "Mac 傳輸是適用於 macOS 27 和 iOS/iPadOS 27 的選用測試功能。要使用，請依照以下步驟設定。" } }
+      }
+    },
     "mt_000": {
       "extractionState": "manual",
       "localizations": {
