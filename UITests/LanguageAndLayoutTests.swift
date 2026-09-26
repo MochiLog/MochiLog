@@ -283,6 +283,41 @@ final class LanguageAndLayoutTests: XCTestCase {
     screenshot("Advanced Light Settings")
   }
 
+  func testMacTransferRemainsInIPadSettingsPane() {
+    app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryL"]
+    app.launch()
+    let settings = app.descendants(matching: .any).matching(
+      NSPredicate(format: "label == %@", "Settings")).firstMatch
+    XCTAssertTrue(settings.waitForExistence(timeout: 10))
+    settings.tap()
+    let advanced = app.buttons["settings.category.advanced"]
+    XCTAssertTrue(advanced.waitForExistence(timeout: 10))
+    advanced.tap()
+    let macTransfer = app.buttons["settings.macTransfer"]
+    XCTAssertTrue(macTransfer.waitForExistence(timeout: 10))
+    macTransfer.tap()
+    XCTAssertTrue(app.buttons["settings.category.general"].exists,
+                  "The iPad settings sidebar should remain visible")
+    XCTAssertTrue(app.buttons["settings.category.advanced"].exists)
+    let cellular = app.switches["macTransfer.allowCellularData"]
+    XCTAssertTrue(cellular.waitForExistence(timeout: 10))
+    func waitForValue(_ value: String) {
+      let condition = XCTNSPredicateExpectation(
+        predicate: NSPredicate(format: "value == %@", value), object: cellular)
+      XCTAssertEqual(XCTWaiter.wait(for: [condition], timeout: 5), .completed)
+    }
+    if cellular.value as? String == "1" {
+      cellular.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5)).tap()
+      waitForValue("0")
+    }
+    XCTAssertEqual(cellular.value as? String, "0")
+    cellular.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5)).tap()
+    waitForValue("1")
+    cellular.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5)).tap()
+    waitForValue("0")
+    screenshot("Mac Transfer iPad Settings Pane")
+  }
+
   func testDeviceProfileEditAndRestore() {
     app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryL"]
     app.launch()

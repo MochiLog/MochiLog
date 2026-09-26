@@ -22,10 +22,15 @@ final class MacTransferManager: ObservableObject {
     didSet { if status != oldValue { Self.appendDebugEvent(status) } }
   }
   @Published private(set) var isReceiving = false
+  @Published private(set) var allowsCellularTransfer = UserDefaults.standard.bool(
+    forKey: "MacTransferAllowsCellularData")
   private let queue = DispatchQueue(label: "net.ryuya-dev.MochiLog.mac-transfer")
   private var browser: NWBrowser?
   private var pathMonitor: NWPathMonitor?
   private var pathSignature: String?
+  private var hasNetworkPath = false
+  private var networkIsAvailable = false
+  private var networkUsesWiFiOrEthernet = false
   private var reconnectTask: Task<Void, Never>?
   private var retryDelay: UInt64 = 5
   private var isRunning = false
@@ -44,6 +49,39 @@ final class MacTransferManager: ObservableObject {
     pairing = Self.loadPairing()
     status = MacTransferStatus.text(pairing == nil ? "mt_s_00" : "mt_s_01")
     pendingAck = UserDefaults.standard.string(forKey: "MacTransferPendingAck")
+  }
+
+  func setAllowsCellularTransfer(_ allowed: Bool) {
+    guard allowsCellularTransfer != allowed else { return }
+    allowsCellularTransfer = allowed
+    UserDefaults.standard.set(allowed, forKey: "MacTransferAllowsCellularData")
+    Self.appendDebugEvent("Cellular transfer: \(allowed ? "enabled" : "disabled")")
+    guard isRunning, hasNetworkPath else { return }
+    if networkPermitsTransfer {
+      retryDelay = 5
+      beginDiscovery() // Recreate connections with the new interface policy.
+    } else {
+      pauseForNetwork()
+    }
+  }
+
+  private var networkPermitsTransfer: Bool {
+    hasNetworkPath && networkIsAvailable &&
+      (allowsCellularTransfer || networkUsesWiFiOrEthernet)
+  }
+
+  private func pauseForNetwork() {
+    reconnectTask?.cancel()
+    reconnectTask = nil
+    browser?.cancel()
+    browser = nil
+    connection?.cancel()
+    connection = nil
+    endpoint = nil
+    directRoutes = []
+    accumulated = Data()
+    isReceiving = false
+    status = MacTransferStatus.text(networkIsAvailable ? "mt_s_18" : "mt_s_19")
   }
 
   func pair(from text: String, dataStore: DataStore, relinkLocalRecords: Bool = false) throws {
@@ -98,6 +136,7 @@ final class MacTransferManager: ObservableObject {
     guard !isRunning else { return }
     isRunning = true
     retryDelay = 5
+    hasNetworkPath = false
     let monitor = NWPathMonitor()
     pathMonitor = monitor
     monitor.pathUpdateHandler = { [weak self, weak monitor] path in
@@ -106,18 +145,26 @@ final class MacTransferManager: ObservableObject {
         guard let self, self.pathMonitor === monitor, self.isRunning else { return }
         let previous = self.pathSignature
         self.pathSignature = signature
-        guard previous != nil, previous != signature else { return }
+        self.hasNetworkPath = true
+        self.networkIsAvailable = path.status == .satisfied
+        self.networkUsesWiFiOrEthernet = path.usesInterfaceType(.wifi) ||
+          path.usesInterfaceType(.wiredEthernet)
+        guard self.networkPermitsTransfer else {
+          self.pauseForNetwork()
+          return
+        }
+        guard previous != signature else { return }
         Self.appendDebugEvent("Network changed: scheduling automatic reconnect")
         self.retryDelay = 5
-        self.scheduleReconnect(after: 1, interruptActive: true)
+        self.beginDiscovery()
       }
     }
     monitor.start(queue: queue)
-    beginDiscovery()
   }
 
   private func beginDiscovery() {
     guard isRunning, let pairing else { return }
+    guard networkPermitsTransfer else { pauseForNetwork(); return }
     reconnectTask?.cancel()
     reconnectTask = nil
     browser?.cancel()
@@ -227,6 +274,7 @@ final class MacTransferManager: ObservableObject {
     pathMonitor?.cancel()
     pathMonitor = nil
     pathSignature = nil
+    hasNetworkPath = false
     Self.appendDebugEvent("Connection: stopped")
     browser?.cancel()
     browser = nil
@@ -287,7 +335,8 @@ final class MacTransferManager: ObservableObject {
   }
 
   private func pull() {
-    guard isRunning, let pairing, endpoint != nil || routeIndex < directRoutes.count else {
+    guard isRunning, let pairing, networkPermitsTransfer,
+      endpoint != nil || routeIndex < directRoutes.count else {
       Self.appendDebugEvent("Connection: waiting for pairing or Mac endpoint")
       return
     }
@@ -320,12 +369,20 @@ final class MacTransferManager: ObservableObject {
     guard let payload = try? JSONSerialization.data(withJSONObject: request) else { return }
     guard let route = routeIndex < directRoutes.count
       ? directRoutes[routeIndex] : endpoint else { return }
-    let connection = NWConnection(to: route, using: .tcp)
+    let parameters = NWParameters.tcp
+    if !allowsCellularTransfer {
+      parameters.prohibitedInterfaceTypes = [.cellular]
+    }
+    let connection = NWConnection(to: route, using: parameters)
     self.connection = connection
     accumulated = Data()
-    connection.pathUpdateHandler = { path in
+    connection.pathUpdateHandler = { [weak self, weak connection] path in
       Task { @MainActor in
         Self.appendDebugEvent("Path: \(path.status), Wi-Fi \(path.usesInterfaceType(.wifi)), reason \(String(describing: path.unsatisfiedReason))")
+        guard let self, let connection, self.connection === connection,
+          !self.allowsCellularTransfer,
+          !path.usesInterfaceType(.wifi), !path.usesInterfaceType(.wiredEthernet) else { return }
+        self.pauseForNetwork()
       }
     }
     connection.stateUpdateHandler = { [weak self] state in

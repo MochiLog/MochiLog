@@ -36,6 +36,19 @@ struct MacTransferSettingsView: View {
         Text(L10n.text("mt_089", table: "MacTransfer"))
           .font(.caption).foregroundStyle(.secondary)
       }
+      Section {
+        Toggle(L10n.text("mt_090", table: "MacTransfer"),
+          isOn: Binding(
+            get: { manager.allowsCellularTransfer },
+            set: { manager.setAllowsCellularTransfer($0) }
+          ))
+          .accessibilityIdentifier("macTransfer.allowCellularData")
+      } footer: {
+        VStack(alignment: .leading, spacing: 8) {
+          Text(L10n.text("mt_091", table: "MacTransfer"))
+          Text(L10n.text("mt_092", table: "MacTransfer"))
+        }
+      }
       Section(L10n.text("mt_056", table: "MacTransfer")) {
         step(1, L10n.text("mt_057", table: "MacTransfer"))
         step(2, L10n.text("mt_058", table: "MacTransfer"))

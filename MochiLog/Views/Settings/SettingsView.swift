@@ -44,6 +44,7 @@ struct SettingsView: View {
   @State private var showingTutorial = false
   @State private var showingSupportForm = false
   @State private var showingDonation = false
+  @State private var showingMacTransferInPane = false
   @ObservedObject private var donationManager = DonationManager.shared
 
   // デバイスごとの削除機能用の状態
@@ -247,6 +248,7 @@ struct SettingsView: View {
             VStack(spacing: 16) {
               ForEach(SettingsCategory.allCases.filter { $0 != .iCloud }) { category in
                 Button {
+                  showingMacTransferInPane = false
                   selectedCategory.wrappedValue = category
                 } label: {
                   CategoryCardView(category: category,
@@ -285,8 +287,31 @@ struct SettingsView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if selectedCategory.wrappedValue == .advanced {
           VStack(spacing: 0) {
-            Divider()  // ヘッダーとの境界線
-            AdvancedSettingsView(appSettings: appSettings)
+            if showingMacTransferInPane {
+              HStack {
+                Button {
+                  showingMacTransferInPane = false
+                } label: {
+                  Label(L10n.string("advanced_settings", table: "Settings"),
+                    systemImage: "chevron.left")
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(appSettings.accentColor.color)
+                Spacer()
+              }
+              .padding(.horizontal, 20)
+              .padding(.vertical, 12)
+              Divider()
+              if #available(iOS 27, *) {
+                NavigationStack {
+                  MacTransferSettingsView()
+                }
+              }
+            } else {
+              Divider()  // ヘッダーとの境界線
+              AdvancedSettingsView(appSettings: appSettings,
+                onOpenMacTransfer: { showingMacTransferInPane = true })
+            }
           }
           .frame(maxHeight: .infinity)
           .clipped()

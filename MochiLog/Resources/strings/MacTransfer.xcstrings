@@ -4731,6 +4731,71 @@
         "zh-Hant": { "stringUnit": { "state": "translated", "value": "配對後，兩部裝置使用 Tailscale 也可跨網絡連線。Tailscale 為選用功能。" } }
       }
     },
+    "mt_090": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Receive from Mac over cellular data" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "モバイルデータ通信でMacから受信" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Über Mobilfunk vom Mac empfangen" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Recibir del Mac con datos móviles" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Recevoir du Mac via les données mobiles" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "셀룰러 데이터로 Mac에서 받기" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "通过蜂窝数据从 Mac 接收" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "透過行動數據從 Mac 接收" } }
+      }
+    },
+    "mt_091": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "When on, this device can receive iPhone, iPad and Apple Watch analytics logs already saved on the paired Mac, plus transfer acknowledgements and connection diagnostics, over cellular data. Tailscale must be connected on both this device and the Mac. Large logs may use substantial data." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "オンにすると、ペアリング済みMacに保存されたiPhone・iPad・Apple Watchの解析ログ、受信確認、連携の診断情報をモバイルデータ通信で送受信します。この端末とMacの両方でTailscaleへの接続が必要です。ログのサイズに応じて通信量が増えます。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Wenn aktiviert, empfängt dieses Gerät bereits auf dem gekoppelten Mac gespeicherte iPhone-, iPad- und Apple-Watch-Analyselogs sowie Empfangsbestätigungen und Verbindungsdiagnosen über Mobilfunk. Tailscale muss auf diesem Gerät und dem Mac verbunden sein. Große Logs können viel Datenvolumen verbrauchen." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Al activarlo, este dispositivo puede recibir por datos móviles los registros de análisis del iPhone, iPad y Apple Watch ya guardados en el Mac enlazado, además de confirmaciones y diagnósticos de conexión. Tailscale debe estar conectado en este dispositivo y en el Mac. Los registros grandes pueden consumir muchos datos." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Si cette option est activée, cet appareil peut recevoir par données mobiles les journaux d’analyse iPhone, iPad et Apple Watch déjà enregistrés sur le Mac jumelé, ainsi que les accusés de réception et diagnostics de connexion. Tailscale doit être connecté sur cet appareil et le Mac. Les gros journaux peuvent consommer beaucoup de données." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "켜면 페어링된 Mac에 이미 저장된 iPhone, iPad 및 Apple Watch 분석 로그와 수신 확인, 연결 진단 정보를 셀룰러 데이터로 주고받습니다. 이 기기와 Mac 모두 Tailscale에 연결되어 있어야 합니다. 로그가 크면 데이터 사용량이 늘어납니다." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "开启后，可通过蜂窝数据接收已保存在配对 Mac 上的 iPhone、iPad 和 Apple Watch 分析日志，并交换接收确认和连接诊断信息。此设备和 Mac 都必须连接 Tailscale。大型日志可能消耗较多流量。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "開啟後，可透過行動數據接收已儲存在配對 Mac 上的 iPhone、iPad 和 Apple Watch 分析日誌，並交換接收確認與連線診斷資訊。此裝置與 Mac 都必須連接 Tailscale。大型日誌可能耗用較多數據。" } }
+      }
+    },
+    "mt_092": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Off by default. When off, Mac transfer uses Wi-Fi or a wired network only. This switch does not let the Mac collect new device logs over cellular data and does not change iCloud sync." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "初期設定はオフです。オフの間、Mac連携はWi-Fiまたは有線ネットワークでのみ通信します。この設定ではMacによる端末からの新しいログ収集をモバイル回線で有効にはできません。iCloud同期にも影響しません。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Standardmäßig aus. Dann nutzt die Mac-Übertragung nur WLAN oder ein kabelgebundenes Netzwerk. Dieser Schalter ermöglicht dem Mac keine Sammlung neuer Gerätelogs über Mobilfunk und ändert die iCloud-Synchronisierung nicht." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Desactivado de forma predeterminada. Así, la transferencia con el Mac solo usa Wi-Fi o una red por cable. Este ajuste no permite al Mac recopilar nuevos registros del dispositivo mediante datos móviles ni cambia la sincronización de iCloud." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Désactivé par défaut. La transmission avec le Mac utilise alors uniquement le Wi-Fi ou un réseau filaire. Cette option ne permet pas au Mac de collecter de nouveaux journaux de l’appareil via les données mobiles et ne modifie pas la synchronisation iCloud." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "기본값은 꺼짐입니다. 꺼져 있으면 Mac 전송은 Wi-Fi 또는 유선 네트워크만 사용합니다. 이 설정으로 Mac이 셀룰러 데이터에서 기기의 새 로그를 수집할 수 있게 되지는 않으며 iCloud 동기화에도 영향을 주지 않습니다." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "默认关闭。关闭时，Mac 传输仅使用 Wi-Fi 或有线网络。此开关不会让 Mac 通过蜂窝数据从设备采集新日志，也不会更改 iCloud 同步。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "預設關閉。關閉時，Mac 傳輸只使用 Wi-Fi 或有線網絡。此開關不會讓 Mac 透過行動數據從裝置收集新日誌，也不會變更 iCloud 同步。" } }
+      }
+    },
+    "mt_s_18": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Waiting for Wi-Fi. Cellular transfer is off" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Wi-Fiを待機中です。モバイルデータ通信での受信はオフです" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Warte auf WLAN. Mobilfunkübertragung ist aus" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Esperando Wi-Fi. La transferencia móvil está desactivada" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "En attente du Wi-Fi. Le transfert mobile est désactivé" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Wi-Fi 대기 중. 셀룰러 전송 꺼짐" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "正在等待 Wi-Fi。蜂窝数据传输已关闭" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "正在等待 Wi-Fi。行動數據傳輸已關閉" } }
+      }
+    },
+    "mt_s_19": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Waiting for a network connection" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ネットワークへの接続を待機中です" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Warte auf eine Netzwerkverbindung" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Esperando una conexión de red" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "En attente d’une connexion réseau" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "네트워크 연결 대기 중" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "正在等待网络连接" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "正在等待網絡連線" } }
+      }
+    },
     "mt_s_00": {
       "extractionState": "manual",
       "localizations": {
