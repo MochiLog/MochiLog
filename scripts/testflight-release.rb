@@ -14,12 +14,19 @@ BASE_URL = "https://api.appstoreconnect.apple.com/v1"
 
 class AppStoreConnect
   def initialize
-    key = OpenSSL::PKey::EC.new(Base64.strict_decode64(ENV.fetch("APP_STORE_CONNECT_API_KEY_CONTENT")))
+    @key = OpenSSL::PKey::EC.new(Base64.strict_decode64(ENV.fetch("APP_STORE_CONNECT_API_KEY_CONTENT")))
+    @issuer = ENV.fetch("APP_STORE_CONNECT_API_ISSUER_ID")
+    @key_id = ENV.fetch("APP_STORE_CONNECT_API_KEY_ID")
+    @expires_at = 0
+  end
+
+  def token
     now = Time.now.to_i
+    return @token if now < @expires_at - 60
+    @expires_at = now + 1_200
     @token = JWT.encode(
-      { iss: ENV.fetch("APP_STORE_CONNECT_API_ISSUER_ID"), iat: now, exp: now + 1_200,
-        aud: "appstoreconnect-v1" }, key, "ES256",
-      { kid: ENV.fetch("APP_STORE_CONNECT_API_KEY_ID"), typ: "JWT" }
+      { iss: @issuer, iat: now, exp: @expires_at, aud: "appstoreconnect-v1" },
+      @key, "ES256", { kid: @key_id, typ: "JWT" }
     )
   end
 
@@ -36,7 +43,7 @@ class AppStoreConnect
       response = Net::HTTP.start(uri.host, uri.port, use_ssl: true,
         open_timeout: 20, read_timeout: 40) do |http|
         request = Net::HTTP.const_get(method.capitalize).new(uri)
-        request["Authorization"] = "Bearer #{@token}"
+        request["Authorization"] = "Bearer #{token}"
         request["Content-Type"] = "application/json"
         request.body = JSON.generate(body) if body
         http.request(request)
@@ -117,6 +124,31 @@ def assign_existing_groups(api, build_id)
   groups.count { |group| group.dig("attributes", "isInternalGroup") == false }
 end
 
+def enable_auto_notify(api, build_id)
+  detail = api.get("/builds/#{build_id}/buildBetaDetail").fetch("data")
+  unless detail.dig("attributes", "autoNotifyEnabled")
+    api.patch("/buildBetaDetails/#{detail.fetch('id')}",
+      data: { type: "buildBetaDetails", id: detail.fetch("id"),
+        attributes: { autoNotifyEnabled: true } })
+  end
+  puts "Automatic TestFlight notification is enabled."
+end
+
+def submit_external_review_if_needed(api, build_id)
+  detail = api.get("/builds/#{build_id}/buildBetaDetail").fetch("data")
+  state = detail.dig("attributes", "externalBuildState")
+  if state == "READY_FOR_BETA_SUBMISSION"
+    api.post("/betaAppReviewSubmissions",
+      data: { type: "betaAppReviewSubmissions",
+        relationships: { build: { data: { type: "builds", id: build_id } } } })
+    puts "Submitted the build for external TestFlight beta review."
+    state = api.get("/builds/#{build_id}/buildBetaDetail")
+      .dig("data", "attributes", "externalBuildState")
+  end
+  puts "External testing state: #{state}."
+  raise "External testing is blocked: #{state}" if %w[BETA_REJECTED MISSING_EXPORT_COMPLIANCE PROCESSING_EXCEPTION].include?(state)
+end
+
 mode, marketing_version, build_number = ARGV
 abort "Usage: ruby scripts/testflight-release.rb inspect|publish VERSION BUILD" unless
   %w[inspect publish].include?(mode) && marketing_version && build_number&.match?(/\A\d+\z/)
@@ -129,8 +161,8 @@ build_id = build.fetch("id")
 puts "Found #{marketing_version} (#{build_number}), processing #{build.dig('attributes', 'processingState')}."
 if mode == "publish"
   publish_localizations(api, build_id)
+  enable_auto_notify(api, build_id)
   external_count = assign_existing_groups(api, build_id)
-  puts "Assigned to #{external_count} existing external group(s); Apple may require beta review."
-  detail = api.get("/builds/#{build_id}/buildBetaDetail")
-  puts "External testing state: #{detail.dig('data', 'attributes', 'externalBuildState')}."
+  puts "Assigned to #{external_count} existing external group(s)."
+  submit_external_review_if_needed(api, build_id) if external_count.positive?
 end
