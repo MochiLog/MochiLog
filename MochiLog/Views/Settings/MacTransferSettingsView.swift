@@ -8,12 +8,18 @@ struct MacTransferSettingsView: View {
   @State private var showingScanner = false
   @State private var errorMessage: String?
   @State private var pendingPairingQR: String?
+  @State private var secureCandidate: SecureMacPairingCandidate?
+  @State private var enteredPairingCode = ""
+  @State private var isPreparingPairing = false
   @AppStorage(PhysicalDeviceIdentityStore.manualLocalImportKey)
   private var tagManualImportsAsThisDevice = false
   private let macReleaseURL = URL(string: "https://github.com/MochiLog/MochiLog-Mac/releases")!
 
   var body: some View {
     Form {
+      if isPreparingPairing {
+        Section { ProgressView(L10n.text("mt_secure_pair_connecting", table: "MacTransfer")) }
+      }
       Section {
         HStack(alignment: .top, spacing: 12) {
           Image(systemName: connectionSymbol)
@@ -141,9 +147,7 @@ struct MacTransferSettingsView: View {
       NavigationStack {
         MacPairingQRScanner { value in
           showingScanner = false
-          do { try manager.pair(from: value, dataStore: dataStore) }
-          catch TransferError.identityConflict { pendingPairingQR = value }
-          catch { errorMessage = error.localizedDescription }
+          handlePairingQR(value)
         }
         .navigationTitle(L10n.text("mt_072", table: "MacTransfer"))
         .toolbar {
@@ -161,8 +165,7 @@ struct MacTransferSettingsView: View {
       isPresented: Binding(get: { pendingPairingQR != nil }, set: { if !$0 { pendingPairingQR = nil } })) {
       Button(L10n.text("mt_075", table: "MacTransfer")) {
         if let qr = pendingPairingQR {
-          do { try manager.pair(from: qr, dataStore: dataStore, relinkLocalRecords: true) }
-          catch { errorMessage = error.localizedDescription }
+          handlePairingQR(qr, relinkLocalRecords: true)
         }
         pendingPairingQR = nil
       }
@@ -170,7 +173,50 @@ struct MacTransferSettingsView: View {
     } message: {
       Text(L10n.text("mt_077", table: "MacTransfer"))
     }
+    .alert(L10n.text("mt_secure_pair_title", table: "MacTransfer"),
+      isPresented: Binding(get: { secureCandidate != nil },
+        set: { if !$0 { secureCandidate = nil } })) {
+      TextField(L10n.text("mt_secure_pair_placeholder", table: "MacTransfer"),
+        text: $enteredPairingCode)
+        .keyboardType(.numberPad)
+      Button(L10n.text("mt_secure_pair_confirm", table: "MacTransfer")) {
+        guard let candidate = secureCandidate else { return }
+        secureCandidate = nil
+        Task {
+          do { try await manager.confirmSecurePairing(candidate,
+            enteredCode: enteredPairingCode, dataStore: dataStore) }
+          catch { errorMessage = error.localizedDescription }
+          enteredPairingCode = ""
+        }
+      }
+      Button(L10n.text("mt_037", table: "MacTransfer"), role: .cancel) {
+        secureCandidate = nil
+        enteredPairingCode = ""
+      }
+    } message: {
+      Text(L10n.text("mt_secure_pair_instruction", table: "MacTransfer"))
+    }
     .onAppear { manager.start() }
+  }
+
+  private func handlePairingQR(_ value: String, relinkLocalRecords: Bool = false) {
+    let isSecure = URLComponents(string: value)?.queryItems?.contains {
+      $0.name == "v" && $0.value == "2"
+    } == true
+    guard isSecure else {
+      errorMessage = L10n.text("mt_secure_pair_update_mac", table: "MacTransfer")
+      return
+    }
+    isPreparingPairing = true
+    Task {
+      defer { isPreparingPairing = false }
+      do {
+        secureCandidate = try await manager.prepareSecurePairing(from: value,
+          dataStore: dataStore, relinkLocalRecords: relinkLocalRecords)
+        enteredPairingCode = ""
+      } catch TransferError.identityConflict { pendingPairingQR = value }
+      catch { errorMessage = error.localizedDescription }
+    }
   }
 
   private func step(_ number: Int, _ text: String) -> some View {

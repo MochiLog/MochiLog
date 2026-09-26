@@ -3,7 +3,7 @@
 MochiLog Macは[専用リポジトリ](https://github.com/MochiLog/MochiLog-Mac)で管理する。ベータの対象はiOS/iPadOS 27とmacOS 27。MochiLog本体のiOS 16対応は継続する。
 
 - MacはOSの信頼済みUDIDでログの出所を区別し、端末ごとにランダムな`physicalDeviceID`を保持する。UDID自体はiCloud・iPhoneへの転送・エクスポートへ含めない。
-- iPhoneはQRでMacの個体IDと共有秘密鍵を受け取り、Keychainへ保存する。再インストール後も同じMacと再ペアリングすると同じ個体IDを回復できる。同期オフ中の履歴消失はこの機能では復旧しない。
+- iPhoneはQRからMacの個体IDと一時公開鍵を読み取り、双方の鍵交換で共有鍵を生成する。Mac画面の6桁コードは送信せず、セッションIDと共有鍵で認証したHMACを照合してからKeychainへ保存する。再インストール後も同じMacと再ペアリングすると同じ個体IDを回復できる。同期オフ中の履歴消失はこの機能では復旧しない。
 - 新しい記録には任意の`physicalDeviceID`を持たせる。旧記録はnilのままとし、機種名だけで既存履歴を一括統合しない。iCloud同期とYAMLエクスポート/インポートはIDを保持する。
 - 手動取り込みの出所は機種名だけでは証明できないため、初期設定では個体IDを付けない。利用者が「同じ機種の手動ログをこの端末として記録」をオンにした場合に限り、現在の端末と機種が一致する新規記録にIDを付ける。
 - Macから受信したログは、端末IDと日付で既存記録を確認する。同じファイルがIDなし旧記録として保存済みなら、日付・充放電回数・公称容量・生容量の一致で重複扱いにする。同じ機種・同じ日だけの一致は確認待ちとし、別個体の可能性を残す。
@@ -11,7 +11,7 @@ MochiLog Macは[専用リポジトリ](https://github.com/MochiLog/MochiLog-Mac)
 - ペアリング済みApple WatchのAnalyticsはiPhoneの`ProxiedDevice-…/Retired`から取得する。iPhone本体の`/Retired`と取得元別に保存し、同日・同名のファイルがあっても衝突させない。ファイル先頭の`os_version`が`Watch OS`のログだけをWatch側に振り分ける。iPhone本体のログにもWatchの機種名が現れるため、本文にWatch名があるだけでは判定しない。
 - WatchログにはiPhoneの`physicalDeviceID`をそのまま付けない。Macからの`ProxiedDevice`出所とペアリング済みiPhoneのIDからWatchごとに別のIDを導出し、複数のiPhone・Watchが同じ機種でもログを区別する。Watchの機種登録・選択はiPhoneの既存の手動取り込みフローを利用する。
 - ログはiPhoneで全件受信した後、各ファイルの受信確認をMacに返す。Macが最後の確認を処理して空の終端応答を返した時点で、一括解析・記録を始める。
-- ベータ専用サポートでは、MacとiPhoneが暗号化済みの接続上で互いの診断情報を交換し、双方の問い合わせ画面からJSONを添付できる。解析ログ本文、UDID、ペアリング秘密鍵は含めない。
+- ベータ専用サポートでは、iPhoneの診断情報をAES-GCMで暗号化してMacへ送り、双方の問い合わせ画面からJSONを添付できる。解析ログ本文、UDID、ペアリング秘密鍵は含めない。Macの応答もリクエストごとのnonceへ結び付ける。
 
 初回OSペアリングには端末のデベロッパモードと「ペアリング済みMac」での6桁コード入力が必要。検証機ではペアリング後にデベロッパモードをオフにしてもWi-FiでAnalyticsを取得できた。使用者にPythonやXcodeをインストールさせず、署名済みDMGへ収集ツールを同梱する。
 

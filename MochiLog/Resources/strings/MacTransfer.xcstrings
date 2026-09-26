@@ -1067,49 +1067,49 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The QR contains a secret key. Do not publish or share it."
+            "value": "The QR contains a temporary public key. Enter the 6-digit code shown on this Mac to confirm pairing."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "QRには秘密鍵が含まれます。公開・共有しないでください。"
+            "value": "QRには一時的な公開鍵が含まれます。Macに表示された6桁のコードを入力してペアリングを確認してください。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Der QR enthält einen geheimen Schlüssel. Veröffentlichen oder teilen Sie es nicht."
+            "value": "Der QR-Code enthält einen temporären öffentlichen Schlüssel. Gib den 6-stelligen Code auf diesem Mac ein, um die Kopplung zu bestätigen."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El QR contiene una clave secreta. No lo publiques ni lo compartas."
+            "value": "El QR contiene una clave pública temporal. Introduce el código de 6 dígitos del Mac para confirmar el enlace."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le QR contient une clé secrète. Ne le publiez pas et ne le partagez pas."
+            "value": "Le QR contient une clé publique temporaire. Saisissez le code à 6 chiffres affiché sur ce Mac pour confirmer le jumelage."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "QR에는 비밀 키가 포함되어 있습니다. 게시하거나 공유하지 마세요."
+            "value": "QR 코드에는 임시 공개 키가 포함됩니다. Mac에 표시된 6자리 코드를 입력해 페어링을 확인하세요."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "二维码包含一个密钥。请勿发布或分享。"
+            "value": "二维码包含临时公钥。输入这台 Mac 上显示的 6 位代码以确认配对。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "QR包含一個密鑰。請勿發佈或分享。"
+            "value": "QR 碼包含暫時公開金鑰。輸入這台 Mac 上顯示的 6 位代碼以確認配對。"
           }
         }
       }
@@ -5930,6 +5930,97 @@
             "value": "此裝置有使用其他裝置 ID 儲存的新紀錄。請確認是否重新連結"
           }
         }
+      }
+    },
+    "mt_secure_pair_update_mac": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Update MochiLog Mac to the latest beta, then create a new QR code." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "MochiLog Macを最新のベータ版に更新し、新しいQRコードを作成してください。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Aktualisiere MochiLog Mac auf die neueste Beta und erstelle einen neuen QR-Code." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Actualiza MochiLog Mac a la última beta y crea un nuevo código QR." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Mettez MochiLog Mac à jour vers la dernière bêta, puis créez un nouveau QR code." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "MochiLog Mac을 최신 베타로 업데이트한 뒤 새 QR 코드를 만드세요." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "将 MochiLog Mac 更新至最新测试版，然后创建新的二维码。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "將 MochiLog Mac 更新至最新測試版，然後建立新的 QR 碼。" } }
+      }
+    },
+    "mt_secure_pair_connecting": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Connecting to the Mac for secure pairing…" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "安全なペアリングのためMacに接続中…" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Verbindung zum Mac für die sichere Kopplung wird hergestellt …" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Conectando al Mac para un enlace seguro…" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Connexion au Mac pour un jumelage sécurisé…" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "안전한 페어링을 위해 Mac에 연결 중…" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "正在连接 Mac 以安全配对…" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "正在連接 Mac 以安全配對…" } }
+      }
+    },
+    "mt_secure_pair_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Confirm Mac pairing" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Macとのペアリングを確認" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Mac-Kopplung bestätigen" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Confirmar enlace con el Mac" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Confirmer le jumelage avec le Mac" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Mac 페어링 확인" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "确认 Mac 配对" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "確認 Mac 配對" } }
+      }
+    },
+    "mt_secure_pair_placeholder": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "6-digit code on the Mac" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Macに表示された6桁のコード" } },
+        "de": { "stringUnit": { "state": "translated", "value": "6-stelliger Code auf dem Mac" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Código de 6 dígitos del Mac" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Code à 6 chiffres sur le Mac" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Mac에 표시된 6자리 코드" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "Mac 上的 6 位代码" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "Mac 上的 6 位代碼" } }
+      }
+    },
+    "mt_secure_pair_confirm": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Pair" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ペアリング" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Koppeln" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Enlazar" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Jumeler" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "페어링" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "配对" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "配對" } }
+      }
+    },
+    "mt_secure_pair_instruction": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Enter the code displayed beside the QR on your Mac. The code itself is never sent over the network." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "MacのQRの横に表示されたコードを入力してください。コード自体はネットワークに送信されません。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Gib den Code neben dem QR-Code auf deinem Mac ein. Der Code selbst wird nicht über das Netzwerk gesendet." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Introduce el código junto al QR del Mac. El código no se envía por la red." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Saisissez le code affiché à côté du QR sur votre Mac. Le code lui-même n’est pas envoyé sur le réseau." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Mac의 QR 코드 옆에 표시된 코드를 입력하세요. 코드 자체는 네트워크로 전송되지 않습니다." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "输入 Mac 上二维码旁显示的代码。代码本身不会通过网络发送。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "輸入 Mac 上 QR 碼旁顯示的代碼。代碼本身不會透過網路傳送。" } }
+      }
+    },
+    "mt_secure_pair_wrong_code": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Enter the 6-digit code shown on the Mac." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Macに表示された6桁のコードを入力してください。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Gib den 6-stelligen Code auf dem Mac ein." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Introduce el código de 6 dígitos que aparece en el Mac." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Saisissez le code à 6 chiffres affiché sur le Mac." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Mac에 표시된 6자리 코드를 입력하세요." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "请输入 Mac 上显示的 6 位代码。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "請輸入 Mac 上顯示的 6 位代碼。" } }
       }
     }
   },
