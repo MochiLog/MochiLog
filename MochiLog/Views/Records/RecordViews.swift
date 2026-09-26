@@ -1,4 +1,3 @@
-import Charts
 import Foundation
 // RecordViews.swift
 // 一覧行ビューと詳細ビュー
@@ -971,6 +970,7 @@ struct RecordDetailView: View {
               Image(systemName: "square.and.arrow.up")
             }
           }
+          .accessibilityIdentifier("record.share")
         }
     }
     .scrollContentBackground(.hidden)
@@ -1148,69 +1148,18 @@ struct RecordDetailView: View {
     }
 
     let dataSource = appSettings.analysisDataSource
-    let accentColor = appSettings.accentColor
-    let scale = displayScale
-    let scheme = colorScheme
-
-    // バックグラウンドスレッドで重い処理を実行
-    return await Task.detached(priority: .userInitiated) {
-      await MainActor.run {
-        // グラフチャート部分のみをレンダリング（ヘッダーやコントロールなし）
-        let chartView = Chart {
-          ForEach(visibleRecords, id: \.id) { record in
-            let capacity =
-              dataSource == .nominal
-              ? record.nominalCapacity
-              : record.rawCapacity
-
-            LineMark(
-              x: .value("Date", record.logDate),
-              y: .value("Capacity", capacity)
-            )
-            .foregroundStyle(accentColor.color)
-            .lineStyle(StrokeStyle(lineWidth: 3))
-            .interpolationMethod(.catmullRom)
-
-            PointMark(
-              x: .value("Date", record.logDate),
-              y: .value("Capacity", capacity)
-            )
-            .foregroundStyle(accentColor.color)
-            .symbolSize(60)
-          }
-        }
-        .chartYScale(domain: .automatic(includesZero: false))
-        .chartYAxis {
-          AxisMarks(position: .leading, values: .automatic) { value in
-            AxisGridLine()
-              .foregroundStyle(Color.gray.opacity(0.3))
-            AxisValueLabel {
-              if let intValue = value.as(Int.self) {
-                Text("\(intValue)mAh")
-                  .foregroundStyle(scheme == .dark ? .white : .black)
-                  .font(.system(size: 14, weight: .medium))
-              }
-            }
-          }
-        }
-        .chartXScale(domain: startDay...endDay)
-        .chartXAxis {
-          AxisMarks(values: .automatic) { value in
-            AxisGridLine()
-              .foregroundStyle(Color.gray.opacity(0.3))
-            AxisValueLabel(format: .dateTime.month().day())
-              .foregroundStyle(scheme == .dark ? .white : .black)
-              .font(.system(size: 14, weight: .medium))
-          }
-        }
-        .frame(width: 800, height: 480)
-        .padding(24)
-        .background(colorScheme == .dark ? Color.black : Color.white)
-        .environment(\.colorScheme, colorScheme)
-
-        return ViewRenderer.snapshot(view: chartView, scale: scale)
-      }
-    }.value
+    let points = visibleRecords.map { entry in
+      ShareChartRenderer.Point(
+        date: entry.logDate,
+        capacity: dataSource == .nominal ? entry.nominalCapacity : entry.rawCapacity)
+    }
+    // Let the spinner appear before drawing. The small UIKit plot does not create a second
+    // SwiftUI/Charts graph while the detail screen presents the share sheet.
+    await Task.yield()
+    return ShareChartRenderer.render(
+      points: points, tint: UIColor(appSettings.accentColor.color),
+      isDark: colorScheme == .dark, scale: displayScale,
+      locale: Locale(identifier: L10n.language))
   }
 
   // 共有処理
