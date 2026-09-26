@@ -36,6 +36,10 @@ enum SampleDataProvider {
       var previousCycles = 0
 
       for monthOffset in stride(from: 35, through: 0, by: -1) {
+        #if DEBUG
+        if ProcessInfo.processInfo.environment["MOCHI_SHARE_SINGLE_RECORD_TEST"] == "1",
+          monthOffset != 0 { continue }
+        #endif
         guard let logDate = calendar.date(byAdding: .month, value: -monthOffset, to: today) else {
           continue
         }
