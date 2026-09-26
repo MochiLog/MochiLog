@@ -163,6 +163,13 @@ final class MochiLogSceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
   }
 
+  func sceneDidEnterBackground(_ scene: UIScene) {
+    guard !UIApplication.shared.connectedScenes.contains(where: {
+      $0.activationState == .foregroundActive || $0.activationState == .foregroundInactive
+    }) else { return }
+    if #available(iOS 27, *) { MacTransferManager.shared.stop() }
+  }
+
   private func open(_ contexts: Set<UIOpenURLContext>) {
     MochiLogApp.route(contexts.map(\.url).sorted { $0.absoluteString < $1.absoluteString })
   }

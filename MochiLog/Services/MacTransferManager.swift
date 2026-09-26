@@ -24,6 +24,11 @@ final class MacTransferManager: ObservableObject {
   @Published private(set) var isReceiving = false
   private let queue = DispatchQueue(label: "net.ryuya-dev.MochiLog.mac-transfer")
   private var browser: NWBrowser?
+  private var pathMonitor: NWPathMonitor?
+  private var pathSignature: String?
+  private var reconnectTask: Task<Void, Never>?
+  private var retryDelay: UInt64 = 5
+  private var isRunning = false
   private var connection: NWConnection?
   private var endpoint: NWEndpoint?
   private var directRoutes: [NWEndpoint] = []
@@ -84,15 +89,46 @@ final class MacTransferManager: ObservableObject {
     pairing = pair
     PhysicalDeviceIdentityStore.replace(with: device)
     status = MacTransferStatus.text("mt_s_01")
+    stop()
     start()
   }
 
   func start() {
-    guard let pairing else { return }
-    if browser != nil {
-      pull()
-      return
+    guard pairing != nil else { return }
+    guard !isRunning else { return }
+    isRunning = true
+    retryDelay = 5
+    let monitor = NWPathMonitor()
+    pathMonitor = monitor
+    monitor.pathUpdateHandler = { [weak self, weak monitor] path in
+      let signature = "\(path.status)|\(path.usesInterfaceType(.wifi))|\(path.usesInterfaceType(.cellular))|\(path.usesInterfaceType(.wiredEthernet))|\(path.availableInterfaces.map(\.name).sorted())"
+      Task { @MainActor in
+        guard let self, self.pathMonitor === monitor, self.isRunning else { return }
+        let previous = self.pathSignature
+        self.pathSignature = signature
+        guard previous != nil, previous != signature else { return }
+        Self.appendDebugEvent("Network changed: scheduling automatic reconnect")
+        self.retryDelay = 5
+        self.scheduleReconnect(after: 1)
+      }
     }
+    monitor.start(queue: queue)
+    beginDiscovery()
+  }
+
+  private func beginDiscovery() {
+    guard isRunning, let pairing else { return }
+    reconnectTask?.cancel()
+    reconnectTask = nil
+    browser?.cancel()
+    browser = nil
+    connection?.cancel()
+    connection = nil
+    accumulated = Data()
+    endpoint = nil
+    directRoutes = []
+    routeIndex = 0
+    isReceiving = false
     requeueConfirmedFiles(for: pairing)
     if let route = Self.tailnetRoute(address: pairing.tailnetAddress,
       port: pairing.tailnetPort) {
@@ -101,7 +137,7 @@ final class MacTransferManager: ObservableObject {
     }
     let browser = NWBrowser(for: .bonjourWithTXTRecord(type: "_mochilog._tcp", domain: nil), using: .tcp)
     self.browser = browser
-    browser.browseResultsChangedHandler = { [weak self] results, _ in
+    browser.browseResultsChangedHandler = { [weak self, weak browser] results, _ in
       guard let self else { return }
       let result = results.first(where: { result in
         if case .service(let name, _, _, _) = result.endpoint {
@@ -110,6 +146,7 @@ final class MacTransferManager: ObservableObject {
         return false
       })
       Task { @MainActor in
+        guard self.isRunning, self.browser === browser else { return }
         Self.appendDebugEvent("Bonjour: \(results.count) service(s), paired Mac \(result == nil ? "not found" : "found")")
         guard let result else { return }
         Self.appendDebugEvent("Bonjour interfaces: \(result.interfaces.map(\.name).joined(separator: ", "))")
@@ -138,9 +175,9 @@ final class MacTransferManager: ObservableObject {
         self.pull()
       }
     }
-    browser.stateUpdateHandler = { [weak self] state in
+    browser.stateUpdateHandler = { [weak self, weak browser] state in
       Task { @MainActor [weak self] in
-        guard let self else { return }
+        guard let self, self.isRunning, self.browser === browser else { return }
         switch state {
         case .ready:
           Self.appendDebugEvent("Bonjour: ready")
@@ -148,6 +185,7 @@ final class MacTransferManager: ObservableObject {
           Self.appendDebugEvent("Bonjour: waiting (\(error.localizedDescription))")
         case .failed(let error):
           self.status = MacTransferStatus.text("mt_s_02", error.localizedDescription)
+          self.scheduleRetry()
         default: break
         }
       }
@@ -155,14 +193,38 @@ final class MacTransferManager: ObservableObject {
     browser.start(queue: queue)
     if !directRoutes.isEmpty {
       DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
-        guard let self, self.endpoint == nil else { return }
+        guard let self, self.isRunning, self.browser === browser,
+          self.endpoint == nil else { return }
         self.pull()
       }
     }
   }
 
+  private func scheduleReconnect(after seconds: UInt64) {
+    guard isRunning else { return }
+    reconnectTask?.cancel()
+    reconnectTask = Task { [weak self] in
+      do { try await Task.sleep(nanoseconds: seconds * 1_000_000_000) }
+      catch { return }
+      guard let self, self.isRunning else { return }
+      Self.appendDebugEvent("Connection: automatic reconnect")
+      self.beginDiscovery()
+    }
+  }
+
+  private func scheduleRetry() {
+    scheduleReconnect(after: retryDelay)
+    retryDelay = min(retryDelay * 2, 60)
+  }
+
   func stop() {
-    Self.appendDebugEvent("Connection: manual retry requested")
+    isRunning = false
+    reconnectTask?.cancel()
+    reconnectTask = nil
+    pathMonitor?.cancel()
+    pathMonitor = nil
+    pathSignature = nil
+    Self.appendDebugEvent("Connection: stopped")
     browser?.cancel()
     browser = nil
     connection?.cancel()
@@ -217,11 +279,12 @@ final class MacTransferManager: ObservableObject {
       pull()
     } else {
       status = MacTransferStatus.text("mt_s_03", error)
+      scheduleRetry()
     }
   }
 
   private func pull() {
-    guard let pairing, endpoint != nil || routeIndex < directRoutes.count else {
+    guard isRunning, let pairing, endpoint != nil || routeIndex < directRoutes.count else {
       Self.appendDebugEvent("Connection: waiting for pairing or Mac endpoint")
       return
     }
@@ -271,6 +334,7 @@ final class MacTransferManager: ObservableObject {
         Task { @MainActor in Self.appendDebugEvent("Connection: ready") }
         connection.send(content: payload + Data([10]), completion: .contentProcessed { error in
           Task { @MainActor in
+            guard self.isRunning, self.connection === connection else { return }
             if let error {
               self.routeFailed(connection, error: error.localizedDescription)
             } else {
@@ -307,6 +371,7 @@ final class MacTransferManager: ObservableObject {
     connection.receive(minimumIncompleteLength: 1, maximumLength: 65_536) { [weak self] data, _, complete, error in
       guard let self else { return }
       Task { @MainActor in
+        guard self.isRunning, self.connection === connection else { return }
         if let data { self.accumulated.append(data) }
         if self.accumulated.count > 64 * 1024 * 1024 + 1_024 {
           connection.cancel()
@@ -315,9 +380,7 @@ final class MacTransferManager: ObservableObject {
           return
         }
         if let error {
-          self.status = MacTransferStatus.text("mt_s_05", error.localizedDescription)
-          self.isReceiving = false
-          connection.cancel()
+          self.routeFailed(connection, error: error.localizedDescription)
         } else if complete {
           let bytes = self.accumulated
           self.accumulated = Data()
@@ -332,12 +395,16 @@ final class MacTransferManager: ObservableObject {
   private func finish(_ bytes: Data, connection: NWConnection) {
     defer { connection.cancel(); self.connection = nil }
     guard let pairing, bytes.count >= 4 else {
-      status = MacTransferStatus.text("mt_s_06"); isReceiving = false; return
+      status = MacTransferStatus.text("mt_s_06"); isReceiving = false
+      scheduleRetry()
+      return
     }
     let length = bytes.prefix(4).reduce(UInt32(0)) { ($0 << 8) | UInt32($1) }
     guard length == bytes.count - 4 else {
       Self.appendDebugEvent("Transfer: frame length \(length), received \(bytes.count - 4)")
-      status = MacTransferStatus.text("mt_s_07"); isReceiving = false; return
+      status = MacTransferStatus.text("mt_s_07"); isReceiving = false
+      scheduleRetry()
+      return
     }
     do {
       let box = try AES.GCM.SealedBox(combined: bytes.dropFirst(4))
@@ -366,6 +433,8 @@ final class MacTransferManager: ObservableObject {
         status = confirmedCount == 0 ? MacTransferStatus.text("mt_s_08")
           : MacTransferStatus.text("mt_s_09", confirmedCount)
         isReceiving = false
+        retryDelay = 5
+        scheduleReconnect(after: 60)
         return
       }
       let token = name.components(separatedBy: "::")
@@ -425,6 +494,7 @@ final class MacTransferManager: ObservableObject {
     } catch {
       status = MacTransferStatus.text("mt_s_12", error.localizedDescription)
       isReceiving = false
+      scheduleRetry()
     }
   }
 
