@@ -336,6 +336,29 @@ final class LanguageAndLayoutTests: XCTestCase {
     screenshot("Chart Range Independence")
   }
 
+  func testLocalizedDeviceChartsDoNotCrash() {
+    app.launchEnvironment["MOCHI_CHART_LOCALIZATION_TEST"] = "1"
+    app.launchArguments += ["-appLanguage", "zh-Hans", "-AppleLanguages", "(zh-Hans)",
+                            "-AppleLocale", "zh_CN"]
+    app.launch()
+    let sample = app.buttons["查看示例数据"]
+    XCTAssertTrue(sample.waitForExistence(timeout: 10))
+    sample.tap()
+    let analytics = app.descendants(matching: .any).matching(
+      NSPredicate(format: "label == %@", "分析")).firstMatch
+    XCTAssertTrue(analytics.waitForExistence(timeout: 10))
+    analytics.tap()
+    let localizedName = app.staticTexts["iPad Pro 11 (第1代)"].firstMatch
+    XCTAssertTrue(localizedName.waitForExistence(timeout: 15), app.debugDescription)
+    XCTAssertTrue(app.buttons["chart.range"].firstMatch.exists)
+    for _ in 0..<6 {
+      if app.buttons["chart.cycle.range"].firstMatch.exists { break }
+      app.swipeUp()
+    }
+    XCTAssertTrue(app.buttons["chart.cycle.range"].firstMatch.exists,
+                  "Both localized trend charts must render without a Charts scale crash")
+  }
+
   func testAddDeviceFromLibrary() {
     app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryL"]
     app.launch()

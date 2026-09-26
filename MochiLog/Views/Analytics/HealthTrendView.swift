@@ -72,6 +72,7 @@ struct HealthTrendView: View {
             chartRecords: chartRecords, visibleDeviceNames: visibleDeviceNames,
             visibleDeviceColors: visibleDeviceColors
           )
+          AccessibleChartLegend(names: visibleDeviceNames, colors: visibleDeviceColors)
         } else {
           Color.clear
             .frame(height: horizontalSizeClass == .regular ? 280 : 200)
@@ -121,7 +122,7 @@ struct HealthTrendView: View {
               ? record.nominalHealthPercent : record.healthPercent)
         )
         .foregroundStyle(
-          by: .value(L10n.string("device_name", table: "Common"), record.localizedDeviceName)
+          by: .value(L10n.string("device_name", table: "Common"), record.deviceName)
         )
         .interpolationMethod(.linear)
       }
@@ -159,6 +160,7 @@ struct HealthTrendView: View {
       domain: visibleDeviceNames,
       range: visibleDeviceColors
     )
+    .chartLegend(.hidden)
     .chartYScale(domain: healthDomain)
     .chartXAxis {
       let (strideComponent, strideCount, labelFormat) =
