@@ -88,20 +88,31 @@ final class MacTransferManager: ObservableObject {
     self.browser = browser
     browser.browseResultsChangedHandler = { [weak self] results, _ in
       guard let self else { return }
-      guard let result = results.first(where: { result in
+      let result = results.first(where: { result in
         if case .service(let name, _, _, _) = result.endpoint {
           return name == pairing.hostID.uuidString
         }
         return false
-      }) else { return }
+      })
       Task { @MainActor in
+        Self.appendDebugEvent("Bonjour: \(results.count) service(s), paired Mac \(result == nil ? "not found" : "found")")
+        guard let result else { return }
         self.endpoint = result.endpoint
         self.pull()
       }
     }
     browser.stateUpdateHandler = { [weak self] state in
-      if case .failed(let error) = state {
-      Task { @MainActor [weak self] in self?.status = MacTransferStatus.text("mt_s_02", error.localizedDescription) }
+      Task { @MainActor [weak self] in
+        guard let self else { return }
+        switch state {
+        case .ready:
+          Self.appendDebugEvent("Bonjour: ready")
+        case .waiting(let error):
+          Self.appendDebugEvent("Bonjour: waiting (\(error.localizedDescription))")
+        case .failed(let error):
+          self.status = MacTransferStatus.text("mt_s_02", error.localizedDescription)
+        default: break
+        }
       }
     }
     browser.start(queue: queue)
@@ -116,7 +127,15 @@ final class MacTransferManager: ObservableObject {
   }
 
   private func pull() {
-    guard let pairing, let endpoint, connection == nil else { return }
+    guard let pairing, let endpoint else {
+      Self.appendDebugEvent("Connection: waiting for pairing or Mac endpoint")
+      return
+    }
+    guard connection == nil else {
+      Self.appendDebugEvent("Connection: previous attempt still active")
+      return
+    }
+    Self.appendDebugEvent("Connection: starting")
     isReceiving = true
     let nonce = UUID()
     let ack = pendingAck ?? ""
@@ -145,10 +164,25 @@ final class MacTransferManager: ObservableObject {
     connection.stateUpdateHandler = { [weak self] state in
       guard let self else { return }
       switch state {
+      case .preparing:
+        Task { @MainActor in Self.appendDebugEvent("Connection: preparing") }
       case .ready:
+        Task { @MainActor in Self.appendDebugEvent("Connection: ready") }
         connection.send(content: payload + Data([10]), completion: .contentProcessed { error in
-          if error == nil { Task { @MainActor in self.receive(on: connection) } }
+          Task { @MainActor in
+            if let error {
+              self.status = MacTransferStatus.text("mt_s_03", error.localizedDescription)
+              self.connection = nil
+              self.isReceiving = false
+              connection.cancel()
+            } else {
+              Self.appendDebugEvent("Connection: request sent")
+              self.receive(on: connection)
+            }
+          }
         })
+      case .waiting(let error):
+        Task { @MainActor in Self.appendDebugEvent("Connection: waiting (\(error.localizedDescription))") }
       case .failed(let error):
         Task { @MainActor in
           self.status = MacTransferStatus.text("mt_s_03", error.localizedDescription)
@@ -156,6 +190,8 @@ final class MacTransferManager: ObservableObject {
           self.isReceiving = false
         }
         connection.cancel()
+      case .cancelled:
+        Task { @MainActor in Self.appendDebugEvent("Connection: cancelled") }
       default: break
       }
     }

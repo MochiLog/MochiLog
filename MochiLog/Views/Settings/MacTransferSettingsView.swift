@@ -146,12 +146,17 @@ private struct MacPairingQRScanner: UIViewControllerRepresentable {
 private final class ScannerController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
   var onCode: ((String) -> Void)?
   private let session = AVCaptureSession()
+  private let sessionQueue = DispatchQueue(label: "net.ryuya-dev.MochiLog.qr-scanner")
+  private var previewLayer: AVCaptureVideoPreviewLayer?
+  private var rotationCoordinator: AVCaptureDevice.RotationCoordinator?
+  private var rotationObservation: NSKeyValueObservation?
   private var delivered = false
 
   override func viewDidLoad() {
     super.viewDidLoad()
     view.backgroundColor = .black
-    guard let camera = AVCaptureDevice.default(for: .video),
+    guard let camera = AVCaptureDevice.default(.builtInWideAngleCamera,
+      for: .video, position: .back),
       let input = try? AVCaptureDeviceInput(device: camera), session.canAddInput(input) else { return }
     session.addInput(input)
     let output = AVCaptureMetadataOutput()
@@ -161,14 +166,29 @@ private final class ScannerController: UIViewController, AVCaptureMetadataOutput
     output.metadataObjectTypes = [.qr]
     let preview = AVCaptureVideoPreviewLayer(session: session)
     preview.videoGravity = .resizeAspectFill
-    preview.frame = view.bounds
+    previewLayer = preview
     view.layer.addSublayer(preview)
-    DispatchQueue.global(qos: .userInitiated).async { self.session.startRunning() }
+    let coordinator = AVCaptureDevice.RotationCoordinator(device: camera, previewLayer: preview)
+    rotationCoordinator = coordinator
+    rotationObservation = coordinator.observe(\.videoRotationAngleForHorizonLevelPreview,
+      options: [.initial, .new]) { [weak self] coordinator, _ in
+      guard let connection = self?.previewLayer?.connection else { return }
+      let angle = coordinator.videoRotationAngleForHorizonLevelPreview
+      if connection.isVideoRotationAngleSupported(angle) {
+        connection.videoRotationAngle = angle
+      }
+    }
+    sessionQueue.async { self.session.startRunning() }
+  }
+
+  override func viewDidLayoutSubviews() {
+    super.viewDidLayoutSubviews()
+    previewLayer?.frame = view.bounds
   }
 
   override func viewWillDisappear(_ animated: Bool) {
     super.viewWillDisappear(animated)
-    DispatchQueue.global(qos: .userInitiated).async { self.session.stopRunning() }
+    sessionQueue.async { self.session.stopRunning() }
   }
 
   func metadataOutput(_ output: AVCaptureMetadataOutput,
