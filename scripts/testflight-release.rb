@@ -14,12 +14,19 @@ BASE_URL = "https://api.appstoreconnect.apple.com/v1"
 
 class AppStoreConnect
   def initialize
-    key = OpenSSL::PKey::EC.new(Base64.strict_decode64(ENV.fetch("APP_STORE_CONNECT_API_KEY_CONTENT")))
+    @key = OpenSSL::PKey::EC.new(Base64.strict_decode64(ENV.fetch("APP_STORE_CONNECT_API_KEY_CONTENT")))
+    @issuer = ENV.fetch("APP_STORE_CONNECT_API_ISSUER_ID")
+    @key_id = ENV.fetch("APP_STORE_CONNECT_API_KEY_ID")
+    @expires_at = 0
+  end
+
+  def token
     now = Time.now.to_i
+    return @token if now < @expires_at - 60
+    @expires_at = now + 1_200
     @token = JWT.encode(
-      { iss: ENV.fetch("APP_STORE_CONNECT_API_ISSUER_ID"), iat: now, exp: now + 1_200,
-        aud: "appstoreconnect-v1" }, key, "ES256",
-      { kid: ENV.fetch("APP_STORE_CONNECT_API_KEY_ID"), typ: "JWT" }
+      { iss: @issuer, iat: now, exp: @expires_at, aud: "appstoreconnect-v1" },
+      @key, "ES256", { kid: @key_id, typ: "JWT" }
     )
   end
 
@@ -36,7 +43,7 @@ class AppStoreConnect
       response = Net::HTTP.start(uri.host, uri.port, use_ssl: true,
         open_timeout: 20, read_timeout: 40) do |http|
         request = Net::HTTP.const_get(method.capitalize).new(uri)
-        request["Authorization"] = "Bearer #{@token}"
+        request["Authorization"] = "Bearer #{token}"
         request["Content-Type"] = "application/json"
         request.body = JSON.generate(body) if body
         http.request(request)
