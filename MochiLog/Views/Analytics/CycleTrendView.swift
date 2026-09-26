@@ -180,9 +180,7 @@ struct CycleTrendView: View {
             chartRecords: chartRecords, visibleDeviceNames: visibleDeviceNames,
             visibleDeviceColors: visibleDeviceColors
           )
-          if dynamicTypeSize.isAccessibilitySize {
-            AccessibleChartLegend(names: visibleDeviceNames, colors: visibleDeviceColors)
-          }
+          AccessibleChartLegend(names: visibleDeviceNames, colors: visibleDeviceColors)
         } else {
           Color.clear
             .frame(height: chartHeight)
@@ -266,7 +264,7 @@ struct CycleTrendView: View {
           y: .value(L10n.string("cycle_count", table: "Analytics"), record.cycleCount)
         )
         .foregroundStyle(
-          by: .value(L10n.string("device_name", table: "Common"), record.localizedDeviceName)
+          by: .value(L10n.string("device_name", table: "Common"), record.deviceName)
         )
         .interpolationMethod(.linear)
         .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
@@ -337,7 +335,7 @@ struct CycleTrendView: View {
         .clipped()
         .padding(.trailing, 24)
     }
-    .chartLegend(dynamicTypeSize.isAccessibilitySize ? .hidden : .automatic)
+    .chartLegend(.hidden)
     // Keep numeric axes legible without letting them consume the entire plot.
     // The external legend and the surrounding statistics retain the user's text size.
     .dynamicTypeSize(...DynamicTypeSize.xxxLarge)

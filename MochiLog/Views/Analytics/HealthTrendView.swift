@@ -77,9 +77,7 @@ struct HealthTrendView: View {
             chartRecords: chartRecords, visibleDeviceNames: visibleDeviceNames,
             visibleDeviceColors: visibleDeviceColors
           )
-          if dynamicTypeSize.isAccessibilitySize {
-            AccessibleChartLegend(names: visibleDeviceNames, colors: visibleDeviceColors)
-          }
+          AccessibleChartLegend(names: visibleDeviceNames, colors: visibleDeviceColors)
         } else {
           Color.clear
             .frame(height: chartHeight)
@@ -129,7 +127,7 @@ struct HealthTrendView: View {
               ? record.nominalHealthPercent : record.healthPercent)
         )
         .foregroundStyle(
-          by: .value(L10n.string("device_name", table: "Common"), record.localizedDeviceName)
+          by: .value(L10n.string("device_name", table: "Common"), record.deviceName)
         )
         .interpolationMethod(.linear)
       }
@@ -207,7 +205,7 @@ struct HealthTrendView: View {
         .clipped()
         .padding(.trailing, 24)
     }
-    .chartLegend(dynamicTypeSize.isAccessibilitySize ? .hidden : .automatic)
+    .chartLegend(.hidden)
     // Keep numeric axes legible without letting them consume the entire plot.
     // The external legend and the surrounding statistics retain the user's text size.
     .dynamicTypeSize(...DynamicTypeSize.xxxLarge)

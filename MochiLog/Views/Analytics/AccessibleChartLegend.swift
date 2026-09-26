@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// A wrapping legend outside the plot so accessibility text cannot collapse the chart.
+/// Keep Chart's color keys stable and its translated legend readable at larger text sizes.
 struct AccessibleChartLegend: View {
   let names: [String]
   let colors: [Color]
