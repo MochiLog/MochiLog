@@ -278,6 +278,26 @@ final class LanguageAndLayoutTests: XCTestCase {
                   "Both localized trend charts must render without a Charts scale crash")
   }
 
+  func testRecordDetailShareOpensWithLocalizedRecords() {
+    app.launchEnvironment["MOCHI_CHART_LOCALIZATION_TEST"] = "1"
+    app.launchEnvironment["MOCHI_SHARE_SINGLE_RECORD_TEST"] = "1"
+    app.launchArguments += ["-appLanguage", "zh-Hans", "-AppleLanguages", "(zh-Hans)",
+                            "-AppleLocale", "zh_CN"]
+    app.launch()
+    let sample = app.buttons["查看示例数据"]
+    XCTAssertTrue(sample.waitForExistence(timeout: 10))
+    sample.tap()
+    let record = app.buttons.matching(
+      NSPredicate(format: "identifier BEGINSWITH %@", "home.record.")).firstMatch
+    XCTAssertTrue(record.waitForExistence(timeout: 15))
+    record.tap()
+    let share = app.buttons["record.share"]
+    XCTAssertTrue(share.waitForExistence(timeout: 10))
+    share.tap()
+    XCTAssertTrue(app.otherElements["ActivityListView"].waitForExistence(timeout: 20),
+                  "The record share sheet must open after rendering its chart image")
+  }
+
   func testAddDeviceFromLibrary() {
     app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryL"]
     app.launch()
