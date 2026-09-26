@@ -546,13 +546,21 @@ extension HomeView {
           let id = offset + index
           let url = urls[index]
           if let text, let parsedResult {
-            batchImportResults[id] = processBatchItem(id: id, parseResult: parsedResult,
+            var item = processBatchItem(id: id, parseResult: parsedResult,
               filename: url.lastPathComponent, rawText: text,
               physicalDeviceID: queue.physicalDeviceID(for: url))
+            item.sourceURL = url
+            if let date = parsedResult.logDate, let cycles = parsedResult.cycleCount,
+              let nominal = parsedResult.nominalCapacity, let raw = parsedResult.rawCapacity {
+              item.reviewSignature = BatchReviewSignature(logDate: date,
+                cycleCount: cycles, nominalCapacity: nominal, rawCapacity: raw,
+                physicalDeviceID: item.physicalDeviceID)
+            }
+            batchImportResults[id] = item
           } else {
             batchImportResults[id] = FileImportResult(id: id, filename: url.lastPathComponent,
               parsedDate: nil, deviceName: nil, rawText: nil, status: .error,
-              errorMessage: L10n.string("file_read_error", table: "Home"))
+              errorMessage: L10n.string("file_read_error", table: "Home"), sourceURL: url)
           }
           let status = batchImportResults[id].status
           queue.acknowledge(url, saved: status == .success || status == .duplicate)
@@ -577,6 +585,24 @@ extension HomeView {
       } else {
         SettingsRedirectHelper.redirectToPrivacyAnalytics()
       }
+    }
+  }
+
+  /// A manually reviewed Mac file is consumed only after the matching record
+  /// appears in the persisted store. Cancelling selection leaves the file for retry.
+  @MainActor
+  func finishBatchReviewIfSaved(in updatedRecords: [BatteryRecord]) {
+    guard let pending = pendingBatchReview,
+      updatedRecords.contains(where: {
+        !pending.existingRecordIDs.contains($0.id) && pending.signature.matches($0)
+      }) else { return }
+    pendingBatchReview = nil
+    SharedImportQueue.shared.acknowledge(pending.sourceURL, saved: true)
+    if let index = batchImportResults.firstIndex(where: { $0.sourceURL == pending.sourceURL }) {
+      let item = batchImportResults[index]
+      batchImportResults[index] = FileImportResult(id: item.id, filename: item.filename,
+        parsedDate: item.parsedDate, deviceName: item.deviceName, rawText: nil,
+        status: .success, errorMessage: nil, physicalDeviceID: item.physicalDeviceID)
     }
   }
 
@@ -692,6 +718,18 @@ extension HomeView {
     // Mac transfer assigns the host iPhone and each proxied Watch distinct IDs.
     let sourcePhysicalID = physicalDeviceID
 
+    // A tagged record for this same physical device takes precedence over
+    // unrelated legacy records from the same day. Otherwise a resent log can
+    // incorrectly become a perpetual manual-review item.
+    if !AppSettings.shared.allowDuplicateRecords,
+      hasDuplicateRecord(on: logDate, deviceName: actualDeviceName,
+        physicalDeviceID: sourcePhysicalID)
+    {
+      return FileImportResult(id: id, filename: filename, parsedDate: logDate,
+        deviceName: actualDeviceName, rawText: nil, status: .duplicate,
+        errorMessage: nil)
+    }
+
     // A same-model legacy entry cannot be assigned to this physical device
     // automatically. Leave the incoming log for user review.
     if sourcePhysicalID != nil,
@@ -708,22 +746,6 @@ extension HomeView {
           ? "同じ日付の旧記録があり、別のログか確認が必要です"
           : "An older record exists for this date; confirm this is a different log",
         physicalDeviceID: physicalDeviceID)
-    }
-
-    // 重複チェック
-    if !AppSettings.shared.allowDuplicateRecords,
-      hasDuplicateRecord(on: logDate, deviceName: actualDeviceName,
-        physicalDeviceID: sourcePhysicalID)
-    {
-      return FileImportResult(
-        id: id,
-        filename: filename,
-        parsedDate: logDate,
-        deviceName: actualDeviceName,
-        rawText: nil,
-        status: .duplicate,
-        errorMessage: nil
-      )
     }
 
     // レコード作成・保存

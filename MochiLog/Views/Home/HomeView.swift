@@ -342,6 +342,7 @@ struct HomeView: View {
   }
   /// バッチ結果シートの表示フラグ
   @State var showingBatchResults = false
+  @State var pendingBatchReview: PendingBatchReview?
   @State private var showingRegisterWatchAlert = false
   @State private var watchNameToRegister = ""
   @State private var showingParseErrorSavedAlert = false
@@ -582,6 +583,9 @@ struct HomeView: View {
         // レコード数が変更されたらWatchに同期
         syncRecordsToWatch()
       }
+      .onReceive(dataStore.$recordsDescending) { updatedRecords in
+        finishBatchReviewIfSaved(in: updatedRecords)
+      }
       .onChange(of: showingSampleData) { newValue in
         // サンプルモードが変更されたらWatchに同期
         syncRecordsToWatch()
@@ -738,6 +742,7 @@ struct HomeView: View {
             deviceModelCodeOverride: identifier,
             designCapacityOverride: DeviceLibrary.getCapacity(for: name)
           )
+          record.physicalDeviceID = pendingSourcePhysicalDeviceID
           withAnimation(.snappy) {
             dataStore.insert(record)
           }
@@ -749,6 +754,7 @@ struct HomeView: View {
           }
           selectedRecord = nil
           pendingParseResult = nil
+          pendingSourcePhysicalDeviceID = nil
 
           if name.contains("Apple Watch") && registeredWatches.isEmpty {
             watchNameToRegister = name
@@ -782,6 +788,10 @@ struct HomeView: View {
 
           // 2. 少し待ってから、選択されたファイルの手動インポートを開始
           if let text = result.rawText {
+            if let sourceURL = result.sourceURL, let signature = result.reviewSignature {
+              pendingBatchReview = PendingBatchReview(sourceURL: sourceURL,
+                signature: signature, existingRecordIDs: Set(records.map(\.id)))
+            }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
               processLogTextAsync(text, silent: false, contentHash: text.hashValue,
                 physicalDeviceID: result.physicalDeviceID)

@@ -22,6 +22,9 @@ struct FileImportResult: Identifiable {
   let errorMessage: String?
   /// Mac経由ログの取得元個体。手動確認へ進んでも維持する。
   var physicalDeviceID: UUID? = nil
+  /// Keep the original inbox file until a manual import is durably saved.
+  var sourceURL: URL? = nil
+  var reviewSignature: BatchReviewSignature? = nil
 
   /// インポートステータス
   enum ImportStatus: Equatable {
@@ -65,6 +68,28 @@ struct FileImportResult: Identifiable {
       self != .processing
     }
   }
+}
+
+struct BatchReviewSignature {
+  let logDate: Date
+  let cycleCount: Int
+  let nominalCapacity: Int
+  let rawCapacity: Int
+  let physicalDeviceID: UUID?
+
+  func matches(_ record: BatteryRecord) -> Bool {
+    abs(record.logDate.timeIntervalSince(logDate)) < 1
+      && record.cycleCount == cycleCount
+      && record.nominalCapacity == nominalCapacity
+      && record.rawCapacity == rawCapacity
+      && (physicalDeviceID == nil || record.physicalDeviceID == physicalDeviceID)
+  }
+}
+
+struct PendingBatchReview {
+  let sourceURL: URL
+  let signature: BatchReviewSignature
+  let existingRecordIDs: Set<UUID>
 }
 
 // MARK: - 結果画面ビュー

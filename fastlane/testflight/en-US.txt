@@ -1,3 +1,5 @@
+Fixed a registered Apple Watch log incorrectly asking for manual import when a record from the same physical Watch already exists. A manually reviewed log that was saved no longer reappears after relaunch.
+
 Fixed a possible crash when sharing a chart image from a record’s Details screen, including when the device has only one record. Also fixed Analysis charts for localized device names.
 
 When duplicate records are disallowed, the app checks for records with identical contents at launch. Review the candidates in Advanced Settings and choose which groups to clean up. It backs up all records first and keeps the same record ID on every device, preventing a second iCloud-connected device from deleting the last copy.
