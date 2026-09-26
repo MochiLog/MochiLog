@@ -4773,14 +4773,14 @@
     "mt_093": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Connection status" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "接続状況" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Verbindungsstatus" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Estado de conexión" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "État de la connexion" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "연결 상태" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "连接状态" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "連線狀態" } }
+        "en": { "stringUnit": { "state": "translated", "value": "Mac connection status" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Macとの接続状況" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Verbindung zum Mac" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Estado de conexión con el Mac" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "État de la connexion au Mac" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Mac 연결 상태" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "Mac 连接状态" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "Mac 連線狀態" } }
       }
     },
     "mt_094": {
@@ -4916,14 +4916,14 @@
     "mt_104": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Waiting to reconnect" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "再接続を待っています" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Warte auf erneute Verbindung" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Esperando para reconectar" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "En attente de reconnexion" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "재연결 대기 중" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "正在等待重新连接" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "正在等待重新連線" } }
+        "en": { "stringUnit": { "state": "translated", "value": "No response from Mac; retrying" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Macから応答がありません。再試行中です" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Keine Antwort vom Mac; erneuter Versuch" } },
+        "es": { "stringUnit": { "state": "translated", "value": "El Mac no responde; reintentando" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Aucune réponse du Mac ; nouvelle tentative" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Mac 응답 없음. 다시 시도 중" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "Mac 无响应，正在重试" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "Mac 無回應，正在重試" } }
       }
     },
     "mt_105": {

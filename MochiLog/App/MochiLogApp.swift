@@ -167,7 +167,7 @@ final class MochiLogSceneDelegate: UIResponder, UIWindowSceneDelegate {
     guard !UIApplication.shared.connectedScenes.contains(where: {
       $0.activationState == .foregroundActive || $0.activationState == .foregroundInactive
     }) else { return }
-    if #available(iOS 27, *) { MacTransferManager.shared.stop() }
+    if #available(iOS 27, *) { MacTransferManager.shared.stopForBackground() }
   }
 
   private func open(_ contexts: Set<UIOpenURLContext>) {

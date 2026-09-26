@@ -3,6 +3,7 @@ import CryptoKit
 import Foundation
 import Network
 import Security
+import UIKit
 
 struct MacTransferPairing: Codable {
   let hostID: UUID
@@ -313,6 +314,67 @@ final class MacTransferManager: ObservableObject {
     connectionPhase = pairing == nil ? .needsPairing : .checkingNetwork
   }
 
+  func stopForBackground() {
+    let pairing = pairing
+    let route = directRoutes.first ?? endpoint ?? Self.tailnetRoute(
+      address: pairing?.tailnetAddress, port: pairing?.tailnetPort)
+    let mayUseCellular = allowsCellularTransfer
+    let wasRunning = isRunning
+    stop()
+    guard wasRunning, let pairing, let route else { return }
+    let nonce = UUID()
+    let presence = "background"
+    let message = "background|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)"
+    let request: [String: String] = [
+      "hostID": pairing.hostID.uuidString,
+      "physicalDeviceID": pairing.physicalDeviceID.uuidString,
+      "nonce": nonce.uuidString,
+      "ack": "",
+      "mac": Self.authenticationCode(message, secret: pairing.secret),
+      "presence": presence
+    ]
+    guard let payload = try? JSONSerialization.data(withJSONObject: request) else { return }
+    let parameters = NWParameters.tcp
+    if !mayUseCellular { parameters.prohibitedInterfaceTypes = [.cellular] }
+    let connection = NWConnection(to: route, using: parameters)
+    let transferQueue = queue
+    var finished = false
+    var backgroundTask: UIBackgroundTaskIdentifier = .invalid
+    let finish = {
+      guard !finished else { return }
+      finished = true
+      connection.cancel()
+      let task = backgroundTask
+      DispatchQueue.main.async {
+        if task != .invalid { UIApplication.shared.endBackgroundTask(task) }
+      }
+    }
+    backgroundTask = UIApplication.shared.beginBackgroundTask(withName: "MochiLog Mac presence") {
+      transferQueue.async { finish() }
+    }
+    connection.stateUpdateHandler = { state in
+      switch state {
+      case .ready:
+        connection.send(content: payload + Data([10]), completion: .contentProcessed { error in
+          if error != nil { finish(); return }
+          connection.receive(minimumIncompleteLength: 1, maximumLength: 1) { _, _, _, _ in
+            finish()
+          }
+        })
+      case .failed, .cancelled: finish()
+      default: break
+      }
+    }
+    connection.start(queue: transferQueue)
+    transferQueue.asyncAfter(deadline: .now() + 5) { finish() }
+  }
+
+  private static func authenticationCode(_ message: String, secret: Data) -> String {
+    HMAC<SHA256>.authenticationCode(for: Data(message.utf8),
+      using: SymmetricKey(data: secret))
+      .map { String(format: "%02x", $0) }.joined()
+  }
+
   private static func routes(from metadata: NWBrowser.Result.Metadata) -> [NWEndpoint] {
     guard case .bonjour(let record) = metadata,
       let portText = record["port"], let portValue = UInt16(portText),
@@ -378,9 +440,10 @@ final class MacTransferManager: ObservableObject {
     let nonce = UUID()
     let ack = pendingAck ?? ""
     let message = "\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)|\(ack)"
-    let mac = HMAC<SHA256>.authenticationCode(for: Data(message.utf8),
-      using: SymmetricKey(data: pairing.secret))
-      .map { String(format: "%02x", $0) }.joined()
+    let mac = Self.authenticationCode(message, secret: pairing.secret)
+    let presence = "foreground"
+    let presenceMAC = Self.authenticationCode("presence|\(nonce.uuidString)|\(presence)",
+      secret: pairing.secret)
     let diagnostics = supportDiagnosticsData()
     let diagnosticsMAC = HMAC<SHA256>.authenticationCode(
       for: Data("diagnostics|\(nonce.uuidString)|".utf8) + diagnostics,
@@ -392,6 +455,8 @@ final class MacTransferManager: ObservableObject {
       "nonce": nonce.uuidString,
       "ack": ack,
       "mac": mac,
+      "presence": presence,
+      "presenceMAC": presenceMAC,
       "clientDiagnostics": diagnostics.base64EncodedString(),
       "clientDiagnosticsMAC": diagnosticsMAC
     ]
