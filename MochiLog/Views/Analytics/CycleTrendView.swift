@@ -175,6 +175,7 @@ struct CycleTrendView: View {
             chartRecords: chartRecords, visibleDeviceNames: visibleDeviceNames,
             visibleDeviceColors: visibleDeviceColors
           )
+          AccessibleChartLegend(names: visibleDeviceNames, colors: visibleDeviceColors)
         } else {
           Color.clear
             .frame(height: horizontalSizeClass == .regular ? 280 : 200)
@@ -258,7 +259,7 @@ struct CycleTrendView: View {
           y: .value(L10n.string("cycle_count", table: "Analytics"), record.cycleCount)
         )
         .foregroundStyle(
-          by: .value(L10n.string("device_name", table: "Common"), record.localizedDeviceName)
+          by: .value(L10n.string("device_name", table: "Common"), record.deviceName)
         )
         .interpolationMethod(.linear)
         .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
@@ -297,6 +298,7 @@ struct CycleTrendView: View {
       domain: visibleDeviceNames,
       range: visibleDeviceColors
     )
+    .chartLegend(.hidden)
     .chartXAxis {
       let (strideComponent, strideCount, labelFormat) =
         ChartAxisHelper.calculateXAxisStride(

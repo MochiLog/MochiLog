@@ -22,7 +22,16 @@ enum SampleDataProvider {
     let calendar = Calendar.current
     let today = Date()
 
-    for device in sampleDevices {
+    for sampleDevice in sampleDevices {
+      var device = sampleDevice
+      #if DEBUG
+      // Exercise a name whose localized display value differs from its stored chart key.
+      if ProcessInfo.processInfo.environment["MOCHI_CHART_LOCALIZATION_TEST"] == "1",
+        device.name == "iPhone 15 Pro" {
+        device.name = "iPad Pro 11 (第1世代)"
+        device.modelCode = "iPad8,1"
+      }
+      #endif
       // 3年分のデータを生成（月1回のレコード、計36レコード）
       var previousCycles = 0
 
