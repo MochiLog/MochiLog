@@ -131,10 +131,13 @@ def publish_beta_test_information(api)
   puts "Per-app beta license agreement: #{agreement.fetch('data').fetch('id')}"
 end
 
-def assign_existing_groups(api, build_id)
+def assign_existing_groups(api, build_id, include_external: true)
   groups = api.get("/betaGroups", "filter[app]" => APP_ID, "limit" => "200").fetch("data", [])
   raise "No existing TestFlight groups found; refusing to create or invite testers" if groups.empty?
-  groups.each do |group|
+  selected_groups = groups.select { |group|
+    group.dig("attributes", "isInternalGroup") || include_external
+  }
+  selected_groups.each do |group|
     group_id = group.fetch("id")
     name = group.dig("attributes", "name")
     kind = group.dig("attributes", "isInternalGroup") ? "internal" : "external"
@@ -146,7 +149,7 @@ def assign_existing_groups(api, build_id)
     end
     puts "#{kind} group #{name}: build #{linked ? 'already assigned' : 'assigned'}."
   end
-  groups.count { |group| group.dig("attributes", "isInternalGroup") == false }
+  selected_groups.count { |group| group.dig("attributes", "isInternalGroup") == false }
 end
 
 def enable_auto_notify(api, build_id)
@@ -193,6 +196,7 @@ if mode != "inspect"
     puts "Assigned to #{external_count} existing external group(s)."
     submit_external_review_if_needed(api, build_id) if external_count.positive?
   else
-    puts "Tester group assignment and external beta review are left to App Store Connect."
+    assign_existing_groups(api, build_id, include_external: false)
+    puts "External tester group assignment and beta review are left to App Store Connect."
   end
 end

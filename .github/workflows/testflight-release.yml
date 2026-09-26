@@ -12,7 +12,7 @@ on:
         required: true
         type: string
       mode:
-        description: 'inspect, publish notes only, or publish notes and distribute to existing groups'
+        description: 'inspect, publish notes with internal groups, or distribute to all existing groups'
         required: true
         default: inspect
         type: choice
