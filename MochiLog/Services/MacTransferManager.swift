@@ -98,6 +98,7 @@ final class MacTransferManager: ObservableObject {
       Task { @MainActor in
         Self.appendDebugEvent("Bonjour: \(results.count) service(s), paired Mac \(result == nil ? "not found" : "found")")
         guard let result else { return }
+        Self.appendDebugEvent("Bonjour interfaces: \(result.interfaces.map(\.name).joined(separator: ", "))")
         self.endpoint = result.endpoint
         self.pull()
       }
@@ -120,6 +121,7 @@ final class MacTransferManager: ObservableObject {
   }
 
   func stop() {
+    Self.appendDebugEvent("Connection: manual retry requested")
     browser?.cancel()
     browser = nil
     connection?.cancel()
@@ -186,6 +188,7 @@ final class MacTransferManager: ObservableObject {
         Task { @MainActor in Self.appendDebugEvent("Connection: waiting (\(error.localizedDescription))") }
       case .failed(let error):
         Task { @MainActor in
+          Self.appendDebugEvent("Connection: failed (\(error.localizedDescription))")
           self.status = MacTransferStatus.text("mt_s_03", error.localizedDescription)
           self.connection = nil
           self.isReceiving = false
@@ -442,7 +445,9 @@ final class MacTransferManager: ObservableObject {
     let normalized = String(message.replacingOccurrences(of: "\n", with: " ").prefix(140))
     var events = debugEvents()
     guard events.last?.hasSuffix(" | \(normalized)") != true else { return }
-    events.append("\(ISO8601DateFormatter().string(from: Date())) | \(normalized)")
+    let formatter = ISO8601DateFormatter()
+    formatter.timeZone = .autoupdatingCurrent
+    events.append("\(formatter.string(from: Date())) | \(normalized)")
     if events.count > 80 { events.removeFirst(events.count - 80) }
     UserDefaults.standard.set(events, forKey: debugEventsKey)
   }
