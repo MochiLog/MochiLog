@@ -351,11 +351,12 @@ final class LanguageAndLayoutTests: XCTestCase {
     let localizedName = app.staticTexts["iPad Pro 11 (第1代)"].firstMatch
     XCTAssertTrue(localizedName.waitForExistence(timeout: 15), app.debugDescription)
     XCTAssertTrue(app.buttons["chart.range"].firstMatch.exists)
-    for _ in 0..<6 {
-      if app.buttons["chart.cycle.range"].firstMatch.exists { break }
+    let cycleTrend = app.staticTexts["循环次数趋势"].firstMatch
+    for _ in 0..<10 {
+      if cycleTrend.isHittable { break }
       app.swipeUp()
     }
-    XCTAssertTrue(app.buttons["chart.cycle.range"].firstMatch.exists,
+    XCTAssertTrue(cycleTrend.waitForExistence(timeout: 5) && cycleTrend.isHittable,
                   "Both localized trend charts must render without a Charts scale crash")
   }
 
