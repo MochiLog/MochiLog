@@ -164,6 +164,11 @@ final class MacTransferManager: ObservableObject {
     let connection = NWConnection(to: endpoint, using: .tcp)
     self.connection = connection
     accumulated = Data()
+    connection.pathUpdateHandler = { path in
+      Task { @MainActor in
+        Self.appendDebugEvent("Path: \(path.status), Wi-Fi \(path.usesInterfaceType(.wifi)), reason \(String(describing: path.unsatisfiedReason))")
+      }
+    }
     connection.stateUpdateHandler = { [weak self] state in
       guard let self else { return }
       switch state {
@@ -200,6 +205,17 @@ final class MacTransferManager: ObservableObject {
       }
     }
     connection.start(queue: queue)
+    DispatchQueue.main.asyncAfter(deadline: .now() + 20) { [weak self, weak connection] in
+      guard let self, let connection, self.connection === connection else { return }
+      switch connection.state {
+      case .ready, .failed, .cancelled: return
+      default: break
+      }
+      self.status = MacTransferStatus.text("mt_s_03", URLError(.timedOut).localizedDescription)
+      self.connection = nil
+      self.isReceiving = false
+      connection.cancel()
+    }
   }
 
   private func receive(on connection: NWConnection) {

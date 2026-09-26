@@ -51,6 +51,8 @@ struct MacTransferSettingsView: View {
           LabeledContent(L10n.text("mt_063", table: "MacTransfer"),
             value: pairing.physicalDeviceID.uuidString).font(.caption)
           Button(L10n.text("mt_064", table: "MacTransfer")) { manager.stop(); manager.start() }
+            .disabled(manager.isReceiving)
+          if manager.isReceiving { ProgressView() }
         }
         Button {
           showingScanner = true
