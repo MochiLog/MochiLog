@@ -11,6 +11,7 @@ require "jwt"
 APP_ID = "6756904240"
 BUNDLE_ID = "net.ryuya-dev.MochiLog"
 BASE_URL = "https://api.appstoreconnect.apple.com/v1"
+SUPPORT_EMAIL = "support@mochilog.ryuya-dev.net"
 
 class AppStoreConnect
   def initialize
@@ -106,6 +107,30 @@ def publish_localizations(api, build_id)
   raise "Missing localized TestFlight notes: #{saved.inspect}" unless %w[ja en-US].all? { |locale| saved.include?(locale) }
 end
 
+def publish_beta_test_information(api)
+  localizations = api.get("/apps/#{APP_ID}/betaAppLocalizations", "limit" => "200")
+    .fetch("data", [])
+  %w[ja en-US].each do |locale|
+    localization = localizations.find { |item| item.dig("attributes", "locale") == locale }
+    raise "Missing #{locale} beta app description" unless
+      localization && !localization.dig("attributes", "description").to_s.strip.empty?
+    id = localization.fetch("id")
+    api.patch("/betaAppLocalizations/#{id}",
+      data: { type: "betaAppLocalizations", id: id,
+        attributes: { feedbackEmail: SUPPORT_EMAIL,
+          marketingUrl: "https://mochilog.ryuya-dev.net/",
+          privacyPolicyUrl: "https://mochilog.ryuya-dev.net/privacy" } })
+    puts "Verified #{locale} beta app description and support links."
+  end
+  detail = api.get("/apps/#{APP_ID}/betaAppReviewDetail").fetch("data")
+  id = detail.fetch("id")
+  api.patch("/betaAppReviewDetails/#{id}",
+    data: { type: "betaAppReviewDetails", id: id,
+      attributes: { contactEmail: SUPPORT_EMAIL } })
+  agreement = api.get("/apps/#{APP_ID}/betaLicenseAgreement")
+  puts "Per-app beta license agreement: #{agreement.fetch('data').fetch('id')}"
+end
+
 def assign_existing_groups(api, build_id)
   groups = api.get("/betaGroups", "filter[app]" => APP_ID, "limit" => "200").fetch("data", [])
   raise "No existing TestFlight groups found; refusing to create or invite testers" if groups.empty?
@@ -161,6 +186,7 @@ build_id = build.fetch("id")
 puts "Found #{marketing_version} (#{build_number}), processing #{build.dig('attributes', 'processingState')}."
 if mode == "publish"
   publish_localizations(api, build_id)
+  publish_beta_test_information(api)
   enable_auto_notify(api, build_id)
   external_count = assign_existing_groups(api, build_id)
   puts "Assigned to #{external_count} existing external group(s)."
