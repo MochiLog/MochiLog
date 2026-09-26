@@ -378,49 +378,49 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "2. For first pairing only, enable Developer Mode and open Settings → Developer → Paired Macs. Choose this Mac and enter the six-digit code below. You may turn Developer Mode off afterwards."
+            "value": "2. If OS pairing is already active, select the device in the Mac app and verify wireless access. Otherwise choose Wireless or USB setup. The Mac checks wireless access before showing the QR."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "2. 初回のみ、iPhoneでデベロッパモードをオンにし、『設定 → デベロッパ → ペアリング済みMac』でこのMacを選びます。下の6桁コードを入力します。OSペアリング後はオフに戻せます。"
+            "value": "2. すでにOSペアリング済みならMacアプリで端末を選び、無線接続を確認します。未設定なら無線かUSBを選びます。QRは無線接続を確認できてから表示されます。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "2. Aktivieren Sie nur für die erste Kopplung den Entwicklermodus und öffnen Sie Einstellungen → Entwickler → gekoppelte Macs. Wählen Sie diesen Mac und geben Sie den sechsstelligen Code unten ein. Sie können den Entwicklermodus danach ausschalten."
+            "value": "2. Ist die OS-Kopplung bereits aktiv, wählen Sie das Gerät in der Mac-App und prüfen den drahtlosen Zugriff. Andernfalls wählen Sie WLAN- oder USB-Einrichtung. Der QR-Code erscheint erst nach der Prüfung."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "2. Solo para el primer emparejamiento, habilite el Modo de desarrollador y abra Configuración → Desarrollador Mac → emparejados. Elige este Mac e introduce el código de seis dígitos a continuación. Puede desactivar el modo de desarrollador después."
+            "value": "2. Si el enlace del sistema ya está activo, selecciona el dispositivo en la app para Mac y verifica el acceso inalámbrico. Si no, elige configuración inalámbrica o USB. El QR aparece tras la verificación."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "2. Pour le premier jumelage uniquement, activez le mode développeur et ouvrez Paramètres Mac → jumelés → développeur. Choisissez ce Mac et entrez le code à six chiffres ci-dessous. Vous pouvez désactiver le mode développeur par la suite."
+            "value": "2. Si le jumelage système est déjà actif, choisissez l’appareil dans l’app Mac et vérifiez l’accès sans fil. Sinon, choisissez la configuration sans fil ou USB. Le QR apparaît après vérification."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "2. 첫 번째 페어링에만 개발자 모드를 활성화하고 설정 → 개발자 → 페어링 Mac을 엽니다. 이 Mac을 선택하고 아래에 6자리 코드를 입력하세요. 나중에 개발자 모드를 끌 수 있습니다."
+            "value": "2. OS 페어링이 이미 활성화되어 있다면 Mac 앱에서 기기를 선택하고 무선 접근을 확인하세요. 그렇지 않으면 무선 또는 USB 설정을 선택하세요. QR 코드는 무선 접근을 확인한 뒤 표시됩니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "2.仅对于首次配对，请启用开发人员模式并打开“设置” “→开发人员→配对的Mac”。选择此Mac并输入下面的六位数代码。之后，您可以关闭开发者模式。"
+            "value": "2. 如果系统已配对，请在 Mac App 中选择设备并验证无线访问。否则请选择无线或 USB 设置。验证无线访问后才会显示二维码。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "2.僅適用於首次配對，請啟用開發人員模式並開啟「設定」「→開發人員→配對的Mac」。選擇此Mac ，然後在下方輸入六位數驗證碼。之後，您可以關閉開發人員模式。"
+            "value": "2. 如果系統已配對，請在 Mac App 中選擇裝置並驗證無線存取。否則請選擇無線或 USB 設定。驗證無線存取後才會顯示 QR 碼。"
           }
         }
       }
@@ -3081,49 +3081,49 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "For first setup, tap Start OS pairing in the Mac app, enable Developer Mode here, open Settings → Developer → Paired Macs, choose the Mac, and enter its six-digit code. Developer Mode can be turned off afterwards."
+            "value": "For first setup, choose Wireless or USB in the Mac app. Wireless: enable Developer Mode, then use Settings → Developer → Paired Macs and enter the six-digit code; you can turn Developer Mode off afterwards. USB: connect this unlocked device, approve Trust, and tap Set up with USB on the Mac. Then unplug the cable. Once wireless access is verified, future collection uses Wi-Fi. Disconnect the USB cable and refresh in the Mac app to verify wireless access. If OS pairing is lost later, reconnect it there; your MochiLog pairing is retained."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "初回だけMacアプリで『OSペアリングを開始』を押し、この端末でデベロッパモードをオンにします。『設定 → デベロッパ → ペアリング済みMac』からMacを選び、Macに表示された6桁コードを入力します。完了後はデベロッパモードをオフに戻せます。"
+            "value": "初回はMacアプリで無線かUSBを選びます。無線の場合はデベロッパモードをオンにし、「設定 → デベロッパ → ペアリング済みMac」で6桁コードを入力します。完了後はオフにできます。USBの場合はロック解除した端末を接続して「信頼」を許可し、Macの「USBで設定」を押します。その後ケーブルを外せます。無線接続の確認後はWi-Fiで収集します。 USB後はケーブルを外し、Macアプリで再検索して無線接続を確認します。後からOSペアリングが切れた場合もMac側で再接続でき、MochiLogの登録は保持されます。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tippen Sie zur ersten Einrichtung in der Mac-App auf „OS-Kopplung starten“, aktivieren Sie hier den Entwicklermodus und öffnen Sie Einstellungen → Entwickler → Gekoppelte Macs. Wählen Sie den Mac und geben Sie den angezeigten sechsstelligen Code ein. Danach können Sie den Entwicklermodus wieder ausschalten."
+            "value": "Wählen Sie für die erste Einrichtung in der Mac-App WLAN oder USB. WLAN: Entwicklermodus aktivieren, unter Einstellungen → Entwickler → Gekoppelte Macs den sechsstelligen Code eingeben; danach kann der Modus ausgeschaltet werden. USB: Entsperrtes Gerät verbinden, „Vertrauen“ bestätigen und am Mac „Mit USB einrichten“ wählen. Danach das Kabel entfernen. Nach Prüfung des drahtlosen Zugriffs erfolgt die Erfassung über WLAN. Nach USB das Kabel trennen und in der Mac-App aktualisieren, um den drahtlosen Zugriff zu prüfen. Geht die OS-Kopplung später verloren, verbinden Sie sie dort erneut; die MochiLog-Kopplung bleibt erhalten."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Para la configuración inicial, pulsa «Iniciar emparejamiento del sistema» en la app de Mac. Activa aquí el modo de desarrollador y abre Ajustes → Desarrollador → Mac emparejados. Selecciona el Mac e introduce el código de seis dígitos. Después puedes desactivar el modo de desarrollador."
+            "value": "En la configuración inicial, elige Wi-Fi o USB en la app para Mac. Wi-Fi: activa el modo de desarrollador y escribe el código de seis dígitos en Ajustes → Desarrollador → Mac enlazados; después puedes desactivarlo. USB: conecta el dispositivo desbloqueado, acepta Confiar y pulsa Configurar con USB en el Mac. Luego desconecta el cable. Tras verificar el acceso inalámbrico, la recopilación se hace por Wi-Fi. Tras USB, desconecta el cable y actualiza la app para Mac para verificar el acceso inalámbrico. Si se pierde el enlace del sistema, restablécelo allí; el de MochiLog se conserva."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pour la première configuration, touchez « Démarrer le jumelage système » dans l’app Mac. Activez le mode développeur ici, puis ouvrez Réglages → Développeur → Mac jumelés. Choisissez le Mac et saisissez son code à six chiffres. Vous pourrez ensuite désactiver le mode développeur."
+            "value": "Pour la première configuration, choisissez Sans fil ou USB dans l’app Mac. Sans fil : activez le mode développeur, puis saisissez le code à six chiffres dans Réglages → Développeur → Mac jumelés ; vous pourrez ensuite le désactiver. USB : connectez l’appareil déverrouillé, approuvez « Se fier », puis touchez « Configurer par USB » sur le Mac. Débranchez ensuite le câble. Après vérification de l’accès sans fil, la collecte se fait par Wi-Fi. Après USB, débranchez le câble et actualisez l’app Mac pour vérifier l’accès sans fil. Si le jumelage système est perdu, rétablissez-le dans l’app Mac ; celui de MochiLog est conservé."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "처음 설정할 때 Mac 앱에서 OS 페어링 시작을 누르고 이 기기에서 개발자 모드를 켭니다. 설정 → 개발자 → 페어링된 Mac에서 Mac을 선택하고 표시된 6자리 코드를 입력합니다. 완료 후 개발자 모드를 다시 끌 수 있습니다."
+            "value": "처음 설정할 때 Mac 앱에서 무선 또는 USB를 선택하세요. 무선: 개발자 모드를 켜고 설정 → 개발자 → 페어링된 Mac에서 6자리 코드를 입력합니다. 이후 개발자 모드를 끌 수 있습니다. USB: 잠금 해제된 기기를 연결하고 신뢰를 허용한 다음 Mac에서 USB로 설정을 누릅니다. 이후 케이블을 분리하세요. 무선 접근을 확인한 뒤에는 Wi-Fi로 수집합니다. USB 설정 후 케이블을 분리하고 Mac 앱에서 새로고침하여 무선 접근을 확인하세요. 나중에 OS 페어링이 끊겨도 Mac 앱에서 다시 연결할 수 있으며 MochiLog 페어링은 유지됩니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "首次设置时，在 Mac 应用中点击“开始系统配对”，在此设备上开启开发者模式，然后打开“设置 → 开发者 → 已配对的 Mac”。选择 Mac 并输入显示的六位数代码。完成后可关闭开发者模式。"
+            "value": "首次设置时，在 Mac App 中选择无线或 USB。无线：开启开发者模式，在“设置 → 开发者 → 已配对的 Mac”中输入六位代码；完成后可关闭开发者模式。USB：连接已解锁的设备，允许“信任”，再点按 Mac 上的“通过 USB 设置”。之后可拔下线缆。验证无线访问后，将通过 Wi-Fi 收集。 USB 设置后拔下线缆并在 Mac App 中刷新，以验证无线访问。如果之后系统配对断开，可在 Mac App 中重新连接；MochiLog 配对会保留。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "首次設定時，在 Mac App 中點選「開始系統配對」，在此裝置上開啟開發者模式，然後開啟「設定 → 開發者 → 已配對的 Mac」。選擇 Mac 並輸入顯示的六位數代碼。完成後可關閉開發者模式。"
+            "value": "初次設定時，在 Mac App 中選擇無線或 USB。無線：開啟開發者模式，在「設定 → 開發者 → 已配對的 Mac」輸入六位數代碼；完成後可關閉開發者模式。USB：連接已解鎖的裝置，允許「信任」，再點按 Mac 上的「透過 USB 設定」。之後可拔除線材。驗證無線存取後，將透過 Wi-Fi 收集。 USB 設定後拔除線材並在 Mac App 中重新整理，以驗證無線存取。如果之後系統配對中斷，可在 Mac App 中重新連接；MochiLog 配對會保留。"
           }
         }
       }
