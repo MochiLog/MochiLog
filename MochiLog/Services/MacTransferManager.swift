@@ -316,8 +316,9 @@ final class MacTransferManager: ObservableObject {
 
   func stopForBackground() {
     let pairing = pairing
-    let route = directRoutes.first ?? endpoint ?? Self.tailnetRoute(
-      address: pairing?.tailnetAddress, port: pairing?.tailnetPort)
+    let route = routeIndex < directRoutes.count ? directRoutes[routeIndex]
+      : (endpoint ?? Self.tailnetRoute(
+        address: pairing?.tailnetAddress, port: pairing?.tailnetPort))
     let mayUseCellular = allowsCellularTransfer
     let wasRunning = isRunning
     stop()
