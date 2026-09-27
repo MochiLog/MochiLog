@@ -1,6 +1,110 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "mt_flow_secure": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Encrypted transfer" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "暗号化して転送" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Verschlüsselt übertragen" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Transferencia cifrada" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Transfert chiffré" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "암호화하여 전송" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "加密传输" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "加密傳輸" } }
+      }
+    },
+    "mt_flow_cloud": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "iCloud sync is optional" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "iCloud同期は任意" } },
+        "de": { "stringUnit": { "state": "translated", "value": "iCloud-Sync ist optional" } },
+        "es": { "stringUnit": { "state": "translated", "value": "La sincronización con iCloud es opcional" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "La synchro iCloud est facultative" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "iCloud 동기화는 선택 사항" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "iCloud 同步可选" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "iCloud 同步可選" } }
+      }
+    },
+    "mt_flow_details": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "How it works" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "仕組みを詳しく" } },
+        "de": { "stringUnit": { "state": "translated", "value": "So funktioniert es" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Cómo funciona" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Fonctionnement" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "작동 방식 자세히 보기" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "了解工作原理" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "瞭解運作方式" } }
+      }
+    },
+    "mt_pair_install_short": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Install Mac app" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Macアプリを入れる" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Mac-App installieren" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Instalar la app para Mac" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Installer l’app Mac" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Mac 앱 설치" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "安装 Mac App" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "安裝 Mac App" } }
+      }
+    },
+    "mt_pair_os_short": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Pair over Wi-Fi or USB" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "無線かUSBでペアリング" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Über WLAN oder USB koppeln" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Enlazar por Wi-Fi o USB" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Jumeler en Wi-Fi ou USB" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Wi-Fi 또는 USB로 페어링" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "通过 Wi-Fi 或 USB 配对" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "透過 Wi-Fi 或 USB 配對" } }
+      }
+    },
+    "mt_pair_qr_short": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Scan QR and enter code" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "QRを読み取りコード入力" } },
+        "de": { "stringUnit": { "state": "translated", "value": "QR scannen und Code eingeben" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Escanear QR e introducir código" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Scanner le QR et saisir le code" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "QR 스캔 후 코드 입력" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "扫码并输入验证码" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "掃碼並輸入驗證碼" } }
+      }
+    },
+    "mt_pair_ready_short": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Ready to receive" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "自動受信の準備完了" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Bereit zum Empfang" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Listo para recibir" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Prêt à recevoir" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "자동 수신 준비 완료" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "准备接收" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "準備接收" } }
+      }
+    },
+    "mt_pair_details": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Detailed setup steps" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "詳しい設定手順" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Detaillierte Einrichtung" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Pasos detallados" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Étapes détaillées" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "자세한 설정 단계" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "详细设置步骤" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "詳細設定步驟" } }
+      }
+    },
     "mt_help_title": {
       "extractionState": "manual",
       "localizations": {
@@ -174,7 +278,7 @@
       "extractionState": "manual",
       "localizations": {
         "en": { "stringUnit": { "state": "translated", "value": "MochiLog analyzes and saves" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "スマホ側で解析・記録" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "MochiLogで解析・記録" } },
         "de": { "stringUnit": { "state": "translated", "value": "MochiLog wertet aus und speichert" } },
         "es": { "stringUnit": { "state": "translated", "value": "MochiLog analiza y guarda" } },
         "fr": { "stringUnit": { "state": "translated", "value": "MochiLog analyse et enregistre" } },

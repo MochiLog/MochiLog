@@ -18,12 +18,15 @@ struct MacTransferSettingsView: View {
   var body: some View {
     Form {
       Section {
-        guidePoint("mt_guide_collect_title", "mt_guide_collect_detail",
-          symbol: "macbook.and.iphone")
-        guidePoint("mt_guide_import_title", "mt_guide_import_detail",
-          symbol: "arrow.down.doc")
-        guidePoint("mt_guide_without_title", "mt_guide_without_detail",
-          symbol: "iphone")
+        workflowDiagram
+        DisclosureGroup(L10n.text("mt_flow_details", table: "MacTransfer")) {
+          guidePoint("mt_guide_collect_title", "mt_guide_collect_detail",
+            symbol: "macbook.and.iphone")
+          guidePoint("mt_guide_import_title", "mt_guide_import_detail",
+            symbol: "arrow.down.doc")
+          guidePoint("mt_guide_without_title", "mt_guide_without_detail",
+            symbol: "iphone")
+        }
       } header: {
         Text(L10n.text("mt_guide_title", table: "MacTransfer"))
       } footer: {
@@ -106,10 +109,13 @@ struct MacTransferSettingsView: View {
         }
       }
       Section(L10n.text("mt_056", table: "MacTransfer")) {
-        step(1, L10n.text("mt_057", table: "MacTransfer"))
-        step(2, L10n.text("mt_058", table: "MacTransfer"))
-        step(3, L10n.text("mt_059", table: "MacTransfer"))
-        step(4, L10n.text("mt_060", table: "MacTransfer"))
+        pairingDiagram
+        DisclosureGroup(L10n.text("mt_pair_details", table: "MacTransfer")) {
+          step(1, L10n.text("mt_057", table: "MacTransfer"))
+          step(2, L10n.text("mt_058", table: "MacTransfer"))
+          step(3, L10n.text("mt_059", table: "MacTransfer"))
+          step(4, L10n.text("mt_060", table: "MacTransfer"))
+        }
       }
       Section {
         Toggle(L10n.text("mt_061", table: "MacTransfer"),
@@ -134,14 +140,11 @@ struct MacTransferSettingsView: View {
         Text(L10n.text("mt_067", table: "MacTransfer"))
       }
       Section(L10n.text("mt_help_title", table: "MacTransfer")) {
-        guidePoint("mt_help_missing_title", "mt_help_missing_detail",
-          symbol: "doc.text.magnifyingglass")
-        guidePoint("mt_help_collect_title", "mt_help_collect_detail",
-          symbol: "lock.open")
-        guidePoint("mt_help_import_title", "mt_help_import_detail",
-          symbol: "arrow.down.doc")
-        guidePoint("mt_help_remote_title", "mt_help_remote_detail",
-          symbol: "network")
+        helpDiagram
+        DisclosureGroup(L10n.text("mt_help_remote_title", table: "MacTransfer")) {
+          Text(L10n.text("mt_help_remote_detail", table: "MacTransfer"))
+            .font(.subheadline).foregroundStyle(.secondary)
+        }
         NavigationLink {
           MacTransferSupportView()
         } label: {
@@ -245,6 +248,206 @@ struct MacTransferSettingsView: View {
       } catch TransferError.identityConflict { pendingPairingQR = value }
       catch { errorMessage = error.localizedDescription }
     }
+  }
+
+  private var isPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
+
+  @ViewBuilder private var workflowDiagram: some View {
+    if isPad {
+      ViewThatFits(in: .horizontal) {
+        HStack(alignment: .top, spacing: 8) {
+          horizontalFlowNode("macbook", "mt_guide_collect_title", tint: .green)
+          horizontalArrow
+          horizontalFlowNode("lock.shield", "mt_flow_secure", tint: .blue)
+          horizontalArrow
+          horizontalFlowNode("iphone.gen3", "mt_guide_import_title", tint: .orange)
+          horizontalArrow
+          horizontalFlowNode("icloud", "mt_flow_cloud", tint: .secondary)
+        }
+        verticalWorkflowDiagram
+      }
+      .frame(maxWidth: .infinity)
+      .padding(.vertical, 10)
+    } else {
+      verticalWorkflowDiagram
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .padding(.vertical, 8)
+    }
+  }
+
+  private var verticalWorkflowDiagram: some View {
+    VStack(alignment: .leading, spacing: 5) {
+      verticalFlowNode("macbook", "mt_guide_collect_title", tint: .green)
+      verticalArrow
+      verticalFlowNode("lock.shield", "mt_flow_secure", tint: .blue)
+      verticalArrow
+      verticalFlowNode("iphone.gen3", "mt_guide_import_title", tint: .orange)
+      verticalArrow
+      verticalFlowNode("icloud", "mt_flow_cloud", tint: .secondary)
+    }
+  }
+
+  private func horizontalFlowNode(_ symbol: String, _ titleKey: String,
+    tint: Color) -> some View {
+    VStack(spacing: 8) {
+      Image(systemName: symbol)
+        .font(.title2.weight(.medium)).foregroundStyle(tint)
+        .frame(width: 52, height: 52)
+        .background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 14))
+      Text(L10n.text(titleKey, table: "MacTransfer"))
+        .font(.caption.weight(.semibold)).multilineTextAlignment(.center)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+    .frame(width: 148, alignment: .top)
+    .accessibilityElement(children: .combine)
+  }
+
+  private func verticalFlowNode(_ symbol: String, _ titleKey: String,
+    tint: Color) -> some View {
+    HStack(spacing: 14) {
+      Image(systemName: symbol)
+        .font(.title3.weight(.medium)).foregroundStyle(tint)
+        .frame(width: 48, height: 48)
+        .background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 13))
+      Text(L10n.text(titleKey, table: "MacTransfer"))
+        .font(.subheadline.weight(.semibold))
+      Spacer(minLength: 0)
+    }
+    .accessibilityElement(children: .combine)
+  }
+
+  private var horizontalArrow: some View {
+    Image(systemName: "arrow.right")
+      .font(.caption.bold()).foregroundStyle(.tertiary)
+      .frame(height: 52).accessibilityHidden(true)
+  }
+
+  private var verticalArrow: some View {
+    Image(systemName: "arrow.down")
+      .font(.caption.bold()).foregroundStyle(.tertiary)
+      .frame(width: 48).accessibilityHidden(true)
+  }
+
+  @ViewBuilder private var pairingDiagram: some View {
+    if isPad {
+      ViewThatFits(in: .horizontal) {
+        HStack(alignment: .top, spacing: 8) {
+          pairingStage(1, "arrow.down.app", "mt_pair_install_short", horizontal: true)
+          horizontalArrow
+          pairingStage(2, "wifi", "mt_pair_os_short", horizontal: true)
+          horizontalArrow
+          pairingStage(3, "qrcode", "mt_pair_qr_short", horizontal: true)
+          horizontalArrow
+          pairingStage(4, "checkmark.circle", "mt_pair_ready_short", horizontal: true)
+        }
+        verticalPairingDiagram
+      }
+      .frame(maxWidth: .infinity).padding(.vertical, 10)
+    } else {
+      verticalPairingDiagram
+      .frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, 8)
+    }
+  }
+
+  private var verticalPairingDiagram: some View {
+    VStack(alignment: .leading, spacing: 5) {
+      pairingStage(1, "arrow.down.app", "mt_pair_install_short", horizontal: false)
+      verticalArrow
+      pairingStage(2, "wifi", "mt_pair_os_short", horizontal: false)
+      verticalArrow
+      pairingStage(3, "qrcode", "mt_pair_qr_short", horizontal: false)
+      verticalArrow
+      pairingStage(4, "checkmark.circle", "mt_pair_ready_short", horizontal: false)
+    }
+  }
+
+  @ViewBuilder private func pairingStage(_ number: Int, _ symbol: String,
+    _ titleKey: String, horizontal: Bool) -> some View {
+    if horizontal {
+      VStack(spacing: 8) {
+        numberedSymbol(number, symbol)
+        Text(L10n.text(titleKey, table: "MacTransfer"))
+          .font(.caption.weight(.semibold)).multilineTextAlignment(.center)
+          .fixedSize(horizontal: false, vertical: true)
+      }
+      .frame(width: 148, alignment: .top)
+      .accessibilityElement(children: .combine)
+    } else {
+      HStack(spacing: 14) {
+        numberedSymbol(number, symbol)
+        Text(L10n.text(titleKey, table: "MacTransfer"))
+          .font(.subheadline.weight(.semibold))
+        Spacer(minLength: 0)
+      }
+      .accessibilityElement(children: .combine)
+    }
+  }
+
+  private func numberedSymbol(_ number: Int, _ symbol: String) -> some View {
+    Image(systemName: symbol)
+      .font(.title3).foregroundStyle(.green)
+      .frame(width: 48, height: 48)
+      .background(.green.opacity(0.10), in: RoundedRectangle(cornerRadius: 13))
+      .overlay(alignment: .topTrailing) {
+        Text("\(number)").font(.caption2.bold()).foregroundStyle(.white)
+          .frame(width: 19, height: 19).background(.green, in: Circle())
+          .offset(x: 6, y: -6)
+      }
+  }
+
+  @ViewBuilder private var helpDiagram: some View {
+    if isPad {
+      ViewThatFits(in: .horizontal) {
+        HStack(alignment: .top, spacing: 10) {
+          helpStage(1, "doc.text.magnifyingglass", "mt_help_missing_title",
+            "mt_help_missing_detail", horizontal: true)
+          helpStage(2, "macbook", "mt_help_collect_title", "mt_help_collect_detail",
+            horizontal: true)
+          helpStage(3, "iphone.gen3", "mt_help_import_title", "mt_help_import_detail",
+            horizontal: true)
+        }
+        verticalHelpDiagram
+      }
+      .padding(.vertical, 8)
+    } else {
+      verticalHelpDiagram
+      .padding(.vertical, 8)
+    }
+  }
+
+  private var verticalHelpDiagram: some View {
+    VStack(alignment: .leading, spacing: 6) {
+      helpStage(1, "doc.text.magnifyingglass", "mt_help_missing_title",
+        "mt_help_missing_detail")
+      helpStage(2, "macbook", "mt_help_collect_title", "mt_help_collect_detail")
+      helpStage(3, "iphone.gen3", "mt_help_import_title", "mt_help_import_detail")
+    }
+  }
+
+  private func helpStage(_ number: Int, _ symbol: String,
+    _ titleKey: String, _ detailKey: String, horizontal: Bool = false) -> some View {
+    DisclosureGroup {
+      Text(L10n.text(detailKey, table: "MacTransfer"))
+        .font(.caption).foregroundStyle(.secondary)
+        .padding(.top, 6)
+    } label: {
+      VStack(alignment: .leading, spacing: 8) {
+        HStack {
+          Image(systemName: symbol).font(.title3).foregroundStyle(.green)
+          Spacer(minLength: 4)
+          Text("\(number)").font(.caption2.bold()).foregroundStyle(.white)
+            .frame(width: 22, height: 22).background(.green, in: Circle())
+        }
+        Text(L10n.text(titleKey, table: "MacTransfer"))
+          .font(.subheadline.weight(.semibold))
+          .fixedSize(horizontal: false, vertical: true)
+      }
+    }
+    .frame(minWidth: horizontal ? 170 : nil, maxWidth: .infinity,
+      alignment: .topLeading)
+    .padding(12)
+    .background(Color.accentColor.opacity(0.06),
+      in: RoundedRectangle(cornerRadius: 14))
   }
 
   private func step(_ number: Int, _ text: String) -> some View {
