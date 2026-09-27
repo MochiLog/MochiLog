@@ -15,6 +15,7 @@ struct MacTransferPairing: Codable {
   var platform: String? = nil
   var lanAddresses: [String]? = nil
   var lanPort: UInt16? = nil
+  var manualHostAddress: String? = nil
 }
 
 @available(iOS 27, *)
@@ -123,6 +124,25 @@ final class MacTransferManager: ObservableObject {
     } else {
       pauseForNetwork()
     }
+  }
+
+  func setManualHostAddress(_ address: String?) throws {
+    guard var current = pairing,
+      let index = pairings.firstIndex(where: { $0.hostID == current.hostID }) else { return }
+    let value = address?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    if !value.isEmpty {
+      guard IPv4Address(value) != nil, value != "0.0.0.0",
+        !value.hasPrefix("127.") else { throw TransferError.invalidPairing }
+    }
+    current.manualHostAddress = value.isEmpty ? nil : value
+    var updated = pairings
+    updated[index] = current
+    try Self.savePairings(updated)
+    pairings = updated
+    pairing = current
+    Self.appendDebugEvent(current.manualHostAddress == nil
+      ? "Manual computer address cleared" : "Manual computer address set")
+    if isRunning, networkPermitsTransfer { beginDiscovery() }
   }
 
   private var networkPermitsTransfer: Bool {
@@ -349,9 +369,15 @@ final class MacTransferManager: ObservableObject {
     isReceiving = false
     connectionPhase = .searching
     requeueConfirmedFiles(for: pairing)
+    if let address = pairing.manualHostAddress,
+      let ipv4 = IPv4Address(address),
+      let port = NWEndpoint.Port(rawValue: pairing.lanPort ??
+        (pairing.platform == "windows" ? 54556 : 54555)) {
+      directRoutes.append(.hostPort(host: .ipv4(ipv4), port: port))
+    }
     if let lanPort = pairing.lanPort,
       let endpointPort = NWEndpoint.Port(rawValue: lanPort) {
-      directRoutes = (pairing.lanAddresses ?? []).compactMap { address in
+      directRoutes += (pairing.lanAddresses ?? []).compactMap { address in
         guard let ipv4 = IPv4Address(address), Self.isPrivateLANAddress(address) else {
           return nil
         }
@@ -397,7 +423,13 @@ final class MacTransferManager: ObservableObject {
             }
           }
         }
-        let newRoutes = Self.routes(from: result.metadata)
+        var newRoutes = Self.routes(from: result.metadata)
+        if let address = self.pairing?.manualHostAddress,
+          let ipv4 = IPv4Address(address),
+          let port = NWEndpoint.Port(rawValue: self.pairing?.lanPort ??
+            (self.pairing?.platform == "windows" ? 54556 : 54555)) {
+          newRoutes.insert(.hostPort(host: .ipv4(ipv4), port: port), at: 0)
+        }
         if newRoutes != self.directRoutes {
           self.directRoutes = newRoutes
           self.routeIndex = 0

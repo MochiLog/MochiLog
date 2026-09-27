@@ -12,6 +12,7 @@ struct MacTransferSettingsView: View {
   @State private var enteredPairingCode = ""
   @State private var isPreparingPairing = false
   @State private var guidePlatform = 0
+  @State private var manualHostAddress = ""
   @AppStorage(PhysicalDeviceIdentityStore.manualLocalImportKey)
   private var tagManualImportsAsThisDevice = false
   private let macReleaseURL = URL(string: "https://github.com/MochiLog/MochiLog-Mac/releases")!
@@ -112,6 +113,32 @@ struct MacTransferSettingsView: View {
         VStack(alignment: .leading, spacing: 8) {
           Text(L10n.text("mt_091", table: "MacTransfer"))
           Text(L10n.text("mt_092", table: "MacTransfer"))
+        }
+      }
+      if manager.pairing != nil {
+        Section {
+          TextField(L10n.text("mt_manual_ip_placeholder", table: "MacTransfer"),
+            text: $manualHostAddress)
+            .keyboardType(.numbersAndPunctuation)
+            .textInputAutocapitalization(.never)
+            .autocorrectionDisabled()
+          HStack {
+            Button(L10n.text("mt_manual_ip_save", table: "MacTransfer")) {
+              do { try manager.setManualHostAddress(manualHostAddress) }
+              catch { errorMessage = error.localizedDescription }
+            }
+            Spacer()
+            Button(L10n.text("mt_manual_ip_clear", table: "MacTransfer")) {
+              do {
+                try manager.setManualHostAddress(nil)
+                manualHostAddress = ""
+              } catch { errorMessage = error.localizedDescription }
+            }
+          }
+        } header: {
+          Text(L10n.text("mt_manual_ip_title", table: "MacTransfer"))
+        } footer: {
+          Text(L10n.text("mt_manual_ip_footer", table: "MacTransfer"))
         }
       }
       Section(L10n.text("mt_056", table: "MacTransfer")) {
@@ -266,7 +293,13 @@ struct MacTransferSettingsView: View {
     } message: {
       Text(L10n.text("mt_secure_pair_instruction", table: "MacTransfer"))
     }
-    .onAppear { manager.start() }
+    .onAppear {
+      manualHostAddress = manager.pairing?.manualHostAddress ?? ""
+      manager.start()
+    }
+    .onChange(of: manager.pairing?.hostID) { _, _ in
+      manualHostAddress = manager.pairing?.manualHostAddress ?? ""
+    }
   }
 
   private func handlePairingQR(_ value: String, relinkLocalRecords: Bool = false) {
