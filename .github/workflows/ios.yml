@@ -22,15 +22,15 @@ jobs:
   # ============================================
   build-signed:
     name: Build Signed IPA
-    runs-on: macos-latest
+    runs-on: xcode-27
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: latest-stable
+      - name: Verify Xcode 27
+        run: |
+          xcodebuild -version
+          test "$(xcrun --sdk iphoneos --show-sdk-version | cut -d. -f1)" = 27
 
       - name: Check bundled third-party licenses
         run: python3 scripts/check-third-party-licenses.py
@@ -69,15 +69,15 @@ jobs:
   build-unsigned:
     if: github.event_name != 'workflow_dispatch' || github.event.inputs.upload_to_testflight != 'true'
     name: Build Unsigned IPA
-    runs-on: macos-latest
+    runs-on: xcode-27
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: latest-stable
+      - name: Verify Xcode 27
+        run: |
+          xcodebuild -version
+          test "$(xcrun --sdk iphoneos --show-sdk-version | cut -d. -f1)" = 27
 
       - name: Check bundled third-party licenses
         run: python3 scripts/check-third-party-licenses.py
