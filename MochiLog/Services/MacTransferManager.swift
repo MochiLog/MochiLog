@@ -1157,6 +1157,7 @@ final class MacTransferManager: ObservableObject {
       "pendingAcknowledgement": pendingAck != nil,
       "recentEvents": recentEvents
     ]
+    object["lastAppDiagnostic"] = CrashDiagnostics.shared.summary()
     while true {
       let data = (try? JSONSerialization.data(withJSONObject: object,
         options: [.prettyPrinted, .sortedKeys])) ?? Data("{}".utf8)
@@ -1170,7 +1171,10 @@ final class MacTransferManager: ObservableObject {
     UserDefaults.standard.data(forKey: macDiagnosticsKey)
   }
 
-  func debugLogText() -> String { Self.debugEvents().joined(separator: "\n") }
+  func debugLogText() -> String {
+    ([CrashDiagnostics.shared.summary()].compactMap { $0 } + Self.debugEvents())
+      .joined(separator: "\n")
+  }
 
   func macDebugLogText() -> String {
     guard let report = latestMacDiagnosticsData(),

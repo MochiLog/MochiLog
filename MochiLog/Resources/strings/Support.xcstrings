@@ -1,6 +1,30 @@
 {
   "sourceLanguage" : "ja",
   "strings" : {
+    "attach_app_diagnostic" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "App-Diagnose anhängen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Attach app diagnostic" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Adjuntar diagnóstico de la app" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Joindre le diagnostic de l’app" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アプリの診断情報を添付" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "앱 진단 정보 첨부" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "附加 App 诊断信息" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "附加 App 診斷資訊" } }
+      }
+    },
+    "attach_app_diagnostic_help" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Der letzte vom System erfasste Absturz- oder Hängerbericht wird nur beim Senden dieser E-Mail angehängt." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The latest system crash or hang report is attached only when you send this email." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "El último informe de fallo o bloqueo del sistema solo se adjunta al enviar este correo." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Le dernier rapport de plantage ou de blocage du système est joint uniquement lors de l’envoi de cet e-mail." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "OSから届いた直近のクラッシュ・停止診断を、このメールを送る時だけ添付します。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "시스템의 최근 충돌 또는 멈춤 보고서는 이 이메일을 보낼 때만 첨부됩니다." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "仅在发送此邮件时附加系统最近的崩溃或卡顿报告。" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "僅在傳送此郵件時附加系統最近的當機或卡住報告。" } }
+      }
+    },
     "battery_capacity_report_template" : {
       "extractionState" : "stale",
       "localizations" : {

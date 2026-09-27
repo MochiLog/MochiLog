@@ -33,6 +33,10 @@ struct MacTransferSupportView: View {
       }
       Section(L10n.text("mt_080", table: "MacTransfer")) {
         Label(L10n.text("mt_081", table: "MacTransfer"), systemImage: "iphone")
+        if CrashDiagnostics.shared.latest() != nil {
+          Label(L10n.string("attach_app_diagnostic", table: "Support"),
+            systemImage: "waveform.path.ecg")
+        }
         Label(manager.latestMacDiagnosticsData() == nil
           ? (L10n.text("mt_082", table: "MacTransfer"))
           : (L10n.text("mt_083", table: "MacTransfer")),
@@ -76,6 +80,10 @@ struct MacTransferSupportView: View {
   private var attachments: [MailAttachment] {
     var result = [MailAttachment(data: manager.supportDiagnosticsData(),
       mimeType: "application/json", fileName: "mochilog-iphone-diagnostics.json")]
+    if let diagnostic = CrashDiagnostics.shared.latest() {
+      result.append(MailAttachment(data: diagnostic, mimeType: "application/json",
+        fileName: "mochilog-ios-app-diagnostic.json"))
+    }
     if let mac = manager.latestMacDiagnosticsData() {
       let computer = manager.pairing?.platform == "windows" ? "windows" : "mac"
       result.append(MailAttachment(data: mac, mimeType: "application/json",

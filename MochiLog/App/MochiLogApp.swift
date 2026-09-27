@@ -13,6 +13,7 @@ final class MochiLogApp: UIResponder, UIApplicationDelegate {
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
   ) -> Bool {
     prepareApplicationSupportDirectories()
+    CrashDiagnostics.shared.start()
     WatchConnectivityManager.shared.startSession()
     return true
   }

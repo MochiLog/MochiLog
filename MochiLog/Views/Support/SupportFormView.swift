@@ -33,6 +33,7 @@ struct SupportFormView: View {
   @State private var showingMailError = false
   @State private var showingValidationError = false
   @State private var isShowingMailCompose = false
+  @State private var attachDiagnostic = true
 
   private var isFormValid: Bool {
     !name.trimmingCharacters(in: .whitespaces).isEmpty
@@ -76,6 +77,14 @@ struct SupportFormView: View {
           Text(L10n.string("device_info_included", table: "Common"))
             .foregroundStyle(.secondary)
         }
+        if CrashDiagnostics.shared.latest() != nil {
+          Section {
+            Toggle(L10n.string("attach_app_diagnostic", table: "Support"),
+              isOn: $attachDiagnostic)
+          } footer: {
+            Text(L10n.string("attach_app_diagnostic_help", table: "Support"))
+          }
+        }
       }
       .navigationTitle(L10n.string("contact_form", table: "Support"))
       .navigationBarTitleDisplayMode(.inline)
@@ -106,7 +115,11 @@ struct SupportFormView: View {
         MailComposeView(
           recipients: ["support@mochilog.ryuya-dev.net"],
           subject: "[MochiLog] \(inquiryType.localizedName)",
-          body: composeEmailBody()
+          body: composeEmailBody(),
+          attachments: (attachDiagnostic ? CrashDiagnostics.shared.latest() : nil).map {
+            [MailAttachment(data: $0, mimeType: "application/json",
+              fileName: "mochilog-ios-app-diagnostic.json")]
+          } ?? []
         ) { result in
           if result == .sent {
             dismiss()
