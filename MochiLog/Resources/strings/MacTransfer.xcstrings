@@ -1,6 +1,136 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "mt_help_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Troubleshooting" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "困ったときは" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Hilfe bei Problemen" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Solución de problemas" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "En cas de problème" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "문제 해결" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "遇到问题时" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "遇到問題時" } }
+      }
+    },
+    "mt_help_missing_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "No daily analytics log" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "日次の解析ログがない" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Kein tägliches Analyseprotokoll" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Falta el registro diario" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Aucun journal quotidien" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "일일 분석 로그가 없을 때" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "没有每日分析日志" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "沒有每日分析日誌" } }
+      }
+    },
+    "mt_help_missing_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Check analytics sharing in Settings → Privacy & Security → Analytics & Improvements, especially after a system update. A newly enabled device may need until the next daily log." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "「設定 → プライバシーとセキュリティ → 解析と改善」で解析の共有を確認してください。OS更新後も再確認を。オンにした直後は次の日次ログまで待つ必要があります。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Prüfe die Analysefreigabe unter Einstellungen → Datenschutz & Sicherheit → Analyse & Verbesserungen, besonders nach einem Systemupdate. Nach dem Aktivieren kann es bis zum nächsten Tagesprotokoll dauern." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Comprueba el uso compartido de análisis en Ajustes → Privacidad y seguridad → Análisis y mejoras, sobre todo tras actualizar el sistema. Si lo acabas de activar, espera al siguiente registro diario." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Vérifiez le partage des analyses dans Réglages → Confidentialité et sécurité → Analyse et améliorations, surtout après une mise à jour. Après l’activation, attendez le prochain journal quotidien." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "특히 시스템 업데이트 후 설정 → 개인정보 보호 및 보안 → 분석 및 향상에서 분석 공유를 다시 확인하세요. 방금 켰다면 다음 일일 로그까지 기다려야 할 수 있습니다." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "请在“设置 → 隐私与安全性 → 分析与改进”中检查分析共享，尤其是在系统更新后。刚开启时可能要等到下一份每日日志。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "請在「設定 → 隱私權與安全性 → 分析與改進」中檢查分析共享，尤其是在系統更新後。剛啟用時可能要等到下一份每日日誌。" } }
+      }
+    },
+    "mt_help_collect_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "The Mac cannot collect" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Macで収集できない" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Der Mac kann nicht sammeln" } },
+        "es": { "stringUnit": { "state": "translated", "value": "El Mac no puede recopilar" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Le Mac ne peut pas recueillir" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Mac에서 수집할 수 없을 때" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "Mac 无法收集" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "Mac 無法收集" } }
+      }
+    },
+    "mt_help_collect_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Keep the device unlocked, the Mac awake, and both on the same Wi-Fi. Confirm OS pairing in Devices, then try Collect Now. Collection retries every five minutes while the app is running." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "端末のロックを解除し、Macをスリープさせず、同じWi-Fiに接続してください。「端末」でOSペアリングを確認し、「今すぐログを収集」を試してください。アプリの動作中は5分ごとに再試行します。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Entsperre das Gerät, halte den Mac wach und verbinde beide mit demselben WLAN. Prüfe die Systemkopplung unter Geräte und starte „Jetzt sammeln“. Bei laufender App erfolgt alle fünf Minuten ein neuer Versuch." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Desbloquea el dispositivo, mantén el Mac activo y usa la misma red Wi-Fi. Comprueba el enlace del sistema en Dispositivos y pulsa «Recopilar ahora». La app reintenta cada cinco minutos." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Déverrouillez l’appareil, gardez le Mac éveillé et utilisez le même Wi-Fi. Vérifiez le jumelage système dans Appareils, puis lancez la collecte. L’app réessaie toutes les cinq minutes." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "기기 잠금을 해제하고 Mac이 잠자기 상태가 아니며 같은 Wi-Fi에 연결되어 있는지 확인하세요. 기기 화면에서 시스템 페어링을 확인한 뒤 지금 수집을 누르세요. 앱 실행 중에는 5분마다 다시 시도합니다." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "解锁设备、保持 Mac 唤醒，并连接同一 Wi-Fi。在“设备”中确认系统配对后，点按“立即收集”。App 运行时每五分钟重试。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "解鎖裝置、保持 Mac 喚醒，並連接同一 Wi-Fi。在「裝置」中確認系統配對後，點按「立即收集」。App 執行時每五分鐘重試。" } }
+      }
+    },
+    "mt_help_import_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Collected, but no new record" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "収集済みなのに記録が増えない" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Gesammelt, aber kein neuer Eintrag" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Recopilado, pero sin registro nuevo" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Collecté, mais aucun nouvel enregistrement" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "수집됐지만 새 기록이 없을 때" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "已收集但没有新记录" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "已收集但沒有新記錄" } }
+      }
+    },
+    "mt_help_import_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Open MochiLog on the paired iPhone or iPad to receive the files. Already imported logs are skipped. Apple Watch logs are delivered through its paired iPhone." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ペアリングしたiPhoneまたはiPadでMochiLogを開いて受信してください。取り込み済みのログは重複として除外されます。Apple Watchログはペアリング先のiPhone経由で届きます。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Öffne MochiLog auf dem gekoppelten iPhone oder iPad. Bereits importierte Protokolle werden übersprungen. Apple-Watch-Protokolle kommen über das gekoppelte iPhone." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Abre MochiLog en el iPhone o iPad enlazado para recibir los archivos. Se omiten los registros ya importados. Los del Apple Watch llegan a través del iPhone enlazado." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Ouvrez MochiLog sur l’iPhone ou l’iPad jumelé pour recevoir les fichiers. Les journaux déjà importés sont ignorés. Ceux de l’Apple Watch passent par l’iPhone jumelé." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "페어링된 iPhone 또는 iPad에서 MochiLog를 열어 파일을 받으세요. 이미 가져온 로그는 중복으로 건너뜁니다. Apple Watch 로그는 페어링된 iPhone을 통해 전달됩니다." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "在已配对的 iPhone 或 iPad 上打开 MochiLog 接收文件。已导入的日志会作为重复项跳过。Apple Watch 日志经配对的 iPhone 传送。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "在已配對的 iPhone 或 iPad 上開啟 MochiLog 接收檔案。已匯入的日誌會作為重複項略過。Apple Watch 日誌經配對的 iPhone 傳送。" } }
+      }
+    },
+    "mt_help_remote_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Away from the local network" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "外出先から使うとき" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Außerhalb des lokalen Netzwerks" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Fuera de la red local" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Hors du réseau local" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "외부 네트워크에서 사용할 때" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "不在本地网络时" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "不在本機網路時" } }
+      }
+    },
+    "mt_help_remote_detail": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Tailscale over cellular can deliver files already collected by the Mac. New system analytics logs still require the local wireless diagnostic connection. Manual sharing from Settings remains available." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "モバイル回線のTailscaleではMacに収集済みのファイルだけを転送できます。端末内の新しい解析ログの収集にはローカルの無線診断接続が必要です。設定アプリからの手動共有も使えます。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Tailscale über Mobilfunk kann bereits gesammelte Dateien übertragen. Für neue Systemanalyseprotokolle ist weiterhin die lokale drahtlose Diagnoseverbindung nötig. Manuelles Teilen aus Einstellungen bleibt möglich." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Tailscale por datos móviles puede enviar archivos ya recopilados por el Mac. Para recoger nuevos registros del sistema hace falta la conexión de diagnóstico inalámbrica local. También puedes compartirlos manualmente desde Ajustes." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Tailscale sur le réseau mobile peut transmettre les fichiers déjà recueillis par le Mac. La collecte de nouveaux journaux système exige toujours la connexion de diagnostic locale sans fil. Le partage manuel depuis Réglages reste possible." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "셀룰러의 Tailscale로는 Mac이 이미 수집한 파일만 전송할 수 있습니다. 새로운 시스템 분석 로그를 수집하려면 로컬 무선 진단 연결이 필요합니다. 설정에서 수동으로 공유할 수도 있습니다." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "通过蜂窝网络的 Tailscale 只能传送 Mac 已收集的文件。收集新的系统分析日志仍需本地无线诊断连接。也可以从“设置”手动共享。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "透過行動網路的 Tailscale 只能傳送 Mac 已收集的檔案。收集新的系統分析日誌仍需本機無線診斷連線。也可以從「設定」手動分享。" } }
+      }
+    },
+    "mt_help_support": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Open support and debug logs" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "サポートとデバッグログを開く" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Support und Debugprotokolle öffnen" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Abrir soporte y registros de depuración" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Ouvrir l’assistance et les journaux de débogage" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "지원 및 디버그 로그 열기" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "打开支持与调试日志" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "開啟支援與除錯日誌" } }
+      }
+    },
     "mt_guide_title": {
       "extractionState": "manual",
       "localizations": {

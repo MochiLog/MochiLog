@@ -133,6 +133,22 @@ struct MacTransferSettingsView: View {
       } footer: {
         Text(L10n.text("mt_067", table: "MacTransfer"))
       }
+      Section(L10n.text("mt_help_title", table: "MacTransfer")) {
+        guidePoint("mt_help_missing_title", "mt_help_missing_detail",
+          symbol: "doc.text.magnifyingglass")
+        guidePoint("mt_help_collect_title", "mt_help_collect_detail",
+          symbol: "lock.open")
+        guidePoint("mt_help_import_title", "mt_help_import_detail",
+          symbol: "arrow.down.doc")
+        guidePoint("mt_help_remote_title", "mt_help_remote_detail",
+          symbol: "network")
+        NavigationLink {
+          MacTransferSupportView()
+        } label: {
+          Label(L10n.text("mt_help_support", table: "MacTransfer"),
+            systemImage: "questionmark.circle")
+        }
+      }
       Section(L10n.text("mt_022", table: "MacTransfer")) {
         NavigationLink {
           MacTransferDebugLogView()
