@@ -333,8 +333,6 @@ struct MacTransferSettingsView: View {
           horizontalFlowNode("lock.shield", "mt_flow_secure", tint: .blue)
           horizontalArrow
           horizontalFlowNode("iphone.gen3", "mt_guide_import_title", tint: .orange)
-          horizontalArrow
-          horizontalFlowNode("icloud", "mt_flow_cloud", tint: .secondary)
         }
         verticalWorkflowDiagram
       }
@@ -354,8 +352,6 @@ struct MacTransferSettingsView: View {
       verticalFlowNode("lock.shield", "mt_flow_secure", tint: .blue)
       verticalArrow
       verticalFlowNode("iphone.gen3", "mt_guide_import_title", tint: .orange)
-      verticalArrow
-      verticalFlowNode("icloud", "mt_flow_cloud", tint: .secondary)
     }
   }
 

@@ -19,19 +19,6 @@
         "zh-Hant": { "stringUnit": { "state": "translated", "value": "加密傳輸" } }
       }
     },
-    "mt_flow_cloud": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "iCloud sync is optional" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "iCloud同期は任意" } },
-        "de": { "stringUnit": { "state": "translated", "value": "iCloud-Sync ist optional" } },
-        "es": { "stringUnit": { "state": "translated", "value": "La sincronización con iCloud es opcional" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "La synchro iCloud est facultative" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "iCloud 동기화는 선택 사항" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "iCloud 同步可选" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "iCloud 同步可選" } }
-      }
-    },
     "mt_flow_details": {
       "extractionState": "manual",
       "localizations": {
@@ -295,14 +282,14 @@
     "mt_guide_import_detail": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Open MochiLog on the iPhone or iPad to receive pending logs securely. The app analyzes and records them; iCloud sync remains optional and separate." } },
-        "ja": { "stringUnit": { "state": "translated", "value": "iPhone・iPadでMochiLogを開くと、保管されたログを暗号化して受信し、アプリ側で解析・記録します。iCloud同期は別の任意設定です。" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Öffne MochiLog auf dem iPhone oder iPad, um wartende Protokolle verschlüsselt zu empfangen. Die App wertet sie aus und speichert sie. iCloud-Sync bleibt getrennt und optional." } },
-        "es": { "stringUnit": { "state": "translated", "value": "Abre MochiLog en el iPhone o iPad para recibir los registros pendientes de forma cifrada. La app los analiza y guarda. La sincronización con iCloud es independiente y opcional." } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Ouvrez MochiLog sur l’iPhone ou l’iPad pour recevoir les journaux en attente de façon chiffrée. L’app les analyse et les enregistre. La synchronisation iCloud reste distincte et facultative." } },
-        "ko": { "stringUnit": { "state": "translated", "value": "iPhone 또는 iPad에서 MochiLog을 열면 대기 중인 로그를 암호화해 수신하고 앱에서 분석·기록합니다. iCloud 동기화는 별도의 선택 사항입니다." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "在 iPhone 或 iPad 上打开 MochiLog，即可加密接收待传日志，由 App 分析并记录。iCloud 同步是独立的可选设置。" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "在 iPhone 或 iPad 上開啟 MochiLog，即可加密接收待傳日誌，由 App 分析並記錄。iCloud 同步是獨立的選用設定。" } }
+        "en": { "stringUnit": { "state": "translated", "value": "Open MochiLog on the iPhone or iPad to receive pending logs securely. The app analyzes and records them." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "iPhone・iPadでMochiLogを開くと、保管されたログを暗号化して受信し、アプリ側で解析・記録します。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Öffne MochiLog auf dem iPhone oder iPad, um wartende Protokolle verschlüsselt zu empfangen. Die App wertet sie aus und speichert sie." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Abre MochiLog en el iPhone o iPad para recibir los registros pendientes de forma cifrada. La app los analiza y guarda." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Ouvrez MochiLog sur l’iPhone ou l’iPad pour recevoir les journaux en attente de façon chiffrée. L’app les analyse et les enregistre." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "iPhone 또는 iPad에서 MochiLog을 열면 대기 중인 로그를 암호화해 수신하고 앱에서 분석·기록합니다." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "在 iPhone 或 iPad 上打开 MochiLog，即可加密接收待传日志，由 App 分析并记录。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "在 iPhone 或 iPad 上開啟 MochiLog，即可加密接收待傳日誌，由 App 分析並記錄。" } }
       }
     },
     "mt_guide_without_title": {
@@ -4903,14 +4890,14 @@
     "mt_092": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Off by default. When off, Mac transfer uses Wi-Fi or a wired network only. This switch does not let the Mac collect new device logs over cellular data and does not change iCloud sync." } },
-        "ja": { "stringUnit": { "state": "translated", "value": "初期設定はオフです。オフの間、Mac連携はWi-Fiまたは有線ネットワークでのみ通信します。この設定ではMacによる端末からの新しいログ収集をモバイル回線で有効にはできません。iCloud同期にも影響しません。" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Standardmäßig aus. Dann nutzt die Mac-Übertragung nur WLAN oder ein kabelgebundenes Netzwerk. Dieser Schalter ermöglicht dem Mac keine Sammlung neuer Gerätelogs über Mobilfunk und ändert die iCloud-Synchronisierung nicht." } },
-        "es": { "stringUnit": { "state": "translated", "value": "Desactivado de forma predeterminada. Así, la transferencia con el Mac solo usa Wi-Fi o una red por cable. Este ajuste no permite al Mac recopilar nuevos registros del dispositivo mediante datos móviles ni cambia la sincronización de iCloud." } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Désactivé par défaut. La transmission avec le Mac utilise alors uniquement le Wi-Fi ou un réseau filaire. Cette option ne permet pas au Mac de collecter de nouveaux journaux de l’appareil via les données mobiles et ne modifie pas la synchronisation iCloud." } },
-        "ko": { "stringUnit": { "state": "translated", "value": "기본값은 꺼짐입니다. 꺼져 있으면 Mac 전송은 Wi-Fi 또는 유선 네트워크만 사용합니다. 이 설정으로 Mac이 셀룰러 데이터에서 기기의 새 로그를 수집할 수 있게 되지는 않으며 iCloud 동기화에도 영향을 주지 않습니다." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "默认关闭。关闭时，Mac 传输仅使用 Wi-Fi 或有线网络。此开关不会让 Mac 通过蜂窝数据从设备采集新日志，也不会更改 iCloud 同步。" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "預設關閉。關閉時，Mac 傳輸只使用 Wi-Fi 或有線網絡。此開關不會讓 Mac 透過行動數據從裝置收集新日誌，也不會變更 iCloud 同步。" } }
+        "en": { "stringUnit": { "state": "translated", "value": "Off by default. When off, Mac transfer uses Wi-Fi or a wired network only. This switch does not let the Mac collect new device logs over cellular data." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "初期設定はオフです。オフの間、Mac連携はWi-Fiまたは有線ネットワークでのみ通信します。この設定ではMacによる端末からの新しいログ収集をモバイル回線で有効にはできません。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Standardmäßig aus. Dann nutzt die Mac-Übertragung nur WLAN oder ein kabelgebundenes Netzwerk. Dieser Schalter ermöglicht dem Mac keine Sammlung neuer Gerätelogs über Mobilfunk." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Desactivado de forma predeterminada. Así, la transferencia con el Mac solo usa Wi-Fi o una red por cable. Este ajuste no permite al Mac recopilar nuevos registros del dispositivo mediante datos móviles." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Désactivé par défaut. La transmission avec le Mac utilise alors uniquement le Wi-Fi ou un réseau filaire. Cette option ne permet pas au Mac de collecter de nouveaux journaux de l’appareil via les données mobiles." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "기본값은 꺼짐입니다. 꺼져 있으면 Mac 전송은 Wi-Fi 또는 유선 네트워크만 사용합니다. 이 설정으로 Mac이 셀룰러 데이터에서 기기의 새 로그를 수집할 수 있게 되지는 않습니다." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "默认关闭。关闭时，Mac 传输仅使用 Wi-Fi 或有线网络。此开关不会让 Mac 通过蜂窝数据从设备采集新日志。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "預設關閉。關閉時，Mac 傳輸只使用 Wi-Fi 或有線網絡。此開關不會讓 Mac 透過行動數據從裝置收集新日誌。" } }
       }
     },
     "mt_093": {
@@ -6234,14 +6221,14 @@
     "mt_win_step_4": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Leave MochiLog Windows running to collect logs while the device is unlocked. Open MochiLog here to receive, analyze and store them. Syncing to iCloud is optional." } },
-        "ja": { "stringUnit": { "state": "translated", "value": "端末のロック解除中に収集できるようMochiLog Windowsを起動しておきます。このMochiLogを開くとログを受信・解析・記録します。iCloud同期は任意です。" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Lass MochiLog Windows geöffnet, um bei entsperrtem Gerät Logs zu sammeln. Öffne MochiLog hier zum Empfangen, Analysieren und Speichern. iCloud-Sync ist optional." } },
-        "es": { "stringUnit": { "state": "translated", "value": "Deja MochiLog Windows abierto para recopilar registros mientras el dispositivo esté desbloqueado. Abre MochiLog aquí para recibirlos, analizarlos y guardarlos. iCloud es opcional." } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Laissez MochiLog Windows ouvert pour collecter les journaux quand l’appareil est déverrouillé. Ouvrez MochiLog ici pour les recevoir, analyser et enregistrer. iCloud est facultatif." } },
-        "ko": { "stringUnit": { "state": "translated", "value": "기기가 잠금 해제된 동안 로그를 수집하도록 MochiLog Windows를 실행해 둡니다. 여기에서 MochiLog를 열면 로그를 수신·분석·기록합니다. iCloud 동기화는 선택 사항입니다." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "保持 MochiLog Windows 运行，以便在设备解锁时收集日志。在本机打开 MochiLog 后接收、分析并保存。iCloud 同步可选。" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "保持 MochiLog Windows 執行，以便在裝置解鎖時收集記錄。在本機開啟 MochiLog 後接收、分析並儲存。iCloud 同步可選。" } }
+        "en": { "stringUnit": { "state": "translated", "value": "Leave MochiLog Windows running to collect logs while the device is unlocked. Open MochiLog here to receive, analyze and store them." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "端末のロック解除中に収集できるようMochiLog Windowsを起動しておきます。このMochiLogを開くとログを受信・解析・記録します。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Lass MochiLog Windows geöffnet, um bei entsperrtem Gerät Logs zu sammeln. Öffne MochiLog hier zum Empfangen, Analysieren und Speichern." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Deja MochiLog Windows abierto para recopilar registros mientras el dispositivo esté desbloqueado. Abre MochiLog aquí para recibirlos, analizarlos y guardarlos." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Laissez MochiLog Windows ouvert pour collecter les journaux quand l’appareil est déverrouillé. Ouvrez MochiLog ici pour les recevoir, analyser et enregistrer." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "기기가 잠금 해제된 동안 로그를 수집하도록 MochiLog Windows를 실행해 둡니다. 여기에서 MochiLog를 열면 로그를 수신·분석·기록합니다." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "保持 MochiLog Windows 运行，以便在设备解锁时收集日志。在本机打开 MochiLog 后接收、分析并保存。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "保持 MochiLog Windows 執行，以便在裝置解鎖時收集記錄。在本機開啟 MochiLog 後接收、分析並儲存。" } }
       }
     }
   },
