@@ -6157,6 +6157,45 @@
         "zh-Hant": { "stringUnit": { "state": "translated", "value": "請輸入 Mac 上顯示的 6 位代碼。" } }
       }
     },
+    "mt_win_requirements": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Windows 11 only (build 22000 or newer)." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Windows 11のみ対応（ビルド22000以降）。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Nur Windows 11 (Build 22000 oder neuer)." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Solo Windows 11 (compilación 22000 o posterior)." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Windows 11 uniquement (build 22000 ou ultérieur)." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Windows 11만 지원합니다(빌드 22000 이상)." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "仅支持 Windows 11（内部版本 22000 或更高）。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "僅支援 Windows 11（組建 22000 或更新版本）。" } }
+      }
+    },
+    "mt_win_pair_install_short": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Install the Windows 11 app" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Windows 11アプリを導入" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Windows-11-App installieren" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Instalar la app para Windows 11" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Installer l’app Windows 11" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Windows 11 앱 설치" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "安装 Windows 11 应用" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "安裝 Windows 11 App" } }
+      }
+    },
+    "mt_win_pair_os_short": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Trust this PC over USB" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "USB接続でPCを信頼" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Diesem PC per USB vertrauen" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Confiar en este PC por USB" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Faire confiance au PC en USB" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "USB로 PC 신뢰" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "通过 USB 信任电脑" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "透過 USB 信任電腦" } }
+      }
+    },
     "mt_platform": {
       "extractionState": "manual",
       "localizations": {

@@ -148,6 +148,11 @@ struct MacTransferSettingsView: View {
           Text("Windows").tag(1)
         }
         .pickerStyle(.segmented)
+        if guidePlatform == 1 {
+          Text(L10n.text("mt_win_requirements", table: "MacTransfer"))
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        }
         pairingDiagram
         DisclosureGroup(L10n.text("mt_pair_details", table: "MacTransfer")) {
           if guidePlatform == 0 {
@@ -424,9 +429,9 @@ struct MacTransferSettingsView: View {
     if isPad {
       ViewThatFits(in: .horizontal) {
         HStack(alignment: .top, spacing: 8) {
-          pairingStage(1, "arrow.down.app", "mt_pair_install_short", horizontal: true)
+          pairingStage(1, "arrow.down.app", pairingInstallKey, horizontal: true)
           horizontalArrow
-          pairingStage(2, "wifi", "mt_pair_os_short", horizontal: true)
+          pairingStage(2, "wifi", pairingOSKey, horizontal: true)
           horizontalArrow
           pairingStage(3, "qrcode", "mt_pair_qr_short", horizontal: true)
           horizontalArrow
@@ -443,14 +448,22 @@ struct MacTransferSettingsView: View {
 
   private var verticalPairingDiagram: some View {
     VStack(alignment: .leading, spacing: 5) {
-      pairingStage(1, "arrow.down.app", "mt_pair_install_short", horizontal: false)
+      pairingStage(1, "arrow.down.app", pairingInstallKey, horizontal: false)
       verticalArrow
-      pairingStage(2, "wifi", "mt_pair_os_short", horizontal: false)
+      pairingStage(2, "wifi", pairingOSKey, horizontal: false)
       verticalArrow
       pairingStage(3, "qrcode", "mt_pair_qr_short", horizontal: false)
       verticalArrow
       pairingStage(4, "checkmark.circle", "mt_pair_ready_short", horizontal: false)
     }
+  }
+
+  private var pairingInstallKey: String {
+    guidePlatform == 1 ? "mt_win_pair_install_short" : "mt_pair_install_short"
+  }
+
+  private var pairingOSKey: String {
+    guidePlatform == 1 ? "mt_win_pair_os_short" : "mt_pair_os_short"
   }
 
   @ViewBuilder private func pairingStage(_ number: Int, _ symbol: String,
