@@ -342,6 +342,17 @@ final class LanguageAndLayoutTests: XCTestCase {
     XCTAssertTrue(app.staticTexts["macTransfer.connectionPhase"].waitForExistence(timeout: 10))
     XCTAssertFalse(app.buttons["macTransfer.receiveNow"].isEnabled)
     screenshot("Mac Transfer iPhone Connection Status")
+    let windows = app.segmentedControls.buttons["Windows"]
+    for _ in 0..<12 {
+      if windows.isHittable { break }
+      app.swipeUp()
+    }
+    XCTAssertTrue(windows.isHittable, app.debugDescription)
+    windows.tap()
+    XCTAssertTrue(app.staticTexts["Windows 11 only (build 22000 or newer)."].exists)
+    XCTAssertTrue(app.staticTexts["Install the Windows 11 app"].exists)
+    app.segmentedControls.buttons["Mac"].tap()
+    XCTAssertTrue(app.staticTexts["Install Mac app"].exists)
   }
 
   func testDeviceProfileEditAndRestore() {
