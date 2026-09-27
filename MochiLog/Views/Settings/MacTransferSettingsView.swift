@@ -13,6 +13,7 @@ struct MacTransferSettingsView: View {
   @State private var isPreparingPairing = false
   @State private var guidePlatform = 0
   @State private var manualHostAddress = ""
+  @State private var unpairHostID: UUID?
   @AppStorage(PhysicalDeviceIdentityStore.manualLocalImportKey)
   private var tagManualImportsAsThisDevice = false
   private let macReleaseURL = URL(string: "https://github.com/MochiLog/MochiLog-Mac/releases")!
@@ -174,25 +175,35 @@ struct MacTransferSettingsView: View {
             value: pairing.physicalDeviceID.uuidString).font(.caption)
         }
         ForEach(manager.pairings, id: \.hostID) { paired in
-          Button {
-            manager.selectPairing(paired.hostID)
-          } label: {
-            HStack(spacing: 10) {
-              Image(systemName: paired.platform == "windows" ? "desktopcomputer" : "macmini")
-                .frame(width: 26)
-              VStack(alignment: .leading, spacing: 2) {
-                Text(paired.platform == "windows" ? "Windows" : "Mac")
-                  .font(.subheadline.weight(.semibold))
-                Text(String(paired.hostID.uuidString.suffix(8)))
-                  .font(.caption.monospaced()).foregroundStyle(.secondary)
+          HStack {
+            Button {
+              manager.selectPairing(paired.hostID)
+            } label: {
+              HStack(spacing: 10) {
+                Image(systemName: paired.platform == "windows" ? "desktopcomputer" : "macmini")
+                  .frame(width: 26)
+                VStack(alignment: .leading, spacing: 2) {
+                  Text(paired.platform == "windows" ? "Windows" : "Mac")
+                    .font(.subheadline.weight(.semibold))
+                  Text(String(paired.hostID.uuidString.suffix(8)))
+                    .font(.caption.monospaced()).foregroundStyle(.secondary)
+                }
+                Spacer()
+                if manager.pairing?.hostID == paired.hostID {
+                  Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
+                }
               }
-              Spacer()
-              if manager.pairing?.hostID == paired.hostID {
-                Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
-              }
+            }.buttonStyle(.plain)
+            Button(role: .destructive) { unpairHostID = paired.hostID } label: {
+              Image(systemName: "minus.circle")
             }
+            .buttonStyle(.borderless)
+            .accessibilityLabel(L10n.text("mt_unpair_button", table: "MacTransfer"))
           }
-          .buttonStyle(.plain)
+        }
+        if !manager.pendingRevocations.isEmpty {
+          Text(L10n.text("mt_unpair_pending", table: "MacTransfer"))
+            .font(.caption).foregroundStyle(.secondary)
         }
         Button {
           showingScanner = true
@@ -234,6 +245,19 @@ struct MacTransferSettingsView: View {
         Text(L10n.text("mt_070", table: "MacTransfer"))
           .font(.caption).foregroundStyle(.secondary)
       }
+    }
+    .confirmationDialog(L10n.text("mt_unpair_title", table: "MacTransfer"),
+      isPresented: Binding(get: { unpairHostID != nil },
+        set: { if !$0 { unpairHostID = nil } }), titleVisibility: .visible) {
+      Button(L10n.text("mt_unpair_button", table: "MacTransfer"), role: .destructive) {
+        if let unpairHostID {
+          do { try manager.unpair(unpairHostID) }
+          catch { errorMessage = error.localizedDescription }
+        }
+        unpairHostID = nil
+      }
+    } message: {
+      Text(L10n.text("mt_unpair_detail", table: "MacTransfer"))
     }
     .formStyle(.grouped)
     .frame(maxWidth: UIDevice.current.userInterfaceIdiom == .pad ? 860 : .infinity)

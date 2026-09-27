@@ -41,6 +41,7 @@ final class MacTransferManager: ObservableObject {
   static let shared = MacTransferManager()
   @Published private(set) var pairing: MacTransferPairing?
   @Published private(set) var pairings: [MacTransferPairing] = []
+  @Published private(set) var pendingRevocations: [MacTransferPairing] = []
   @Published private(set) var status = MacTransferStatus.text("mt_s_00") {
     didSet { if status != oldValue { Self.appendDebugEvent(status) } }
   }
@@ -57,6 +58,8 @@ final class MacTransferManager: ObservableObject {
   private var networkIsAvailable = false
   private var networkUsesWiFiOrEthernet = false
   private var reconnectTask: Task<Void, Never>?
+  private var revocationTimer: Timer?
+  private var isSendingRevocations = false
   private var retryDelay: UInt64 = 5
   private var isRunning = false
   private var connection: NWConnection?
@@ -74,6 +77,7 @@ final class MacTransferManager: ObservableObject {
 
   private init() {
     pairings = Self.loadPairings()
+    pendingRevocations = Self.loadStoredPairings(account: "revoked-hosts")
     pairing = pairings.first
     status = MacTransferStatus.text(pairing == nil ? "mt_s_00" : "mt_s_01")
     connectionPhase = pairing == nil ? .needsPairing : .checkingNetwork
@@ -98,6 +102,99 @@ final class MacTransferManager: ObservableObject {
     lastAuthenticatedContactAt = nil
     status = MacTransferStatus.text("mt_s_01")
     start()
+  }
+
+  func unpair(_ hostID: UUID) throws {
+    guard let removed = pairings.first(where: { $0.hostID == hostID }) else { return }
+    let oldPending = pendingRevocations
+    let pending = oldPending.filter { $0.hostID != hostID } + [removed]
+    try Self.saveStoredPairings(pending, account: "revoked-hosts")
+    let remaining = pairings.filter { $0.hostID != hostID }
+    do { try Self.savePairings(remaining) }
+    catch {
+      try? Self.saveStoredPairings(oldPending, account: "revoked-hosts")
+      throw error
+    }
+    let wasSelected = pairing?.hostID == hostID
+    if wasSelected { stop() }
+    pairings = remaining
+    pendingRevocations = pending
+    if wasSelected {
+      pairing = remaining.first
+      pendingAck = UserDefaults.standard.string(forKey: pendingAckKey)
+      lastAuthenticatedContactAt = nil
+      status = MacTransferStatus.text(pairing == nil ? "mt_s_00" : "mt_s_01")
+      if pairing != nil { start() }
+      else { connectionPhase = .needsPairing }
+    }
+    Self.appendDebugEvent("MochiLog pairing removed locally; notifying computer when reachable")
+    Task { await retryPendingRevocations() }
+    startRevocationTimer()
+  }
+
+  private func startRevocationTimer() {
+    guard revocationTimer == nil, !pendingRevocations.isEmpty else { return }
+    revocationTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) {
+      [weak self] _ in
+      Task { @MainActor in await self?.retryPendingRevocations() }
+    }
+  }
+
+  private func retryPendingRevocations() async {
+    guard !isSendingRevocations, !pendingRevocations.isEmpty else { return }
+    isSendingRevocations = true
+    defer { isSendingRevocations = false }
+    for removed in pendingRevocations {
+      // A new QR pairing has a different key; an old tombstone may never
+      // revoke it. Only notify the computer for the original secret.
+      guard !pairings.contains(where: { $0.hostID == removed.hostID }) else { continue }
+      let port = NWEndpoint.Port(rawValue: removed.lanPort ??
+        (removed.platform == "windows" ? 54556 : 54555))
+      var routes: [NWEndpoint] = []
+      if let address = removed.manualHostAddress,
+        let ip = IPv4Address(address), let port {
+        routes.append(.hostPort(host: .ipv4(ip), port: port))
+      }
+      if let port {
+        for address in removed.lanAddresses ?? [] {
+          if let ip = IPv4Address(address) {
+            routes.append(.hostPort(host: .ipv4(ip), port: port))
+          }
+        }
+      }
+      if let route = Self.tailnetRoute(address: removed.tailnetAddress,
+        port: removed.tailnetPort) { routes.append(route) }
+      // Resolve the current LAN address even when the last pairing was
+      // removed and there is no active transfer browser anymore.
+      routes.append(.service(name: removed.hostID.uuidString,
+        type: "_mochilog._tcp", domain: "local.", interface: nil))
+      guard !routes.isEmpty else { continue }
+      let nonce = UUID()
+      let identity = "\(removed.hostID.uuidString)|\(removed.physicalDeviceID.uuidString)|\(nonce.uuidString)"
+      let proof = Self.authenticationCode("unpair|v1|\(identity)", secret: removed.secret)
+      let request: [String: String] = [
+        "type": "unpair", "version": "1", "hostID": removed.hostID.uuidString,
+        "physicalDeviceID": removed.physicalDeviceID.uuidString,
+        "nonce": nonce.uuidString, "proof": proof
+      ]
+      guard let payload = try? JSONSerialization.data(withJSONObject: request),
+        let response = try? await PairingTransport.exchange(routes: routes,
+          payload: payload, allowCellular: allowsCellularTransfer,
+          continueOnInvalidResponse: true),
+        let answer = try? JSONSerialization.jsonObject(with: response) as? [String: String],
+        answer["type"] == "unpair-ack", answer["nonce"] == nonce.uuidString,
+        answer["proof"] == Self.authenticationCode("unpair-ack|v1|\(identity)",
+          secret: removed.secret) else { continue }
+      let updated = pendingRevocations.filter { $0.hostID != removed.hostID }
+      guard (try? Self.saveStoredPairings(updated, account: "revoked-hosts")) != nil
+      else { continue }
+      pendingRevocations = updated
+      Self.appendDebugEvent("Computer confirmed MochiLog pairing removal")
+    }
+    if pendingRevocations.isEmpty {
+      revocationTimer?.invalidate()
+      revocationTimer = nil
+    }
   }
 
   private func advancePairing() {
@@ -292,7 +389,10 @@ final class MacTransferManager: ObservableObject {
     }
     var updated = pairings.filter { $0.hostID != pair.hostID }
     updated.append(pair)
+    let revoked = pendingRevocations.filter { $0.hostID != pair.hostID }
+    try Self.saveStoredPairings(revoked, account: "revoked-hosts")
     try Self.savePairings(updated)
+    pendingRevocations = revoked
     pairings = updated
     pairing = pair
     pendingAck = UserDefaults.standard.string(forKey: pendingAckKey)
@@ -310,6 +410,8 @@ final class MacTransferManager: ObservableObject {
   }
 
   func start() {
+    startRevocationTimer()
+    Task { await retryPendingRevocations() }
     guard pairing != nil else { return }
     guard !isRunning else { return }
     isRunning = true
@@ -500,6 +602,8 @@ final class MacTransferManager: ObservableObject {
 
   func stop() {
     isRunning = false
+    revocationTimer?.invalidate()
+    revocationTimer = nil
     reconnectTask?.cancel()
     reconnectTask = nil
     pathMonitor?.cancel()
@@ -788,6 +892,13 @@ final class MacTransferManager: ObservableObject {
         // The Mac has processed the final file acknowledgement and returned
         // an authenticated terminal reply. Only now may imports begin.
         let report = plain.dropFirst(2)
+        if let control = try? JSONSerialization.jsonObject(with: report) as? [String: String],
+          control["type"] == "unpair" {
+          do { try unpair(pairing.hostID) }
+          catch { Self.appendDebugEvent("Pairing removal could not be saved: \(error.localizedDescription)") }
+          isReceiving = false
+          return
+        }
         if !report.isEmpty, report.count <= 16_384,
           let object = try? JSONSerialization.jsonObject(with: report) as? [String: Any],
           object["schema"] as? Int == 1,
@@ -1113,11 +1224,27 @@ final class MacTransferManager: ObservableObject {
     return [legacy]
   }
 
+  private static func loadStoredPairings(account: String) -> [MacTransferPairing] {
+    let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
+      kSecAttrService as String: "net.ryuya-dev.MochiLog.mac-pairing",
+      kSecAttrAccount as String: account, kSecReturnData as String: true,
+      kSecMatchLimit as String: kSecMatchLimitOne]
+    var item: CFTypeRef?
+    guard SecItemCopyMatching(query as CFDictionary, &item) == errSecSuccess,
+      let data = item as? Data else { return [] }
+    return (try? JSONDecoder().decode([MacTransferPairing].self, from: data)) ?? []
+  }
+
   private static func savePairings(_ pairings: [MacTransferPairing]) throws {
+    try saveStoredPairings(pairings, account: "hosts")
+  }
+
+  private static func saveStoredPairings(_ pairings: [MacTransferPairing],
+    account: String) throws {
     let data = try JSONEncoder().encode(pairings)
     let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
       kSecAttrService as String: "net.ryuya-dev.MochiLog.mac-pairing",
-      kSecAttrAccount as String: "hosts"]
+      kSecAttrAccount as String: account]
     let update: [String: Any] = [kSecValueData as String: data]
     let status = SecItemUpdate(query as CFDictionary, update as CFDictionary)
     if status == errSecItemNotFound {
@@ -1136,12 +1263,15 @@ final class MacTransferManager: ObservableObject {
 @available(iOS 27, *)
 private enum PairingTransport {
   nonisolated static func exchange(routes: [NWEndpoint], payload: Data,
-    allowCellular: Bool) async throws -> Data {
+    allowCellular: Bool, continueOnInvalidResponse: Bool = false) async throws -> Data {
     try await Task.detached(priority: .userInitiated) {
       var lastError: Error = TransferError.invalidPairing
       for route in routes {
         do { return try exchange(on: route, payload: payload, allowCellular: allowCellular) }
-        catch TransferError.invalidPairing { throw TransferError.invalidPairing }
+        catch TransferError.invalidPairing {
+          if !continueOnInvalidResponse { throw TransferError.invalidPairing }
+          lastError = TransferError.invalidPairing
+        }
         catch { lastError = error }
       }
       throw lastError
