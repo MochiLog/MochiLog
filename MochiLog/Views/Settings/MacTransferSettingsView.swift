@@ -15,7 +15,7 @@ struct MacTransferSettingsView: View {
   @AppStorage(PhysicalDeviceIdentityStore.manualLocalImportKey)
   private var tagManualImportsAsThisDevice = false
   private let macReleaseURL = URL(string: "https://github.com/MochiLog/MochiLog-Mac/releases")!
-  private let windowsURL = URL(string: "https://github.com/MochiLog/MochiLog-Windows")!
+  private let windowsURL = URL(string: "https://github.com/MochiLog/MochiLog-Windows/releases")!
 
   var body: some View {
     Form {
