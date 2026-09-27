@@ -77,8 +77,9 @@ struct MacTransferSupportView: View {
     var result = [MailAttachment(data: manager.supportDiagnosticsData(),
       mimeType: "application/json", fileName: "mochilog-iphone-diagnostics.json")]
     if let mac = manager.latestMacDiagnosticsData() {
+      let computer = manager.pairing?.platform == "windows" ? "windows" : "mac"
       result.append(MailAttachment(data: mac, mimeType: "application/json",
-        fileName: "mochilog-mac-diagnostics.json"))
+        fileName: "mochilog-\(computer)-diagnostics.json"))
     }
     return result
   }

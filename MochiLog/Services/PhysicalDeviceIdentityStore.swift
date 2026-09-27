@@ -8,7 +8,7 @@ enum PhysicalDeviceIdentityStore {
   private static let service = "net.ryuya-dev.MochiLog.physical-device"
   private static let account = "this-device"
 
-  static func current() -> UUID {
+  static func stored() -> UUID? {
     let query: [String: Any] = [
       kSecClass as String: kSecClassGenericPassword,
       kSecAttrService as String: service,
@@ -22,6 +22,11 @@ enum PhysicalDeviceIdentityStore {
       let id = UUID(uuidString: text) {
       return id
     }
+    return nil
+  }
+
+  static func current() -> UUID {
+    if let id = stored() { return id }
     let id = UUID()
     replace(with: id)
     return id

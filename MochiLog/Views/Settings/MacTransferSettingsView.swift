@@ -11,9 +11,11 @@ struct MacTransferSettingsView: View {
   @State private var secureCandidate: SecureMacPairingCandidate?
   @State private var enteredPairingCode = ""
   @State private var isPreparingPairing = false
+  @State private var guidePlatform = 0
   @AppStorage(PhysicalDeviceIdentityStore.manualLocalImportKey)
   private var tagManualImportsAsThisDevice = false
   private let macReleaseURL = URL(string: "https://github.com/MochiLog/MochiLog-Mac/releases")!
+  private let windowsURL = URL(string: "https://github.com/MochiLog/MochiLog-Windows")!
 
   var body: some View {
     Form {
@@ -84,6 +86,10 @@ struct MacTransferSettingsView: View {
         }
         Text(L10n.text("mt_051", table: "MacTransfer"))
           .font(.caption).foregroundStyle(.secondary)
+        Link(destination: windowsURL) {
+          Label(L10n.text("mt_windows_alpha", table: "MacTransfer"),
+            systemImage: "desktopcomputer")
+        }
       }
       Section(L10n.text("mt_052", table: "MacTransfer")) {
         Label(L10n.text("mt_053", table: "MacTransfer"),
@@ -109,12 +115,24 @@ struct MacTransferSettingsView: View {
         }
       }
       Section(L10n.text("mt_056", table: "MacTransfer")) {
+        Picker(L10n.text("mt_platform", table: "MacTransfer"), selection: $guidePlatform) {
+          Text("Mac").tag(0)
+          Text("Windows").tag(1)
+        }
+        .pickerStyle(.segmented)
         pairingDiagram
         DisclosureGroup(L10n.text("mt_pair_details", table: "MacTransfer")) {
-          step(1, L10n.text("mt_057", table: "MacTransfer"))
-          step(2, L10n.text("mt_058", table: "MacTransfer"))
-          step(3, L10n.text("mt_059", table: "MacTransfer"))
-          step(4, L10n.text("mt_060", table: "MacTransfer"))
+          if guidePlatform == 0 {
+            step(1, L10n.text("mt_057", table: "MacTransfer"))
+            step(2, L10n.text("mt_058", table: "MacTransfer"))
+            step(3, L10n.text("mt_059", table: "MacTransfer"))
+            step(4, L10n.text("mt_060", table: "MacTransfer"))
+          } else {
+            step(1, L10n.text("mt_win_step_1", table: "MacTransfer"))
+            step(2, L10n.text("mt_win_step_2", table: "MacTransfer"))
+            step(3, L10n.text("mt_win_step_3", table: "MacTransfer"))
+            step(4, L10n.text("mt_win_step_4", table: "MacTransfer"))
+          }
         }
       }
       Section {
@@ -127,6 +145,27 @@ struct MacTransferSettingsView: View {
         if let pairing = manager.pairing {
           LabeledContent(L10n.text("mt_063", table: "MacTransfer"),
             value: pairing.physicalDeviceID.uuidString).font(.caption)
+        }
+        ForEach(manager.pairings, id: \.hostID) { paired in
+          Button {
+            manager.selectPairing(paired.hostID)
+          } label: {
+            HStack(spacing: 10) {
+              Image(systemName: paired.platform == "windows" ? "desktopcomputer" : "macmini")
+                .frame(width: 26)
+              VStack(alignment: .leading, spacing: 2) {
+                Text(paired.platform == "windows" ? "Windows" : "Mac")
+                  .font(.subheadline.weight(.semibold))
+                Text(String(paired.hostID.uuidString.suffix(8)))
+                  .font(.caption.monospaced()).foregroundStyle(.secondary)
+              }
+              Spacer()
+              if manager.pairing?.hostID == paired.hostID {
+                Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
+              }
+            }
+          }
+          .buttonStyle(.plain)
         }
         Button {
           showingScanner = true
@@ -232,7 +271,7 @@ struct MacTransferSettingsView: View {
 
   private func handlePairingQR(_ value: String, relinkLocalRecords: Bool = false) {
     let isSecure = URLComponents(string: value)?.queryItems?.contains {
-      $0.name == "v" && $0.value == "2"
+      $0.name == "v" && ["2", "3"].contains($0.value ?? "")
     } == true
     guard isSecure else {
       errorMessage = L10n.text("mt_secure_pair_update_mac", table: "MacTransfer")
@@ -256,7 +295,7 @@ struct MacTransferSettingsView: View {
     if isPad {
       ViewThatFits(in: .horizontal) {
         HStack(alignment: .top, spacing: 8) {
-          horizontalFlowNode("macbook", "mt_guide_collect_title", tint: .green)
+          horizontalFlowNode("desktopcomputer", "mt_guide_collect_title", tint: .green)
           horizontalArrow
           horizontalFlowNode("lock.shield", "mt_flow_secure", tint: .blue)
           horizontalArrow
@@ -277,7 +316,7 @@ struct MacTransferSettingsView: View {
 
   private var verticalWorkflowDiagram: some View {
     VStack(alignment: .leading, spacing: 5) {
-      verticalFlowNode("macbook", "mt_guide_collect_title", tint: .green)
+      verticalFlowNode("desktopcomputer", "mt_guide_collect_title", tint: .green)
       verticalArrow
       verticalFlowNode("lock.shield", "mt_flow_secure", tint: .blue)
       verticalArrow

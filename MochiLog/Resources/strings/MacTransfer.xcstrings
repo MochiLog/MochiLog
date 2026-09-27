@@ -238,27 +238,27 @@
     "mt_guide_title": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "What Mac transfer does" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "Mac連携でできること" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Das kann die Mac-Übertragung" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Qué hace la transferencia con Mac" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Ce que fait le transfert Mac" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "Mac 연동으로 할 수 있는 일" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "Mac 传输能做什么" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "Mac 傳輸能做什麼" } }
+        "en": { "stringUnit": { "state": "translated", "value": "What computer transfer does" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "パソコン連携でできること" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Was die Computer-Übertragung kann" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Qué hace la transferencia con ordenador" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "À quoi sert le transfert depuis l’ordinateur" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "컴퓨터 연동으로 할 수 있는 일" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "电脑传输可以做什么" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "電腦傳輸可以做什麼" } }
       }
     },
     "mt_guide_collect_title": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "The Mac collects logs" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "Macがログを収集" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Der Mac sammelt Protokolle" } },
-        "es": { "stringUnit": { "state": "translated", "value": "El Mac recopila registros" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Le Mac recueille les journaux" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "Mac이 로그 수집" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "Mac 收集日志" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "Mac 收集日誌" } }
+        "en": { "stringUnit": { "state": "translated", "value": "The computer collects logs" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "パソコンがログを収集" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Computer sammelt Logs" } },
+        "es": { "stringUnit": { "state": "translated", "value": "El ordenador recopila registros" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "L’ordinateur collecte les journaux" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "컴퓨터가 로그 수집" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "电脑收集日志" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "電腦收集記錄" } }
       }
     },
     "mt_guide_collect_detail": {
@@ -1511,49 +1511,49 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mac transfer support"
+            "value": "PC transfer support"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mac連携のサポート"
+            "value": "PC連携のサポート"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "MAC-Übertragungsunterstützung"
+            "value": "Support für PC-Übertragung"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Soporte de transferencia"
+            "value": "Soporte de transferencia con PC"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Prise en charge du transfert Mac"
+            "value": "Assistance au transfert PC"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "MAC 전송 지원"
+            "value": "PC 전송 지원"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "<x id=\"1\"/><x id=\"2\"/>转型支持"
+            "value": "PC 传输支持"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "MAC傳輸支援"
+            "value": "PC 傳輸支援"
           }
         }
       }
@@ -2886,54 +2886,14 @@
     "mt_048": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Get the Mac app"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Macアプリを入手"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Holen Sie sich die Mac-App"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Descarga la aplicación para Mac"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Téléchargez l'application Mac"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "앱 다운로드"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "下载Mac应用"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "獲取應用程式"
-          }
-        }
+        "en": { "stringUnit": { "state": "translated", "value": "Get the computer app" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "パソコン用アプリを入手" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Computer-App laden" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Obtener la app para ordenador" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Obtenir l’app pour ordinateur" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "컴퓨터 앱 받기" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "获取电脑版应用" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "取得電腦版 App" } }
       }
     },
     "mt_049": {
@@ -3151,107 +3111,27 @@
     "mt_053": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "iOS / iPadOS 27 and macOS 27 or later"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "iOS / iPadOS 27 と macOS 27 以降"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "iOS / iPadOS 27 und macOS 27 oder höher"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "iOS / iPadOS 27 y macOS 27 o posterior"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "iOS / iPadOS 27 et macOS 27 ou version ultérieure"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "iOS/iPadOS 27 및 macOS 27 이상"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "iOS/iPadOS 27和macOS 27或更高版本"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "iOS/iPadOS 27和macOS 27或更高版本"
-          }
-        }
+        "en": { "stringUnit": { "state": "translated", "value": "iOS / iPadOS 27 and macOS 27 or supported Windows" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "iOS / iPadOS 27 と macOS 27 または対応するWindows" } },
+        "de": { "stringUnit": { "state": "translated", "value": "iOS / iPadOS 27 und macOS 27 oder unterstütztes Windows" } },
+        "es": { "stringUnit": { "state": "translated", "value": "iOS / iPadOS 27 y macOS 27 o Windows compatible" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "iOS / iPadOS 27 et macOS 27 ou Windows compatible" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "iOS / iPadOS 27 및 macOS 27 또는 지원 Windows" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "iOS / iPadOS 27，以及 macOS 27 或受支持的 Windows" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "iOS / iPadOS 27，以及 macOS 27 或支援的 Windows" } }
       }
     },
     "mt_054": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Same Wi-Fi, Bluetooth enabled"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "同じWi-Fi、Bluetoothがオン"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gleiches WLAN, Bluetooth aktiviert"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Misma wifi, Bluetooth habilitado"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Même Wi-Fi, Bluetooth activé"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "동일한 Wi-Fi, 블루투스 활성화됨"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "相同的Wi-Fi ，蓝牙已启用"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "相同的Wi-Fi ，藍牙已啟用"
-          }
-        }
+        "en": { "stringUnit": { "state": "translated", "value": "Same Wi-Fi network for local transfer" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ローカル転送には同じWi-Fiネットワーク" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Gleiches WLAN für lokale Übertragung" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Misma red Wi-Fi para transferencia local" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Même réseau Wi-Fi pour le transfert local" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "로컬 전송 시 동일한 Wi-Fi 네트워크" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "本地传输需连接同一 Wi-Fi 网络" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "本機傳輸需連接相同 Wi-Fi 網路" } }
       }
     },
     "mt_055": {
@@ -3787,54 +3667,14 @@
     "mt_065": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Scan the Mac's QR code"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "MacのQRコードを読み取る"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "QR-Code des Mac scannen"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Escanear el código QR del Mac"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Scanner le code QR du Mac"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mac의 QR 코드 스캔"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "扫描 Mac 的二维码"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "掃描 Mac 的 QR 碼"
-          }
-        }
+        "en": { "stringUnit": { "state": "translated", "value": "Scan the computer’s QR code" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "パソコンのQRコードを読み取る" } },
+        "de": { "stringUnit": { "state": "translated", "value": "QR-Code des Computers scannen" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Escanear el QR del ordenador" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Scanner le QR de l’ordinateur" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "컴퓨터 QR 코드 스캔" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "扫描电脑的二维码" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "掃描電腦的 QR 碼" } }
       }
     },
     "mt_066": {
@@ -3896,49 +3736,49 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "After reinstalling, pair with the same Mac to recover the same device ID. Records stored only locally cannot be recovered after deleting the app. Older records without IDs are not merged automatically."
+            "value": "After reinstalling, pair again with a previously linked computer to recover the same device ID. Locally stored records cannot be recovered after deleting the app. Older records without IDs are not merged automatically."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "再インストール後は同じMacで再ペアリングすると同じ個体IDを受け取れます。iCloud同期がオフの間の記録は、アプリ削除時に復元できません。既存のIDなし記録は自動で結合しません。"
+            "value": "再インストール後は以前連携したPCと再ペアリングすると同じ個体IDを復元できます。アプリ削除で失われたローカル記録は復元できません。既存のIDなし記録は自動で結合しません。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nach einer Neuinstallation erhalten Sie dieselbe Geräte-ID, wenn Sie erneut mit demselben Mac koppeln. Nur lokal gespeicherte Einträge gehen beim Löschen der App verloren. Ältere Einträge ohne ID werden nicht automatisch zusammengeführt."
+            "value": "Nach der Neuinstallation können Sie die Geräte-ID durch erneutes Koppeln mit einem früher verbundenen Computer wiederherstellen. Nur lokal gespeicherte Einträge gehen beim Löschen der App verloren. Ältere Einträge ohne ID werden nicht automatisch zusammengeführt."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tras reinstalar, empareja con el mismo Mac para recuperar el mismo ID. Los registros solo locales no se recuperan si eliminas la app. Los registros antiguos sin ID no se fusionan automáticamente."
+            "value": "Tras reinstalar, empareja con un ordenador enlazado antes para recuperar el mismo ID. Los registros solo locales no se recuperan al eliminar la app. Los registros antiguos sin ID no se fusionan automáticamente."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Après une réinstallation, jumelez avec le même Mac pour récupérer le même identifiant. Les données uniquement locales sont perdues si vous supprimez l’app. Les anciennes données sans identifiant ne sont pas fusionnées automatiquement."
+            "value": "Après réinstallation, jumelez avec un ordinateur déjà associé pour récupérer le même identifiant. Les données uniquement locales sont perdues après suppression de l’app. Les anciennes données sans identifiant ne fusionnent pas automatiquement."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "재설치 후 같은 Mac과 다시 페어링하면 동일한 기기 ID를 복원할 수 있습니다. 로컬에만 저장된 기록은 앱 삭제 시 복구할 수 없습니다. ID가 없는 이전 기록은 자동 병합하지 않습니다."
+            "value": "재설치 후 이전에 연결한 PC와 다시 페어링하면 같은 기기 ID를 복원할 수 있습니다. 앱 삭제로 사라진 로컬 기록은 복구할 수 없습니다. ID가 없는 이전 기록은 자동 병합하지 않습니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "重新安装后，与同一台 Mac 配对即可恢复相同设备 ID。删除应用后，仅保存在本机的记录无法恢复。无 ID 的旧记录不会自动合并。"
+            "value": "重新安装后，与之前连接的电脑重新配对可恢复同一设备 ID。删除应用后丢失的本地记录无法恢复。无 ID 的旧记录不会自动合并。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "重新安裝後，與同一部 Mac 配對即可恢復相同裝置 ID。刪除 App 後，僅儲存在本機的紀錄無法還原。沒有 ID 的舊紀錄不會自動合併。"
+            "value": "重新安裝後，與先前連接的電腦重新配對可還原相同裝置 ID。刪除 App 後遺失的本機紀錄無法還原。沒有 ID 的舊紀錄不會自動合併。"
           }
         }
       }
@@ -4105,54 +3945,14 @@
     "mt_071": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mac transfer (Beta)"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mac連携（ベータ）"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mac-Übertragung (Beta)"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Transferencia desde Mac (beta)"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Transfert Mac (bêta)"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mac 전송(베타)"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mac 传输（测试版）"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mac 傳輸（測試版）"
-          }
-        }
+        "en": { "stringUnit": { "state": "translated", "value": "Computer transfer (Beta)" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "パソコン連携（ベータ）" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Computer-Übertragung (Beta)" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Transferencia con ordenador (Beta)" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Transfert ordinateur (bêta)" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "컴퓨터 연동(베타)" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "电脑传输（测试版）" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "電腦傳輸（測試版）" } }
       }
     },
     "mt_072": {
@@ -4479,49 +4279,49 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mac transfer is in beta. A fix may take time, and we may not be able to reply individually."
+            "value": "PC transfer is in beta. A fix may take time, and we may not be able to reply individually."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mac連携はベータ版です。解決まで時間がかかる場合があり、個別に返信できない場合もあります。"
+            "value": "PC連携はベータ版です。解決まで時間がかかる場合があり、個別に返信できない場合もあります。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Die Mac-Übertragung ist eine Betafunktion. Eine Lösung kann Zeit brauchen; möglicherweise können wir nicht individuell antworten."
+            "value": "Die PC-Übertragung ist eine Betafunktion. Eine Lösung kann Zeit brauchen; möglicherweise können wir nicht individuell antworten."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "La transferencia desde Mac está en beta. Una solución puede tardar y quizá no podamos responder individualmente."
+            "value": "La transferencia con PC está en beta. Una solución puede tardar y quizá no podamos responder individualmente."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le transfert Mac est en bêta. La résolution peut prendre du temps et nous pourrions ne pas répondre individuellement."
+            "value": "Le transfert PC est en bêta. La résolution peut prendre du temps et nous pourrions ne pas répondre individuellement."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mac 전송은 베타 기능입니다. 해결에 시간이 걸리거나 개별 답변을 드리지 못할 수 있습니다."
+            "value": "PC 전송은 베타 기능입니다. 해결에 시간이 걸리거나 개별 답변을 드리지 못할 수 있습니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mac 传输仍处于测试阶段。解决问题可能需要时间，也可能无法逐一回复。"
+            "value": "PC 传输仍处于测试阶段。解决问题可能需要时间，也可能无法逐一回复。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mac 傳輸仍處於測試階段。解決問題可能需要時間，也可能無法逐一回覆。"
+            "value": "PC 傳輸仍處於測試階段。解決問題可能需要時間，也可能無法逐一回覆。"
           }
         }
       }
@@ -4691,49 +4491,49 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mac status: not received"
+            "value": "PC status: not received"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Macの状態：未受信"
+            "value": "PCの状態：未受信"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mac-Status: nicht empfangen"
+            "value": "PC-Status: nicht empfangen"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Estado del Mac: no recibido"
+            "value": "Estado del PC: no recibido"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "État du Mac : non reçu"
+            "value": "État du PC : non reçu"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mac 상태: 수신 안 됨"
+            "value": "PC 상태: 수신 안 됨"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mac 状态：未收到"
+            "value": "PC 状态：未收到"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mac 狀態：尚未收到"
+            "value": "PC 狀態：尚未收到"
           }
         }
       }
@@ -4744,49 +4544,49 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mac status: received"
+            "value": "PC status: received"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Macの状態：受信済み"
+            "value": "PCの状態：受信済み"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mac-Status: empfangen"
+            "value": "PC-Status: empfangen"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Estado del Mac: recibido"
+            "value": "Estado del PC: recibido"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "État du Mac : reçu"
+            "value": "État du PC : reçu"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mac 상태: 수신 완료"
+            "value": "PC 상태: 수신 완료"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mac 状态：已收到"
+            "value": "PC 状态：已收到"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mac 狀態：已收到"
+            "value": "PC 狀態：已收到"
           }
         }
       }
@@ -4797,49 +4597,49 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "To refresh the Mac report, open the Mac app on the same Wi-Fi, then reopen this screen. Raw analytics logs and pairing secrets are excluded."
+            "value": "To refresh the PC report, open MochiLog on your Mac or Windows PC on the same Wi-Fi or Tailscale, then reopen this screen. Raw analytics logs and pairing secrets are excluded."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Macの情報を更新するには同じWi-FiでMacアプリを開き、この画面を開き直してください。解析ログ本文やペアリングの秘密鍵は含めません。"
+            "value": "PCの情報を更新するには、同じWi-FiまたはTailscale上でMac／Windowsアプリを開き、この画面を開き直してください。解析ログ本文やペアリングの秘密鍵は含めません。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Öffnen Sie die Mac-App im selben WLAN und öffnen Sie dann diese Seite erneut, um den Mac-Bericht zu aktualisieren. Rohdaten der Analyse und Kopplungsgeheimnisse sind nicht enthalten."
+            "value": "Öffnen Sie MochiLog auf dem Mac oder Windows-PC im selben WLAN oder Tailscale und öffnen Sie diese Seite erneut. Rohdaten und Kopplungsgeheimnisse sind ausgeschlossen."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Para actualizar el informe del Mac, abre la app de Mac en la misma red Wi‑Fi y vuelve a abrir esta pantalla. No se incluyen registros de análisis sin procesar ni claves de emparejamiento."
+            "value": "Para actualizar el informe, abre MochiLog en el Mac o PC Windows en la misma Wi-Fi o Tailscale y vuelve a esta pantalla. No se incluyen registros sin procesar ni secretos de emparejamiento."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pour actualiser le rapport du Mac, ouvrez l’app Mac sur le même réseau Wi‑Fi, puis rouvrez cet écran. Les journaux d’analyse bruts et les clés de jumelage sont exclus."
+            "value": "Pour actualiser le rapport, ouvrez MochiLog sur Mac ou PC Windows via le même Wi-Fi ou Tailscale, puis rouvrez cet écran. Les journaux bruts et les secrets de jumelage sont exclus."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mac 보고서를 갱신하려면 동일한 Wi‑Fi에서 Mac 앱을 연 다음 이 화면을 다시 여세요. 분석 로그 원문과 페어링 비밀키는 포함되지 않습니다."
+            "value": "PC 보고서를 갱신하려면 같은 Wi-Fi 또는 Tailscale에서 Mac/Windows 앱을 열고 이 화면을 다시 여세요. 분석 로그 원문과 페어링 비밀키는 포함되지 않습니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "要更新 Mac 报告，请在同一 Wi‑Fi 下打开 Mac 应用，然后重新打开此页面。不包含原始分析日志或配对密钥。"
+            "value": "要更新 PC 报告，请在同一 Wi-Fi 或 Tailscale 下打开 Mac 或 Windows 应用，然后重新打开此页面。不包含原始分析日志或配对密钥。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "若要更新 Mac 報告，請在同一 Wi‑Fi 下開啟 Mac App，然後重新開啟此頁面。不包含原始分析日誌或配對金鑰。"
+            "value": "若要更新 PC 報告，請在相同 Wi-Fi 或 Tailscale 下開啟 Mac 或 Windows App，然後重新開啟此頁面。不包含原始分析日誌或配對金鑰。"
           }
         }
       }
@@ -5111,14 +4911,14 @@
     "mt_093": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Mac connection status" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "Macとの接続状況" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Verbindung zum Mac" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Estado de conexión con el Mac" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "État de la connexion au Mac" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "Mac 연결 상태" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "Mac 连接状态" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "Mac 連線狀態" } }
+        "en": { "stringUnit": { "state": "translated", "value": "Computer connection status" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "パソコンとの接続状況" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Computer-Verbindungsstatus" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Estado de conexión del ordenador" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "État de connexion à l’ordinateur" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "컴퓨터 연결 상태" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "电脑连接状态" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "電腦連線狀態" } }
       }
     },
     "mt_094": {
@@ -5228,14 +5028,14 @@
     "mt_102": {
       "extractionState": "manual",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "MochiLog checks the Mac periodically. A previous response does not mean the devices are continuously connected." } },
-        "ja": { "stringUnit": { "state": "translated", "value": "Macとの通信は定期的に確認します。応答履歴があっても、常時接続を意味するものではありません。" } },
-        "de": { "stringUnit": { "state": "translated", "value": "MochiLog prüft den Mac regelmäßig. Eine frühere Antwort bedeutet keine dauerhafte Verbindung." } },
-        "es": { "stringUnit": { "state": "translated", "value": "MochiLog comprueba el Mac periódicamente. Una respuesta anterior no significa que haya una conexión permanente." } },
-        "fr": { "stringUnit": { "state": "translated", "value": "MochiLog vérifie le Mac périodiquement. Une réponse précédente ne signifie pas que la connexion est permanente." } },
-        "ko": { "stringUnit": { "state": "translated", "value": "MochiLog는 Mac을 주기적으로 확인합니다. 이전 응답이 계속 연결되어 있음을 뜻하지는 않습니다." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "MochiLog 会定期检查 Mac。之前收到响应不代表设备始终保持连接。" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "MochiLog 會定期檢查 Mac。先前收到回應不代表裝置持續保持連線。" } }
+        "en": { "stringUnit": { "state": "translated", "value": "MochiLog checks paired computers periodically. A previous response does not mean they are continuously connected." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "連携中のPCとの通信は定期的に確認します。応答履歴があっても、常時接続を意味するものではありません。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "MochiLog prüft gekoppelte Computer regelmäßig. Eine frühere Antwort bedeutet keine dauerhafte Verbindung." } },
+        "es": { "stringUnit": { "state": "translated", "value": "MochiLog comprueba periódicamente los ordenadores enlazados. Una respuesta anterior no significa conexión permanente." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "MochiLog vérifie régulièrement les ordinateurs jumelés. Une réponse passée ne signifie pas une connexion permanente." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "MochiLog는 페어링된 PC를 주기적으로 확인합니다. 이전 응답이 계속 연결되어 있음을 뜻하지는 않습니다." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "MochiLog 会定期检查已配对的电脑。之前收到响应不代表持续连接。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "MochiLog 會定期檢查已配對的電腦。先前收到回應不代表持續連線。" } }
       }
     },
     "mt_103": {
@@ -6359,6 +6159,84 @@
         "ko": { "stringUnit": { "state": "translated", "value": "Mac에 표시된 6자리 코드를 입력하세요." } },
         "zh-Hans": { "stringUnit": { "state": "translated", "value": "请输入 Mac 上显示的 6 位代码。" } },
         "zh-Hant": { "stringUnit": { "state": "translated", "value": "請輸入 Mac 上顯示的 6 位代碼。" } }
+      }
+    },
+    "mt_platform": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Computer" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "パソコン" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Computer" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Ordenador" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Ordinateur" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "컴퓨터" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "电脑" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "電腦" } }
+      }
+    },
+    "mt_windows_alpha": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "MochiLog Windows (alpha development)" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "MochiLog Windows（アルファ版開発中）" } },
+        "de": { "stringUnit": { "state": "translated", "value": "MochiLog Windows (Alpha in Entwicklung)" } },
+        "es": { "stringUnit": { "state": "translated", "value": "MochiLog Windows (alfa en desarrollo)" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "MochiLog Windows (alpha en développement)" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "MochiLog Windows(알파 개발 중)" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "MochiLog Windows（Alpha 开发中）" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "MochiLog Windows（Alpha 開發中）" } }
+      }
+    },
+    "mt_win_step_1": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Install MochiLog Windows. The release includes the collector and runtimes; no separate Python or .NET setup is needed." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "MochiLog Windowsをインストールします。収集ツールと実行環境は同梱され、Pythonや.NETの別途導入は不要です。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Installiere MochiLog Windows. Sammler und Laufzeit sind enthalten; Python oder .NET müssen nicht separat installiert werden." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Instala MochiLog Windows. Incluye el recolector y los componentes necesarios; no hace falta instalar Python ni .NET." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Installez MochiLog Windows. Le collecteur et les composants nécessaires sont inclus ; Python et .NET ne sont pas à installer séparément." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "MochiLog Windows를 설치합니다. 수집 도구와 실행 환경이 포함되어 있어 Python이나 .NET을 별도로 설치할 필요가 없습니다." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "安装 MochiLog Windows。收集工具和运行环境均已内置，无需另装 Python 或 .NET。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "安裝 MochiLog Windows。收集工具與執行環境均已內建，無須另裝 Python 或 .NET。" } }
+      }
+    },
+    "mt_win_step_2": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Unlock this device and connect it to the PC once by USB. Approve Trust, finish OS pairing in MochiLog Windows, then disconnect the cable and verify Wi-Fi. Apple Devices and classic iTunes are handled without switching between them." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "端末をロック解除して一度だけUSB接続し、「信頼」を許可します。WindowsアプリでOSペアリングを終え、ケーブルを外してWi-Fi接続を確認します。Apple Devicesと従来のiTunesのどちらを使っていても、入れ替えは不要です。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Entsperre das Gerät und verbinde es einmal per USB. Bestätige „Vertrauen“, schließe die Kopplung in MochiLog Windows ab und prüfe nach dem Abziehen die WLAN-Verbindung. Apple Devices und klassisches iTunes müssen nicht gewechselt werden." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Desbloquea el dispositivo y conéctalo una vez por USB. Acepta Confiar, completa el enlace en MochiLog Windows y comprueba el Wi-Fi tras desconectar el cable. No es necesario cambiar entre Apple Devices e iTunes clásico." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Déverrouillez l’appareil et connectez-le une fois en USB. Autorisez la confiance, terminez l’association dans MochiLog Windows, puis vérifiez le Wi-Fi après avoir retiré le câble. Aucun changement entre Apple Devices et iTunes classique n’est requis." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "기기 잠금을 해제하고 USB로 한 번 연결합니다. 신뢰를 승인하고 MochiLog Windows에서 OS 페어링을 마친 뒤 케이블을 빼고 Wi-Fi 연결을 확인합니다. Apple Devices와 기존 iTunes를 교체할 필요는 없습니다." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "解锁设备并通过 USB 连接一次。允许“信任”，在 MochiLog Windows 中完成系统配对，拔线后验证 Wi-Fi。无需在 Apple Devices 与旧版 iTunes 之间切换。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "解鎖裝置並透過 USB 連接一次。允許「信任」，在 MochiLog Windows 中完成系統配對，拔線後驗證 Wi-Fi。無須在 Apple Devices 與舊版 iTunes 之間切換。" } }
+      }
+    },
+    "mt_win_step_3": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Select this device in MochiLog Windows. Scan its QR code here and enter the six-digit code shown on the PC. Other paired computers remain registered." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "MochiLog Windowsでこの端末を選びます。PCに表示されるQRコードをここで読み取り、6桁のコードを入力します。ほかの登録済みPCも残ります。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Wähle dieses Gerät in MochiLog Windows. Scanne hier den QR-Code und gib den sechsstelligen Code vom PC ein. Andere gekoppelte Computer bleiben erhalten." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Selecciona este dispositivo en MochiLog Windows. Escanea aquí el QR e introduce el código de seis dígitos del PC. Se conservan los otros ordenadores enlazados." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Sélectionnez cet appareil dans MochiLog Windows. Scannez son QR ici et saisissez le code à six chiffres affiché sur le PC. Les autres ordinateurs associés restent enregistrés." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "MochiLog Windows에서 이 기기를 선택합니다. 여기에서 QR 코드를 읽고 PC에 표시된 6자리 코드를 입력합니다. 다른 페어링된 컴퓨터는 유지됩니다." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "在 MochiLog Windows 中选择本设备。在这里扫描二维码，并输入电脑显示的六位代码。其他已配对电脑仍会保留。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "在 MochiLog Windows 中選擇本裝置。在此掃描 QR 碼，並輸入電腦顯示的六位數代碼。其他已配對電腦仍會保留。" } }
+      }
+    },
+    "mt_win_step_4": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Leave MochiLog Windows running to collect logs while the device is unlocked. Open MochiLog here to receive, analyze and store them. Syncing to iCloud is optional." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "端末のロック解除中に収集できるようMochiLog Windowsを起動しておきます。このMochiLogを開くとログを受信・解析・記録します。iCloud同期は任意です。" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Lass MochiLog Windows geöffnet, um bei entsperrtem Gerät Logs zu sammeln. Öffne MochiLog hier zum Empfangen, Analysieren und Speichern. iCloud-Sync ist optional." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Deja MochiLog Windows abierto para recopilar registros mientras el dispositivo esté desbloqueado. Abre MochiLog aquí para recibirlos, analizarlos y guardarlos. iCloud es opcional." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Laissez MochiLog Windows ouvert pour collecter les journaux quand l’appareil est déverrouillé. Ouvrez MochiLog ici pour les recevoir, analyser et enregistrer. iCloud est facultatif." } },
+        "ko": { "stringUnit": { "state": "translated", "value": "기기가 잠금 해제된 동안 로그를 수집하도록 MochiLog Windows를 실행해 둡니다. 여기에서 MochiLog를 열면 로그를 수신·분석·기록합니다. iCloud 동기화는 선택 사항입니다." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "保持 MochiLog Windows 运行，以便在设备解锁时收集日志。在本机打开 MochiLog 后接收、分析并保存。iCloud 同步可选。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "保持 MochiLog Windows 執行，以便在裝置解鎖時收集記錄。在本機開啟 MochiLog 後接收、分析並儲存。iCloud 同步可選。" } }
       }
     }
   },
