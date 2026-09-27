@@ -14,6 +14,10 @@ The Mac collects analytics logs from an unlocked iPhone or iPad, including eligi
 
 The transfer screen shows connection state, reconnection controls, iPhone/iPad and Mac debug events, and a dedicated support flow with reviewable diagnostics. Transfers on local Wi-Fi and over Tailscale have been tested on both iPhone and iPad.
 
+To speed up crash and hang investigations, MochiLog now keeps the latest system diagnostic report on the device. You can choose whether to attach it in the standard support form. The computer-transfer support form can also include connection diagnostics from the iPhone or iPad and its paired Mac or Windows PC. Diagnostics are never sent automatically.
+
+MochiLog Windows now prevents a dialog collision that could close the app after USB trust setup, and presents connection status and initial setup more clearly on a desktop display.
+
 Please test first-time pairing, receipt of iPhone/iPad and Apple Watch logs, duplicate prevention when a file is resent, automatic reconnection after changing networks, and device identity after iCloud sync or data export and import.
 
 Limits: The computer can collect new on-device analytics logs only while the device is unlocked and Apple's diagnostic service is reachable over a local wireless connection. Tailscale over cellular transfers files already collected by the computer; it cannot collect new system analytics logs from the device. Computer transfer requires iOS/iPadOS 27, while normal MochiLog features continue to support earlier versions. These beta and alpha features may take time to fix, and individual replies may not always be possible.
