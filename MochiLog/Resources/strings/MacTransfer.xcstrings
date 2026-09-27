@@ -5860,49 +5860,49 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This QR code does not match this device model"
+            "value": "This QR was created for another device, or the computer could not identify this one. On the Mac or Windows PC, select this iPhone or iPad, complete USB Trust if needed, refresh devices, and create a new QR."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "このQRコードは、この端末の機種と一致しません"
+            "value": "このQRは別の端末用か、パソコンがこの端末の機種を確認できていません。Mac／WindowsでこのiPhone・iPadを選び、必要ならUSBの「信頼」を完了して再検索し、新しいQRを作成してください。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dieser QR-Code passt nicht zu diesem Gerätemodell"
+            "value": "Dieser QR gehört zu einem anderen Gerät, oder der Computer konnte dieses nicht erkennen. Wähle dieses iPhone oder iPad am Mac oder Windows-PC, bestätige bei Bedarf das USB-Vertrauen, suche erneut und erstelle einen neuen QR."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Este código QR no coincide con el modelo de este dispositivo"
+            "value": "Este QR es de otro dispositivo o el ordenador no pudo identificar este. En el Mac o PC Windows, selecciona este iPhone o iPad, completa la confianza USB si hace falta, vuelve a buscar y crea un QR nuevo."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ce code QR ne correspond pas au modèle de cet appareil"
+            "value": "Ce QR concerne un autre appareil ou l’ordinateur n’a pas identifié celui-ci. Sur Mac ou PC Windows, sélectionnez cet iPhone ou iPad, autorisez la confiance USB si nécessaire, relancez la recherche et créez un nouveau QR."
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 QR 코드는 이 기기 모델과 일치하지 않습니다"
+            "value": "이 QR은 다른 기기용이거나 컴퓨터가 이 기종을 확인하지 못했습니다. Mac 또는 Windows PC에서 이 iPhone이나 iPad를 선택하고 필요하면 USB 신뢰를 완료한 뒤 다시 검색하여 새 QR을 만드세요."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "此二维码与当前设备型号不匹配"
+            "value": "此二维码属于另一台设备，或电脑未识别当前机型。请在 Mac 或 Windows 电脑上选择这台 iPhone 或 iPad，必要时完成 USB 信任，重新搜索并生成新二维码。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "此 QR 碼與目前裝置機型不符"
+            "value": "此 QR 碼屬於另一台裝置，或電腦未識別目前機型。請在 Mac 或 Windows 電腦上選擇這台 iPhone 或 iPad，必要時完成 USB 信任，重新搜尋並產生新 QR 碼。"
           }
         }
       }
