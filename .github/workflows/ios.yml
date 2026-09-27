@@ -32,6 +32,9 @@ jobs:
         with:
           xcode-version: latest-stable
 
+      - name: Check bundled third-party licenses
+        run: python3 scripts/check-third-party-licenses.py
+
       - name: Install fastlane
         run: |
           gem install fastlane
@@ -75,6 +78,9 @@ jobs:
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest-stable
+
+      - name: Check bundled third-party licenses
+        run: python3 scripts/check-third-party-licenses.py
 
       - name: Build App (Archive without signing)
         run: |
