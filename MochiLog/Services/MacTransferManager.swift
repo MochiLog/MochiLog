@@ -279,7 +279,7 @@ final class MacTransferManager: ObservableObject {
     guard let version = values["v"], ["2", "3"].contains(version),
       let host = values["host"].flatMap(UUID.init(uuidString:)),
       let session = values["session"].flatMap(UUID.init(uuidString:)),
-      let model = values["model"], model == DeviceLibrary.localModelIdentifier(),
+      let model = values["model"],
       let macPublicBytes = values["public"].flatMap({ Data(base64Encoded: $0) }),
       macPublicBytes.count == 32,
       let macPublic = try? Curve25519.KeyAgreement.PublicKey(
@@ -287,6 +287,9 @@ final class MacTransferManager: ObservableObject {
       let port = values["port"].flatMap(UInt16.init), port != 0,
       let endpointPort = NWEndpoint.Port(rawValue: port)
     else { throw TransferError.invalidPairing }
+    guard model == DeviceLibrary.localModelIdentifier() else {
+      throw TransferError.wrongDevice
+    }
     let storedID = PhysicalDeviceIdentityStore.stored()
     let previousID = storedID ?? PhysicalDeviceIdentityStore.current()
     let device: UUID
