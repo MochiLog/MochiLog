@@ -7,6 +7,7 @@ struct MacTransferSupportView: View {
   @State private var nickname = ""
   @State private var email = ""
   @State private var message = ""
+  @State private var incidentDate = Date()
   @State private var showingComposer = false
   @State private var showingMailError = false
   private var valid: Bool {
@@ -30,6 +31,12 @@ struct MacTransferSupportView: View {
       }
       Section(L10n.text("mt_034", table: "MacTransfer")) {
         TextEditor(text: $message).frame(minHeight: 140)
+      }
+      Section(L10n.text("mt_log_incident", table: "MacTransfer")) {
+        DatePicker(L10n.text("mt_log_incident", table: "MacTransfer"),
+          selection: $incidentDate, displayedComponents: [.date, .hourAndMinute])
+        Text(L10n.text("mt_log_support_days", table: "MacTransfer"))
+          .font(.caption).foregroundStyle(.secondary)
       }
       Section(L10n.text("mt_080", table: "MacTransfer")) {
         Label(L10n.text("mt_081", table: "MacTransfer"), systemImage: "iphone")
@@ -62,6 +69,7 @@ struct MacTransferSupportView: View {
         body: """
         \(L10n.text("mt_032", table: "MacTransfer")): \(nickname)
         \(L10n.text("mt_033", table: "MacTransfer")): \(email)
+        \(L10n.text("mt_log_incident", table: "MacTransfer")): \(incidentDate.formatted(date: .abbreviated, time: .shortened))
 
         \(L10n.text("mt_034", table: "MacTransfer")):
         \(message)
@@ -80,6 +88,18 @@ struct MacTransferSupportView: View {
   private var attachments: [MailAttachment] {
     var result = [MailAttachment(data: manager.supportDiagnosticsData(),
       mimeType: "application/json", fileName: "mochilog-iphone-diagnostics.json")]
+    let formatter = DateFormatter()
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.calendar = Calendar(identifier: .gregorian)
+    formatter.timeZone = .autoupdatingCurrent
+    formatter.dateFormat = "yyyy-MM-dd"
+    for offset in -2...0 {
+      guard let date = Calendar.current.date(byAdding: .day, value: offset,
+        to: incidentDate) else { continue }
+      let day = formatter.string(from: date)
+      result.append(MailAttachment(data: Data(manager.debugLogText(for: day).utf8),
+        mimeType: "text/plain", fileName: "mochilog-iphone-debug-\(day).log"))
+    }
     if let diagnostic = CrashDiagnostics.shared.latest() {
       result.append(MailAttachment(data: diagnostic, mimeType: "application/json",
         fileName: "mochilog-ios-app-diagnostic.json"))

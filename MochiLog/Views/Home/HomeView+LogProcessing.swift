@@ -563,6 +563,12 @@ extension HomeView {
               errorMessage: L10n.string("file_read_error", table: "Home"), sourceURL: url)
           }
           let status = batchImportResults[id].status
+          if #available(iOS 27, *), url.pathComponents.contains("MacTransferInbox") {
+            let result = batchImportResults[id]
+            MacTransferManager.shared.recordImportOutcome(filename: result.filename,
+              status: String(describing: status), logDate: result.parsedDate,
+              detail: result.errorMessage)
+          }
           queue.acknowledge(url, saved: status == .success || status == .duplicate)
         }
       }

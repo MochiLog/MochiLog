@@ -89,6 +89,8 @@ final class MacTransferManager: ObservableObject {
   private var macDiagnosticsKey: String { scopedKey("MacTransferLastMacDiagnostics") }
   private var pendingAckKey: String { scopedKey("MacTransferPendingAck") }
   private static let debugEventsKey = "MacTransferDebugEvents"
+  private static let debugRetentionKey = "MacTransferDebugRetentionDays"
+  private static let debugMigratedKey = "MacTransferDebugArchiveMigrated"
   private static let dailyReceiptKey = "MacTransferDailyReceipt"
 
   private init() {
@@ -1444,6 +1446,47 @@ final class MacTransferManager: ObservableObject {
       .joined(separator: "\n")
   }
 
+  var debugRetentionDays: Int {
+    get {
+      let saved = UserDefaults.standard.integer(forKey: Self.debugRetentionKey)
+      return saved == 0 ? 30 : min(365, max(1, saved))
+    }
+    set {
+      UserDefaults.standard.set(min(365, max(1, newValue)), forKey: Self.debugRetentionKey)
+      Self.pruneDebugArchive()
+    }
+  }
+
+  func debugLogDays() -> [String] {
+    Self.migrateDebugEvents()
+    return Self.archiveDays()
+  }
+
+  func debugLogText(for day: String) -> String {
+    Self.migrateDebugEvents()
+    guard Self.validArchiveDay(day) else { return "" }
+    return (try? String(contentsOf: Self.debugArchiveURL(for: day), encoding: .utf8)) ?? ""
+  }
+
+  func recordImportOutcome(filename: String, status: String, logDate: Date?,
+    detail: String?) {
+    let date = logDate.map(Self.localTime) ?? "unknown"
+    let message = "Import: \(filename); result=\(status); logDate=\(date)" +
+      (detail.map { "; detail=\($0)" } ?? "")
+    Self.appendDebugEvent(message)
+  }
+
+  func clearDebugLogs() {
+    if let files = try? FileManager.default.contentsOfDirectory(at: Self.debugArchiveDirectory,
+      includingPropertiesForKeys: nil) {
+      for file in files where Self.validArchiveDay(file.deletingPathExtension().lastPathComponent) {
+        try? FileManager.default.removeItem(at: file)
+      }
+    }
+    UserDefaults.standard.removeObject(forKey: Self.debugEventsKey)
+    UserDefaults.standard.set(true, forKey: Self.debugMigratedKey)
+  }
+
   func macDebugLogText() -> String {
     guard let report = latestMacDiagnosticsData(),
       let object = try? JSONSerialization.jsonObject(with: report) as? [String: Any],
@@ -1455,15 +1498,85 @@ final class MacTransferManager: ObservableObject {
     UserDefaults.standard.stringArray(forKey: debugEventsKey) ?? []
   }
 
+  private static var debugArchiveDirectory: URL {
+    let root = FileManager.default.urls(for: .applicationSupportDirectory,
+      in: .userDomainMask)[0]
+    return root.appendingPathComponent("MochiLog/MacTransferDebugLogs", isDirectory: true)
+  }
+
+  private static func validArchiveDay(_ day: String) -> Bool {
+    day.range(of: #"^[0-9]{4}-[0-9]{2}-[0-9]{2}$"#,
+      options: .regularExpression) != nil
+  }
+
+  private static func debugArchiveURL(for day: String) -> URL {
+    debugArchiveDirectory.appendingPathComponent("\(day).log")
+  }
+
+  private static func archiveDays() -> [String] {
+    let files = (try? FileManager.default.contentsOfDirectory(at: debugArchiveDirectory,
+      includingPropertiesForKeys: nil)) ?? []
+    return files.compactMap { file in
+      guard file.pathExtension == "log" else { return nil }
+      let day = file.deletingPathExtension().lastPathComponent
+      return validArchiveDay(day) ? day : nil
+    }.sorted(by: >)
+  }
+
+  @discardableResult
+  private static func appendToArchive(_ event: String) -> Bool {
+    let day = String(event.prefix(10))
+    guard validArchiveDay(day) else { return false }
+    do {
+      try FileManager.default.createDirectory(at: debugArchiveDirectory,
+        withIntermediateDirectories: true)
+      let url = debugArchiveURL(for: day)
+      if !FileManager.default.fileExists(atPath: url.path) {
+        FileManager.default.createFile(atPath: url.path, contents: nil)
+      }
+      let handle = try FileHandle(forWritingTo: url)
+      defer { try? handle.close() }
+      try handle.seekToEnd()
+      try handle.write(contentsOf: Data((event + "\n").utf8))
+      return true
+    } catch { return false }
+  }
+
+  private static func migrateDebugEvents() {
+    guard !UserDefaults.standard.bool(forKey: debugMigratedKey) else { return }
+    let events = debugEvents()
+    guard events.allSatisfy({ appendToArchive($0) }) else { return }
+    UserDefaults.standard.set(true, forKey: debugMigratedKey)
+    pruneDebugArchive()
+  }
+
+  private static func pruneDebugArchive() {
+    let days = UserDefaults.standard.integer(forKey: debugRetentionKey)
+    let retention = days == 0 ? 30 : min(365, max(1, days))
+    let formatter = DateFormatter()
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.calendar = Calendar(identifier: .gregorian)
+    formatter.timeZone = .autoupdatingCurrent
+    formatter.dateFormat = "yyyy-MM-dd"
+    let cutoff = formatter.string(from: Calendar.current.date(byAdding: .day,
+      value: 1 - retention, to: Date()) ?? Date())
+    for day in archiveDays() where day < cutoff {
+      try? FileManager.default.removeItem(at: debugArchiveURL(for: day))
+    }
+  }
+
   private static func appendDebugEvent(_ message: String) {
+    migrateDebugEvents()
     let normalized = String(message.replacingOccurrences(of: "\n", with: " ").prefix(240))
     var events = debugEvents()
     guard events.last?.hasSuffix(" | \(normalized)") != true else { return }
     let formatter = ISO8601DateFormatter()
     formatter.timeZone = .autoupdatingCurrent
-    events.append("\(formatter.string(from: Date())) | \(normalized)")
+    let event = "\(formatter.string(from: Date())) | \(normalized)"
+    events.append(event)
     if events.count > 300 { events.removeFirst(events.count - 300) }
     UserDefaults.standard.set(events, forKey: debugEventsKey)
+    if appendToArchive(event) { pruneDebugArchive() }
   }
 
   static func inbox(for pairing: MacTransferPairing) throws -> URL {
