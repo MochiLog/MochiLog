@@ -1509,7 +1509,11 @@ final class MacTransferManager: ObservableObject {
         directory: Self.computerArchiveDirectory(for: pairing.hostID)) != nil {
       return true
     }
-    return remote["archiveRequest"] as? [String: Any] != nil
+    if let request = remote["archiveRequest"] as? [String: Any] {
+      return Self.archiveChunk(request: request,
+        directory: Self.debugArchiveDirectory, limit: 1) != nil
+    }
+    return false
   }
 
   func latestMacDiagnosticsData() -> Data? {
