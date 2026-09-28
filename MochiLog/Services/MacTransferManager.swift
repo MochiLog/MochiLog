@@ -920,8 +920,12 @@ final class MacTransferManager: ObservableObject {
         connectionPhase = .available
         retryDelay = 5
         if pairings.count > 1 {
-          DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-            self?.advancePairing()
+          // Poll the next computer after an idle interval. Without this delay,
+          // two paired computers with empty queues cause a request loop.
+          DispatchQueue.main.asyncAfter(deadline: .now() + 60) { [weak self] in
+            guard let self, self.isRunning,
+              self.pairing?.hostID == pairing.hostID else { return }
+            self.advancePairing()
           }
         } else { scheduleReconnect(after: 60) }
         return

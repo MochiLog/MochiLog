@@ -194,9 +194,8 @@ struct MacTransferSettingsView: View {
                     .font(.caption.monospaced()).foregroundStyle(.secondary)
                 }
                 Spacer()
-                if manager.pairing?.hostID == paired.hostID {
-                  Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
-                }
+                Image(systemName: "checkmark.circle.fill")
+                  .foregroundStyle(.green)
               }
             }.buttonStyle(.plain)
             Button(role: .destructive) { unpairHostID = paired.hostID } label: {
