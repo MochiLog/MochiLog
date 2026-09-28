@@ -75,6 +75,8 @@ final class MacTransferManager: ObservableObject {
   private var activePauseUntil: String?
   private var activeResume = false
   private var manualReceive = false
+  private var lastAutomaticHold: String?
+  private var skippedHostKeys: Set<String> = []
   private var watchRegistration: AnyCancellable?
   private var watchOSPairing: AnyCancellable?
   private var endpoint: NWEndpoint?
@@ -96,16 +98,18 @@ final class MacTransferManager: ObservableObject {
     status = MacTransferStatus.text(pairing == nil ? "mt_s_00" : "mt_s_01")
     connectionPhase = pairing == nil ? .needsPairing : .checkingNetwork
     pendingAck = UserDefaults.standard.string(forKey: pendingAckKey)
-    watchRegistration = AppSettings.shared.$registeredWatches.dropFirst().sink { [weak self] _ in
+    watchRegistration = AppSettings.shared.$registeredWatches.dropFirst().sink { [weak self] watches in
       Task { @MainActor [weak self] in
         guard let self, self.isRunning else { return }
+        Self.appendDebugEvent("Watch registration changed: \(watches.count) model(s); daily collection reevaluated")
         self.beginDiscovery()
       }
     }
     watchOSPairing = WatchConnectivityManager.shared.$isWatchPaired.dropFirst().sink {
-      [weak self] _ in
+      [weak self] isPaired in
       Task { @MainActor [weak self] in
         guard let self, self.isRunning else { return }
+        Self.appendDebugEvent("OS Watch pairing changed: \(isPaired.map { String(describing: $0) } ?? "unknown"); daily collection reevaluated")
         self.beginDiscovery()
       }
     }
@@ -128,6 +132,12 @@ final class MacTransferManager: ObservableObject {
       matchingPolicy: .nextTime) ?? date.addingTimeInterval(24 * 60 * 60)
   }
 
+  private static func localTime(_ date: Date) -> String {
+    let formatter = ISO8601DateFormatter()
+    formatter.timeZone = .autoupdatingCurrent
+    return formatter.string(from: date)
+  }
+
   private var dailyReceipt: DailyTransferReceipt {
     get {
       let day = Self.japanDay()
@@ -143,20 +153,20 @@ final class MacTransferManager: ObservableObject {
     }
   }
 
-  private func dailyComplete(_ receipt: DailyTransferReceipt) -> Bool {
+  private func expectedWatchCount() -> Int? {
     // OS pairing and MochiLog registration are different. An unregistered
     // paired Watch may still produce a log that needs to reach the import flow.
     // Wait for WatchConnectivity to finish activation before deciding that
     // an iPhone has no Watch. iPad never expects a Watch log.
-    let expectedWatches: Int
     if UIDevice.current.userInterfaceIdiom == .pad {
-      expectedWatches = 0
-    } else {
-      guard let isPaired = WatchConnectivityManager.shared.isWatchPaired else {
-        return false
-      }
-      expectedWatches = isPaired ? max(1, AppSettings.shared.registeredWatches.count) : 0
+      return 0
     }
+    guard let isPaired = WatchConnectivityManager.shared.isWatchPaired else { return nil }
+    return isPaired ? max(1, AppSettings.shared.registeredWatches.count) : 0
+  }
+
+  private func dailyComplete(_ receipt: DailyTransferReceipt) -> Bool {
+    guard let expectedWatches = expectedWatchCount() else { return false }
     return receipt.hostReceived && receipt.watchSources.count >= expectedWatches
   }
 
@@ -178,6 +188,7 @@ final class MacTransferManager: ObservableObject {
     let day = Self.japanDay()
     let identifiers = Self.storedFileIDs(for: unconfirmedKey, pairing: pairing)
     var receipt = dailyReceipt
+    let previous = receipt
     for identifier in identifiers {
       let parts = identifier.split(separator: "/").map(String.init)
       guard let filename = parts.last, filename.hasPrefix("Analytics-\(day)-") else {
@@ -191,6 +202,22 @@ final class MacTransferManager: ObservableObject {
     }
     receipt.terminalHosts.insert(pairing.hostID.uuidString)
     dailyReceipt = receipt
+    if !previous.hostReceived && receipt.hostReceived {
+      Self.appendDebugEvent("Daily receipt: own-device log confirmed for \(day)")
+    }
+    if receipt.watchSources.count > previous.watchSources.count {
+      Self.appendDebugEvent("Daily receipt: Watch sources \(receipt.watchSources.count) for \(day)")
+    }
+    if !previous.terminalHosts.contains(pairing.hostID.uuidString) {
+      Self.appendDebugEvent("Transfer queue drained and confirmed by computer \(pairing.hostID.uuidString)")
+    }
+    if !dailyComplete(previous) && dailyComplete(receipt) {
+      Self.appendDebugEvent("Daily collection condition met for \(day): own-device log and \(receipt.watchSources.count) Watch source(s)")
+    } else if receipt.hostReceived,
+      (!previous.hostReceived || receipt.watchSources.count > previous.watchSources.count) {
+      let expected = expectedWatchCount().map(String.init) ?? "unknown"
+      Self.appendDebugEvent("Daily collection continues for \(day): Watch sources \(receipt.watchSources.count)/\(expected)")
+    }
   }
 
   func observeSavedRecords(_ records: [BatteryRecord]) {
@@ -205,7 +232,7 @@ final class MacTransferManager: ObservableObject {
     var receipt = dailyReceipt
     receipt.hostReceived = true
     dailyReceipt = receipt
-    Self.appendDebugEvent("Today's own-device record was already saved")
+    Self.appendDebugEvent("Daily receipt: today's own-device log was already saved for \(day)")
     if isRunning, connection == nil, networkPermitsTransfer { beginDiscovery() }
   }
 
@@ -545,6 +572,7 @@ final class MacTransferManager: ObservableObject {
     guard pairing != nil else { return }
     guard !isRunning else { return }
     isRunning = true
+    Self.appendDebugEvent("Automatic receive started: app active; waiting for network path")
     retryDelay = 5
     hasNetworkPath = false
     connectionPhase = .checkingNetwork
@@ -565,7 +593,7 @@ final class MacTransferManager: ObservableObject {
           return
         }
         guard previous != signature else { return }
-        Self.appendDebugEvent("Network changed: scheduling automatic reconnect")
+        Self.appendDebugEvent("Network path changed: Wi-Fi \(self.networkUsesWiFiOrEthernet), cellular \(path.usesInterfaceType(.cellular)); automatic reconnect triggered")
         self.retryDelay = 5
         self.beginDiscovery()
       }
@@ -576,6 +604,7 @@ final class MacTransferManager: ObservableObject {
   func receiveNow() {
     guard pairing != nil, !isReceiving else { return }
     manualReceive = true
+    Self.appendDebugEvent("Manual receive triggered; automatic daily hold bypassed")
     status = MacTransferStatus.text("mt_s_20")
     retryDelay = 5
     if isRunning, hasNetworkPath {
@@ -590,6 +619,13 @@ final class MacTransferManager: ObservableObject {
     guard networkPermitsTransfer else { pauseForNetwork(); return }
     if !manualReceive {
       if let wait = automaticWait() {
+        let reason = Self.japanCalendar().component(.hour, from: Date()) < 9
+          ? "waiting for the daily collection window" : "all required logs received and computers acknowledged"
+        let key = "\(Self.japanDay())|\(reason)"
+        if lastAutomaticHold != key {
+          Self.appendDebugEvent("Automatic receive stopped: \(reason); resumes \(Self.localTime(Self.nextCollectionWindow()))")
+          lastAutomaticHold = key
+        }
         browser?.cancel(); browser = nil
         connection?.cancel(); connection = nil
         isReceiving = false
@@ -598,9 +634,17 @@ final class MacTransferManager: ObservableObject {
       }
       if dailyComplete(dailyReceipt),
         dailyReceipt.pausedHosts.contains(pairing.hostID.uuidString) {
+        let key = "\(Self.japanDay())|\(pairing.hostID.uuidString)"
+        if skippedHostKeys.insert(key).inserted {
+          Self.appendDebugEvent("Automatic receive skipped for computer \(pairing.hostID.uuidString): daily pause acknowledged")
+        }
         advancePairing()
         return
       }
+    }
+    if !manualReceive, lastAutomaticHold != nil {
+      Self.appendDebugEvent("Automatic receive resumed: daily hold ended or requirements changed")
+      lastAutomaticHold = nil
     }
     reconnectTask?.cancel()
     reconnectTask = nil
@@ -721,6 +765,9 @@ final class MacTransferManager: ObservableObject {
   private func scheduleReconnect(after seconds: UInt64, interruptActive: Bool = false) {
     guard isRunning else { return }
     reconnectTask?.cancel()
+    if seconds > 300 {
+      Self.appendDebugEvent("Automatic reconnect scheduled for \(Self.localTime(Date().addingTimeInterval(TimeInterval(seconds))))")
+    }
     reconnectTask = Task { [weak self] in
       do { try await Task.sleep(nanoseconds: seconds * 1_000_000_000) }
       catch { return }
@@ -771,6 +818,7 @@ final class MacTransferManager: ObservableObject {
   }
 
   func stopForBackground() {
+    Self.appendDebugEvent("Automatic receive stopped: app entered background; collection state rechecked when active")
     let shouldSendPresence = automaticWait() == nil
     let pairing = pairing
     let route = routeIndex < directRoutes.count ? directRoutes[routeIndex]
@@ -927,6 +975,7 @@ final class MacTransferManager: ObservableObject {
       !receipt.pausedHosts.contains(pairing.hostID.uuidString)
       ? String(Int(Self.nextCollectionWindow().timeIntervalSince1970)) : nil
     if let pauseUntil {
+      Self.appendDebugEvent("Requesting daily pause from computer \(pairing.hostID.uuidString) until \(Self.localTime(Date(timeIntervalSince1970: TimeInterval(pauseUntil) ?? 0)))")
       request["dailyPauseUntil"] = pauseUntil
       request["dailyPauseMAC"] = Self.authenticationCode(
         "daily-pause|v1|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)|\(pauseUntil)",
@@ -935,6 +984,7 @@ final class MacTransferManager: ObservableObject {
     let resume = !dailyComplete(receipt) &&
       receipt.pausedHosts.contains(pairing.hostID.uuidString)
     if resume {
+      Self.appendDebugEvent("Requesting daily collection resume from computer \(pairing.hostID.uuidString): required logs changed")
       request["dailyResumeMAC"] = Self.authenticationCode(
         "daily-resume|v1|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)",
         secret: pairing.secret)
@@ -1080,7 +1130,7 @@ final class MacTransferManager: ObservableObject {
           manualReceive = false
           isReceiving = false
           connectionPhase = .available
-          Self.appendDebugEvent("Automatic collection paused after confirmed receipt")
+          Self.appendDebugEvent("Automatic collection paused by computer \(pairing.hostID.uuidString) until \(Self.localTime(Date(timeIntervalSince1970: TimeInterval(control["until"] ?? "") ?? 0))); receipt confirmed")
           if let wait = automaticWait() { scheduleReconnect(after: wait) }
           else { advancePairing() }
           return
@@ -1091,7 +1141,7 @@ final class MacTransferManager: ObservableObject {
           receipt.pausedHosts.remove(pairing.hostID.uuidString)
           dailyReceipt = receipt
           isReceiving = false
-          Self.appendDebugEvent("Automatic collection resumed after Watch registration changed")
+          Self.appendDebugEvent("Automatic collection resumed by computer \(pairing.hostID.uuidString): required logs changed")
           DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
             guard let self, self.isRunning,
               self.pairing?.hostID == pairing.hostID else { return }
@@ -1406,13 +1456,13 @@ final class MacTransferManager: ObservableObject {
   }
 
   private static func appendDebugEvent(_ message: String) {
-    let normalized = String(message.replacingOccurrences(of: "\n", with: " ").prefix(140))
+    let normalized = String(message.replacingOccurrences(of: "\n", with: " ").prefix(240))
     var events = debugEvents()
     guard events.last?.hasSuffix(" | \(normalized)") != true else { return }
     let formatter = ISO8601DateFormatter()
     formatter.timeZone = .autoupdatingCurrent
     events.append("\(formatter.string(from: Date())) | \(normalized)")
-    if events.count > 80 { events.removeFirst(events.count - 80) }
+    if events.count > 300 { events.removeFirst(events.count - 300) }
     UserDefaults.standard.set(events, forKey: debugEventsKey)
   }
 
