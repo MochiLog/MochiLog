@@ -75,6 +75,9 @@ final class MacTransferManager: ObservableObject {
   private var activePauseUntil: String?
   private var activeResume = false
   private var manualReceive = false
+  private var debugSyncBurst = 0
+  private var debugManifestSnapshot: [String: Int]?
+  private var debugManifestCapturedAt: Date?
   private var lastAutomaticHold: String?
   private var skippedHostKeys: Set<String> = []
   private var watchRegistration: AnyCancellable?
@@ -606,6 +609,9 @@ final class MacTransferManager: ObservableObject {
   func receiveNow() {
     guard pairing != nil, !isReceiving else { return }
     manualReceive = true
+    debugSyncBurst = 0
+    debugManifestSnapshot = nil
+    debugManifestCapturedAt = nil
     Self.appendDebugEvent("Manual receive triggered; automatic daily hold bypassed")
     status = MacTransferStatus.text("mt_s_20")
     retryDelay = 5
@@ -972,6 +978,7 @@ final class MacTransferManager: ObservableObject {
     ]
     let receipt = dailyReceipt
     let pauseUntil: String? = !manualReceive && pendingAck == nil &&
+      !debugArchiveNeedsSync() &&
       dailyComplete(receipt) &&
       receipt.terminalHosts.contains(pairing.hostID.uuidString) &&
       !receipt.pausedHosts.contains(pairing.hostID.uuidString)
@@ -1155,7 +1162,14 @@ final class MacTransferManager: ObservableObject {
           let object = try? JSONSerialization.jsonObject(with: report) as? [String: Any],
           object["schema"] as? Int == 1,
           ["macOS", "Windows"].contains(object["platform"] as? String ?? "") {
-          UserDefaults.standard.set(Data(report), forKey: macDiagnosticsKey)
+          if let chunk = object["archiveChunk"] as? [String: Any] {
+            Self.receiveArchiveChunk(chunk, from: pairing.hostID)
+          }
+          var saved = object
+          saved.removeValue(forKey: "archiveChunk")
+          if let data = try? JSONSerialization.data(withJSONObject: saved) {
+            UserDefaults.standard.set(data, forKey: macDiagnosticsKey)
+          }
         }
         recordConfirmedFiles(for: pairing)
         let confirmedCount = confirmReceivedFiles(for: pairing)
@@ -1170,6 +1184,20 @@ final class MacTransferManager: ObservableObject {
         manualReceive = false
         connectionPhase = .available
         retryDelay = 5
+        if debugArchiveNeedsSync() {
+          debugSyncBurst += 1
+          if debugSyncBurst == 1 || debugSyncBurst % 25 == 0 {
+            Self.appendDebugEvent("Debug archive sync: continuing with computer \(pairing.hostID.uuidString), batch \(debugSyncBurst)")
+          }
+          let delay: TimeInterval = debugSyncBurst % 25 == 0 ? 10 : 0.3
+          DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+            guard let self, self.isRunning,
+              self.pairing?.hostID == pairing.hostID else { return }
+            self.pull()
+          }
+          return
+        }
+        debugSyncBurst = 0
         if activePauseUntil != nil {
           Self.appendDebugEvent("Computer did not acknowledge automatic pause")
         } else if dailyComplete(dailyReceipt),
@@ -1428,13 +1456,60 @@ final class MacTransferManager: ObservableObject {
       "recentEvents": recentEvents
     ]
     object["lastAppDiagnostic"] = CrashDiagnostics.shared.summary()
+    if debugManifestSnapshot == nil ||
+      Date().timeIntervalSince(debugManifestCapturedAt ?? .distantPast) > 600 {
+      debugManifestSnapshot = Self.archiveManifest(in: Self.debugArchiveDirectory)
+      debugManifestCapturedAt = Date()
+    }
+    object["archiveManifest"] = debugManifestSnapshot ?? [:]
+    if manualReceive && debugSyncBurst == 0 { object["archiveRefresh"] = true }
+    if let pairing,
+      let report = latestMacDiagnosticsData(),
+      let remote = try? JSONSerialization.jsonObject(with: report) as? [String: Any] {
+      if let manifest = remote["archiveManifest"] as? [String: Int],
+        let request = Self.archiveRequest(manifest: manifest,
+          directory: Self.computerArchiveDirectory(for: pairing.hostID)) {
+        object["archiveRequest"] = request
+      }
+      if let request = remote["archiveRequest"] as? [String: Any],
+        let chunk = Self.archiveChunk(request: request,
+          directory: Self.debugArchiveDirectory, limit: 1_024) {
+        object["archiveChunk"] = chunk
+      }
+    }
     while true {
       let data = (try? JSONSerialization.data(withJSONObject: object,
-        options: [.prettyPrinted, .sortedKeys])) ?? Data("{}".utf8)
-      if data.count <= 8_192 || recentEvents.isEmpty { return data }
-      recentEvents.removeFirst()
-      object["recentEvents"] = recentEvents
+        options: [.sortedKeys])) ?? Data("{}".utf8)
+      if data.count <= 8_192 { return data }
+      if !recentEvents.isEmpty {
+        recentEvents.removeFirst()
+        object["recentEvents"] = recentEvents
+      } else if var chunk = object["archiveChunk"] as? [String: Any],
+        let encoded = chunk["data"] as? String,
+        let bytes = Data(base64Encoded: encoded), bytes.count > 128 {
+        chunk["data"] = Data(bytes.prefix(bytes.count / 2)).base64EncodedString()
+        object["archiveChunk"] = chunk
+      } else {
+        object.removeValue(forKey: "archiveChunk")
+        object.removeValue(forKey: "lastAppDiagnostic")
+        // Keep the complete day manifest so older retained days can catch up.
+        return (try? JSONSerialization.data(withJSONObject: object,
+          options: [.sortedKeys])) ?? Data("{}".utf8)
+      }
     }
+  }
+
+  private func debugArchiveNeedsSync() -> Bool {
+    guard let pairing,
+      let report = latestMacDiagnosticsData(),
+      let remote = try? JSONSerialization.jsonObject(with: report) as? [String: Any]
+    else { return false }
+    if let manifest = remote["archiveManifest"] as? [String: Int],
+      Self.archiveRequest(manifest: manifest,
+        directory: Self.computerArchiveDirectory(for: pairing.hostID)) != nil {
+      return true
+    }
+    return remote["archiveRequest"] as? [String: Any] != nil
   }
 
   func latestMacDiagnosticsData() -> Data? {
@@ -1454,6 +1529,11 @@ final class MacTransferManager: ObservableObject {
     set {
       UserDefaults.standard.set(min(365, max(1, newValue)), forKey: Self.debugRetentionKey)
       Self.pruneDebugArchive()
+      debugManifestSnapshot = nil
+      debugManifestCapturedAt = nil
+      for computer in pairings {
+        Self.pruneComputerArchive(for: computer.hostID)
+      }
     }
   }
 
@@ -1468,6 +1548,17 @@ final class MacTransferManager: ObservableObject {
     return (try? String(contentsOf: Self.debugArchiveURL(for: day), encoding: .utf8)) ?? ""
   }
 
+  func computerDebugLogDays(for hostID: UUID) -> [String] {
+    Self.archiveDays(in: Self.computerArchiveDirectory(for: hostID))
+  }
+
+  func computerDebugLogText(for hostID: UUID, day: String) -> String {
+    guard Self.validArchiveDay(day) else { return "" }
+    let url = Self.computerArchiveDirectory(for: hostID)
+      .appendingPathComponent("\(day).log")
+    return (try? String(contentsOf: url, encoding: .utf8)) ?? ""
+  }
+
   func recordImportOutcome(filename: String, status: String, logDate: Date?,
     detail: String?) {
     let date = logDate.map(Self.localTime) ?? "unknown"
@@ -1477,6 +1568,8 @@ final class MacTransferManager: ObservableObject {
   }
 
   func clearDebugLogs() {
+    debugManifestSnapshot = nil
+    debugManifestCapturedAt = nil
     if let files = try? FileManager.default.contentsOfDirectory(at: Self.debugArchiveDirectory,
       includingPropertiesForKeys: nil) {
       for file in files where Self.validArchiveDay(file.deletingPathExtension().lastPathComponent) {
@@ -1504,6 +1597,13 @@ final class MacTransferManager: ObservableObject {
     return root.appendingPathComponent("MochiLog/MacTransferDebugLogs", isDirectory: true)
   }
 
+  private static func computerArchiveDirectory(for hostID: UUID) -> URL {
+    let root = FileManager.default.urls(for: .applicationSupportDirectory,
+      in: .userDomainMask)[0]
+    return root.appendingPathComponent("MochiLog/ComputerDebugLogs", isDirectory: true)
+      .appendingPathComponent(hostID.uuidString, isDirectory: true)
+  }
+
   private static func validArchiveDay(_ day: String) -> Bool {
     day.range(of: #"^[0-9]{4}-[0-9]{2}-[0-9]{2}$"#,
       options: .regularExpression) != nil
@@ -1514,13 +1614,112 @@ final class MacTransferManager: ObservableObject {
   }
 
   private static func archiveDays() -> [String] {
-    let files = (try? FileManager.default.contentsOfDirectory(at: debugArchiveDirectory,
+    archiveDays(in: debugArchiveDirectory)
+  }
+
+  private static func archiveDays(in directory: URL) -> [String] {
+    let files = (try? FileManager.default.contentsOfDirectory(at: directory,
       includingPropertiesForKeys: nil)) ?? []
     return files.compactMap { file in
       guard file.pathExtension == "log" else { return nil }
       let day = file.deletingPathExtension().lastPathComponent
       return validArchiveDay(day) ? day : nil
     }.sorted(by: >)
+  }
+
+  private static func compactDay(_ day: String) -> String {
+    day.replacingOccurrences(of: "-", with: "")
+  }
+
+  private static func expandedDay(_ compact: String) -> String? {
+    guard compact.range(of: #"^[0-9]{8}$"#,
+      options: .regularExpression) != nil else { return nil }
+    let day = String(compact.prefix(4)) + "-" +
+      String(compact.dropFirst(4).prefix(2)) + "-" + String(compact.suffix(2))
+    return validArchiveDay(day) ? day : nil
+  }
+
+  private static func archiveManifest(in directory: URL) -> [String: Int] {
+    Dictionary(uniqueKeysWithValues: archiveDays(in: directory).compactMap { day in
+      let url = directory.appendingPathComponent("\(day).log")
+      guard let size = (try? url.resourceValues(forKeys: [.fileSizeKey]))?.fileSize,
+        (0...64_000_000).contains(size) else { return nil }
+      return (compactDay(day), size)
+    })
+  }
+
+  private static func archiveRequest(manifest: [String: Int], directory: URL)
+    -> [String: Any]? {
+    for compact in manifest.keys.sorted(by: >) {
+      guard let day = expandedDay(compact), let size = manifest[compact],
+        (0...64_000_000).contains(size) else { continue }
+      let url = directory.appendingPathComponent("\(day).log")
+      let current = (try? url.resourceValues(forKeys: [.fileSizeKey]))?.fileSize ?? 0
+      if current < size { return ["day": compact, "offset": current] }
+    }
+    return nil
+  }
+
+  private static func archiveChunk(request: [String: Any], directory: URL,
+    limit: Int) -> [String: Any]? {
+    guard let compact = request["day"] as? String,
+      let day = expandedDay(compact), let offset = request["offset"] as? Int,
+      offset >= 0, offset <= 64_000_000 else { return nil }
+    let url = directory.appendingPathComponent("\(day).log")
+    guard let handle = try? FileHandle(forReadingFrom: url) else { return nil }
+    defer { try? handle.close() }
+    guard (try? handle.seek(toOffset: UInt64(offset))) != nil,
+      let bytes = try? handle.read(upToCount: limit), !bytes.isEmpty else { return nil }
+    return ["day": compact, "offset": offset,
+      "data": bytes.base64EncodedString()]
+  }
+
+  private static func receiveArchiveChunk(_ chunk: [String: Any], from hostID: UUID) {
+    guard let compact = chunk["day"] as? String,
+      let day = expandedDay(compact), let offset = chunk["offset"] as? Int,
+      let encoded = chunk["data"] as? String,
+      let bytes = Data(base64Encoded: encoded), !bytes.isEmpty,
+      bytes.count <= 8_192, offset >= 0,
+      offset + bytes.count <= 64_000_000 else { return }
+    let directory = computerArchiveDirectory(for: hostID)
+    do {
+      try FileManager.default.createDirectory(at: directory,
+        withIntermediateDirectories: true)
+      let url = directory.appendingPathComponent("\(day).log")
+      if !FileManager.default.fileExists(atPath: url.path) {
+        FileManager.default.createFile(atPath: url.path, contents: nil)
+      }
+      let handle = try FileHandle(forUpdating: url)
+      defer { try? handle.close() }
+      let size = try handle.seekToEnd()
+      guard size == UInt64(offset) else { return }
+      try handle.write(contentsOf: bytes)
+      try FileManager.default.setAttributes([.posixPermissions: 0o600],
+        ofItemAtPath: url.path)
+      appendDebugEvent("Debug archive sync: received \(day) from computer \(hostID.uuidString), offset \(offset), \(bytes.count) bytes")
+      pruneComputerArchive(for: hostID)
+    } catch { return }
+  }
+
+  private static func pruneComputerArchive(for hostID: UUID) {
+    let directory = computerArchiveDirectory(for: hostID)
+    let days = UserDefaults.standard.integer(forKey: debugRetentionKey)
+    let retention = days == 0 ? 30 : min(365, max(1, days))
+    let cutoff = archiveDayString(Calendar.current.date(byAdding: .day,
+      value: 1 - retention, to: Date()) ?? Date())
+    for old in archiveDays(in: directory) where old < cutoff {
+      try? FileManager.default.removeItem(at:
+        directory.appendingPathComponent("\(old).log"))
+    }
+  }
+
+  private static func archiveDayString(_ date: Date) -> String {
+    let formatter = DateFormatter()
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.calendar = Calendar(identifier: .gregorian)
+    formatter.timeZone = .autoupdatingCurrent
+    formatter.dateFormat = "yyyy-MM-dd"
+    return formatter.string(from: date)
   }
 
   @discardableResult

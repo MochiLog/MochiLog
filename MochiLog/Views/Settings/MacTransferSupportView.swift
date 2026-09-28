@@ -82,7 +82,7 @@ struct MacTransferSupportView: View {
     } message: {
       Text(L10n.text("mt_086", table: "MacTransfer"))
     }
-    .onAppear { manager.start() }
+    .onAppear { manager.receiveNow() }
   }
 
   private var attachments: [MailAttachment] {
@@ -99,6 +99,12 @@ struct MacTransferSupportView: View {
       let day = formatter.string(from: date)
       result.append(MailAttachment(data: Data(manager.debugLogText(for: day).utf8),
         mimeType: "text/plain", fileName: "mochilog-iphone-debug-\(day).log"))
+      for computer in manager.pairings {
+        let text = manager.computerDebugLogText(for: computer.hostID, day: day)
+        result.append(MailAttachment(data: Data(text.utf8),
+          mimeType: "text/plain",
+          fileName: "mochilog-computer-\(computer.hostID.uuidString.prefix(8))-debug-\(day).log"))
+      }
     }
     if let diagnostic = CrashDiagnostics.shared.latest() {
       result.append(MailAttachment(data: diagnostic, mimeType: "application/json",

@@ -11,11 +11,6 @@ struct MacTransferDebugLogView: View {
     return manager.debugLogDays()
   }
 
-  private var hasComputerLog: Bool {
-    _ = revision
-    return !manager.macDebugLogText().isEmpty
-  }
-
   var body: some View {
     List {
       Section {
@@ -40,19 +35,23 @@ struct MacTransferDebugLogView: View {
         }
       }
 
-      Section(L10n.text("mt_log_remote_title", table: "MacTransfer")) {
-        if hasComputerLog {
-          NavigationLink {
-            MacTransferLogDayView(day: nil)
-          } label: {
-            Label(L10n.text("mt_log_view_latest", table: "MacTransfer"),
+      ForEach(manager.pairings, id: \.hostID) { computer in
+        Section(computerTitle(computer)) {
+          let computerDays = manager.computerDebugLogDays(for: computer.hostID)
+          if computerDays.isEmpty {
+            Label(L10n.text("mt_log_no_days", table: "MacTransfer"),
               systemImage: "desktopcomputer")
-              .padding(.vertical, 5)
+              .foregroundStyle(.secondary)
+          } else {
+            ForEach(computerDays, id: \.self) { day in
+              NavigationLink {
+                MacTransferLogDayView(day: day, hostID: computer.hostID)
+              } label: {
+                Label(Self.displayDate(day), systemImage: "desktopcomputer")
+                  .padding(.vertical, 5)
+              }
+            }
           }
-        } else {
-          Label(L10n.text("mt_047", table: "MacTransfer"),
-            systemImage: "desktopcomputer")
-            .foregroundStyle(.secondary)
         }
       }
 
@@ -72,17 +71,28 @@ struct MacTransferDebugLogView: View {
       }
     }
     .navigationTitle(L10n.text("mt_026", table: "MacTransfer"))
-    .onAppear { revision += 1 }
+    .onAppear {
+      revision += 1
+      if !manager.pairings.isEmpty { manager.receiveNow() }
+    }
     .toolbar {
       ToolbarItem(placement: .topBarTrailing) {
         Button {
           revision += 1
+          manager.receiveNow()
         } label: {
           Image(systemName: "arrow.clockwise")
         }
         .accessibilityLabel(L10n.text("mt_015", table: "MacTransfer"))
       }
     }
+  }
+
+  private func computerTitle(_ computer: MacTransferPairing) -> String {
+    let platform = computer.platform == "Windows" ? "Windows" : "Mac"
+    let suffix = manager.pairings.count > 1
+      ? " · \(computer.hostID.uuidString.prefix(6))" : ""
+    return "\(platform)\(suffix)"
   }
 
   fileprivate static func displayDate(_ day: String) -> String {
@@ -101,6 +111,7 @@ private struct MacTransferLogDayView: View {
   @StateObject private var manager = MacTransferManager.shared
   @State private var logText = ""
   let day: String?
+  var hostID: UUID? = nil
 
   private var title: String {
     if let day { return MacTransferDebugLogView.displayDate(day) }
@@ -147,8 +158,11 @@ private struct MacTransferLogDayView: View {
   }
 
   private func reload() {
-    logText = day.map { manager.debugLogText(for: $0) }
-      ?? manager.macDebugLogText()
+    if let hostID, let day {
+      logText = manager.computerDebugLogText(for: hostID, day: day)
+    } else {
+      logText = day.map { manager.debugLogText(for: $0) } ?? ""
+    }
   }
 }
 
