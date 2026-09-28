@@ -45,7 +45,7 @@ struct MacTransferDebugLogView: View {
           NavigationLink {
             MacTransferLogDayView(day: nil)
           } label: {
-            Label(L10n.text("mt_log_remote_title", table: "MacTransfer"),
+            Label(L10n.text("mt_log_view_latest", table: "MacTransfer"),
               systemImage: "desktopcomputer")
               .padding(.vertical, 5)
           }
