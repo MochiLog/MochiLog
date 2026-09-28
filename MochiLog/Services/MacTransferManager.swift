@@ -1524,10 +1524,10 @@ final class MacTransferManager: ObservableObject {
   var debugRetentionDays: Int {
     get {
       let saved = UserDefaults.standard.integer(forKey: Self.debugRetentionKey)
-      return saved == 0 ? 30 : min(365, max(1, saved))
+      return saved == 0 ? 30 : min(365, max(7, saved))
     }
     set {
-      UserDefaults.standard.set(min(365, max(1, newValue)), forKey: Self.debugRetentionKey)
+      UserDefaults.standard.set(min(365, max(7, newValue)), forKey: Self.debugRetentionKey)
       Self.pruneDebugArchive()
       debugManifestSnapshot = nil
       debugManifestCapturedAt = nil
@@ -1650,9 +1650,13 @@ final class MacTransferManager: ObservableObject {
 
   private static func archiveRequest(manifest: [String: Int], directory: URL)
     -> [String: Any]? {
+    let days = UserDefaults.standard.integer(forKey: debugRetentionKey)
+    let retention = days == 0 ? 30 : min(365, max(7, days))
+    let cutoff = archiveDayString(Calendar.current.date(byAdding: .day,
+      value: 1 - retention, to: Date()) ?? Date())
     for compact in manifest.keys.sorted(by: >) {
       guard let day = expandedDay(compact), let size = manifest[compact],
-        (0...64_000_000).contains(size) else { continue }
+        day >= cutoff, (0...64_000_000).contains(size) else { continue }
       let url = directory.appendingPathComponent("\(day).log")
       let current = (try? url.resourceValues(forKeys: [.fileSizeKey]))?.fileSize ?? 0
       if current < size { return ["day": compact, "offset": current] }
@@ -1704,7 +1708,7 @@ final class MacTransferManager: ObservableObject {
   private static func pruneComputerArchive(for hostID: UUID) {
     let directory = computerArchiveDirectory(for: hostID)
     let days = UserDefaults.standard.integer(forKey: debugRetentionKey)
-    let retention = days == 0 ? 30 : min(365, max(1, days))
+    let retention = days == 0 ? 30 : min(365, max(7, days))
     let cutoff = archiveDayString(Calendar.current.date(byAdding: .day,
       value: 1 - retention, to: Date()) ?? Date())
     for old in archiveDays(in: directory) where old < cutoff {
@@ -1753,7 +1757,7 @@ final class MacTransferManager: ObservableObject {
 
   private static func pruneDebugArchive() {
     let days = UserDefaults.standard.integer(forKey: debugRetentionKey)
-    let retention = days == 0 ? 30 : min(365, max(1, days))
+    let retention = days == 0 ? 30 : min(365, max(7, days))
     let formatter = DateFormatter()
     formatter.locale = Locale(identifier: "en_US_POSIX")
     formatter.calendar = Calendar(identifier: .gregorian)
