@@ -17,6 +17,9 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
   /// Watchアプリがインストールされているかどうか
   @Published private(set) var isWatchAppInstalled = false
 
+  /// nil until WatchConnectivity has reported the OS pairing state.
+  @Published private(set) var isWatchPaired: Bool?
+
   /// 最後の同期日時
   @Published private(set) var lastSyncDate: Date?
 
@@ -38,6 +41,7 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
   /// Watch Connectivityセッションを開始
   func startSession() {
     guard WCSession.isSupported() else {
+      isWatchPaired = false
       print("[WatchConnectivity] WCSessionはこのデバイスでサポートされていません")
       return
     }
@@ -158,6 +162,7 @@ extension WatchConnectivityManager: WCSessionDelegate {
       switch activationState {
       case .activated:
         print("[WatchConnectivity] セッションがアクティベートされました")
+        isWatchPaired = session.isPaired
         isWatchAppInstalled = session.isWatchAppInstalled
         isReachable = session.isReachable
         resendLatestSnapshot()
@@ -172,6 +177,7 @@ extension WatchConnectivityManager: WCSessionDelegate {
   }
 
   nonisolated func sessionDidBecomeInactive(_ session: WCSession) {
+    Task { @MainActor in isWatchPaired = nil }
     print("[WatchConnectivity] セッションが非アクティブになりました")
   }
 
@@ -179,6 +185,7 @@ extension WatchConnectivityManager: WCSessionDelegate {
     print("[WatchConnectivity] セッションが非アクティブ化されました")
     // 再アクティベート
     Task { @MainActor in
+      self.isWatchPaired = nil
       self.session?.activate()
     }
   }
@@ -193,6 +200,7 @@ extension WatchConnectivityManager: WCSessionDelegate {
 
   nonisolated func sessionWatchStateDidChange(_ session: WCSession) {
     Task { @MainActor in
+      isWatchPaired = session.isPaired
       isWatchAppInstalled = session.isWatchAppInstalled
       resendLatestSnapshot()
       print("[WatchConnectivity] Watchアプリのインストール状態が変更されました: \(session.isWatchAppInstalled)")

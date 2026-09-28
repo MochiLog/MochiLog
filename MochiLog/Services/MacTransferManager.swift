@@ -76,6 +76,7 @@ final class MacTransferManager: ObservableObject {
   private var activeResume = false
   private var manualReceive = false
   private var watchRegistration: AnyCancellable?
+  private var watchOSPairing: AnyCancellable?
   private var endpoint: NWEndpoint?
   private var directRoutes: [NWEndpoint] = []
   private var routeIndex = 0
@@ -96,6 +97,13 @@ final class MacTransferManager: ObservableObject {
     connectionPhase = pairing == nil ? .needsPairing : .checkingNetwork
     pendingAck = UserDefaults.standard.string(forKey: pendingAckKey)
     watchRegistration = AppSettings.shared.$registeredWatches.dropFirst().sink { [weak self] _ in
+      Task { @MainActor [weak self] in
+        guard let self, self.isRunning else { return }
+        self.beginDiscovery()
+      }
+    }
+    watchOSPairing = WatchConnectivityManager.shared.$isWatchPaired.dropFirst().sink {
+      [weak self] _ in
       Task { @MainActor [weak self] in
         guard let self, self.isRunning else { return }
         self.beginDiscovery()
@@ -136,10 +144,19 @@ final class MacTransferManager: ObservableObject {
   }
 
   private func dailyComplete(_ receipt: DailyTransferReceipt) -> Bool {
-    // An OS-paired Watch is not necessarily registered in MochiLog. iPad has
-    // no Watch target; an iPhone with no registered Watch needs its own log only.
-    let expectedWatches = UIDevice.current.userInterfaceIdiom == .pad ? 0 :
-      AppSettings.shared.registeredWatches.count
+    // OS pairing and MochiLog registration are different. An unregistered
+    // paired Watch may still produce a log that needs to reach the import flow.
+    // Wait for WatchConnectivity to finish activation before deciding that
+    // an iPhone has no Watch. iPad never expects a Watch log.
+    let expectedWatches: Int
+    if UIDevice.current.userInterfaceIdiom == .pad {
+      expectedWatches = 0
+    } else {
+      guard let isPaired = WatchConnectivityManager.shared.isWatchPaired else {
+        return false
+      }
+      expectedWatches = isPaired ? max(1, AppSettings.shared.registeredWatches.count) : 0
+    }
     return receipt.hostReceived && receipt.watchSources.count >= expectedWatches
   }
 
