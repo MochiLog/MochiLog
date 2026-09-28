@@ -72,3 +72,13 @@ SimulatorのDebugビルド限定で `MOCHI_TEST_DISTRIBUTOR=appStore|testFlight|
 - ローカル証跡: `/Users/ryuya/Documents/MochiLog/build/altstore-pal/3.2.1-1015/`。`source-candidate.json` は未公開の候補、`submitted-ipa-permissions.json` は提出IPAの実測値。期限付きdownloadURLを含むAPIレスポンスはgitへ入れない。
 
 - 公開完了: sourceとポータルをデプロイし、3.2.1 (1015)の配信を確認。公開URLから18ファイルすべてを再取得してSHA-256一致、Rangeリクエストも確認済み。MochiLog Webの日英配信中表示も本番で確認。PAL実機確認のみ未実施。
+
+## 2026-09-29 3.2.2のAltStore PAL更新
+
+- App Store Connectの履歴で3.2.2のADP ID `320731fa-b8a9-4c40-bbfc-e7b3d8ddfd07`を確認。AltStore APIの処理状態は`success`。
+- ADP ZIP SHA-256: `8598b041b5a6e7baa87879be3bba5636efba7d4a35cfd2094965e66de8351b0f`。
+- `dist_package_tool validate`でApple署名と全リソースを検証。manifestのBundle IDは`net.ryuya-dev.MochiLog`、versionは`3.2.2`、buildは`1018`、最低iOSは`16.0`。6 variant / 27 delta / manifest / signatureの35ファイルを保持。
+- `appPermissions`は3.2.1から変更なし。3.2.1の提出元IPAで確認した権限一覧を継続使用。3.2.1から3.2.2までのEntitlementsとUsage Descriptionに変更がないことをソース差分で確認。
+- R2の新しい`packages/net.ryuya-dev.MochiLog/3.2.2-1018/`に35ファイルをステージ。**同じrelease keyへ再アップロードしないこと。**
+- sourceの先頭に3.2.2 (1018)を追加し、3.2.1 (1015)は旧版として保持。ポータルの版表示も更新。公開source、manifestのSHA-256、全35ファイルのHTTP HEAD、variantのRange取得を確認。
+- ローカル証跡: `build/altstore-pal/3.2.2-1018/`。期限付きdownloadURLは保存していない。PAL実機でのインストール・起動・更新は未検証。
