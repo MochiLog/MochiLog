@@ -176,6 +176,22 @@ final class MacTransferManager: ObservableObject {
     dailyReceipt = receipt
   }
 
+  func observeSavedRecords(_ records: [BatteryRecord]) {
+    guard !dailyReceipt.hostReceived, let physicalID = pairing?.physicalDeviceID else {
+      return
+    }
+    let day = Self.japanDay()
+    guard records.contains(where: {
+      $0.physicalDeviceID == physicalID && Self.japanDay($0.logDate) == day &&
+        !($0.osVersion?.lowercased().contains("watch") ?? false)
+    }) else { return }
+    var receipt = dailyReceipt
+    receipt.hostReceived = true
+    dailyReceipt = receipt
+    Self.appendDebugEvent("Today's own-device record was already saved")
+    if isRunning, connection == nil, networkPermitsTransfer { beginDiscovery() }
+  }
+
   private func scopedKey(_ base: String) -> String {
     guard let pairing else { return base }
     // Keep the original Mac beta's saved inbox and acknowledgements intact.

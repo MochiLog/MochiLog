@@ -231,6 +231,11 @@ struct MochiLogRootView: View {
           // アプリ起動時にマイグレーションを実行
           dataStore.runMigrations()
         }
+        .onReceive(dataStore.$recordsDescending) { records in
+          if #available(iOS 27, *) {
+            MacTransferManager.shared.observeSavedRecords(records)
+          }
+        }
 
       // ローディングオーバーレイ
       // 再読込時のみ出る。
