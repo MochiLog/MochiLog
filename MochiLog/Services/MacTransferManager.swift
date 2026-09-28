@@ -1473,7 +1473,7 @@ final class MacTransferManager: ObservableObject {
       }
       if let request = remote["archiveRequest"] as? [String: Any],
         let chunk = Self.archiveChunk(request: request,
-          directory: Self.debugArchiveDirectory, limit: 1_024) {
+          directory: Self.debugArchiveDirectory, limit: 3_072) {
         object["archiveChunk"] = chunk
       }
     }
