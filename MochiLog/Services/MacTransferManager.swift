@@ -18,6 +18,14 @@ struct MacTransferPairing: Codable {
   var manualHostAddress: String? = nil
 }
 
+private struct DailyTransferReceipt: Codable {
+  var day: String
+  var hostReceived = false
+  var watchSources: Set<String> = []
+  var terminalHosts: Set<String> = []
+  var pausedHosts: Set<String> = []
+}
+
 @available(iOS 27, *)
 struct SecureMacPairingCandidate: Identifiable {
   let pairing: MacTransferPairing
@@ -64,6 +72,10 @@ final class MacTransferManager: ObservableObject {
   private var isRunning = false
   private var connection: NWConnection?
   private var activeRequestNonce: UUID?
+  private var activePauseUntil: String?
+  private var activeResume = false
+  private var manualReceive = false
+  private var watchRegistration: AnyCancellable?
   private var endpoint: NWEndpoint?
   private var directRoutes: [NWEndpoint] = []
   private var routeIndex = 0
@@ -74,6 +86,7 @@ final class MacTransferManager: ObservableObject {
   private var macDiagnosticsKey: String { scopedKey("MacTransferLastMacDiagnostics") }
   private var pendingAckKey: String { scopedKey("MacTransferPendingAck") }
   private static let debugEventsKey = "MacTransferDebugEvents"
+  private static let dailyReceiptKey = "MacTransferDailyReceipt"
 
   private init() {
     pairings = Self.loadPairings()
@@ -82,6 +95,85 @@ final class MacTransferManager: ObservableObject {
     status = MacTransferStatus.text(pairing == nil ? "mt_s_00" : "mt_s_01")
     connectionPhase = pairing == nil ? .needsPairing : .checkingNetwork
     pendingAck = UserDefaults.standard.string(forKey: pendingAckKey)
+    watchRegistration = AppSettings.shared.$registeredWatches.dropFirst().sink { [weak self] _ in
+      Task { @MainActor [weak self] in
+        guard let self, self.isRunning else { return }
+        self.beginDiscovery()
+      }
+    }
+  }
+
+  private static func japanCalendar() -> Calendar {
+    var calendar = Calendar(identifier: .gregorian)
+    calendar.timeZone = TimeZone(identifier: "Asia/Tokyo")!
+    return calendar
+  }
+
+  private static func japanDay(_ date: Date = Date()) -> String {
+    let parts = japanCalendar().dateComponents([.year, .month, .day], from: date)
+    return String(format: "%04d-%02d-%02d", parts.year ?? 0,
+      parts.month ?? 0, parts.day ?? 0)
+  }
+
+  private static func nextCollectionWindow(_ date: Date = Date()) -> Date {
+    japanCalendar().nextDate(after: date, matching: DateComponents(hour: 9),
+      matchingPolicy: .nextTime) ?? date.addingTimeInterval(24 * 60 * 60)
+  }
+
+  private var dailyReceipt: DailyTransferReceipt {
+    get {
+      let day = Self.japanDay()
+      guard let data = UserDefaults.standard.data(forKey: Self.dailyReceiptKey),
+        let receipt = try? JSONDecoder().decode(DailyTransferReceipt.self, from: data),
+        receipt.day == day else { return DailyTransferReceipt(day: day) }
+      return receipt
+    }
+    set {
+      if let data = try? JSONEncoder().encode(newValue) {
+        UserDefaults.standard.set(data, forKey: Self.dailyReceiptKey)
+      }
+    }
+  }
+
+  private func dailyComplete(_ receipt: DailyTransferReceipt) -> Bool {
+    // An OS-paired Watch is not necessarily registered in MochiLog. iPad has
+    // no Watch target; an iPhone with no registered Watch needs its own log only.
+    let expectedWatches = UIDevice.current.userInterfaceIdiom == .pad ? 0 :
+      AppSettings.shared.registeredWatches.count
+    return receipt.hostReceived && receipt.watchSources.count >= expectedWatches
+  }
+
+  private func automaticWait() -> UInt64? {
+    let now = Date()
+    if Self.japanCalendar().component(.hour, from: now) < 9 {
+      return UInt64(max(1, Self.nextCollectionWindow(now).timeIntervalSince(now).rounded(.up)))
+    }
+    let receipt = dailyReceipt
+    if dailyComplete(receipt) && pairings.allSatisfy({
+      receipt.pausedHosts.contains($0.hostID.uuidString)
+    }) {
+      return UInt64(max(1, Self.nextCollectionWindow(now).timeIntervalSince(now).rounded(.up)))
+    }
+    return nil
+  }
+
+  private func recordConfirmedFiles(for pairing: MacTransferPairing) {
+    let day = Self.japanDay()
+    let identifiers = Self.storedFileIDs(for: unconfirmedKey, pairing: pairing)
+    var receipt = dailyReceipt
+    for identifier in identifiers {
+      let parts = identifier.split(separator: "/").map(String.init)
+      guard let filename = parts.last, filename.hasPrefix("Analytics-\(day)-") else {
+        continue
+      }
+      if parts.first == "Host" || parts.count == 1 {
+        receipt.hostReceived = true
+      } else if parts.first == "Watch" {
+        receipt.watchSources.insert(parts.count == 3 ? parts[1] : "legacy-watch")
+      }
+    }
+    receipt.terminalHosts.insert(pairing.hostID.uuidString)
+    dailyReceipt = receipt
   }
 
   private func scopedKey(_ base: String) -> String {
@@ -255,6 +347,8 @@ final class MacTransferManager: ObservableObject {
     connection?.cancel()
     connection = nil
     activeRequestNonce = nil
+    activePauseUntil = nil
+    activeResume = false
     endpoint = nil
     directRoutes = []
     accumulated = Data()
@@ -448,6 +542,7 @@ final class MacTransferManager: ObservableObject {
 
   func receiveNow() {
     guard pairing != nil, !isReceiving else { return }
+    manualReceive = true
     status = MacTransferStatus.text("mt_s_20")
     retryDelay = 5
     if isRunning, hasNetworkPath {
@@ -460,6 +555,20 @@ final class MacTransferManager: ObservableObject {
   private func beginDiscovery() {
     guard isRunning, let pairing else { return }
     guard networkPermitsTransfer else { pauseForNetwork(); return }
+    if !manualReceive {
+      if let wait = automaticWait() {
+        browser?.cancel(); browser = nil
+        connection?.cancel(); connection = nil
+        isReceiving = false
+        scheduleReconnect(after: wait, interruptActive: true)
+        return
+      }
+      if dailyComplete(dailyReceipt),
+        dailyReceipt.pausedHosts.contains(pairing.hostID.uuidString) {
+        advancePairing()
+        return
+      }
+    }
     reconnectTask?.cancel()
     reconnectTask = nil
     browser?.cancel()
@@ -467,6 +576,8 @@ final class MacTransferManager: ObservableObject {
     connection?.cancel()
     connection = nil
     activeRequestNonce = nil
+    activePauseUntil = nil
+    activeResume = false
     accumulated = Data()
     endpoint = nil
     directRoutes = []
@@ -627,6 +738,7 @@ final class MacTransferManager: ObservableObject {
   }
 
   func stopForBackground() {
+    let shouldSendPresence = automaticWait() == nil
     let pairing = pairing
     let route = routeIndex < directRoutes.count ? directRoutes[routeIndex]
       : (endpoint ?? Self.tailnetRoute(
@@ -634,7 +746,7 @@ final class MacTransferManager: ObservableObject {
     let mayUseCellular = allowsCellularTransfer
     let wasRunning = isRunning
     stop()
-    guard wasRunning, let pairing, let route else { return }
+    guard shouldSendPresence, wasRunning, let pairing, let route else { return }
     let nonce = UUID()
     let presence = "background"
     let message = "v2|background|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)"
@@ -764,7 +876,7 @@ final class MacTransferManager: ObservableObject {
     guard let diagnosticsBox = try? AES.GCM.seal(diagnostics,
       using: SymmetricKey(data: pairing.secret), authenticating: diagnosticsContext).combined
     else { return }
-    let request: [String: String] = [
+    var request: [String: String] = [
       "hostID": pairing.hostID.uuidString,
       "physicalDeviceID": pairing.physicalDeviceID.uuidString,
       "nonce": nonce.uuidString,
@@ -775,6 +887,25 @@ final class MacTransferManager: ObservableObject {
       "presenceMAC": presenceMAC,
       "clientDiagnosticsBox": diagnosticsBox.base64EncodedString()
     ]
+    let receipt = dailyReceipt
+    let pauseUntil: String? = !manualReceive && pendingAck == nil &&
+      dailyComplete(receipt) &&
+      receipt.terminalHosts.contains(pairing.hostID.uuidString) &&
+      !receipt.pausedHosts.contains(pairing.hostID.uuidString)
+      ? String(Int(Self.nextCollectionWindow().timeIntervalSince1970)) : nil
+    if let pauseUntil {
+      request["dailyPauseUntil"] = pauseUntil
+      request["dailyPauseMAC"] = Self.authenticationCode(
+        "daily-pause|v1|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)|\(pauseUntil)",
+        secret: pairing.secret)
+    }
+    let resume = !dailyComplete(receipt) &&
+      receipt.pausedHosts.contains(pairing.hostID.uuidString)
+    if resume {
+      request["dailyResumeMAC"] = Self.authenticationCode(
+        "daily-resume|v1|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)",
+        secret: pairing.secret)
+    }
     guard let payload = try? JSONSerialization.data(withJSONObject: request) else { return }
     guard let route = routeIndex < directRoutes.count
       ? directRoutes[routeIndex] : endpoint else { return }
@@ -785,6 +916,8 @@ final class MacTransferManager: ObservableObject {
     let connection = NWConnection(to: route, using: parameters)
     self.connection = connection
     activeRequestNonce = nonce
+    activePauseUntil = pauseUntil
+    activeResume = resume
     accumulated = Data()
     connection.pathUpdateHandler = { [weak self, weak connection] path in
       Task { @MainActor in
@@ -865,7 +998,10 @@ final class MacTransferManager: ObservableObject {
   }
 
   private func finish(_ bytes: Data, connection: NWConnection) {
-    defer { connection.cancel(); self.connection = nil; activeRequestNonce = nil }
+    defer {
+      connection.cancel(); self.connection = nil
+      activeRequestNonce = nil; activePauseUntil = nil; activeResume = false
+    }
     guard let pairing, let requestNonce = activeRequestNonce, bytes.count >= 4 else {
       status = MacTransferStatus.text("mt_s_06"); isReceiving = false
       connectionPhase = .retrying
@@ -902,12 +1038,41 @@ final class MacTransferManager: ObservableObject {
           isReceiving = false
           return
         }
+        if let control = try? JSONSerialization.jsonObject(with: report) as? [String: String],
+          control["type"] == "daily-pause-ack",
+          control["until"] == activePauseUntil {
+          var receipt = dailyReceipt
+          receipt.pausedHosts.insert(pairing.hostID.uuidString)
+          dailyReceipt = receipt
+          manualReceive = false
+          isReceiving = false
+          connectionPhase = .available
+          Self.appendDebugEvent("Automatic collection paused after confirmed receipt")
+          if let wait = automaticWait() { scheduleReconnect(after: wait) }
+          else { advancePairing() }
+          return
+        }
+        if let control = try? JSONSerialization.jsonObject(with: report) as? [String: String],
+          control["type"] == "daily-resume-ack", activeResume {
+          var receipt = dailyReceipt
+          receipt.pausedHosts.remove(pairing.hostID.uuidString)
+          dailyReceipt = receipt
+          isReceiving = false
+          Self.appendDebugEvent("Automatic collection resumed after Watch registration changed")
+          DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+            guard let self, self.isRunning,
+              self.pairing?.hostID == pairing.hostID else { return }
+            self.pull()
+          }
+          return
+        }
         if !report.isEmpty, report.count <= 16_384,
           let object = try? JSONSerialization.jsonObject(with: report) as? [String: Any],
           object["schema"] as? Int == 1,
           ["macOS", "Windows"].contains(object["platform"] as? String ?? "") {
           UserDefaults.standard.set(Data(report), forKey: macDiagnosticsKey)
         }
+        recordConfirmedFiles(for: pairing)
         let confirmedCount = confirmReceivedFiles(for: pairing)
         Self.appendDebugEvent("Transfer: confirmed \(confirmedCount) received file(s)")
         if pendingAck != nil {
@@ -917,8 +1082,24 @@ final class MacTransferManager: ObservableObject {
         status = confirmedCount == 0 ? MacTransferStatus.text("mt_s_08")
           : MacTransferStatus.text("mt_s_09", confirmedCount)
         isReceiving = false
+        manualReceive = false
         connectionPhase = .available
         retryDelay = 5
+        if activePauseUntil != nil {
+          Self.appendDebugEvent("Computer did not acknowledge automatic pause")
+        } else if dailyComplete(dailyReceipt),
+          !dailyReceipt.pausedHosts.contains(pairing.hostID.uuidString) {
+          DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+            guard let self, self.isRunning,
+              self.pairing?.hostID == pairing.hostID else { return }
+            self.pull()
+          }
+          return
+        }
+        if let wait = automaticWait() {
+          scheduleReconnect(after: wait)
+          return
+        }
         if pairings.count > 1 {
           // Poll the next computer after an idle interval. Without this delay,
           // two paired computers with empty queues cause a request loop.
