@@ -363,7 +363,14 @@ final class MacTransferManager: ObservableObject {
     }
     let next = pairings[(index + 1) % pairings.count]
     Self.appendDebugEvent("Connection: switching computer to \(next.hostID.uuidString)")
-    selectPairing(next.hostID)
+    // Automatic rotation keeps the path monitor and revocation timer alive.
+    // Restarting the whole manager here used to recreate both every minute
+    // when an iPad was paired with Mac and Windows.
+    pairing = next
+    pendingAck = UserDefaults.standard.string(forKey: pendingAckKey)
+    lastAuthenticatedContactAt = nil
+    status = MacTransferStatus.text("mt_s_01")
+    beginDiscovery()
   }
 
   func setAllowsCellularTransfer(_ allowed: Bool) {
@@ -1219,7 +1226,8 @@ final class MacTransferManager: ObservableObject {
         if pairings.count > 1 {
           // Poll the next computer after an idle interval. Without this delay,
           // two paired computers with empty queues cause a request loop.
-          DispatchQueue.main.asyncAfter(deadline: .now() + 60) { [weak self] in
+          let idleDelay: TimeInterval = dailyComplete(dailyReceipt) ? 300 : 60
+          DispatchQueue.main.asyncAfter(deadline: .now() + idleDelay) { [weak self] in
             guard let self, self.isRunning,
               self.pairing?.hostID == pairing.hostID else { return }
             self.advancePairing()
