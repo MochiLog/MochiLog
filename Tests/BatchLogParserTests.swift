@@ -57,6 +57,14 @@ struct BatchLogParserTests {
     assert(valid == 7 && unsupported == 1, "One nonbattery file must not invalidate seven valid logs")
     let malformed = LogParser.parse(text: "{\"message\":{\"last_value_NominalChargeCapacity\":\"invalid\"}}")
     assert(malformed.failureDescription == "import_invalid_battery_format")
+    let watchHeader = "{\"timestamp\":\"2026-09-29 09:00:00.00 +0900\",\"os_version\":\"Watch OS 27.2\"}"
+    let watchBattery = "{\"name\":\"BatteryConfigValueHistogramFinal_V2\",\"message\":{\"last_value_CycleCount\":205,\"last_value_NominalChargeCapacity\":366,\"last_value_AppleRawMaxCapacity\":353}}"
+    let watchShutdown = "{\"name\":\"BatteryShutdownHistogram\",\"message\":{\"last_value_CycleCount\":null,\"last_value_NominalChargeCapacity\":366,\"last_value_AppleRawMaxCapacity\":null}}"
+    let watchResult = LogParser.parse(text: [watchHeader, watchBattery, watchShutdown].joined(separator: "\n"),
+      enableValidation: false)
+    assert(watchResult.failureDescription == nil && watchResult.cycleCount == 205 &&
+      watchResult.nominalCapacity == 366 && watchResult.rawCapacity == 353,
+      "A later Watch shutdown row must not replace a complete battery measurement")
     if let path = CommandLine.arguments.dropFirst().first {
       let result = LogParser.parse(text: try LogTextReader.read(URL(fileURLWithPath: path)))
       assert(result.failureDescription == "import_no_battery_measurements")

@@ -101,6 +101,7 @@ struct LogParser {
     var headerJSONString: String?
     var hardwareJSONString: String?
     var lastBatteryJSONString: String?
+    var lastCompleteBatteryJSONString: String?
 
     // 1パスで必要なJSONを走査する
     text.enumerateLines { line, _ in
@@ -114,7 +115,18 @@ struct LogParser {
 
       if line.contains("NominalChargeCapacity") {
         if let json = extractJSON(from: line) {
-          lastBatteryJSONString = json  // 見つかるたびに上書きして最後の値を保持
+          lastBatteryJSONString = json
+          // Watch logs can end with BatteryShutdownHistogram rows that contain
+          // NominalChargeCapacity but no cycle count or raw capacity. Keep the
+          // latest complete measurement instead of replacing it with that row.
+          if let data = json.data(using: .utf8),
+            let battery = try? JSONDecoder().decode(BatteryJSON.self, from: data),
+            let message = battery.message,
+            message.last_value_CycleCount != nil,
+            let nominal = message.last_value_NominalChargeCapacity, nominal > 0,
+            let raw = message.last_value_AppleRawMaxCapacity, raw > 0 {
+            lastCompleteBatteryJSONString = json
+          }
         }
       }
     }
@@ -146,10 +158,13 @@ struct LogParser {
     }
 
     // 3. バッテリー情報の取得 (最後に見つかったものだけ採用)
-    guard let lastMatch = lastBatteryJSONString,
+    guard let lastMatch = lastCompleteBatteryJSONString ?? lastBatteryJSONString,
       let batData = lastMatch.data(using: .utf8),
       let batObj = try? JSONDecoder().decode(BatteryJSON.self, from: batData),
-      let msg = batObj.message
+      let msg = batObj.message,
+      msg.last_value_CycleCount != nil,
+      let nominalValue = msg.last_value_NominalChargeCapacity, nominalValue > 0,
+      let rawValue = msg.last_value_AppleRawMaxCapacity, rawValue > 0
     else {
 
       let msg = lastBatteryJSONString == nil

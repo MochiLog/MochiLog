@@ -577,6 +577,9 @@ final class MacTransferManager: ObservableObject {
     guard pairing != nil else { return }
     guard !isRunning else { return }
     isRunning = true
+    // Importing an already confirmed file is local work. The daily network
+    // pause must not prevent a failed import from being retried after an update.
+    for savedPairing in pairings { requeueConfirmedFiles(for: savedPairing) }
     Self.appendDebugEvent("Automatic receive started: app active; waiting for network path")
     retryDelay = 5
     hasNetworkPath = false
