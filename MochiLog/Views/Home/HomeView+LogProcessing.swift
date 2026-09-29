@@ -567,7 +567,7 @@ extension HomeView {
             let result = batchImportResults[id]
             MacTransferManager.shared.recordImportOutcome(filename: result.filename,
               status: String(describing: status), logDate: result.parsedDate,
-              detail: result.errorMessage)
+              detail: result.errorMessage, sourceURL: url)
           }
           queue.acknowledge(url, saved: status == .success || status == .duplicate)
         }

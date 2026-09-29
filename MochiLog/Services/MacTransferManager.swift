@@ -26,6 +26,12 @@ private struct DailyTransferReceipt: Codable {
   var pausedHosts: Set<String> = []
 }
 
+private struct DailyImportFailures: Codable {
+  var day: String
+  var host = false
+  var watchSources: Set<String> = []
+}
+
 @available(iOS 27, *)
 struct SecureMacPairingCandidate: Identifiable {
   let pairing: MacTransferPairing
@@ -95,6 +101,7 @@ final class MacTransferManager: ObservableObject {
   private static let debugRetentionKey = "MacTransferDebugRetentionDays"
   private static let debugMigratedKey = "MacTransferDebugArchiveMigrated"
   private static let dailyReceiptKey = "MacTransferDailyReceipt"
+  private static let dailyImportFailuresKey = "MacTransferDailyImportFailures"
 
   private init() {
     pairings = Self.loadPairings()
@@ -158,6 +165,21 @@ final class MacTransferManager: ObservableObject {
     }
   }
 
+  private var dailyImportFailures: DailyImportFailures {
+    get {
+      let day = Self.japanDay()
+      guard let data = UserDefaults.standard.data(forKey: Self.dailyImportFailuresKey),
+        let failures = try? JSONDecoder().decode(DailyImportFailures.self, from: data),
+        failures.day == day else { return DailyImportFailures(day: day) }
+      return failures
+    }
+    set {
+      if let data = try? JSONEncoder().encode(newValue) {
+        UserDefaults.standard.set(data, forKey: Self.dailyImportFailuresKey)
+      }
+    }
+  }
+
   private func expectedWatchCount() -> Int? {
     // OS pairing and MochiLog registration are different. An unregistered
     // paired Watch may still produce a log that needs to reach the import flow.
@@ -172,7 +194,9 @@ final class MacTransferManager: ObservableObject {
 
   private func dailyComplete(_ receipt: DailyTransferReceipt) -> Bool {
     guard let expectedWatches = expectedWatchCount() else { return false }
-    return receipt.hostReceived && receipt.watchSources.count >= expectedWatches
+    let failures = dailyImportFailures
+    return receipt.hostReceived && !failures.host &&
+      receipt.watchSources.subtracting(failures.watchSources).count >= expectedWatches
   }
 
   private func automaticWait() -> UInt64? {
@@ -1575,11 +1599,36 @@ final class MacTransferManager: ObservableObject {
   }
 
   func recordImportOutcome(filename: String, status: String, logDate: Date?,
-    detail: String?) {
+    detail: String?, sourceURL: URL) {
     let date = logDate.map(Self.localTime) ?? "unknown"
     let message = "Import: \(filename); result=\(status); logDate=\(date)" +
       (detail.map { "; detail=\($0)" } ?? "")
     Self.appendDebugEvent(message)
+    guard filename.hasPrefix("Analytics-\(Self.japanDay())-"),
+      status == "error" || status == "success" || status == "duplicate" ||
+        status == "needsReview",
+      let identifier = pairings.compactMap({
+        Self.storedFileID(for: sourceURL, pairing: $0)
+      }).first else { return }
+    let parts = identifier.split(separator: "/").map(String.init)
+    guard let kind = parts.first else { return }
+    let wasComplete = dailyComplete(dailyReceipt)
+    var failures = dailyImportFailures
+    if kind == "Watch" {
+      let source = parts.count == 3 ? parts[1] : "legacy-watch"
+      if status == "error" { failures.watchSources.insert(source) }
+      else { failures.watchSources.remove(source) }
+    } else if kind == "Host" || parts.count == 1 {
+      failures.host = status == "error"
+    } else { return }
+    dailyImportFailures = failures
+    let isComplete = dailyComplete(dailyReceipt)
+    if wasComplete != isComplete {
+      Self.appendDebugEvent(isComplete
+        ? "Daily import recovered; all required transferred logs can be paused"
+        : "Daily import failed; automatic computer collection will resume")
+      if isRunning, connection == nil, networkPermitsTransfer { beginDiscovery() }
+    }
   }
 
   func clearDebugLogs() {
