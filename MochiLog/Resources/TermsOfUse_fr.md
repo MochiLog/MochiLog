@@ -2,11 +2,11 @@
 
 ## 1. Portée et résultats
 
-Ces conditions s’appliquent à MochiLog et à son app Mac. Les chiffres et diagnostics de batterie sont des estimations fondées sur des journaux et des références de modèles. Leur exactitude ou pertinence pour décider d’une réparation n’est pas garantie. Ce ne sont pas des outils officiels Apple. La responsabilité du développeur n’est limitée que dans la mesure autorisée par la loi.
+Ces conditions s’appliquent à MochiLog et à son app Mac. Les chiffres et diagnostics de batterie sont des estimations fondées sur des journaux et des références de modèles. Leur exactitude ou pertinence pour décider d’une réparation n’est pas garantie. Ce ne sont pas des outils officiels Apple. La responsabilité du développeur n’est limitée que dans la mesure autorisée par la loi. Elles s’appliquent aussi à la version alpha de MochiLog Windows.
 
 ## 2. Bêta de transfert Mac
 
-Cette fonction en développement exige iOS/iPadOS 27 et macOS 27 ou plus. Un premier jumelage, le même réseau local et un mobile déverrouillé sont nécessaires. Les changements du système, la connexion ou l’absence de journaux peuvent faire échouer le transfert. Conservez vos propres sauvegardes.
+Cette fonction en développement exige iOS/iPadOS 27 et macOS 27 ou plus. Un premier jumelage, le même réseau local et un mobile déverrouillé sont nécessaires. Les changements du système, la connexion ou l’absence de journaux peuvent faire échouer le transfert. Conservez vos propres sauvegardes. La version alpha pour Windows est destinée à Windows 11 et iOS/iPadOS 27 et exige également un premier jumelage, un appareil déverrouillé et une connexion.
 
 ## 3. Pourboires et remboursements
 
@@ -24,4 +24,4 @@ Ces conditions peuvent évoluer avec les fonctionnalités ou la loi. La nouvelle
 
 Le droit japonais s’applique sans réduire les droits impératifs des consommateurs dans leur pays de résidence. Contact : support@mochilog.ryuya-dev.net.
 
-Revised: 2026-09-26
+Revised: 2026-09-29

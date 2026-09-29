@@ -2,11 +2,11 @@
 
 ## 1. Geltungsbereich und Ergebnisse
 
-Diese Bedingungen gelten für MochiLog und die Mac-Begleitapp MochiLog Mac. Batterieangaben und Diagnosen sind Schätzungen aus Analyselogs und Modellreferenzen. Genauigkeit und Eignung für Reparaturentscheidungen werden nicht garantiert. Die Apps sind keine offiziellen Diagnosewerkzeuge von Apple. Eine Haftung des Entwicklers ist nur im gesetzlich zulässigen Umfang beschränkt.
+Diese Bedingungen gelten für MochiLog und die Mac-Begleitapp MochiLog Mac. Batterieangaben und Diagnosen sind Schätzungen aus Analyselogs und Modellreferenzen. Genauigkeit und Eignung für Reparaturentscheidungen werden nicht garantiert. Die Apps sind keine offiziellen Diagnosewerkzeuge von Apple. Eine Haftung des Entwicklers ist nur im gesetzlich zulässigen Umfang beschränkt. Sie gelten auch für die Alpha-Version der Windows-Begleitapp MochiLog Windows.
 
 ## 2. Mac-Übertragungsbeta
 
-Diese in Entwicklung befindliche Funktion setzt iOS/iPadOS 27 und macOS 27 oder neuer voraus. Erste Kopplung, gemeinsames lokales Netzwerk und entsperrtes Mobilgerät sind erforderlich. OS-Änderungen, Verbindung oder fehlende Logs können die Übertragung verhindern. Sichern Sie wichtige Aufzeichnungen selbst.
+Diese in Entwicklung befindliche Funktion setzt iOS/iPadOS 27 und macOS 27 oder neuer voraus. Erste Kopplung, gemeinsames lokales Netzwerk und entsperrtes Mobilgerät sind erforderlich. OS-Änderungen, Verbindung oder fehlende Logs können die Übertragung verhindern. Sichern Sie wichtige Aufzeichnungen selbst. Die Windows-Begleitapp (Alpha) ist für Windows 11 und iOS/iPadOS 27 vorgesehen und erfordert ebenfalls erste Kopplung, ein entsperrtes Gerät und eine Verbindung.
 
 ## 3. Trinkgelder und Erstattungen
 
@@ -24,4 +24,4 @@ Bei Änderungen von Funktionen oder Gesetzen können diese Bedingungen angepasst
 
 Es gilt japanisches Recht, unbeschadet zwingender Verbraucherrechte am Wohnsitz. Kontakt: support@mochilog.ryuya-dev.net.
 
-Revised: 2026-09-26
+Revised: 2026-09-29

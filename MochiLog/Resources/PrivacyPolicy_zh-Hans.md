@@ -6,7 +6,7 @@ MochiLog在设备上处理用户选择的iPhone、iPad及Apple Watch分析日志
 
 ## 2. 可选同步与传输
 
-开启iCloud同步后，记录通过用户的iCloud私人数据库在同一Apple账户的设备间同步。记录也可传给配对的Apple Watch，或由用户导出、共享。在面向iOS/iPadOS 27和macOS 27的Mac传输测试版中，已配对Mac仅在移动设备解锁时收集日志、临时保存，并通过同一本地网络加密发送给MochiLog。双方交换配对信息、传输状态和诊断信息。日志不会发送到开发者服务器。Mac应用会连接GitHub检查更新；GitHub可能接收IP地址等网络信息。
+开启iCloud同步后，记录通过用户的iCloud私人数据库在同一Apple账户的设备间同步。记录也可传给配对的Apple Watch，或由用户导出、共享。在面向iOS/iPadOS 27和macOS 27的Mac传输测试版中，已配对Mac仅在移动设备解锁时收集日志、临时保存，并通过同一本地网络加密发送给MochiLog。双方交换配对信息、传输状态和诊断信息。日志不会发送到开发者服务器。Mac应用会连接GitHub检查更新；GitHub可能接收IP地址等网络信息。 Windows 11配套应用的Alpha版也会将已配对PC上的日志加密传送至MochiLog。
 
 ## 3. 支持请求
 
@@ -14,7 +14,7 @@ MochiLog在设备上处理用户选择的iPhone、iPad及Apple Watch分析日志
 
 ## 4. 存储与删除
 
-可使用应用内删除功能移除本地记录。关闭iCloud同步不会自动删除已存于iCloud或其他设备的记录。Mac上的待传日志和配对信息保存在Application Support中，仅删除应用本体后仍可能保留。需要删除帮助请联系支持。备份和重新安装会影响可恢复的数据。
+可使用应用内删除功能移除本地记录。关闭iCloud同步不会自动删除已存于iCloud或其他设备的记录。Mac上的待传日志和配对信息保存在Application Support中，仅删除应用本体后仍可能保留。需要删除帮助请联系支持。备份和重新安装会影响可恢复的数据。 默认情况下，Mac和Windows应用在移动端确认收到后立即删除原始日志。若启用保留，已确认的日志默认最多保存500MB、一个月（均可调整），并可导出、手动重发或删除。未确认的待传日志不参与自动清理，也不能手动删除。
 
 ## 5. 外部服务与变更
 
@@ -24,4 +24,4 @@ MochiLog不使用广告、跟踪或第三方使用情况分析SDK。App Store版
 
 政策咨询或支持邮件删除请求：support@mochilog.ryuya-dev.net。
 
-Revised: 2026-09-26
+Revised: 2026-09-29

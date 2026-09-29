@@ -6,7 +6,7 @@ MochiLog traite sur l’appareil les journaux d’analyse iPhone, iPad et Apple 
 
 ## 2. Synchronisation et transfert facultatifs
 
-Avec iCloud activé, les relevés sont synchronisés via la base iCloud privée de l’utilisateur entre ses appareils utilisant le même compte Apple. Ils peuvent être transmis à l’Apple Watch jumelée ou exportés et partagés sur demande. Dans la bêta de transfert pour iOS/iPadOS 27 et macOS 27, un Mac jumelé collecte les journaux quand l’appareil mobile est déverrouillé, les garde temporairement et les transmet chiffrés sur le réseau local. Mac et mobile échangent les données de jumelage, l’état et des diagnostics. Les journaux ne vont pas vers un serveur du développeur. L’app Mac contacte GitHub pour les mises à jour; GitHub peut recevoir des informations réseau comme l’adresse IP.
+Avec iCloud activé, les relevés sont synchronisés via la base iCloud privée de l’utilisateur entre ses appareils utilisant le même compte Apple. Ils peuvent être transmis à l’Apple Watch jumelée ou exportés et partagés sur demande. Dans la bêta de transfert pour iOS/iPadOS 27 et macOS 27, un Mac jumelé collecte les journaux quand l’appareil mobile est déverrouillé, les garde temporairement et les transmet chiffrés sur le réseau local. Mac et mobile échangent les données de jumelage, l’état et des diagnostics. Les journaux ne vont pas vers un serveur du développeur. L’app Mac contacte GitHub pour les mises à jour; GitHub peut recevoir des informations réseau comme l’adresse IP. La version alpha pour Windows 11 transmet aussi les journaux d’un PC jumelé à MochiLog sous forme chiffrée.
 
 ## 3. Assistance
 
@@ -14,7 +14,7 @@ Si l’utilisateur envoie un courriel au support, le développeur reçoit son ps
 
 ## 4. Conservation et suppression
 
-Les relevés locaux peuvent être supprimés dans l’app. Désactiver iCloud ne supprime pas automatiquement les données déjà présentes sur iCloud ou un autre appareil. Les journaux en attente et données de jumelage du Mac sont dans Application Support et peuvent rester après la suppression de l’app seule. Contactez le support pour obtenir de l’aide. Sauvegardes et réinstallations influent sur la restauration.
+Les relevés locaux peuvent être supprimés dans l’app. Désactiver iCloud ne supprime pas automatiquement les données déjà présentes sur iCloud ou un autre appareil. Les journaux en attente et données de jumelage du Mac sont dans Application Support et peuvent rester après la suppression de l’app seule. Contactez le support pour obtenir de l’aide. Sauvegardes et réinstallations influent sur la restauration. Par défaut, les apps Mac et Windows suppriment un journal brut après confirmation de réception par l’app mobile. Si la conservation est activée, les journaux confirmés sont gardés jusqu’à 500 Mo et un mois par défaut (limites modifiables), et peuvent être exportés, renvoyés manuellement ou supprimés. Les journaux en attente sont exclus du nettoyage automatique et de la suppression manuelle.
 
 ## 5. Services externes et modifications
 
@@ -24,4 +24,4 @@ MochiLog n’utilise aucun SDK publicitaire, de suivi ou d’analyse d’utilisa
 
 Questions et demandes de suppression des courriels de support : support@mochilog.ryuya-dev.net.
 
-Revised: 2026-09-26
+Revised: 2026-09-29

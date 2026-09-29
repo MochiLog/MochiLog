@@ -2,11 +2,11 @@
 
 ## 1. Scope and results
 
-These terms apply to MochiLog and its Mac companion, MochiLog Mac. Battery figures and diagnostic results are estimates based on analytics logs and model reference values. Their accuracy or suitability for repair decisions is not guaranteed. The apps are not official Apple diagnostic services. The developer’s liability is limited only to the extent permitted by applicable law.
+These terms apply to MochiLog and its Mac companion, MochiLog Mac. Battery figures and diagnostic results are estimates based on analytics logs and model reference values. Their accuracy or suitability for repair decisions is not guaranteed. The apps are not official Apple diagnostic services. The developer’s liability is limited only to the extent permitted by applicable law. They also apply to the MochiLog Windows companion alpha.
 
 ## 2. Mac transfer beta
 
-Mac transfer is an in-development feature for iOS/iPadOS 27 and macOS 27 or later. It requires conditions such as initial pairing, a shared local network, and an unlocked mobile device. Collection or transfer may fail because of OS changes, connectivity, or whether logs exist. Keep your own backup of important records.
+Mac transfer is an in-development feature for iOS/iPadOS 27 and macOS 27 or later. It requires conditions such as initial pairing, a shared local network, and an unlocked mobile device. Collection or transfer may fail because of OS changes, connectivity, or whether logs exist. Keep your own backup of important records. The Windows companion alpha supports Windows 11 and iOS/iPadOS 27 and likewise requires initial pairing, an unlocked device, and connectivity.
 
 ## 3. Tips and refunds
 
@@ -24,4 +24,4 @@ These terms may be revised to reflect changes in features or law. The revised te
 
 Japanese law governs these terms, without limiting mandatory consumer rights in your place of residence. Contact support@mochilog.ryuya-dev.net with questions.
 
-Revised: 2026-09-26
+Revised: 2026-09-29

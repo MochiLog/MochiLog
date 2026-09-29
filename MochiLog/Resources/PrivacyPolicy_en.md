@@ -6,7 +6,7 @@ MochiLog processes iPhone, iPad, and Apple Watch analytics logs selected by the 
 
 ## 2. Optional sync and transfer
 
-If iCloud sync is enabled, records are synchronized through the user’s private iCloud database between devices using the same Apple Account. Records may be sent to the paired Apple Watch app. Exports, file sharing, and imports use data selected by the user. In the Mac transfer beta for iOS/iPadOS 27 and macOS 27, a paired Mac collects and temporarily stores analytics logs while the mobile device is unlocked, then sends them in encrypted form to MochiLog on the same local network. The Mac and mobile device exchange pairing data, transfer status, and diagnostics. Mac transfer does not send logs to a developer server. The Mac app contacts GitHub to check for updates; GitHub may receive network information such as the IP address.
+If iCloud sync is enabled, records are synchronized through the user’s private iCloud database between devices using the same Apple Account. Records may be sent to the paired Apple Watch app. Exports, file sharing, and imports use data selected by the user. In the Mac transfer beta for iOS/iPadOS 27 and macOS 27, a paired Mac collects and temporarily stores analytics logs while the mobile device is unlocked, then sends them in encrypted form to MochiLog on the same local network. The Mac and mobile device exchange pairing data, transfer status, and diagnostics. Mac transfer does not send logs to a developer server. The Mac app contacts GitHub to check for updates; GitHub may receive network information such as the IP address. The Windows 11 companion alpha also sends logs from a paired PC to MochiLog using encrypted transfer.
 
 ## 3. Support requests
 
@@ -14,7 +14,7 @@ If the user sends a support email, the developer receives the nickname, email ad
 
 ## 4. Storage and deletion
 
-Records on the mobile device can be deleted with the app’s deletion controls. Turning off iCloud sync does not automatically delete records already stored in iCloud or on another device. Pending logs and pairing information on the Mac are stored in Application Support and may remain after deleting only the app. Contact support for help deleting Mac data. Reinstallation, OS backups, and iCloud settings affect what remains or can be restored.
+Records on the mobile device can be deleted with the app’s deletion controls. Turning off iCloud sync does not automatically delete records already stored in iCloud or on another device. Pending logs and pairing information on the Mac are stored in Application Support and may remain after deleting only the app. Contact support for help deleting Mac data. Reinstallation, OS backups, and iCloud settings affect what remains or can be restored. By default, the Mac and Windows companions delete a raw log after the mobile app acknowledges it. If retention is enabled, acknowledged logs are kept up to 500 MB and one month by default (both adjustable), and can be exported, manually resent, or deleted. Pending unacknowledged logs are excluded from automatic cleanup and manual deletion.
 
 ## 5. External services and changes
 
@@ -24,4 +24,4 @@ MochiLog does not use advertising, tracking SDKs, or third-party usage analytics
 
 For policy questions or requests to delete support emails, contact support@mochilog.ryuya-dev.net.
 
-Revised: 2026-09-26
+Revised: 2026-09-29

@@ -6,7 +6,7 @@ MochiLog verarbeitet vom Nutzer ausgewählte Analyselogs von iPhone, iPad und Ap
 
 ## 2. Optionale Synchronisierung und Übertragung
 
-Bei aktivierter iCloud-Synchronisierung werden Aufzeichnungen über die private iCloud-Datenbank des Nutzers zwischen Geräten desselben Apple Accounts synchronisiert. Daten können an die gekoppelte Apple Watch übertragen oder vom Nutzer exportiert bzw. geteilt werden. In der Mac-Übertragungsbeta für iOS/iPadOS 27 und macOS 27 sammelt ein gekoppelter Mac Logs nur bei entsperrtem Mobilgerät, speichert sie vorübergehend und überträgt sie verschlüsselt im lokalen Netzwerk. Mac und Mobilgerät tauschen Kopplungsdaten, Status und Diagnosen aus. Die Logs gehen nicht an einen Entwicklerserver. Bei Updateprüfungen kontaktiert die Mac-App GitHub; dabei können Netzwerkdaten wie die IP-Adresse anfallen.
+Bei aktivierter iCloud-Synchronisierung werden Aufzeichnungen über die private iCloud-Datenbank des Nutzers zwischen Geräten desselben Apple Accounts synchronisiert. Daten können an die gekoppelte Apple Watch übertragen oder vom Nutzer exportiert bzw. geteilt werden. In der Mac-Übertragungsbeta für iOS/iPadOS 27 und macOS 27 sammelt ein gekoppelter Mac Logs nur bei entsperrtem Mobilgerät, speichert sie vorübergehend und überträgt sie verschlüsselt im lokalen Netzwerk. Mac und Mobilgerät tauschen Kopplungsdaten, Status und Diagnosen aus. Die Logs gehen nicht an einen Entwicklerserver. Bei Updateprüfungen kontaktiert die Mac-App GitHub; dabei können Netzwerkdaten wie die IP-Adresse anfallen. Die Windows-11-Begleitapp (Alpha) überträgt Logs von einem gekoppelten PC ebenfalls verschlüsselt an MochiLog.
 
 ## 3. Support
 
@@ -14,7 +14,7 @@ Wenn der Nutzer eine Support-E-Mail sendet, erhält der Entwickler Spitzname, E-
 
 ## 4. Speicherung und Löschung
 
-Lokale Aufzeichnungen können mit den Löschfunktionen der App entfernt werden. Das Deaktivieren von iCloud löscht bereits dort oder auf anderen Geräten gespeicherte Daten nicht automatisch. Wartende Logs und Kopplungsdaten liegen im Application-Support-Ordner des Mac und können nach dem Löschen der App verbleiben. Bei Fragen zur Löschung helfen wir über den Support. Backups und Neuinstallation beeinflussen die Wiederherstellung.
+Lokale Aufzeichnungen können mit den Löschfunktionen der App entfernt werden. Das Deaktivieren von iCloud löscht bereits dort oder auf anderen Geräten gespeicherte Daten nicht automatisch. Wartende Logs und Kopplungsdaten liegen im Application-Support-Ordner des Mac und können nach dem Löschen der App verbleiben. Bei Fragen zur Löschung helfen wir über den Support. Backups und Neuinstallation beeinflussen die Wiederherstellung. Standardmäßig löschen die Mac- und Windows-Apps ein Roh-Log nach der Empfangsbestätigung durch die Mobil-App. Wird die Aufbewahrung aktiviert, bleiben bestätigte Logs standardmäßig bis zu 500 MB und einen Monat gespeichert (beides anpassbar) und können exportiert, manuell erneut gesendet oder gelöscht werden. Unbestätigte Logs sind von automatischer Bereinigung und manuellem Löschen ausgenommen.
 
 ## 5. Externe Dienste und Änderungen
 
@@ -24,4 +24,4 @@ MochiLog nutzt keine Werbe-, Tracking- oder Drittanbieter-Nutzungsanalyse-SDKs. 
 
 Fragen und Anfragen zur Löschung von Support-E-Mails: support@mochilog.ryuya-dev.net.
 
-Revised: 2026-09-26
+Revised: 2026-09-29

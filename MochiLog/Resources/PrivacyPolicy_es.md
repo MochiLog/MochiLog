@@ -6,7 +6,7 @@ MochiLog procesa en el dispositivo los registros de análisis de iPhone, iPad y 
 
 ## 2. Sincronización y transferencia opcionales
 
-Con iCloud activado, los registros se sincronizan mediante la base de datos privada de iCloud del usuario entre dispositivos de la misma cuenta Apple. Pueden enviarse al Apple Watch enlazado o exportarse y compartirse por decisión del usuario. En la beta de transferencia para iOS/iPadOS 27 y macOS 27, un Mac enlazado recoge los registros cuando el móvil está desbloqueado, los guarda temporalmente y los transmite cifrados por la red local. Mac y móvil intercambian datos de enlace, estado y diagnósticos. Los registros no se envían a un servidor del desarrollador. La app Mac consulta GitHub para buscar actualizaciones; GitHub puede recibir datos de red como la dirección IP.
+Con iCloud activado, los registros se sincronizan mediante la base de datos privada de iCloud del usuario entre dispositivos de la misma cuenta Apple. Pueden enviarse al Apple Watch enlazado o exportarse y compartirse por decisión del usuario. En la beta de transferencia para iOS/iPadOS 27 y macOS 27, un Mac enlazado recoge los registros cuando el móvil está desbloqueado, los guarda temporalmente y los transmite cifrados por la red local. Mac y móvil intercambian datos de enlace, estado y diagnósticos. Los registros no se envían a un servidor del desarrollador. La app Mac consulta GitHub para buscar actualizaciones; GitHub puede recibir datos de red como la dirección IP. La versión alfa complementaria para Windows 11 también envía los registros de un PC enlazado a MochiLog mediante transferencia cifrada.
 
 ## 3. Soporte
 
@@ -14,7 +14,7 @@ Al enviar un correo de soporte, el desarrollador recibe el apodo, correo, mensaj
 
 ## 4. Almacenamiento y eliminación
 
-Los registros locales pueden borrarse con los controles de la app. Desactivar iCloud no borra automáticamente datos ya almacenados allí o en otros dispositivos. Los registros pendientes y datos de enlace del Mac se guardan en Application Support y pueden permanecer tras eliminar solo la app. Contacte con soporte para ayuda con su eliminación. Las copias de seguridad y reinstalaciones afectan a la recuperación.
+Los registros locales pueden borrarse con los controles de la app. Desactivar iCloud no borra automáticamente datos ya almacenados allí o en otros dispositivos. Los registros pendientes y datos de enlace del Mac se guardan en Application Support y pueden permanecer tras eliminar solo la app. Contacte con soporte para ayuda con su eliminación. Las copias de seguridad y reinstalaciones afectan a la recuperación. Por defecto, las apps de Mac y Windows eliminan el registro original cuando la app móvil confirma su recepción. Si se activa la conservación, los registros confirmados se guardan hasta 500 MB y un mes de forma predeterminada (ambos límites ajustables) y pueden exportarse, reenviarse manualmente o eliminarse. Los registros pendientes no se incluyen en la limpieza automática ni en la eliminación manual.
 
 ## 5. Servicios externos y cambios
 
@@ -24,4 +24,4 @@ MochiLog no usa SDK de publicidad, seguimiento ni análisis de uso de terceros. 
 
 Consultas y solicitudes de eliminación de correos de soporte: support@mochilog.ryuya-dev.net.
 
-Revised: 2026-09-26
+Revised: 2026-09-29
