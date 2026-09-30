@@ -1207,18 +1207,24 @@ final class MacTransferManager: ObservableObject {
         }
         recordConfirmedFiles(for: pairing)
         let confirmedCount = confirmReceivedFiles(for: pairing)
-        Self.appendDebugEvent("Transfer: confirmed \(confirmedCount) received file(s)")
+        let archiveSyncPending = debugArchiveNeedsSync()
+        if confirmedCount > 0 {
+          Self.appendDebugEvent("Transfer: confirmed \(confirmedCount) received file(s)")
+        }
         if pendingAck != nil {
           pendingAck = nil
           UserDefaults.standard.removeObject(forKey: pendingAckKey)
         }
-        status = confirmedCount == 0 ? MacTransferStatus.text("mt_s_08")
-          : MacTransferStatus.text("mt_s_09", confirmedCount)
+        if confirmedCount > 0 {
+          status = MacTransferStatus.text("mt_s_09", confirmedCount)
+        } else if manualReceive || (!dailyComplete(dailyReceipt) && !archiveSyncPending) {
+          status = MacTransferStatus.text("mt_s_08")
+        }
         isReceiving = false
         manualReceive = false
         connectionPhase = .available
         retryDelay = 5
-        if debugArchiveNeedsSync() {
+        if archiveSyncPending {
           debugSyncBurst += 1
           if debugSyncBurst == 1 || debugSyncBurst % 25 == 0 {
             Self.appendDebugEvent("Debug archive sync: continuing with computer \(pairing.hostID.uuidString), batch \(debugSyncBurst)")
