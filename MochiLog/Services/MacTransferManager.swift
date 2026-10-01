@@ -93,6 +93,9 @@ final class MacTransferManager: ObservableObject {
   private var routeIndex = 0
   private var accumulated = Data()
   private var pendingAck: String?
+  private var activeFileOffer: (hostID: UUID, token: String, digest: String,
+    decision: String)?
+  private static let receivedDigestKey = "MacTransferReceivedSHA256"
   private var unconfirmedKey: String { scopedKey("MacTransferUnconfirmedFiles") }
   private var confirmedKey: String { scopedKey("MacTransferConfirmedFiles") }
   private var macDiagnosticsKey: String { scopedKey("MacTransferLastMacDiagnostics") }
@@ -278,6 +281,7 @@ final class MacTransferManager: ObservableObject {
     guard let selected = pairings.first(where: { $0.hostID == hostID }),
       pairing?.hostID != hostID else { return }
     stop()
+    activeFileOffer = nil
     pairing = selected
     pendingAck = UserDefaults.standard.string(forKey: pendingAckKey)
     lastAuthenticatedContactAt = nil
@@ -391,6 +395,7 @@ final class MacTransferManager: ObservableObject {
     // Restarting the whole manager here used to recreate both every minute
     // when an iPad was paired with Mac and Windows.
     pairing = next
+    activeFileOffer = nil
     pendingAck = UserDefaults.standard.string(forKey: pendingAckKey)
     lastAuthenticatedContactAt = nil
     status = MacTransferStatus.text("mt_s_01")
@@ -1010,6 +1015,18 @@ final class MacTransferManager: ObservableObject {
       "presenceMAC": presenceMAC,
       "clientDiagnosticsBox": diagnosticsBox.base64EncodedString()
     ]
+    request["offerVersion"] = "1"
+    request["offerMAC"] = Self.authenticationCode(
+      "file-offer|v1|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)",
+      secret: pairing.secret)
+    if let offer = activeFileOffer, offer.hostID == pairing.hostID {
+      request["offerToken"] = offer.token
+      request["offerDigest"] = offer.digest
+      request["offerDecision"] = offer.decision
+      request["offerDecisionMAC"] = Self.authenticationCode(
+        "file-decision|v1|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)|\(offer.token)|\(offer.digest)|\(offer.decision)",
+        secret: pairing.secret)
+    }
     let receipt = dailyReceipt
     let pauseUntil: String? = !manualReceive && pendingAck == nil &&
       !debugArchiveNeedsSync() &&
@@ -1157,6 +1174,28 @@ final class MacTransferManager: ObservableObject {
         // The Mac has processed the final file acknowledgement and returned
         // an authenticated terminal reply. Only now may imports begin.
         let report = plain.dropFirst(2)
+        if let offer = try? JSONSerialization.jsonObject(with: report) as? [String: String],
+          offer["type"] == "file-offer", let token = offer["token"],
+          let digest = offer["sha256"], digest.count == 64,
+          digest.allSatisfy({ $0.isHexDigit }),
+          token.count <= 1024,
+          (token.hasPrefix("Host::") || token.hasPrefix("Watch::") ||
+            token.hasPrefix("Analytics-")) {
+          let alreadyReceived = offer["force"] != "true" &&
+            hasReceivedDigest(digest, physicalDeviceID: pairing.physicalDeviceID)
+          let decision = alreadyReceived ? "have" : "send"
+          activeFileOffer = (pairing.hostID, token, digest, decision)
+          Self.appendDebugEvent("Transfer: \(alreadyReceived ? "skip existing" : "request") \(token); SHA-256 \(digest.prefix(12))")
+          DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+            guard let self, self.isRunning,
+              self.pairing?.hostID == pairing.hostID else { return }
+            self.pull()
+          }
+          return
+        }
+        if let control = try? JSONSerialization.jsonObject(with: report) as? [String: String],
+          control["type"] == "file-offer" { throw TransferError.invalidPayload }
+        activeFileOffer = nil
         if let control = try? JSONSerialization.jsonObject(with: report) as? [String: String],
           control["type"] == "unpair" {
           do { try unpair(pairing.hostID) }
@@ -1266,6 +1305,7 @@ final class MacTransferManager: ObservableObject {
         return
       }
       let token = name.components(separatedBy: "::")
+      activeFileOffer = nil
       let kind: String
       let filename: String
       let source: String?
@@ -1432,6 +1472,38 @@ final class MacTransferManager: ObservableObject {
     return enumerator.compactMap { $0 as? URL }.filter {
       $0.lastPathComponent.hasPrefix("Analytics-")
     }
+  }
+
+  private static func digest(of file: URL) -> String? {
+    guard let bytes = try? Data(contentsOf: file, options: .mappedIfSafe) else {
+      return nil
+    }
+    return SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
+  }
+
+  private func hasReceivedDigest(_ digest: String, physicalDeviceID: UUID) -> Bool {
+    let ledger = UserDefaults.standard.dictionary(forKey: Self.receivedDigestKey)
+      as? [String: [String: Double]] ?? [:]
+    if ledger[physicalDeviceID.uuidString]?[digest] != nil { return true }
+    // A different computer can offer the same file before the first import finishes.
+    return pairings.filter { $0.physicalDeviceID == physicalDeviceID }
+      .contains { host in
+        allInboxFiles(for: host).contains { Self.digest(of: $0) == digest }
+      }
+  }
+
+  private func rememberReceivedDigest(of file: URL, physicalDeviceID: UUID) {
+    guard let digest = Self.digest(of: file) else { return }
+    var ledger = UserDefaults.standard.dictionary(forKey: Self.receivedDigestKey)
+      as? [String: [String: Double]] ?? [:]
+    var values = ledger[physicalDeviceID.uuidString] ?? [:]
+    values[digest] = Date().timeIntervalSince1970
+    if values.count > 10_000 {
+      for key in values.sorted(by: { $0.value < $1.value })
+        .prefix(values.count - 10_000).map(\.key) { values.removeValue(forKey: key) }
+    }
+    ledger[physicalDeviceID.uuidString] = values
+    UserDefaults.standard.set(ledger, forKey: Self.receivedDigestKey)
   }
 
   private func enqueueFiles(_ files: [URL], for pairing: MacTransferPairing) {
@@ -1606,6 +1678,12 @@ final class MacTransferManager: ObservableObject {
 
   func recordImportOutcome(filename: String, status: String, logDate: Date?,
     detail: String?, sourceURL: URL) {
+    if status == "success" || status == "duplicate",
+      let host = pairings.first(where: {
+        Self.storedFileID(for: sourceURL, pairing: $0) != nil
+      }) {
+      rememberReceivedDigest(of: sourceURL, physicalDeviceID: host.physicalDeviceID)
+    }
     let date = logDate.map(Self.localTime) ?? "unknown"
     let message = "Import: \(filename); result=\(status); logDate=\(date)" +
       (detail.map { "; detail=\($0)" } ?? "")
