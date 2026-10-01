@@ -1020,6 +1020,7 @@ final class MacTransferManager: ObservableObject {
       "file-offer|v1|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)",
       secret: pairing.secret)
     if let offer = activeFileOffer, offer.hostID == pairing.hostID {
+      Self.appendDebugEvent("Preflight: sending signed decision=\(offer.decision) for \(offer.token); SHA-256 \(offer.digest.prefix(12)); computer=\(pairing.hostID.uuidString)")
       request["offerToken"] = offer.token
       request["offerDigest"] = offer.digest
       request["offerDecision"] = offer.decision
@@ -1181,11 +1182,16 @@ final class MacTransferManager: ObservableObject {
           token.count <= 1024,
           (token.hasPrefix("Host::") || token.hasPrefix("Watch::") ||
             token.hasPrefix("Analytics-")) {
-          let alreadyReceived = offer["force"] != "true" &&
-            hasReceivedDigest(digest, physicalDeviceID: pairing.physicalDeviceID)
+          if let previous = activeFileOffer, previous.hostID == pairing.hostID {
+            Self.appendDebugEvent("Preflight: computer replied with another offer after decision=\(previous.decision) for \(previous.token)")
+          }
+          let forced = offer["force"] == "true"
+          let existingSource = forced ? nil : receivedDigestSource(digest,
+            physicalDeviceID: pairing.physicalDeviceID)
+          let alreadyReceived = !forced && existingSource != nil
           let decision = alreadyReceived ? "have" : "send"
           activeFileOffer = (pairing.hostID, token, digest, decision)
-          Self.appendDebugEvent("Transfer: \(alreadyReceived ? "skip existing" : "request") \(token); SHA-256 \(digest.prefix(12))")
+          Self.appendDebugEvent("Preflight: offer \(token); SHA-256 \(digest.prefix(12)); local=\(forced ? "not checked (manual resend)" : existingSource ?? "absent"); forced=\(forced); decision=\(decision)")
           DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
             guard let self, self.isRunning,
               self.pairing?.hostID == pairing.hostID else { return }
@@ -1194,7 +1200,13 @@ final class MacTransferManager: ObservableObject {
           return
         }
         if let control = try? JSONSerialization.jsonObject(with: report) as? [String: String],
-          control["type"] == "file-offer" { throw TransferError.invalidPayload }
+          control["type"] == "file-offer" {
+          Self.appendDebugEvent("Preflight: rejected malformed file offer from computer \(pairing.hostID.uuidString)")
+          throw TransferError.invalidPayload
+        }
+        if let previous = activeFileOffer, previous.hostID == pairing.hostID {
+          Self.appendDebugEvent("Preflight: computer completed decision=\(previous.decision) for \(previous.token); no file body returned")
+        }
         activeFileOffer = nil
         if let control = try? JSONSerialization.jsonObject(with: report) as? [String: String],
           control["type"] == "unpair" {
@@ -1305,6 +1317,9 @@ final class MacTransferManager: ObservableObject {
         return
       }
       let token = name.components(separatedBy: "::")
+      if let offer = activeFileOffer, offer.hostID == pairing.hostID {
+        Self.appendDebugEvent("Preflight: received file body \(name), \(plain.count - 2 - nameLength) bytes after decision=\(offer.decision)")
+      }
       activeFileOffer = nil
       let kind: String
       let filename: String
@@ -1481,15 +1496,16 @@ final class MacTransferManager: ObservableObject {
     return SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
   }
 
-  private func hasReceivedDigest(_ digest: String, physicalDeviceID: UUID) -> Bool {
+  private func receivedDigestSource(_ digest: String, physicalDeviceID: UUID) -> String? {
     let ledger = UserDefaults.standard.dictionary(forKey: Self.receivedDigestKey)
       as? [String: [String: Double]] ?? [:]
-    if ledger[physicalDeviceID.uuidString]?[digest] != nil { return true }
+    if ledger[physicalDeviceID.uuidString]?[digest] != nil { return "imported" }
     // A different computer can offer the same file before the first import finishes.
-    return pairings.filter { $0.physicalDeviceID == physicalDeviceID }
+    let inInbox = pairings.filter { $0.physicalDeviceID == physicalDeviceID }
       .contains { host in
         allInboxFiles(for: host).contains { Self.digest(of: $0) == digest }
       }
+    return inInbox ? "inbox" : nil
   }
 
   private func rememberReceivedDigest(of file: URL, physicalDeviceID: UUID) {
