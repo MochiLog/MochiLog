@@ -747,19 +747,30 @@ final class MacTransferManager: ObservableObject {
         self.endpoint = result.endpoint
         self.connectionPhase = .connecting
         if case .bonjour(let record) = result.metadata,
-          let tailnet = record["tailnet"],
-          let port = (record["tailnetPort"] ?? record["port"]).flatMap(UInt16.init),
-          Self.tailnetRoute(address: tailnet, port: port) != nil,
-          (self.pairing?.tailnetAddress != tailnet || self.pairing?.tailnetPort != port),
           var updated = self.pairing {
-          updated.tailnetAddress = tailnet
-          updated.tailnetPort = port
-          var all = self.pairings
-          if let index = all.firstIndex(where: { $0.hostID == updated.hostID }) {
-            all[index] = updated
-            if (try? Self.savePairings(all)) != nil {
-              self.pairings = all
-              self.pairing = updated
+          var changed = false
+          if let port = record["port"].flatMap(UInt16.init), port > 0,
+            updated.lanPort != port {
+            updated.lanPort = port
+            changed = true
+          }
+          if let tailnet = record["tailnet"],
+            let port = (record["tailnetPort"] ?? record["port"]).flatMap(UInt16.init),
+            Self.tailnetRoute(address: tailnet, port: port) != nil,
+            (updated.tailnetAddress != tailnet || updated.tailnetPort != port) {
+            updated.tailnetAddress = tailnet
+            updated.tailnetPort = port
+            changed = true
+          }
+          if changed {
+            var all = self.pairings
+            if let index = all.firstIndex(where: { $0.hostID == updated.hostID }) {
+              all[index] = updated
+              if (try? Self.savePairings(all)) != nil {
+                self.pairings = all
+                self.pairing = updated
+                Self.appendDebugEvent("Bonjour: saved updated computer transfer port")
+              }
             }
           }
         }
