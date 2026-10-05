@@ -1,3 +1,5 @@
+This build fixes a crash shortly after launching the iPhone/iPad version of MochiLog on a Mac.
+
 The 4.0.0 beta adds computer transfer for iOS/iPadOS 27. Install MochiLog Mac on macOS 27 or MochiLog Windows on Windows 11 from GitHub Releases. For first-time setup, unlock your iPhone or iPad, connect it once by USB, approve “Trust This Computer,” then scan the QR code shown on the computer in MochiLog → Settings → Advanced Settings → Mac Transfer. You can skip USB if the computer already has a working wireless OS pairing. MochiLog still works on the device by itself when computer transfer is not set up.
 
 The computer collects analytics files from an unlocked iPhone or iPad, including eligible Apple Watch files stored on a paired iPhone. It temporarily queues the files and sends them through an encrypted connection when MochiLog opens. Parsing and recording stay on the mobile device. You can pair more than one Mac or Windows PC. Before sending a file, the computer uses an authenticated, encrypted digest inquiry to check whether it was already received through another computer or iCloud. Both sides confirm receipt before the computer clears its queue.

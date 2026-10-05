@@ -1,3 +1,5 @@
+このビルドでは、Mac上でiPhone/iPad版MochiLogを起動すると直後に終了する問題を修正しました。
+
 4.0.0 ベータでは、iOS/iPadOS 27向けのPC連携を試せます。MacはmacOS 27のMochiLog Mac、WindowsはWindows 11のMochiLog WindowsをGitHub Releasesからインストールしてください。初回はロック解除した端末を一度USB接続して「このコンピュータを信頼」を完了し、PCに表示されたQRコードをMochiLogの「設定 → 高度な設定 → Mac連携」で読み取ります。すでに無線でOSペアリング済みならUSB接続を省略できます。PC連携を使わなくても、従来どおり端末単体でログの読み込みと記録ができます。
 
 PCはロック解除中のiPhone・iPadから解析ログを収集します。iPhoneに保存されたApple Watchのログも対象です。収集済みファイルはPCに一時保存し、端末でMochiLogを開いたときに暗号化して転送します。解析と記録は端末側で行います。複数のMac・Windows PCを同じ端末に連携できます。iCloud同期や別PC経由ですでに受信済みのファイルは、暗号化・認証された事前照会で重複を確認してから転送を省略します。双方が受信完了を確認するまでPC側のファイルは保持します。
