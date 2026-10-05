@@ -33,6 +33,9 @@ final class DonationManager: ObservableObject {
       }
       #endif
       #if canImport(MarketplaceKit) && !targetEnvironment(macCatalyst)
+      // iPhone/iPad apps can run on macOS without MarketplaceKit being present.
+      // The framework is weak-linked there, so calling it would jump to address 0.
+      if ProcessInfo.processInfo.isiOSAppOnMac { return true }
       if #available(iOS 17.4, *) {
         do {
           switch try await AppDistributor.current {
