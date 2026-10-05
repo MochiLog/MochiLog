@@ -160,9 +160,9 @@ struct DonationView: View {
               } label: {
                 HStack {
                   VStack(alignment: .leading) {
-                    Text(product.displayName)
+                    Text(Self.localizedName(for: product))
                       .font(.headline)
-                    Text(product.description)
+                    Text(Self.localizedDescription(for: product))
                       .font(.caption)
                       .foregroundColor(.secondary)
                   }
@@ -227,6 +227,34 @@ struct DonationView: View {
           }
         }
       }
+    }
+  }
+
+  // StoreKit localizes product metadata using the storefront/device language,
+  // which can differ from MochiLog's in-app language selection.
+  private static func localizedName(for product: Product) -> String {
+    switch product.id {
+    case "net.ryuya_dev.net.mochilog.donation.small":
+      return L10n.string("donation_product_coffee_name", defaultValue: "開発者にコーヒーを奢る", table: "Settings")
+    case "net.ryuya_dev.net.mochilog.donation.medium":
+      return L10n.string("donation_product_lunch_name", defaultValue: "開発者にランチを奢る", table: "Settings")
+    case "net.ryuya_dev.net.mochilog.donation.large":
+      return L10n.string("donation_product_dinner_name", defaultValue: "開発者にディナーを奢る", table: "Settings")
+    default:
+      return product.displayName
+    }
+  }
+
+  private static func localizedDescription(for product: Product) -> String {
+    switch product.id {
+    case "net.ryuya_dev.net.mochilog.donation.small":
+      return L10n.string("donation_product_coffee_description", defaultValue: "カフェイン注入でバグを修正します。", table: "Settings")
+    case "net.ryuya_dev.net.mochilog.donation.medium":
+      return L10n.string("donation_product_lunch_description", defaultValue: "お腹が空いてはコードが書けません。", table: "Settings")
+    case "net.ryuya_dev.net.mochilog.donation.large":
+      return L10n.string("donation_product_dinner_description", defaultValue: "開発の励みになります！今夜はご馳走です。", table: "Settings")
+    default:
+      return product.description
     }
   }
 
