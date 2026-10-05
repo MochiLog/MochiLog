@@ -75,7 +75,7 @@ wanted = fixture.fetch("products").to_h do |product|
   [product.fetch("productID"), japanese]
 end
 api = AppStoreConnectAPI.new
-products = api.all("/v2/apps/#{APP_ID}/inAppPurchases?limit=200")
+products = api.all("/v1/apps/#{APP_ID}/inAppPurchasesV2?limit=50")
 found = {}
 products.each do |product|
   product_id = product.dig("attributes", "productId")
