@@ -1,0 +1,32 @@
+name: Inspect or publish tip localizations
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Read-only inspection or publish Japanese metadata'
+        required: true
+        default: inspect
+        type: choice
+        options:
+          - inspect
+          - apply
+
+permissions:
+  contents: read
+
+jobs:
+  localizations:
+    runs-on: macos-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install JWT gem
+        run: gem install jwt --no-document
+      - name: Inspect or publish Japanese metadata
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+          MODE: ${{ inputs.mode }}
+        run: ruby scripts/iap-localizations.rb "$MODE"
