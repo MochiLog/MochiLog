@@ -346,7 +346,22 @@ final class ICloudSyncManager: ObservableObject {
           let accountReport = status == .available
             ? L10n.string("cloud_account_ready", table: "Language")
             : L10n.string("cloud_auth", table: "Language")
-          report = localReport + "\n\n" + accountReport
+          if status == .available {
+            do {
+              let serverCount = try await readOnlyCloudRecordCount()
+              report = localReport + "\n\n" + accountReport + "\n\n"
+                + String(format: L10n.string("cloud_diagnostic_server_count",
+                  defaultValue: "iCloud上の記録: %d件（読み取り専用）", table: "Settings"), serverCount)
+            } catch {
+              hasDiagnosticError = true
+              report = localReport + "\n\n" + accountReport + "\n\n"
+                + L10n.string("cloud_diagnostic_server_unavailable",
+                  defaultValue: "iCloud上の件数を取得できませんでした。", table: "Settings")
+                + "\n" + friendlyErrorMessage(error)
+            }
+          } else {
+            report = localReport + "\n\n" + accountReport
+          }
         } catch {
           hasDiagnosticError = true
           report = localReport + "\n\n" + friendlyErrorMessage(error)
@@ -360,6 +375,33 @@ final class ICloudSyncManager: ObservableObject {
     if hasDiagnosticError {
       ErrorLogStore.shared.saveLog(message: L10n.string("cloud_diagnostic_title", table: "Language"), rawText: report)
     }
+  }
+
+  /// Count the Core Data mirror's live CloudKit records without changing its zone or sync cursor.
+  /// An import/export completion event alone does not prove that every remote record reached this device.
+  private func readOnlyCloudRecordCount() async throws -> Int {
+    let database = CKContainer.default().privateCloudDatabase
+    let zones = try await database.allRecordZones()
+    guard let zone = zones.first(where: { $0.zoneID.zoneName == "com.apple.coredata.cloudkit.zone" }) else {
+      return 0
+    }
+
+    var token: CKServerChangeToken?
+    var recordIDs = Set<CKRecord.ID>()
+    repeat {
+      let changes = try await database.recordZoneChanges(
+        inZoneWith: zone.zoneID, since: token, desiredKeys: [], resultsLimit: 200)
+      for (id, result) in changes.modificationResultsByID {
+        let record = try result.get().record
+        if record.recordType == "CD_BatteryRecord" { recordIDs.insert(id) }
+      }
+      for deletion in changes.deletions where deletion.recordType == "CD_BatteryRecord" {
+        recordIDs.remove(deletion.recordID)
+      }
+      token = changes.changeToken
+      if !changes.moreComing { break }
+    } while true
+    return recordIDs.count
   }
 
   /// SwiftData/CoreDataの保存エラーから競合を抽出し、管理リストに追加する
