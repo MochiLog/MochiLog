@@ -1,4 +1,4 @@
-このビルドでは、Mac上でiPhone/iPad版MochiLogを起動すると直後に終了する問題を修正しました。
+このビルドでは、Mac上でiPhone/iPad版MochiLogを起動すると直後に終了する問題を修正しました。課金画面の商品名と説明をアプリ内で選んだ言語に合わせました。iCloud診断では、端末内とiCloud上の記録件数を読み取り専用で確認できます。診断は記録を変更しません。
 
 4.0.0 ベータでは、iOS/iPadOS 27向けのPC連携を試せます。MacはmacOS 27のMochiLog Mac、WindowsはWindows 11のMochiLog WindowsをGitHub Releasesからインストールしてください。初回はロック解除した端末を一度USB接続して「このコンピュータを信頼」を完了し、PCに表示されたQRコードをMochiLogの「設定 → 高度な設定 → Mac連携」で読み取ります。すでに無線でOSペアリング済みならUSB接続を省略できます。PC連携を使わなくても、従来どおり端末単体でログの読み込みと記録ができます。
 
