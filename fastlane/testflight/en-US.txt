@@ -1,3 +1,5 @@
+This build improves the iPad settings layout. Computer Transfer and Device Information management and editing stay in the right settings pane, with consistent navigation back to Advanced Settings. The device management title now uses less vertical space. Launching the iPhone/iPad app on a Mac, including Home, record details, and Analytics, has also been checked.
+
 This update encrypts computer transfer requests with AES-GCM and prevents replay of expired requests and fallback to the older protocol after a secure connection succeeds. Use MochiLog Mac 0.2.13 or later, or MochiLog Windows 0.1.10 or later. Existing pairings carry over; the app temporarily supports an older computer and shows where to update it.
 
 This build fixes a crash shortly after launching the iPhone/iPad version of MochiLog on a Mac. Donation product names and descriptions now follow the language selected in the app. iCloud diagnostics can compare local and iCloud record counts without changing records.

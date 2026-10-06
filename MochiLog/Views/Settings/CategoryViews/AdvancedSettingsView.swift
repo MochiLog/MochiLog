@@ -3,7 +3,6 @@ import SwiftUI
 // MARK: - 高度な設定ビュー
 struct AdvancedSettingsView: View {
   @ObservedObject var appSettings: AppSettings
-  var onOpenMacTransfer: (() -> Void)? = nil
 
   @State private var showingDevicePickerForRegistration = false
   @State private var showingRemoveConfirmation = false
@@ -14,26 +13,11 @@ struct AdvancedSettingsView: View {
     List {
       if #available(iOS 27, *), !ProcessInfo.processInfo.isiOSAppOnMac {
         Section {
-          if let onOpenMacTransfer {
-            Button(action: onOpenMacTransfer) {
-              HStack {
-                Label(L10n.text("mt_071", table: "MacTransfer"),
-                  systemImage: "laptopcomputer.and.iphone")
-                Spacer()
-                Image(systemName: "chevron.right")
-                  .font(.footnote.weight(.semibold))
-                  .foregroundStyle(.tertiary)
-              }
-            }
-            .foregroundStyle(.primary)
-            .accessibilityIdentifier("settings.macTransfer")
-          } else {
-            NavigationLink(destination: MacTransferSettingsView()) {
-              Label(L10n.text("mt_071", table: "MacTransfer"),
-                systemImage: "laptopcomputer.and.iphone")
-            }
-            .accessibilityIdentifier("settings.macTransfer")
+          NavigationLink(destination: MacTransferSettingsView()) {
+            Label(L10n.text("mt_071", table: "MacTransfer"),
+              systemImage: "laptopcomputer.and.iphone")
           }
+          .accessibilityIdentifier("settings.macTransfer")
         }
       }
       Section {

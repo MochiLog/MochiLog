@@ -533,6 +533,53 @@ final class LanguageAndLayoutTests: XCTestCase {
     XCTAssertTrue(app.buttons["profiles.model.bundled:iPhone 15 Pro"].waitForExistence(timeout: 5))
   }
 
+  func testIPadAdvancedPagesStayInSettingsPane() {
+    app.launch()
+    let settings = app.descendants(matching: .any)
+      .matching(NSPredicate(format: "label == %@", "Settings")).firstMatch
+    XCTAssertTrue(settings.waitForExistence(timeout: 10))
+    settings.tap()
+    let advanced = app.buttons["settings.category.advanced"]
+    XCTAssertTrue(advanced.waitForExistence(timeout: 10))
+    advanced.tap()
+
+    let profiles = app.buttons["settings.deviceProfiles"]
+    XCTAssertTrue(profiles.waitForExistence(timeout: 10))
+    profiles.tap()
+    let search = app.textFields["profiles.search"]
+    XCTAssertTrue(search.waitForExistence(timeout: 10))
+    XCTAssertGreaterThan(search.frame.minX, advanced.frame.maxX,
+      "Device management should remain in the right settings pane")
+    let back = app.buttons["BackButton"].firstMatch
+    XCTAssertTrue(app.staticTexts["Device Library"].isHittable)
+    XCTAssertLessThan(app.buttons["profiles.addRow"].frame.minY - back.frame.maxY, 65,
+      "Device management should not leave a large empty title area")
+    screenshot("iPad Device Management Pane")
+    search.tap()
+    search.typeText("iPhone 15 Pro")
+    let model = app.buttons["profiles.model.bundled:iPhone 15 Pro"]
+    XCTAssertTrue(model.waitForExistence(timeout: 5))
+    model.tap()
+    let capacity = app.textFields["profiles.capacity"]
+    XCTAssertTrue(capacity.waitForExistence(timeout: 5))
+    XCTAssertGreaterThan(capacity.frame.minX, advanced.frame.maxX,
+      "Device editing should remain in the right settings pane")
+    app.buttons["BackButton"].firstMatch.tap()
+    XCTAssertTrue(search.waitForExistence(timeout: 5))
+    app.buttons["BackButton"].firstMatch.tap()
+
+    let transfer = app.buttons["settings.macTransfer"]
+    XCTAssertTrue(transfer.waitForExistence(timeout: 10))
+    transfer.tap()
+    let connection = app.staticTexts["macTransfer.connectionPhase"]
+    XCTAssertTrue(connection.waitForExistence(timeout: 10))
+    XCTAssertGreaterThan(connection.frame.minX, advanced.frame.maxX,
+      "PC transfer should remain in the right settings pane")
+    screenshot("iPad PC Transfer Pane")
+    app.buttons["BackButton"].firstMatch.tap()
+    XCTAssertTrue(profiles.waitForExistence(timeout: 10))
+  }
+
   private func verifyOverview(size: String) {
     app.launchArguments += ["-UIPreferredContentSizeCategoryName", size]
     app.launch()

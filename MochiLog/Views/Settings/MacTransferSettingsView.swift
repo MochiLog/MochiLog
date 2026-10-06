@@ -277,10 +277,11 @@ struct MacTransferSettingsView: View {
       Text(L10n.text("mt_unpair_detail", table: "MacTransfer"))
     }
     .formStyle(.grouped)
+    .modifier(SettingsListTopMargin())
     .frame(maxWidth: UIDevice.current.userInterfaceIdiom == .pad ? 860 : .infinity)
     .frame(maxWidth: .infinity)
     .background(Color(uiColor: .systemGroupedBackground))
-    .navigationTitle(L10n.text("mt_071", table: "MacTransfer"))
+    .modifier(SettingsInlineNavigationTitle(title: L10n.text("mt_071", table: "MacTransfer")))
     .sheet(isPresented: $showingScanner) {
       NavigationStack {
         MacPairingQRScanner { value in

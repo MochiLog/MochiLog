@@ -44,7 +44,6 @@ struct SettingsView: View {
   @State private var showingTutorial = false
   @State private var showingSupportForm = false
   @State private var showingDonation = false
-  @State private var showingMacTransferInPane = false
   @ObservedObject private var donationManager = DonationManager.shared
 
   // デバイスごとの削除機能用の状態
@@ -73,172 +72,186 @@ struct SettingsView: View {
   }
 
   var body: some View {
-    NavigationStack {
-      GeometryReader { geometry in
-        settingsList(availableWidth: geometry.size.width)
+    GeometryReader { geometry in
+      if usesTwoColumnLayout(availableWidth: geometry.size.width) {
+        VStack(alignment: .leading, spacing: 0) {
+          Text(L10n.string("settings_title", table: "Settings"))
+            .font(.largeTitle.bold())
+            .padding(.horizontal, 24)
+            .padding(.vertical, 12)
+          settingsList(availableWidth: geometry.size.width)
+        }
+      } else {
+        NavigationStack {
+          settingsList(availableWidth: geometry.size.width)
+            .navigationDestination(isPresented: $appSettings.showingICloudSettings) {
+              ICloudSettingsView(appSettings: appSettings)
+            }
+            .navigationTitle(L10n.string("settings_title", table: "Settings"))
+        }
       }
-        .navigationDestination(isPresented: $appSettings.showingICloudSettings) {
-          ICloudSettingsView(appSettings: appSettings)
-        }
-        .navigationTitle(L10n.string("settings_title", table: "Settings"))
-        .onAppear {
-          setupShortcutNotification()
-        }
-        .task { _ = await donationManager.checkDistribution() }
-        .sheet(isPresented: $showingWatchPicker) {
-          HierarchicalDevicePickerView(initialCategory: .watch, lockCategory: true) {
-            name, identifier in
-            appSettings.registerWatch(model: name)
-          }
-        }
-        .sheet(isPresented: $showingTutorial) {
-          TutorialView()
-        }
-        .sheet(isPresented: $showingSupportForm) {
-          SupportFormView()
-        }
-        .sheet(isPresented: $showingDonation) {
-          DonationView()
-        }
-        .alert(
-          L10n.string("delete_all_data", table: "Settings"),
-          isPresented: $showingDeleteConfirmation
-        ) {
-          Button(L10n.string("cancel", table: "Common"), role: .cancel) {}
-          Button(L10n.string("delete", table: "Common"), role: .destructive) {
-            deleteAllRecords()
-          }
-        } message: {
-          Text(L10n.string("delete_all_data_confirm", table: "Settings"))
-        }
-        .alert(
-          L10n.string("no_data_to_delete_title", table: "Settings"),
-          isPresented: $showingNoDataToDeleteAlert
-        ) {
-          Button(L10n.string("ok", table: "Common"), role: .cancel) {}
-        } message: {
-          Text(L10n.string("no_data_to_delete_message", table: "Settings"))
-        }
-        .alert(
-          L10n.string("remove_watch", table: "Settings"),
-          isPresented: $showingRemoveWatchConfirmation
-        ) {
-          Button(L10n.string("cancel", table: "Common"), role: .cancel) {}
-          Button(L10n.string("remove", table: "Common"), role: .destructive) {
-            if let watch = watchToRemove {
-              appSettings.removeWatch(model: watch)
-            }
-          }
-        } message: {
-          if let watch = watchToRemove {
-            Text(
-              String(
-                format: L10n.string("remove_watch_confirm_specific", table: "Settings"), watch
-              ))
-          } else {
-            Text(L10n.string("remove_watch_confirm", table: "Settings"))
-          }
-        }
-        .alert(
-          L10n.string("remove_all_watches", table: "Settings"),
-          isPresented: $showingRemoveAllWatchesConfirmation
-        ) {
-          Button(L10n.string("cancel", table: "Common"), role: .cancel) {}
-          Button(L10n.string("remove", table: "Common"), role: .destructive) {
-            appSettings.unregisterAllWatches()
-          }
-        } message: {
-          Text(L10n.string("remove_all_watches_confirm", table: "Settings"))
-        }
-        .sheet(isPresented: $showingDeviceDeletePicker) {
-          DeviceDeletePickerView(availableDevices: availableDevices) { deviceName in
-            selectedDeviceToDelete = deviceName
-            showingDeviceDeleteConfirmation = true
-          }
-        }
-        .alert(
-          L10n.string("delete_device_data_title", table: "Settings"),
-          isPresented: $showingDeviceDeleteConfirmation
-        ) {
-          Button(L10n.string("cancel", table: "Common"), role: .cancel) {}
-          Button(L10n.string("delete", table: "Common"), role: .destructive) {
-            if let deviceName = selectedDeviceToDelete {
-              deleteRecordsForDevice(deviceName)
-              // 削除後はデバイス選択をリセット（再選択を促す）
-              selectedDeviceToDelete = nil
-            }
-          }
-        } message: {
-          if let deviceName = selectedDeviceToDelete {
-            Text(
-              String(
-                format: L10n.string("delete_device_data_confirm", table: "Settings"),
-                deviceName
-              ))
-          }
-        }
-        .alert(
-          L10n.string("shortcut_required_title", table: "Settings"),
-          isPresented: $showingShortcutSetupPrompt
-        ) {
-          Button(L10n.string("setup_now", table: "Settings"), role: .none) {
-            SettingsRedirectHelper.openShortcutSetup()
-          }
-          Button(L10n.string("cancel", table: "Common"), role: .cancel) {}
-        } message: {
-          Text(L10n.string("shortcut_required_message", table: "Settings"))
-        }
-        .fileExporter(
-          isPresented: $showingExportSheet,
-          document: YAMLDocument(yaml: generateExportYAML()),
-          contentType: .yaml,
-          defaultFilename: DataExportService.generateFileName()
-        ) { result in
-          print("[SettingsView] fileExporter callback called")
-          handleExportResult(result)
-        }
-        .onChange(of: showingExportSheet) { _ in
-          print("[SettingsView] showingExportSheet changed")
-        }
-        .fileImporter(
-          isPresented: $showingImportSheet,
-          allowedContentTypes: [.yaml],
-          allowsMultipleSelection: false
-        ) { result in
-          print("[SettingsView] fileImporter callback called")
-          handleImportResult(result)
-        }
-        .onChange(of: showingImportSheet) { _ in
-          print("[SettingsView] showingImportSheet changed")
-        }
-        .alert(
-          L10n.string("import_result_title", table: "Settings"),
-          isPresented: $showingImportAlert
-        ) {
-          Button("OK", role: .cancel) {}
-        } message: {
-          Text(importResultMessage)
-        }
-        .alert(
-          L10n.string("export_error_title", table: "Settings"),
-          isPresented: $showingExportError
-        ) {
-          Button("OK", role: .cancel) {}
-        } message: {
-          Text(exportErrorMessage)
-        }
-        // インポート中プログレスシート
-        .sheet(isPresented: $isImporting) {
-          ImportProgressSheet(progress: $importProgress)
-            .interactiveDismissDisabled(true)
-        }
     }
+    .onAppear {
+      setupShortcutNotification()
+    }
+    .task { _ = await donationManager.checkDistribution() }
+    .sheet(isPresented: $showingWatchPicker) {
+      HierarchicalDevicePickerView(initialCategory: .watch, lockCategory: true) {
+        name, identifier in
+        appSettings.registerWatch(model: name)
+      }
+    }
+    .sheet(isPresented: $showingTutorial) {
+      TutorialView()
+    }
+    .sheet(isPresented: $showingSupportForm) {
+      SupportFormView()
+    }
+    .sheet(isPresented: $showingDonation) {
+      DonationView()
+    }
+    .alert(
+      L10n.string("delete_all_data", table: "Settings"),
+      isPresented: $showingDeleteConfirmation
+    ) {
+      Button(L10n.string("cancel", table: "Common"), role: .cancel) {}
+      Button(L10n.string("delete", table: "Common"), role: .destructive) {
+        deleteAllRecords()
+      }
+    } message: {
+      Text(L10n.string("delete_all_data_confirm", table: "Settings"))
+    }
+    .alert(
+      L10n.string("no_data_to_delete_title", table: "Settings"),
+      isPresented: $showingNoDataToDeleteAlert
+    ) {
+      Button(L10n.string("ok", table: "Common"), role: .cancel) {}
+    } message: {
+      Text(L10n.string("no_data_to_delete_message", table: "Settings"))
+    }
+    .alert(
+      L10n.string("remove_watch", table: "Settings"),
+      isPresented: $showingRemoveWatchConfirmation
+    ) {
+      Button(L10n.string("cancel", table: "Common"), role: .cancel) {}
+      Button(L10n.string("remove", table: "Common"), role: .destructive) {
+        if let watch = watchToRemove {
+          appSettings.removeWatch(model: watch)
+        }
+      }
+    } message: {
+      if let watch = watchToRemove {
+        Text(
+          String(
+            format: L10n.string("remove_watch_confirm_specific", table: "Settings"), watch
+          ))
+      } else {
+        Text(L10n.string("remove_watch_confirm", table: "Settings"))
+      }
+    }
+    .alert(
+      L10n.string("remove_all_watches", table: "Settings"),
+      isPresented: $showingRemoveAllWatchesConfirmation
+    ) {
+      Button(L10n.string("cancel", table: "Common"), role: .cancel) {}
+      Button(L10n.string("remove", table: "Common"), role: .destructive) {
+        appSettings.unregisterAllWatches()
+      }
+    } message: {
+      Text(L10n.string("remove_all_watches_confirm", table: "Settings"))
+    }
+    .sheet(isPresented: $showingDeviceDeletePicker) {
+      DeviceDeletePickerView(availableDevices: availableDevices) { deviceName in
+        selectedDeviceToDelete = deviceName
+        showingDeviceDeleteConfirmation = true
+      }
+    }
+    .alert(
+      L10n.string("delete_device_data_title", table: "Settings"),
+      isPresented: $showingDeviceDeleteConfirmation
+    ) {
+      Button(L10n.string("cancel", table: "Common"), role: .cancel) {}
+      Button(L10n.string("delete", table: "Common"), role: .destructive) {
+        if let deviceName = selectedDeviceToDelete {
+          deleteRecordsForDevice(deviceName)
+          // 削除後はデバイス選択をリセット（再選択を促す）
+          selectedDeviceToDelete = nil
+        }
+      }
+    } message: {
+      if let deviceName = selectedDeviceToDelete {
+        Text(
+          String(
+            format: L10n.string("delete_device_data_confirm", table: "Settings"),
+            deviceName
+          ))
+      }
+    }
+    .alert(
+      L10n.string("shortcut_required_title", table: "Settings"),
+      isPresented: $showingShortcutSetupPrompt
+    ) {
+      Button(L10n.string("setup_now", table: "Settings"), role: .none) {
+        SettingsRedirectHelper.openShortcutSetup()
+      }
+      Button(L10n.string("cancel", table: "Common"), role: .cancel) {}
+    } message: {
+      Text(L10n.string("shortcut_required_message", table: "Settings"))
+    }
+    .fileExporter(
+      isPresented: $showingExportSheet,
+      document: YAMLDocument(yaml: generateExportYAML()),
+      contentType: .yaml,
+      defaultFilename: DataExportService.generateFileName()
+    ) { result in
+      print("[SettingsView] fileExporter callback called")
+      handleExportResult(result)
+    }
+    .onChange(of: showingExportSheet) { _ in
+      print("[SettingsView] showingExportSheet changed")
+    }
+    .fileImporter(
+      isPresented: $showingImportSheet,
+      allowedContentTypes: [.yaml],
+      allowsMultipleSelection: false
+    ) { result in
+      print("[SettingsView] fileImporter callback called")
+      handleImportResult(result)
+    }
+    .onChange(of: showingImportSheet) { _ in
+      print("[SettingsView] showingImportSheet changed")
+    }
+    .alert(
+      L10n.string("import_result_title", table: "Settings"),
+      isPresented: $showingImportAlert
+    ) {
+      Button("OK", role: .cancel) {}
+    } message: {
+      Text(importResultMessage)
+    }
+    .alert(
+      L10n.string("export_error_title", table: "Settings"),
+      isPresented: $showingExportError
+    ) {
+      Button("OK", role: .cancel) {}
+    } message: {
+      Text(exportErrorMessage)
+    }
+    // インポート中プログレスシート
+    .sheet(isPresented: $isImporting) {
+      ImportProgressSheet(progress: $importProgress)
+        .interactiveDismissDisabled(true)
+    }
+  }
+
+  private func usesTwoColumnLayout(availableWidth: CGFloat) -> Bool {
+    horizontalSizeClass == .regular && availableWidth >= 700 && !dynamicTypeSize.isAccessibilitySize
   }
 
   // MARK: - iPad/iPhone向けList
   @ViewBuilder
   private func settingsList(availableWidth: CGFloat) -> some View {
-    if horizontalSizeClass == .regular && availableWidth >= 700 && !dynamicTypeSize.isAccessibilitySize {
+    if usesTwoColumnLayout(availableWidth: availableWidth) {
       // iPad: 2カラムレイアウト（左:カテゴリ一覧、右:詳細） - スクロール分離
       HStack(alignment: .top, spacing: 0) {
         // 左側：カテゴリ一覧（独立したScrollView）
@@ -248,7 +261,6 @@ struct SettingsView: View {
             VStack(spacing: 16) {
               ForEach(SettingsCategory.allCases.filter { $0 != .iCloud }) { category in
                 Button {
-                  showingMacTransferInPane = false
                   selectedCategory.wrappedValue = category
                 } label: {
                   CategoryCardView(category: category,
@@ -269,103 +281,86 @@ struct SettingsView: View {
         Divider()
 
         // 右側：選択されたカテゴリの詳細（Apple Watch・高度な設定はList表示）
-        if selectedCategory.wrappedValue == .general {
-          GeneralSettingsView(appSettings: appSettings)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else if selectedCategory.wrappedValue == .appleWatch {
-          VStack(spacing: 0) {
-            Divider()  // ヘッダーとの境界線
-            AppleWatchSettingsView(
-              showingWatchPicker: $showingWatchPicker,
-              appSettings: appSettings
-            )
-          }
-          .frame(maxHeight: .infinity)
-          .clipped()
-        } else if selectedCategory.wrappedValue == .language {
-          LanguageSettingsView(isEmbedded: true)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else if selectedCategory.wrappedValue == .advanced {
-          VStack(spacing: 0) {
-            if showingMacTransferInPane && !ProcessInfo.processInfo.isiOSAppOnMac {
-              HStack {
-                Button {
-                  showingMacTransferInPane = false
-                } label: {
-                  Label(L10n.string("advanced_settings", table: "Settings"),
-                    systemImage: "chevron.left")
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(appSettings.accentColor.color)
-                Spacer()
-              }
-              .padding(.horizontal, 20)
-              .padding(.vertical, 12)
-              Divider()
-              if #available(iOS 27, *) {
-                NavigationStack {
-                  MacTransferSettingsView()
-                }
-              }
-            } else {
-              Divider()  // ヘッダーとの境界線
-              AdvancedSettingsView(appSettings: appSettings,
-                onOpenMacTransfer: { showingMacTransferInPane = true })
-            }
-          }
-          .frame(maxHeight: .infinity)
-          .clipped()
-        } else {
-          VStack(spacing: 0) {
-            Divider()  // ヘッダーとの境界線
-            ScrollView {
+        NavigationStack {
+          Group {
+            if selectedCategory.wrappedValue == .general {
+              GeneralSettingsView(appSettings: appSettings)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if selectedCategory.wrappedValue == .appleWatch {
               VStack(spacing: 0) {
-                switch selectedCategory.wrappedValue {
-                case .general:
-                  EmptyView()
-                case .iCloud:
-                  ICloudSettingsView(appSettings: appSettings)
-                case .appleWatch:
-                  AppleWatchSettingsView(
-                    showingWatchPicker: $showingWatchPicker,
-                    appSettings: appSettings
-                  )
-                case .dataManagement:
-                  DataManagementSettingsView(
-                    showingDeleteAllConfirmation: $showingDeleteConfirmation,
-                    showingDeleteDeviceConfirmation: $showingDeviceDeleteConfirmation,
-                    deletingDeviceId: $selectedDeviceToDelete,
-                    appSettings: appSettings,
-                    availableDevices: availableDevices,
-                    records: records,
-                    dataStore: dataStore,
-                    showingExportSheet: $showingExportSheet,
-                    showingImportSheet: $showingImportSheet,
-                    showingImportAlert: $showingImportAlert,
-                    importResultMessage: $importResultMessage,
-                    showingExportError: $showingExportError,
-                    exportErrorMessage: $exportErrorMessage
-                  )
-                case .support:
-                  SupportSettingsView()
-                case .about:
-                  AboutSettingsView()
-                case .debug:
-                  DebugSettingsView(appSettings: appSettings)
-                case .advanced, .language:
-                  EmptyView()
+                Divider()  // ヘッダーとの境界線
+                AppleWatchSettingsView(
+                  showingWatchPicker: $showingWatchPicker,
+                  appSettings: appSettings
+                )
+              }
+              .frame(maxHeight: .infinity)
+              .clipped()
+            } else if selectedCategory.wrappedValue == .language {
+              LanguageSettingsView(isEmbedded: true)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if selectedCategory.wrappedValue == .advanced {
+              AdvancedSettingsView(appSettings: appSettings)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+              VStack(spacing: 0) {
+                Divider()  // ヘッダーとの境界線
+                ScrollView {
+                  VStack(spacing: 0) {
+                    switch selectedCategory.wrappedValue {
+                    case .general:
+                      EmptyView()
+                    case .iCloud:
+                      ICloudSettingsView(appSettings: appSettings)
+                    case .appleWatch:
+                      AppleWatchSettingsView(
+                        showingWatchPicker: $showingWatchPicker,
+                        appSettings: appSettings
+                      )
+                    case .dataManagement:
+                      DataManagementSettingsView(
+                        showingDeleteAllConfirmation: $showingDeleteConfirmation,
+                        showingDeleteDeviceConfirmation: $showingDeviceDeleteConfirmation,
+                        deletingDeviceId: $selectedDeviceToDelete,
+                        appSettings: appSettings,
+                        availableDevices: availableDevices,
+                        records: records,
+                        dataStore: dataStore,
+                        showingExportSheet: $showingExportSheet,
+                        showingImportSheet: $showingImportSheet,
+                        showingImportAlert: $showingImportAlert,
+                        importResultMessage: $importResultMessage,
+                        showingExportError: $showingExportError,
+                        exportErrorMessage: $exportErrorMessage
+                      )
+                    case .support:
+                      SupportSettingsView()
+                    case .about:
+                      AboutSettingsView()
+                    case .debug:
+                      DebugSettingsView(appSettings: appSettings)
+                    case .advanced, .language:
+                      EmptyView()
+                    }
+                  }
+                  .padding(.top)
+                  .frame(maxWidth: 760, alignment: .leading)
+                  .frame(maxWidth: .infinity)
+                  .padding(.horizontal, 12)
                 }
               }
-              .padding(.top)
-              .frame(maxWidth: 760, alignment: .leading)
-              .frame(maxWidth: .infinity)
-              .padding(.horizontal, 12)
+              .groupBoxStyle(SettingsCardGroupBoxStyle())
+              .frame(maxHeight: .infinity)
+              .clipped()
             }
           }
-          .groupBoxStyle(SettingsCardGroupBoxStyle())
-          .frame(maxHeight: .infinity)
-          .clipped()
+          .modifier(SettingsInlineNavigationTitle(title: selectedCategory.wrappedValue.title))
+          .navigationDestination(isPresented: $appSettings.showingICloudSettings) {
+            ICloudSettingsView(appSettings: appSettings)
+          }
         }
+        .id(selectedCategory.wrappedValue)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
       }
       .background(Color(.systemGroupedBackground))
     } else {
@@ -827,6 +822,40 @@ struct SettingsView: View {
           table: "Settings"
         ) + ": \(error.localizedDescription)"
       showingImportAlert = true
+    }
+  }
+}
+
+struct SettingsInlineNavigationTitle: ViewModifier {
+  let title: String
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+  @ViewBuilder func body(content: Content) -> some View {
+    if horizontalSizeClass == .regular {
+      content
+        .navigationTitle("")
+        .navigationBarTitleDisplayMode(.inline)
+        .safeAreaInset(edge: .top, spacing: 0) {
+          Text(title)
+            .font(.headline)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 8)
+            .background(Color(uiColor: .systemGroupedBackground))
+            .accessibilityIdentifier("settings.pane.title")
+        }
+    } else {
+      content.navigationTitle(title).navigationBarTitleDisplayMode(.inline)
+    }
+  }
+}
+
+struct SettingsListTopMargin: ViewModifier {
+  @ViewBuilder func body(content: Content) -> some View {
+    if #available(iOS 17, *) {
+      content.contentMargins(.top, 12, for: .scrollContent)
+    } else {
+      content
     }
   }
 }

@@ -74,7 +74,8 @@ struct DeviceProfilesView: View {
       }
       Section {} footer: { Text(profileText("profile_library_footer")) }
     }
-    .navigationTitle(profileText("profile_library"))
+    .modifier(SettingsListTopMargin())
+    .modifier(SettingsInlineNavigationTitle(title: profileText("profile_library")))
     .toolbar {
       Button { showingAdd = true } label: { Image(systemName: "plus") }
         .accessibilityLabel(profileText("profile_add"))
@@ -159,8 +160,8 @@ private struct DeviceProfileEditor: View {
       fieldsSection
       existingLogSection
     }
-    .navigationTitle(isNew ? profileText("profile_add") : DeviceLibrary.localizedName(for: current.name))
-    .navigationBarTitleDisplayMode(.inline)
+    .modifier(SettingsInlineNavigationTitle(title: isNew ? profileText("profile_add")
+      : DeviceLibrary.localizedName(for: current.name)))
     .scrollDismissesKeyboard(.interactively)
     .scrollContentBackground(.hidden)
     .background(Color(uiColor: .systemGroupedBackground))
