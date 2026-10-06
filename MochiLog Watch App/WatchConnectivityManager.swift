@@ -149,10 +149,6 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
 // MARK: - WCSessionDelegate
 
 extension WatchConnectivityManager: WCSessionDelegate {
-  nonisolated func sessionDidBecomeInactive(_ session: WCSession) {}
-
-  nonisolated func sessionDidDeactivate(_ session: WCSession) {}
-
   nonisolated func session(
     _ session: WCSession,
     activationDidCompleteWith activationState: WCSessionActivationState,
