@@ -1,3 +1,5 @@
+This update encrypts computer transfer requests with AES-GCM and prevents replay of expired requests and fallback to the older protocol after a secure connection succeeds. Use MochiLog Mac 0.2.13 or later, or MochiLog Windows 0.1.10 or later. Existing pairings carry over; the app temporarily supports an older computer and shows where to update it.
+
 This build fixes a crash shortly after launching the iPhone/iPad version of MochiLog on a Mac. Donation product names and descriptions now follow the language selected in the app. iCloud diagnostics can compare local and iCloud record counts without changing records.
 
 The 4.0.0 beta adds computer transfer for iOS/iPadOS 27. Install MochiLog Mac on macOS 27 or MochiLog Windows on Windows 11 from GitHub Releases. For first-time setup, unlock your iPhone or iPad, connect it once by USB, approve “Trust This Computer,” then scan the QR code shown on the computer in MochiLog → Settings → Advanced Settings → Mac Transfer. You can skip USB if the computer already has a working wireless OS pairing. MochiLog still works on the device by itself when computer transfer is not set up.
