@@ -9,6 +9,7 @@ struct ChartRangeSelector: View {
   let startDay: Date
   let endDay: Date
   var identifierPrefix = "chart"
+  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
@@ -17,7 +18,10 @@ struct ChartRangeSelector: View {
         .font(.caption)
         .foregroundStyle(.secondary)
         .fixedSize(horizontal: false, vertical: true)
-      HStack(spacing: 8) {
+      let layout = dynamicTypeSize.isAccessibilitySize
+        ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
+        : AnyLayout(HStackLayout(spacing: 8))
+      layout {
         Picker(L10n.string("chart_range", table: "Analytics"), selection: $selectedRange) {
           ForEach(RangePreset.manualCases) { preset in
             Text(preset.localizedName).tag(preset)
@@ -26,19 +30,21 @@ struct ChartRangeSelector: View {
         .pickerStyle(.menu)
         .accessibilityIdentifier(identifierPrefix + ".range")
         .frame(minHeight: 44)
-        Spacer(minLength: 0)
-        Button { shiftWindow(true) } label: {
-          Image(systemName: "chevron.left").frame(width: 44, height: 44)
+        if !dynamicTypeSize.isAccessibilitySize { Spacer(minLength: 0) }
+        HStack(spacing: 8) {
+          Button { shiftWindow(true) } label: {
+            Image(systemName: "chevron.left").frame(minWidth: 44, minHeight: 44)
+          }
+          .accessibilityLabel(L10n.string("back", table: "Common"))
+          .accessibilityIdentifier(identifierPrefix + ".previous")
+          .disabled(!canMovePrevious)
+          Button { shiftWindow(false) } label: {
+            Image(systemName: "chevron.right").frame(minWidth: 44, minHeight: 44)
+          }
+          .accessibilityLabel(L10n.string("next", table: "Common"))
+          .accessibilityIdentifier(identifierPrefix + ".next")
+          .disabled(!canMoveNext)
         }
-        .accessibilityLabel(L10n.string("back", table: "Common"))
-        .accessibilityIdentifier(identifierPrefix + ".previous")
-        .disabled(!canMovePrevious)
-        Button { shiftWindow(false) } label: {
-          Image(systemName: "chevron.right").frame(width: 44, height: 44)
-        }
-        .accessibilityLabel(L10n.string("next", table: "Common"))
-        .accessibilityIdentifier(identifierPrefix + ".next")
-        .disabled(!canMoveNext)
       }
       .font(.subheadline.weight(.medium))
       .buttonStyle(.borderless)

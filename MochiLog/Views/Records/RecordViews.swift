@@ -970,6 +970,7 @@ struct RecordDetailView: View {
               Image(systemName: "square.and.arrow.up")
             }
           }
+          .accessibilityLabel(L10n.string("share", table: "Common"))
           .accessibilityIdentifier("record.share")
         }
     }

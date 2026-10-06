@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Keep Chart's color keys stable while showing localized device names to the user.
+/// Keep Chart's color keys stable while showing translated device names at larger text sizes.
 struct AccessibleChartLegend: View {
   let names: [String]
   let colors: [Color]
