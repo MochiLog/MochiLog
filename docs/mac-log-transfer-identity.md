@@ -14,6 +14,12 @@ MochiLog Macは[専用リポジトリ](https://github.com/MochiLog/MochiLog-Mac)
 - 複数のMac/Windowsが同じログを保有する場合、PCはファイル本体より先にSHA-256を暗号化して提示する。端末はインポート成功・重複として確認済みのハッシュと解析待ちの受信ファイルを調べ、保持済みなら本体を要求せずPCのキューを完了させる。ハッシュ照会と判断は既存の共有鍵・nonceで認証する。明示的な手動再送は省略しない。導入前に取り込んだ記録には原本ハッシュがないため、最初の再送だけは従来の記録重複判定で処理する。
 - ベータ専用サポートでは、iPhoneの診断情報をAES-GCMで暗号化してMacへ送り、双方の問い合わせ画面からJSONを添付できる。解析ログ本文、UDID、ペアリング秘密鍵は含めない。Macの応答もリクエストごとのnonceへ結び付ける。
 
+## CloudKit本番スキーマ
+
+`CoreDataStore`の`CDBatteryRecord`へ任意のUUID属性を追加すると、CloudKit上では`CD_physicalDeviceID`（STRING）になる。Developmentに自動作成されても、TestFlight/App Storeが使うProductionには自動反映されない。今後モデルを変更したビルドを配る前に、CloudKit Databaseの両環境で`CD_BatteryRecord`のフィールドを比較する。
+
+2026年10月6日、Productionに欠けていた`CD_physicalDeviceID`をDevelopmentからデプロイした。デプロイ前の差分はこのフィールド1件と、そのQueryable・Searchable・Sortable索引3件だけで、レコード型の権限変更はなかった。Productionのフィールド数が33から34へ増えたことを確認済み。既存レコードの削除や環境のリセットはしていない。今後モデル属性を追加するときも、TestFlight実機で送信成功と別端末への受信を確認してから同期完了と判断する。
+
 初回OSペアリングには端末のデベロッパモードと「ペアリング済みMac」での6桁コード入力が必要。検証機ではペアリング後にデベロッパモードをオフにしてもWi-FiでAnalyticsを取得できた。使用者にPythonやXcodeをインストールさせず、署名済みDMGへ収集ツールを同梱する。
 
 ## 残る検証
