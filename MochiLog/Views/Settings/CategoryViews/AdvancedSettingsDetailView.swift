@@ -11,7 +11,7 @@ struct AdvancedSettingsDetailView: View {
 
   var body: some View {
     Form {
-      if #available(iOS 27, *) {
+      if #available(iOS 27, *), !ProcessInfo.processInfo.isiOSAppOnMac {
         Section {
           NavigationLink(destination: MacTransferSettingsView()) {
             Label(L10n.text("mt_071", table: "MacTransfer"), systemImage: "laptopcomputer.and.iphone")

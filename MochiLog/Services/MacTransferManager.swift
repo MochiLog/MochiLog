@@ -16,6 +16,9 @@ struct MacTransferPairing: Codable {
   var lanAddresses: [String]? = nil
   var lanPort: UInt16? = nil
   var manualHostAddress: String? = nil
+  // Old pairings can temporarily use v2 with an older computer. Once v3
+  // succeeds, the connection is pinned and never silently downgraded.
+  var requiresSecureTransfer: Bool? = nil
 }
 
 private struct DailyTransferReceipt: Codable {
@@ -78,6 +81,8 @@ final class MacTransferManager: ObservableObject {
   private var isRunning = false
   private var connection: NWConnection?
   private var activeRequestNonce: UUID?
+  @Published private(set) var usingLegacyTransfer = false
+  @Published private(set) var legacyTransferConfirmed = false
   private var activePauseUntil: String?
   private var activeResume = false
   private var manualReceive = false
@@ -395,6 +400,8 @@ final class MacTransferManager: ObservableObject {
     // Restarting the whole manager here used to recreate both every minute
     // when an iPad was paired with Mac and Windows.
     pairing = next
+    usingLegacyTransfer = false
+    legacyTransferConfirmed = false
     activeFileOffer = nil
     pendingAck = UserDefaults.standard.string(forKey: pendingAckKey)
     lastAuthenticatedContactAt = nil
@@ -460,6 +467,7 @@ final class MacTransferManager: ObservableObject {
 
   func prepareSecurePairing(from text: String, dataStore: DataStore,
     relinkLocalRecords: Bool = false) async throws -> SecureMacPairingCandidate {
+    guard !ProcessInfo.processInfo.isiOSAppOnMac else { throw TransferError.invalidPairing }
     guard let components = URLComponents(string: text),
       components.scheme == "mochilog-mac", components.host == "pair" else {
       throw TransferError.invalidPairing
@@ -540,6 +548,7 @@ final class MacTransferManager: ObservableObject {
     var pair = MacTransferPairing(hostID: host, physicalDeviceID: device,
       model: model, secret: secret,
       tailnetAddress: values["tailnet"], tailnetPort: tailnetPort)
+    pair.requiresSecureTransfer = values["transfer"] == "3"
     pair.platform = values["platform"] == "windows" ? "windows" : "macOS"
     pair.lanAddresses = (values["ipv4"] ?? "").split(separator: ",")
       .map(String.init).filter(Self.isPrivateLANAddress)
@@ -608,6 +617,7 @@ final class MacTransferManager: ObservableObject {
   }
 
   func start() {
+    guard !ProcessInfo.processInfo.isiOSAppOnMac else { return }
     startRevocationTimer()
     Task { await retryPendingRevocations() }
     guard pairing != nil else { return }
@@ -646,6 +656,7 @@ final class MacTransferManager: ObservableObject {
   }
 
   func receiveNow() {
+    guard !ProcessInfo.processInfo.isiOSAppOnMac else { return }
     guard pairing != nil, !isReceiving else { return }
     manualReceive = true
     debugSyncBurst = 0
@@ -868,6 +879,7 @@ final class MacTransferManager: ObservableObject {
     connection?.cancel()
     connection = nil
     activeRequestNonce = nil
+    usingLegacyTransfer = false
     endpoint = nil
     directRoutes = []
     routeIndex = 0
@@ -883,6 +895,7 @@ final class MacTransferManager: ObservableObject {
       : (endpoint ?? Self.tailnetRoute(
         address: pairing?.tailnetAddress, port: pairing?.tailnetPort))
     let mayUseCellular = allowsCellularTransfer
+    let legacyTransfer = usingLegacyTransfer
     let wasRunning = isRunning
     stop()
     guard shouldSendPresence, wasRunning, let pairing, let route else { return }
@@ -898,7 +911,10 @@ final class MacTransferManager: ObservableObject {
       "version": "2",
       "presence": presence
     ]
-    guard let payload = try? JSONSerialization.data(withJSONObject: request) else { return }
+    let payload = legacyTransfer
+      ? try? JSONSerialization.data(withJSONObject: request)
+      : Self.sealedRequest(request, pairing: pairing, nonce: nonce)
+    guard let payload else { return }
     let parameters = NWParameters.tcp
     if !mayUseCellular { parameters.prohibitedInterfaceTypes = [.cellular] }
     let connection = NWConnection(to: route, using: parameters)
@@ -938,6 +954,22 @@ final class MacTransferManager: ObservableObject {
     HMAC<SHA256>.authenticationCode(for: Data(message.utf8),
       using: SymmetricKey(data: secret))
       .map { String(format: "%02x", $0) }.joined()
+  }
+
+  private static func sealedRequest(_ request: [String: String],
+    pairing: MacTransferPairing, nonce: UUID) -> Data? {
+    let issuedAt = Int64(Date().timeIntervalSince1970)
+    let context = Data("v3|request|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)|\(issuedAt)".utf8)
+    guard let plain = try? JSONSerialization.data(withJSONObject: request),
+      let combined = try? AES.GCM.seal(plain,
+        using: SymmetricKey(data: pairing.secret), authenticating: context).combined
+    else { return nil }
+    return try? JSONSerialization.data(withJSONObject: [
+      "version": "3", "hostID": pairing.hostID.uuidString,
+      "physicalDeviceID": pairing.physicalDeviceID.uuidString,
+      "nonce": nonce.uuidString, "issuedAt": issuedAt,
+      "box": combined.base64EncodedString()
+    ] as [String: Any])
   }
 
   private static func routes(from metadata: NWBrowser.Result.Metadata) -> [NWEndpoint] {
@@ -983,11 +1015,24 @@ final class MacTransferManager: ObservableObject {
       routeIndex += 1
       Self.appendDebugEvent("Connection: trying next route (\(routeIndex + 1))")
       pull()
+    } else if tryLegacyFallback() {
+      return
     } else {
       connectionPhase = .retrying
       status = MacTransferStatus.text("mt_s_03", error)
       scheduleRetry()
     }
+  }
+
+  private func tryLegacyFallback() -> Bool {
+    guard !usingLegacyTransfer, pairing?.requiresSecureTransfer != true else { return false }
+    usingLegacyTransfer = true
+    routeIndex = 0
+    Self.appendDebugEvent("Connection: trying previous transfer protocol for an existing pairing")
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+      self?.pull()
+    }
+    return true
   }
 
   private func pull() {
@@ -1061,7 +1106,10 @@ final class MacTransferManager: ObservableObject {
         "daily-resume|v1|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)",
         secret: pairing.secret)
     }
-    guard let payload = try? JSONSerialization.data(withJSONObject: request) else { return }
+    let payload = usingLegacyTransfer
+      ? try? JSONSerialization.data(withJSONObject: request)
+      : Self.sealedRequest(request, pairing: pairing, nonce: nonce)
+    guard let payload else { return }
     guard let route = routeIndex < directRoutes.count
       ? directRoutes[routeIndex] : endpoint else { return }
     let parameters = NWParameters.tcp
@@ -1158,6 +1206,7 @@ final class MacTransferManager: ObservableObject {
       activeRequestNonce = nil; activePauseUntil = nil; activeResume = false
     }
     guard let pairing, let requestNonce = activeRequestNonce, bytes.count >= 4 else {
+      if tryLegacyFallback() { return }
       status = MacTransferStatus.text("mt_s_06"); isReceiving = false
       connectionPhase = .retrying
       scheduleRetry()
@@ -1165,6 +1214,7 @@ final class MacTransferManager: ObservableObject {
     }
     let length = bytes.prefix(4).reduce(UInt32(0)) { ($0 << 8) | UInt32($1) }
     guard length == bytes.count - 4 else {
+      if tryLegacyFallback() { return }
       Self.appendDebugEvent("Transfer: frame length \(length), received \(bytes.count - 4)")
       status = MacTransferStatus.text("mt_s_07"); isReceiving = false
       connectionPhase = .retrying
@@ -1176,6 +1226,21 @@ final class MacTransferManager: ObservableObject {
       let responseContext = Data("v2|response|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(requestNonce.uuidString)".utf8)
       let plain = try AES.GCM.open(box, using: SymmetricKey(data: pairing.secret),
         authenticating: responseContext)
+      if usingLegacyTransfer { legacyTransferConfirmed = true }
+      else { legacyTransferConfirmed = false }
+      if !usingLegacyTransfer, pairing.requiresSecureTransfer != true,
+        let index = pairings.firstIndex(where: { $0.hostID == pairing.hostID }) {
+        var updated = pairings
+        updated[index].requiresSecureTransfer = true
+        do {
+          try Self.savePairings(updated)
+          pairings = updated
+          self.pairing = updated[index]
+          Self.appendDebugEvent("Connection: secure transfer protocol pinned for computer")
+        } catch {
+          Self.appendDebugEvent("Connection: secure protocol pin could not be saved")
+        }
+      }
       guard plain.count >= 2 else { throw TransferError.invalidPayload }
       let nameLength = Int(plain[0]) * 256 + Int(plain[1])
       guard nameLength <= 1024, plain.count >= 2 + nameLength,

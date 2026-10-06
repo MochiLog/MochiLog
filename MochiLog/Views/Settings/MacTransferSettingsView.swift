@@ -17,10 +17,12 @@ struct MacTransferSettingsView: View {
   @AppStorage(PhysicalDeviceIdentityStore.manualLocalImportKey)
   private var tagManualImportsAsThisDevice = false
   private let macReleaseURL = URL(string: "https://github.com/MochiLog/MochiLog-Mac/releases")!
-  private let windowsURL = URL(string: "https://github.com/MochiLog/MochiLog-Windows")!
+  private let windowsURL = URL(string: "https://github.com/MochiLog/MochiLog-Windows/releases")!
 
   var body: some View {
     Form {
+      if ProcessInfo.processInfo.isiOSAppOnMac {
+      } else {
       Section {
         workflowDiagram
         DisclosureGroup(L10n.text("mt_flow_details", table: "MacTransfer")) {
@@ -63,6 +65,16 @@ struct MacTransferSettingsView: View {
               .month().day().hour().minute()))
             .font(.subheadline)
             .accessibilityIdentifier("macTransfer.lastContact")
+        }
+        if manager.legacyTransferConfirmed {
+          Label(L10n.text("mt_legacy_update", table: "MacTransfer"),
+            systemImage: "exclamationmark.shield")
+            .foregroundStyle(.orange)
+          Link(destination: manager.pairing?.platform == "windows"
+            ? windowsURL : macReleaseURL) {
+            Label(L10n.text("mt_legacy_update_link", table: "MacTransfer"),
+              systemImage: "arrow.up.right.square")
+          }
         }
         Button { manager.receiveNow() } label: {
           Label(L10n.text("mt_105", table: "MacTransfer"),
@@ -248,6 +260,7 @@ struct MacTransferSettingsView: View {
         }
         Text(L10n.text("mt_070", table: "MacTransfer"))
           .font(.caption).foregroundStyle(.secondary)
+      }
       }
     }
     .confirmationDialog(L10n.text("mt_unpair_title", table: "MacTransfer"),

@@ -287,7 +287,7 @@ struct SettingsView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if selectedCategory.wrappedValue == .advanced {
           VStack(spacing: 0) {
-            if showingMacTransferInPane {
+            if showingMacTransferInPane && !ProcessInfo.processInfo.isiOSAppOnMac {
               HStack {
                 Button {
                   showingMacTransferInPane = false

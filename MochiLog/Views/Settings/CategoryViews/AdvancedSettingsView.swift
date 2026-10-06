@@ -12,7 +12,7 @@ struct AdvancedSettingsView: View {
 
   var body: some View {
     List {
-      if #available(iOS 27, *) {
+      if #available(iOS 27, *), !ProcessInfo.processInfo.isiOSAppOnMac {
         Section {
           if let onOpenMacTransfer {
             Button(action: onOpenMacTransfer) {
