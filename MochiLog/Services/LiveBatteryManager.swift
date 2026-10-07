@@ -60,7 +60,7 @@ final class LiveBatteryManager: ObservableObject {
       return [MacTransferPairing(hostID: UUID(uuidString: "00000000-0000-0000-0000-000000000001")!,
         physicalDeviceID: UUID(uuidString: "00000000-0000-0000-0000-000000000002")!,
         model: "iPhone Test", secret: Data(repeating: 7, count: 32),
-        lanAddresses: ["127.0.0.1"], lanPort: port, requiresSecureTransfer: true)]
+        lanAddresses: [ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_HOST"] ?? "127.0.0.1"], lanPort: port, requiresSecureTransfer: true)]
     }
     #endif
     return MacTransferManager.shared.pairings

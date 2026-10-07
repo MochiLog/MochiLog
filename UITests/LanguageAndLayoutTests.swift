@@ -50,6 +50,7 @@ final class LanguageAndLayoutTests: XCTestCase {
       throw XCTSkip("Set MOCHI_LIVE_BATTERY_PORT for the isolated encrypted server")
     }
     app.launchEnvironment["MOCHI_LIVE_BATTERY_PORT"] = port
+    app.launchEnvironment["MOCHI_LIVE_BATTERY_HOST"] = ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_HOST"] ?? "127.0.0.1"
     app.launchArguments += ["-appLanguage", "en", "-liveBatteryEnabled", "YES"]
     app.launch()
     let tab = app.buttons["Live Battery"].firstMatch
@@ -63,6 +64,10 @@ final class LanguageAndLayoutTests: XCTestCase {
     app.buttons["live.receive"].tap()
     XCTAssertEqual(cycle.label, "245")
     XCTAssertFalse(app.alerts.firstMatch.exists)
+    app.buttons["live.details"].tap()
+    let group = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "BatteryData")).firstMatch
+    XCTAssertTrue(group.waitForExistence(timeout: 5)); group.tap()
+    XCTAssertTrue(app.staticTexts["18446744073709551615"].waitForExistence(timeout: 5))
     screenshot("Live Battery encrypted PC response")
   }
 
