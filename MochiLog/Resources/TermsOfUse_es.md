@@ -8,6 +8,8 @@ Estas condiciones se aplican a MochiLog y su app complementaria para Mac. Las ci
 
 Esta función en desarrollo requiere iOS/iPadOS 27 y macOS 27 o posteriores. Necesita enlace inicial, la misma red local y el móvil desbloqueado. Los cambios del sistema, la conexión o la falta de registros pueden impedir la transferencia. Haga sus propias copias de seguridad. La versión alfa para Windows requiere Windows 11 e iOS/iPadOS 27, así como enlace inicial, dispositivo desbloqueado y conexión.
 
+Batería en vivo es una función beta opcional. Los campos, su significado y la frecuencia de actualización dependen del dispositivo, sistema y conexión. No se garantiza coincidencia con los registros diarios, disponibilidad continua ni obtención con el dispositivo bloqueado. La vista no sustituye al historial ni constituye un diagnóstico oficial de Apple.
+
 ## 3. Propinas y reembolsos
 
 La versión de App Store puede ofrecer propinas opcionales mediante compras integradas de Apple. AltStore PAL y la app Mac no incluyen este pago. Las funciones principales no requieren pago. Compras, cancelaciones y reembolsos se rigen por las condiciones de Apple y la ley. Solicite reembolsos desde el historial de compras de Apple.
@@ -24,4 +26,4 @@ Podemos revisar estas condiciones por cambios legales o funcionales. El texto y 
 
 Se aplica la ley japonesa sin limitar los derechos imperativos de consumidores en su residencia. Contacto: support@mochilog.ryuya-dev.net.
 
-Revised: 2026-09-29
+Revised: 2026-10-07

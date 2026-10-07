@@ -8,6 +8,8 @@ Ces conditions s’appliquent à MochiLog et à son app Mac. Les chiffres et dia
 
 Cette fonction en développement exige iOS/iPadOS 27 et macOS 27 ou plus. Un premier jumelage, le même réseau local et un mobile déverrouillé sont nécessaires. Les changements du système, la connexion ou l’absence de journaux peuvent faire échouer le transfert. Conservez vos propres sauvegardes. La version alpha pour Windows est destinée à Windows 11 et iOS/iPadOS 27 et exige également un premier jumelage, un appareil déverrouillé et une connexion.
 
+Batterie en direct est une fonction bêta facultative. Les champs, leur signification et la fréquence de mise à jour dépendent de l’appareil, du système et de la connexion. La correspondance avec les journaux quotidiens, la disponibilité continue et la lecture sur appareil verrouillé ne sont pas garanties. L’affichage ne remplace pas l’historique et n’est pas un diagnostic officiel Apple.
+
 ## 3. Pourboires et remboursements
 
 La version App Store peut proposer des pourboires facultatifs par achat intégré Apple. AltStore PAL et l’app Mac ne proposent pas ce paiement. Les fonctions essentielles ne nécessitent aucun paiement. Achats, annulations et remboursements relèvent des conditions Apple et de la loi. Demandez un remboursement via l’historique d’achats Apple.
@@ -24,4 +26,4 @@ Ces conditions peuvent évoluer avec les fonctionnalités ou la loi. La nouvelle
 
 Le droit japonais s’applique sans réduire les droits impératifs des consommateurs dans leur pays de résidence. Contact : support@mochilog.ryuya-dev.net.
 
-Revised: 2026-09-29
+Revised: 2026-10-07

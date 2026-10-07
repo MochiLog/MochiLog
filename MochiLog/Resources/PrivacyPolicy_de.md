@@ -8,6 +8,8 @@ MochiLog verarbeitet vom Nutzer ausgewählte Analyselogs von iPhone, iPad und Ap
 
 Bei aktivierter iCloud-Synchronisierung werden Aufzeichnungen über die private iCloud-Datenbank des Nutzers zwischen Geräten desselben Apple Accounts synchronisiert. Daten können an die gekoppelte Apple Watch übertragen oder vom Nutzer exportiert bzw. geteilt werden. In der Mac-Übertragungsbeta für iOS/iPadOS 27 und macOS 27 sammelt ein gekoppelter Mac Logs nur bei entsperrtem Mobilgerät, speichert sie vorübergehend und überträgt sie verschlüsselt im lokalen Netzwerk. Mac und Mobilgerät tauschen Kopplungsdaten, Status und Diagnosen aus. Die Logs gehen nicht an einen Entwicklerserver. Bei Updateprüfungen kontaktiert die Mac-App GitHub; dabei können Netzwerkdaten wie die IP-Adresse anfallen. Die Windows-11-Begleitapp (Alpha) überträgt Logs von einem gekoppelten PC ebenfalls verschlüsselt an MochiLog.
 
+Wenn Live-Batterie aktiviert ist, liest ein gekoppelter Computer aktuelle Ladezyklen und Kapazitätswerte aus dem Diagnosedienst des Geräts und überträgt sie verschlüsselt an die mobile App. Diese Werte bleiben nur im Arbeitsspeicher und werden nicht als Verlauf, Batterieeinträge, iCloud-Daten oder Support-Diagnoseprotokolle gespeichert. Die Einstellung ist standardmäßig aus. Dies ist getrennt von der Erfassung und Aufbewahrung täglicher Analytics-Dateien. Bei einem vom Nutzer eingerichteten VPN wie Tailscale gelten auch dessen Bedingungen und Datenverarbeitung.
+
 ## 3. Support
 
 Wenn der Nutzer eine Support-E-Mail sendet, erhält der Entwickler Spitzname, E-Mail-Adresse, Nachricht und Anhänge. Der Mac-Transfer-Support fügt beim Senden OS- und App-Version, Modell, Übertragungsstatus, Gerätekennungen, Fehler und jüngste Diagnoseereignisse hinzu. Diese können Dateinamen oder Pfade enthalten. Prüfen Sie die E-Mail vor dem Versand. E-Mail-Anbieter verarbeiten die Nachricht. Supportdaten werden für die Bearbeitung und notwendige Dokumentation aufbewahrt; Löschanfragen werden erfüllt, soweit keine gesetzliche Aufbewahrungspflicht besteht.
@@ -24,4 +26,4 @@ MochiLog nutzt keine Werbe-, Tracking- oder Drittanbieter-Nutzungsanalyse-SDKs. 
 
 Fragen und Anfragen zur Löschung von Support-E-Mails: support@mochilog.ryuya-dev.net.
 
-Revised: 2026-09-29
+Revised: 2026-10-07

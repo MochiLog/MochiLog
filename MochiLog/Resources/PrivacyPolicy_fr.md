@@ -8,6 +8,8 @@ MochiLog traite sur l’appareil les journaux d’analyse iPhone, iPad et Apple 
 
 Avec iCloud activé, les relevés sont synchronisés via la base iCloud privée de l’utilisateur entre ses appareils utilisant le même compte Apple. Ils peuvent être transmis à l’Apple Watch jumelée ou exportés et partagés sur demande. Dans la bêta de transfert pour iOS/iPadOS 27 et macOS 27, un Mac jumelé collecte les journaux quand l’appareil mobile est déverrouillé, les garde temporairement et les transmet chiffrés sur le réseau local. Mac et mobile échangent les données de jumelage, l’état et des diagnostics. Les journaux ne vont pas vers un serveur du développeur. L’app Mac contacte GitHub pour les mises à jour; GitHub peut recevoir des informations réseau comme l’adresse IP. La version alpha pour Windows 11 transmet aussi les journaux d’un PC jumelé à MochiLog sous forme chiffrée.
 
+Si Batterie en direct est activée, un ordinateur jumelé lit les cycles et capacités actuels via le service de diagnostic de l’appareil et les transmet chiffrés à l’app mobile. Ces valeurs restent uniquement en mémoire et ne sont pas enregistrées dans l’historique, les relevés de batterie, iCloud ou les journaux de diagnostic du support. Le réglage est désactivé par défaut. Ce traitement est distinct de la collecte et conservation des fichiers Analytics quotidiens. Les conditions et le traitement des données d’un VPN configuré par l’utilisateur, tel que Tailscale, s’appliquent également.
+
 ## 3. Assistance
 
 Si l’utilisateur envoie un courriel au support, le développeur reçoit son pseudonyme, son adresse, son message et ses pièces jointes. Le support du transfert Mac joint lors de l’envoi les versions OS/app, le modèle, l’état du transfert, des identifiants, erreurs et événements de diagnostic récents. Ces événements peuvent contenir des noms ou chemins de fichiers. Vérifiez le courriel avant envoi. Les fournisseurs de messagerie traitent le message. Les données sont conservées selon les besoins du traitement et des dossiers nécessaires; les demandes de suppression sont honorées sauf obligation légale.
@@ -24,4 +26,4 @@ MochiLog n’utilise aucun SDK publicitaire, de suivi ou d’analyse d’utilisa
 
 Questions et demandes de suppression des courriels de support : support@mochilog.ryuya-dev.net.
 
-Revised: 2026-09-29
+Revised: 2026-10-07

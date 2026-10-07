@@ -8,6 +8,8 @@ MochiLog processes iPhone, iPad, and Apple Watch analytics logs selected by the 
 
 If iCloud sync is enabled, records are synchronized through the user’s private iCloud database between devices using the same Apple Account. Records may be sent to the paired Apple Watch app. Exports, file sharing, and imports use data selected by the user. In the Mac transfer beta for iOS/iPadOS 27 and macOS 27, a paired Mac collects and temporarily stores analytics logs while the mobile device is unlocked, then sends them in encrypted form to MochiLog on the same local network. The Mac and mobile device exchange pairing data, transfer status, and diagnostics. Mac transfer does not send logs to a developer server. The Mac app contacts GitHub to check for updates; GitHub may receive network information such as the IP address. The Windows 11 companion alpha also sends logs from a paired PC to MochiLog using encrypted transfer.
 
+If Live Battery is enabled, a paired computer reads current cycle count and capacity fields from the device diagnostics service and sends them encrypted to the mobile app. These current values are held only in memory and are not stored as history, battery records, iCloud data or support diagnostic logs. The setting is off by default. This is separate from collection and retention of daily Analytics files. If communication uses a VPN such as Tailscale configured by the user, that service’s terms and data handling also apply.
+
 ## 3. Support requests
 
 If the user sends a support email, the developer receives the nickname, email address, message, and attachments supplied. Mac transfer support attaches OS and app versions, model, transfer status, device identifiers, errors, and recent diagnostic events from the mobile device and Mac when the user sends the email. Events may include filenames or file paths. Review the email before sending it. The user’s and developer’s email providers process the message. Support information is retained as needed to handle the request and keep necessary records; deletion requests are honored except where retention is required by law.
@@ -24,4 +26,4 @@ MochiLog does not use advertising, tracking SDKs, or third-party usage analytics
 
 For policy questions or requests to delete support emails, contact support@mochilog.ryuya-dev.net.
 
-Revised: 2026-09-29
+Revised: 2026-10-07

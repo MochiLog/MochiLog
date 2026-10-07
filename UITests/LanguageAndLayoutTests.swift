@@ -40,9 +40,9 @@ final class LanguageAndLayoutTests: XCTestCase {
     XCTAssertFalse(app.buttons["Live Battery"].exists)
   }
 
-  func testLiveBatteryEncryptedComputerExchange() {
+  func testLiveBatteryEncryptedComputerExchange() throws {
     guard let port = ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_PORT"] else {
-      return XCTFail("An isolated encrypted test server is required")
+      throw XCTSkip("Set MOCHI_LIVE_BATTERY_PORT for the isolated encrypted server")
     }
     app.launchEnvironment["MOCHI_LIVE_BATTERY_PORT"] = port
     app.launchArguments += ["-appLanguage", "en", "-liveBatteryEnabled", "YES"]

@@ -8,6 +8,8 @@ MochiLog procesa en el dispositivo los registros de análisis de iPhone, iPad y 
 
 Con iCloud activado, los registros se sincronizan mediante la base de datos privada de iCloud del usuario entre dispositivos de la misma cuenta Apple. Pueden enviarse al Apple Watch enlazado o exportarse y compartirse por decisión del usuario. En la beta de transferencia para iOS/iPadOS 27 y macOS 27, un Mac enlazado recoge los registros cuando el móvil está desbloqueado, los guarda temporalmente y los transmite cifrados por la red local. Mac y móvil intercambian datos de enlace, estado y diagnósticos. Los registros no se envían a un servidor del desarrollador. La app Mac consulta GitHub para buscar actualizaciones; GitHub puede recibir datos de red como la dirección IP. La versión alfa complementaria para Windows 11 también envía los registros de un PC enlazado a MochiLog mediante transferencia cifrada.
 
+Si se activa Batería en vivo, un ordenador vinculado obtiene ciclos de carga y capacidades actuales del servicio de diagnóstico del dispositivo y los envía cifrados a la app móvil. Estos valores solo se mantienen en memoria y no se guardan como historial, registros de batería, datos de iCloud ni registros de diagnóstico para soporte. La opción está desactivada por defecto. Es independiente de la recopilación y conservación de archivos Analytics diarios. Si se usa una VPN configurada por el usuario, como Tailscale, también se aplican sus condiciones y tratamiento de datos.
+
 ## 3. Soporte
 
 Al enviar un correo de soporte, el desarrollador recibe el apodo, correo, mensaje y adjuntos. El soporte de transferencia Mac adjunta, al enviarse, versiones del sistema y la app, modelo, estado de transferencia, identificadores, errores y eventos de diagnóstico recientes. Estos pueden incluir nombres o rutas de archivos. Revise el mensaje antes de enviarlo. Los proveedores de correo procesan el mensaje. Conservamos la información mientras sea necesaria para atender la solicitud y los registros pertinentes; atendemos solicitudes de eliminación salvo obligación legal de conservación.
@@ -24,4 +26,4 @@ MochiLog no usa SDK de publicidad, seguimiento ni análisis de uso de terceros. 
 
 Consultas y solicitudes de eliminación de correos de soporte: support@mochilog.ryuya-dev.net.
 
-Revised: 2026-09-29
+Revised: 2026-10-07

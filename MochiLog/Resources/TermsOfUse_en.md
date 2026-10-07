@@ -8,6 +8,8 @@ These terms apply to MochiLog and its Mac companion, MochiLog Mac. Battery figur
 
 Mac transfer is an in-development feature for iOS/iPadOS 27 and macOS 27 or later. It requires conditions such as initial pairing, a shared local network, and an unlocked mobile device. Collection or transfer may fail because of OS changes, connectivity, or whether logs exist. Keep your own backup of important records. The Windows companion alpha supports Windows 11 and iOS/iPadOS 27 and likewise requires initial pairing, an unlocked device, and connectivity.
 
+Live Battery is an optional beta feature. Available fields, their meaning and refresh frequency depend on device, OS and connectivity. Matching daily logs, continuous availability and locked-device acquisition are not guaranteed. The display is not a substitute for history or an official Apple diagnosis.
+
 ## 3. Tips and refunds
 
 The App Store version may offer optional tips through Apple In-App Purchase. This payment feature is not offered in the AltStore PAL version or Mac app. Tips are not required for core features. Purchases, cancellations, and refunds are governed by Apple’s applicable terms and law. Request a refund through your Apple purchase history.
@@ -24,4 +26,4 @@ These terms may be revised to reflect changes in features or law. The revised te
 
 Japanese law governs these terms, without limiting mandatory consumer rights in your place of residence. Contact support@mochilog.ryuya-dev.net with questions.
 
-Revised: 2026-09-29
+Revised: 2026-10-07
