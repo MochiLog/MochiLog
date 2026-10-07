@@ -151,7 +151,10 @@ final class MochiLogSceneDelegate: UIResponder, UIWindowSceneDelegate {
   }
 
   func sceneDidBecomeActive(_ scene: UIScene) {
-    if #available(iOS 27, *) { MacTransferManager.shared.start() }
+    if #available(iOS 27, *) {
+      MacTransferManager.shared.start()
+      LiveBatteryManager.shared.updateActivity()
+    }
     guard let root = SharedLogInbox.root else { return }
     do {
       let files = try SharedLogInbox.pendingFiles(at: root)
@@ -168,7 +171,10 @@ final class MochiLogSceneDelegate: UIResponder, UIWindowSceneDelegate {
     guard !UIApplication.shared.connectedScenes.contains(where: {
       $0.activationState == .foregroundActive || $0.activationState == .foregroundInactive
     }) else { return }
-    if #available(iOS 27, *) { MacTransferManager.shared.stopForBackground() }
+    if #available(iOS 27, *) {
+      MacTransferManager.shared.stopForBackground()
+      LiveBatteryManager.shared.stop()
+    }
   }
 
   private func open(_ contexts: Set<UIOpenURLContext>) {

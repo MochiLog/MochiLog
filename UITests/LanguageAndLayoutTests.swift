@@ -19,6 +19,48 @@ final class LanguageAndLayoutTests: XCTestCase {
     app.terminate()
   }
 
+  func testLiveBatteryOptInAndLayout() {
+    app.launchEnvironment["MOCHI_LIVE_BATTERY_TEST"] = "1"
+    app.launchArguments += ["-appLanguage", "en", "-liveBatteryEnabled", "YES"]
+    app.launch()
+    let tab = app.buttons["Live Battery"].firstMatch
+    XCTAssertTrue(tab.waitForExistence(timeout: 15))
+    tab.tap()
+    XCTAssertTrue(app.staticTexts["live.CycleCount"].waitForExistence(timeout: 10))
+    XCTAssertEqual(app.staticTexts["live.CycleCount"].label, "245")
+    XCTAssertTrue(app.buttons["live.receive"].isHittable)
+    XCTAssertTrue(app.buttons["live.send"].isHittable)
+    screenshot("Live Battery current values")
+    XCUIDevice.shared.orientation = .landscapeLeft
+    XCTAssertTrue(app.staticTexts["live.DesignCapacity"].waitForExistence(timeout: 10))
+    screenshot("Live Battery landscape")
+    app.terminate()
+    app.launchArguments += ["-liveBatteryEnabled", "NO"]
+    app.launch()
+    XCTAssertFalse(app.buttons["Live Battery"].exists)
+  }
+
+  func testLiveBatteryEncryptedComputerExchange() {
+    guard let port = ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_PORT"] else {
+      return XCTFail("An isolated encrypted test server is required")
+    }
+    app.launchEnvironment["MOCHI_LIVE_BATTERY_PORT"] = port
+    app.launchArguments += ["-appLanguage", "en", "-liveBatteryEnabled", "YES"]
+    app.launch()
+    let tab = app.buttons["Live Battery"].firstMatch
+    XCTAssertTrue(tab.waitForExistence(timeout: 15))
+    tab.tap()
+    let cycle = app.staticTexts["live.CycleCount"]
+    XCTAssertTrue(cycle.waitForExistence(timeout: 20))
+    let expected = NSPredicate(format: "label == %@", "245")
+    expectation(for: expected, evaluatedWith: cycle)
+    waitForExpectations(timeout: 25)
+    app.buttons["live.receive"].tap()
+    XCTAssertEqual(cycle.label, "245")
+    XCTAssertFalse(app.alerts.firstMatch.exists)
+    screenshot("Live Battery encrypted PC response")
+  }
+
   func testDuoAspectRatioAndResize() {
     app.launchEnvironment["MOCHI_LAYOUT_TEST"] = "1"
     app.launchArguments += ["-selectedTabIndex", "0"]

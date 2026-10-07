@@ -17,6 +17,11 @@ struct AdvancedSettingsDetailView: View {
             Label(L10n.text("mt_071", table: "MacTransfer"), systemImage: "laptopcomputer.and.iphone")
           }
           .accessibilityIdentifier("settings.macTransfer")
+          Toggle(isOn: $appSettings.liveBatteryEnabled) {
+            Label(L10n.text("live_enable", table: "MacTransfer"), systemImage: "battery.100percent")
+          }.accessibilityIdentifier("settings.liveBattery")
+          Text(L10n.text("live_enable_note", table: "MacTransfer"))
+            .font(.caption).foregroundStyle(.secondary)
         }
       }
       Section {

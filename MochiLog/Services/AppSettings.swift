@@ -246,6 +246,15 @@ final class AppSettings: ObservableObject {
   /// 選択されているタブのインデックス（0: Home, 1: Analytics, 2: Settings）
   @Published var selectedTabIndex: Int = 0
 
+  @Published var liveBatteryEnabled = UserDefaults.standard.bool(forKey: "liveBatteryEnabled") {
+    didSet {
+      UserDefaults.standard.set(liveBatteryEnabled, forKey: "liveBatteryEnabled")
+      if !liveBatteryEnabled && selectedTabIndex == 3 { selectedTabIndex = 0 }
+      if #available(iOS 27, *) { LiveBatteryManager.shared.updateActivity() }
+    }
+  }
+
+
   /// デバイスの並び順（名前の配列）
   @Published var deviceSortOrder: [String] = []
 

@@ -8,7 +8,7 @@ import UniformTypeIdentifiers
 // MARK: - メインタブビュー
 struct MainTabView: View {
   @EnvironmentObject var dataStore: DataStore
-  private let appSettings = AppSettings.shared
+  @ObservedObject private var appSettings = AppSettings.shared
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
   @ObservedObject private var deviceProfiles = DeviceProfileStore.shared
   @State private var showingProfileConflicts = false
@@ -22,7 +22,7 @@ struct MainTabView: View {
   init() {
     // AppSettings.selectedTabIndexから初期値を取得
     let savedIndex = AppSettings.shared.selectedTabIndex
-    _selectedTab = State(initialValue: AppTab(rawValue: savedIndex) ?? .home)
+    _selectedTab = State(initialValue: (savedIndex == 3 && !AppSettings.shared.liveBatteryEnabled) ? .home : (AppTab(rawValue: savedIndex) ?? .home))
     _accentColor = State(initialValue: AppSettings.shared.accentColor)
   }
 
@@ -31,6 +31,7 @@ struct MainTabView: View {
     case home = 0
     case analytics = 1
     case settings = 2
+    case liveBattery = 3
 
     var id: Int { rawValue }
 
@@ -38,6 +39,7 @@ struct MainTabView: View {
       switch self {
       case .home: return L10n.string("tab_home", table: "Home")
       case .analytics: return L10n.string("tab_analytics", table: "Analytics")
+      case .liveBattery: return L10n.text("live_title", table: "MacTransfer")
       case .settings: return L10n.string("tab_settings", table: "Settings")
       }
     }
@@ -47,8 +49,14 @@ struct MainTabView: View {
       case .home: return "house.fill"
       case .analytics: return "chart.line.uptrend.xyaxis"
       case .settings: return "gearshape.fill"
+      case .liveBattery: return "battery.100percent"
       }
     }
+  }
+
+  private var showsLiveBattery: Bool {
+    if #available(iOS 27, *) { return appSettings.liveBatteryEnabled && !ProcessInfo.processInfo.isiOSAppOnMac }
+    return false
   }
 
   var body: some View {
@@ -142,7 +150,8 @@ struct MainTabView: View {
     }
     // AppSettings.selectedTabIndexの変更を監視してselectedTabに反映
     .onReceive(appSettings.$selectedTabIndex.removeDuplicates()) { newValue in
-      if let newTab = AppTab(rawValue: newValue), newTab != selectedTab {
+      if let newTab = AppTab(rawValue: newValue), newTab != selectedTab,
+        newTab != .liveBattery || showsLiveBattery {
         selectedTab = newTab
       }
     }
@@ -175,6 +184,11 @@ struct MainTabView: View {
       Tab(AppTab.settings.title, systemImage: AppTab.settings.icon, value: .settings) {
         SettingsView()
       }
+      if #available(iOS 27, *), showsLiveBattery {
+        Tab(AppTab.liveBattery.title, systemImage: AppTab.liveBattery.icon, value: .liveBattery) {
+          LiveBatteryView()
+        }
+      }
     }
     .tabViewStyle(.sidebarAdaptable)
     .tint(accentColor.color)
@@ -196,7 +210,7 @@ struct MainTabView: View {
       // onTapGesture だと NavigationSplitView の内部選択状態と乖離し、
       // 設定画面訪問後に detail が切り替わらなくなる問題が発生する
       List(selection: sidebarSelection) {
-        ForEach(AppTab.allCases) { tab in
+        ForEach(AppTab.allCases.filter { $0 != .liveBattery || showsLiveBattery }) { tab in
           Label(tab.title, systemImage: tab.icon)
             .tag(tab)
         }
@@ -214,6 +228,8 @@ struct MainTabView: View {
           AnalyticsView()
         case .settings:
           SettingsView()
+        case .liveBattery:
+          if #available(iOS 27, *), showsLiveBattery { LiveBatteryView() }
         }
       }
       .id(selectedTab)
@@ -239,6 +255,10 @@ struct MainTabView: View {
           Label(AppTab.settings.title, systemImage: AppTab.settings.icon)
         }
         .tag(AppTab.settings)
+      if #available(iOS 27, *), showsLiveBattery {
+        LiveBatteryView().tabItem { Label(AppTab.liveBattery.title, systemImage: AppTab.liveBattery.icon) }
+          .tag(AppTab.liveBattery)
+      }
     }
     .tint(accentColor.color)
   }
