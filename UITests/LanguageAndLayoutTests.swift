@@ -30,6 +30,11 @@ final class LanguageAndLayoutTests: XCTestCase {
     XCTAssertEqual(app.staticTexts["live.CycleCount"].label, "245")
     XCTAssertTrue(app.buttons["live.receive"].isHittable)
     XCTAssertTrue(app.buttons["live.send"].isHittable)
+    app.buttons["live.details"].tap()
+    let batteryGroup = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "BatteryData")).firstMatch
+    XCTAssertTrue(batteryGroup.waitForExistence(timeout: 5))
+    batteryGroup.tap()
+    XCTAssertTrue(app.staticTexts["18446744073709551615"].waitForExistence(timeout: 5))
     screenshot("Live Battery current values")
     XCUIDevice.shared.orientation = .landscapeLeft
     XCTAssertTrue(app.staticTexts["live.DesignCapacity"].waitForExistence(timeout: 10))

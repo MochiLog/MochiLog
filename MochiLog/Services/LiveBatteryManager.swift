@@ -4,11 +4,38 @@ import Foundation
 import Network
 import UIKit
 
+struct RawBatteryField: Codable, Equatable {
+  let path: [String]
+  let kind: String
+  let value: String
+  var group: String { path.count > 1 ? path[0] : "" }
+  var label: String { (path.count > 1 ? Array(path.dropFirst()) : path).joined(separator: " › ") }
+  enum Failure: Error { case invalid }
+  static func decode(_ text: String, revision: String) throws -> [RawBatteryField] {
+    let data = Data(text.utf8)
+    guard data.count <= 262144,
+      revision.range(of: "^[a-f0-9]{64}$", options: .regularExpression) != nil,
+      SHA256.hash(data: data).map({ String(format: "%02x", $0) }).joined() == revision else { throw Failure.invalid }
+    let fields = try JSONDecoder().decode([RawBatteryField].self, from: data)
+    guard !fields.isEmpty, fields.count <= 10000,
+      fields.allSatisfy({ !$0.path.isEmpty && $0.path.count <= 32 && $0.path.allSatisfy({ $0.count <= 512 })
+        && ["null", "boolean", "number", "string", "data", "date", "dictionary", "array"].contains($0.kind)
+        && $0.value.utf8.count <= 524288 }) else { throw Failure.invalid }
+    return fields
+  }
+}
+
 struct LiveBatteryReading: Equatable {
   let values: [String: Int]
   let charging: Bool?
   let revision: String
   let acquiredAt: Date
+  var detailsJSON: String? = nil
+  var detailsRevision: String? = nil
+  var fields: [RawBatteryField] {
+    guard let detailsJSON, let detailsRevision else { return [] }
+    return (try? RawBatteryField.decode(detailsJSON, revision: detailsRevision)) ?? []
+  }
 }
 
 /// Foreground-only, session-only current values. No record or iCloud writes.
@@ -67,6 +94,9 @@ final class LiveBatteryManager: ObservableObject {
         "NominalChargeCapacity": 3820, "AppleRawMaxCapacity": 3850,
         "FullChargeCapacity": 3800, "CurrentCapacity": 67], charging: false,
         revision: String(repeating: "a", count: 64), acquiredAt: Date())
+      let details = "[{\"path\":[\"BatteryData\",\"Huge\"],\"kind\":\"number\",\"value\":\"18446744073709551615\"},{\"path\":[\"Flag\"],\"kind\":\"boolean\",\"value\":\"false\"}]"
+      readings[id]?.detailsJSON = details
+      readings[id]?.detailsRevision = SHA256.hash(data: Data(details.utf8)).map { String(format: "%02x", $0) }.joined()
       states[id] = "current"
       return
     }
@@ -173,7 +203,8 @@ final class LiveBatteryManager: ObservableObject {
             "physicalDeviceID": pairing.physicalDeviceID.uuidString, "nonce": nonce.uuidString,
             "ack": "", "mac": mac, "version": "2", "liveBatteryVersion": "1",
             "liveBatteryRevision": readings[pairing.hostID]?.revision ?? "",
-            "liveBatteryRefresh": refresh ? "1" : "0"]
+            "liveBatteryRefresh": refresh ? "1" : "0", "liveBatteryDetailsVersion": "1",
+            "liveBatteryDetailsRevision": readings[pairing.hostID]?.detailsRevision ?? ""]
           let issuedAt = Int64(Date().timeIntervalSince1970)
           let aad = Data("v3|request|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)|\(issuedAt)".utf8)
           let inner = try JSONSerialization.data(withJSONObject: request)
@@ -214,10 +245,21 @@ final class LiveBatteryManager: ObservableObject {
     guard revision.range(of: "^[a-f0-9]{64}$", options: .regularExpression) != nil,
       let timestamp = object["acquiredAt"] as? String,
       let date = Self.date(timestamp) else { throw LiveBatteryTransport.Failure.invalid }
+    var details = previous?.detailsJSON
+    var detailsRevision = previous?.detailsRevision
+    if let advertised = object["detailsRevision"] as? String {
+      guard object["detailsVersion"] as? Int == 1 else { throw LiveBatteryTransport.Failure.invalid }
+      if let fresh = object["detailsJSON"] as? String {
+        _ = try RawBatteryField.decode(fresh, revision: advertised)
+        details = fresh; detailsRevision = advertised
+      } else {
+        guard advertised == detailsRevision, details != nil else { throw LiveBatteryTransport.Failure.invalid }
+      }
+    } else { details = nil; detailsRevision = nil }
     guard let raw = object["values"] as? [String: Any] else {
       guard let previous, previous.revision == revision else { throw LiveBatteryTransport.Failure.invalid }
       return LiveBatteryReading(values: previous.values, charging: previous.charging,
-        revision: revision, acquiredAt: date)
+        revision: revision, acquiredAt: date, detailsJSON: details, detailsRevision: detailsRevision)
     }
     let limits = ["CycleCount": 0...100000, "DesignCapacity": 1...200000,
       "FullChargeCapacity": 1...200000, "NominalChargeCapacity": 1...200000,
@@ -228,7 +270,7 @@ final class LiveBatteryManager: ObservableObject {
         number.doubleValue.isFinite, number.doubleValue == Double(number.intValue),
         range.contains(number.intValue) { values[key] = number.intValue }
     }
-    guard !values.filter({ $0.key != "CurrentCapacity" }).isEmpty else { throw LiveBatteryTransport.Failure.invalid }
+    guard !values.filter({ $0.key != "CurrentCapacity" }).isEmpty || details != nil else { throw LiveBatteryTransport.Failure.invalid }
     let charging = (object["charging"] as? NSNumber).flatMap {
       CFGetTypeID($0) == CFBooleanGetTypeID() ? $0.boolValue : nil
     }
@@ -237,7 +279,8 @@ final class LiveBatteryManager: ObservableObject {
     let digest = SHA256.hash(data: try JSONSerialization.data(withJSONObject: canonical, options: [.sortedKeys]))
       .map { String(format: "%02x", $0) }.joined()
     guard digest == revision else { throw LiveBatteryTransport.Failure.invalid }
-    return LiveBatteryReading(values: values, charging: charging, revision: revision, acquiredAt: date)
+    return LiveBatteryReading(values: values, charging: charging, revision: revision, acquiredAt: date,
+      detailsJSON: details, detailsRevision: detailsRevision)
   }
 
   static func date(_ text: String) -> Date? {
@@ -274,7 +317,7 @@ private final class LiveBatteryTransport: @unchecked Sendable {
     completion = continuation
     let deadline = DispatchWorkItem { [weak self] in self?.finish(.failure(Failure.unavailable)) }
     timeout = deadline
-    queue.asyncAfter(deadline: .now() + 8, execute: deadline)
+    queue.asyncAfter(deadline: .now() + 30, execute: deadline)
     connection.stateUpdateHandler = { [weak self] state in
       guard let self else { return }
       switch state {
@@ -290,13 +333,13 @@ private final class LiveBatteryTransport: @unchecked Sendable {
     connection.start(queue: queue)
   }
   private func receive() {
-    connection.receive(minimumIncompleteLength: 1, maximumLength: 8192) { [weak self] data, _, complete, error in
+    connection.receive(minimumIncompleteLength: 1, maximumLength: 65536) { [weak self] data, _, complete, error in
       guard let self, self.completion != nil else { return }
       if let data { self.buffer.append(data) }
-      guard self.buffer.count <= 8196 else { self.finish(.failure(Failure.unsupported)); return }
+      guard self.buffer.count <= 1048580 else { self.finish(.failure(Failure.unsupported)); return }
       if self.buffer.count >= 4 {
         let length = self.buffer.prefix(4).reduce(0) { ($0 << 8) | Int($1) }
-        guard (28...8192).contains(length) else { self.finish(.failure(Failure.unsupported)); return }
+        guard (28...1048576).contains(length) else { self.finish(.failure(Failure.unsupported)); return }
         if self.buffer.count == length + 4 { self.finish(.success(self.buffer.dropFirst(4))); return }
         if self.buffer.count > length + 4 { self.finish(.failure(Failure.invalid)); return }
       }

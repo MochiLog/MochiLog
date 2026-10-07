@@ -27,3 +27,5 @@ MochiLog nutzt keine Werbe-, Tracking- oder Drittanbieter-Nutzungsanalyse-SDKs. 
 Fragen und Anfragen zur Löschung von Support-E-Mails: support@mochilog.ryuya-dev.net.
 
 Revised: 2026-10-07
+
+Die vollständige Akkuansicht kann auch Herstellungsdaten, Akku-Kennungen und Statuskennzeichen im Arbeitsspeicher verarbeiten. Originalnamen und Werte der API werden ohne angenommene Einheiten angezeigt. Sie werden nicht gespeichert oder Supportprotokollen beigefügt und mit der bestehenden Kopplung verschlüsselt übertragen.

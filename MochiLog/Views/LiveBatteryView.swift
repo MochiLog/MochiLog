@@ -12,6 +12,7 @@ struct LiveBatteryView: View {
           Label(text("live_title"), systemImage: "battery.100percent")
             .font(.largeTitle.bold())
           Text(text("live_note")).foregroundStyle(.secondary)
+          Text(text("live_network_note")).font(.caption).foregroundStyle(.secondary)
           HStack {
             Button { Task { await manager.receiveNow() } } label: {
               Label(text("live_receive"), systemImage: "arrow.down.circle")
@@ -67,12 +68,52 @@ struct LiveBatteryView: View {
         }
       }
       if let reading {
+        DisclosureGroup {
+          if reading.fields.isEmpty { Text(text("live_details_missing")).font(.caption) }
+          else { RawBatteryFieldsView(fields: reading.fields, text: text) }
+        } label: { Label(text("live_details"), systemImage: "list.bullet.rectangle") }
+        .accessibilityIdentifier("live.details")
         HStack(alignment: .firstTextBaseline) {
           Text(text("live_last"))
           Text(reading.acquiredAt, format: .dateTime.year().month().day().hour().minute().second())
         }.font(.caption).foregroundStyle(.secondary)
       }
     }.padding(20).background(.thinMaterial, in: RoundedRectangle(cornerRadius: 22))
-    .accessibilityIdentifier("live.card")
+
+  }
+}
+
+@available(iOS 27, *)
+private struct RawBatteryFieldsView: View {
+  let fields: [RawBatteryField]
+  let text: (String) -> String
+  private var groups: [String: [RawBatteryField]] { Dictionary(grouping: fields, by: \.group) }
+  var body: some View {
+    VStack(alignment: .leading, spacing: 14) {
+      Text(text("live_details_note")).font(.caption).foregroundStyle(.secondary)
+      ForEach(groups.keys.sorted(), id: \.self) { group in
+        DisclosureGroup {
+          VStack(alignment: .leading, spacing: 12) {
+            ForEach(Array((groups[group] ?? []).enumerated()), id: \.offset) { _, field in
+              VStack(alignment: .leading, spacing: 4) {
+                Text(field.label).font(.subheadline.weight(.medium)).textSelection(.enabled)
+                Text(field.kind == "boolean" ? text(field.value == "true" ? "live_true" : "live_false")
+                  : (field.kind == "data" ? "Base64 · " : "") + field.value)
+                  .font(.system(.callout, design: .monospaced)).textSelection(.enabled)
+                  .fixedSize(horizontal: false, vertical: true)
+                  .frame(maxWidth: .infinity, alignment: .leading)
+                Divider()
+              }
+            }
+          }.padding(.top, 8)
+        } label: {
+          HStack {
+            Text(group.isEmpty ? text("live_details_general") : group)
+            Spacer()
+            Text(String(groups[group]?.count ?? 0)).font(.caption).foregroundStyle(.secondary)
+          }
+        }
+      }
+    }
   }
 }

@@ -27,3 +27,5 @@ MochiLog no usa SDK de publicidad, seguimiento ni análisis de uso de terceros. 
 Consultas y solicitudes de eliminación de correos de soporte: support@mochilog.ryuya-dev.net.
 
 Revised: 2026-10-07
+
+La vista completa puede tratar metadatos de fabricación, identificadores de batería e indicadores de estado en memoria. Muestra los nombres y valores originales sin deducir unidades. No se guardan ni se adjuntan a los registros de soporte y se transfieren cifrados mediante el enlace existente.

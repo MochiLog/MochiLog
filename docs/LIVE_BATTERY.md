@@ -21,3 +21,7 @@ Use the new MochiLog 4.0.0 beta with MochiLog Mac 0.2.14 or MochiLog Windows 0.1
 ## 検証メモ
 
 現在値はLiveBatteryManagerのセッション内だけで保持する。レコード保存、iCloud同期、サポートの診断ログには含めない。個体IDは既存のPCペアリングを使用する。合成データはDEBUG環境変数指定時だけで、配布版には入らない。暗号化TCP試験は合成サーバーとxctestrunのEnvironmentVariablesにMOCHI_LIVE_BATTERY_PORTを渡して実施する。未指定の場合はこの試験だけスキップする。
+
+「APIの全項目」を展開すると、APIが返す製造情報・状態フラグ・バッテリー識別情報なども確認できます。元の項目名・値を表示し、単位は推測しません。これらもメモリ内だけで扱い、履歴・サポートログには保存しません。TailscaleとPC連携のモバイル通信許可を使って外出先からも受信できます。PCから新しい値を取得するには端末の診断サービスに接続できる必要があり、VPNの接続だけで取得を保証するものではありません。
+
+Expand **All API fields** to view manufacturing metadata, flags, battery identifiers and other returned fields. Original names and values are preserved without guessing units; fields remain in memory and are not saved to history or support logs. Existing Tailscale routes and the PC Link cellular permission also allow receiving outside the local network. Fresh acquisition additionally requires a reachable device diagnostics service; VPN connectivity alone does not guarantee acquisition.

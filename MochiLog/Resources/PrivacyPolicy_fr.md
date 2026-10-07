@@ -27,3 +27,5 @@ MochiLog n’utilise aucun SDK publicitaire, de suivi ou d’analyse d’utilisa
 Questions et demandes de suppression des courriels de support : support@mochilog.ryuya-dev.net.
 
 Revised: 2026-10-07
+
+La vue complète peut traiter en mémoire les métadonnées de fabrication, identifiants de batterie et indicateurs d’état. Les noms et valeurs de l’API sont affichés sans déduire les unités. Ils ne sont ni enregistrés ni joints aux journaux d’assistance et sont transférés chiffrés avec le jumelage existant.

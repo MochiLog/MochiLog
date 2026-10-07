@@ -27,3 +27,5 @@ MochiLog does not use advertising, tracking SDKs, or third-party usage analytics
 For policy questions or requests to delete support emails, contact support@mochilog.ryuya-dev.net.
 
 Revised: 2026-10-07
+
+The full-field battery view can also handle manufacturing metadata, battery identifiers and status flags in memory. It shows original API names and values without guessing units. These fields are not saved or attached to support logs and use encrypted transfer with the existing pairing.

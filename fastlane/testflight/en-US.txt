@@ -11,3 +11,10 @@ Daily Analytics collection requires an unlocked device. Watch files stored on iP
 View and copy diagnostics by date. Dedicated support can attach both sides’ logs for the incident date and the two preceding days. Exact duplicate records can be reviewed and cleaned up after a backup. iPad settings remain in the right pane; computer transfer is hidden when the mobile app runs on Mac.
 
 Previous fixes include the record-sharing crash, charts with localized device names, recurring Watch processing results and mobile-app launch on Mac. AES-GCM request encryption, expiry, persistent replay protection and downgrade prevention preserve existing pairings and support staged upgrades. This is beta software: report problems with dated diagnostics and the steps that triggered them.
+
+Live Battery now displays all fields returned by the diagnostics battery API, grouped under All API fields, alongside the main cycle-count and capacity cards. Manufacturing metadata, battery identifiers and flags are retained. Large integers keep their precision; binary data is shown as Base64. Units and field meanings are not guessed.
+
+Values remain in memory only and are never saved to history, records, iCloud or support logs. Existing encrypted pairings are preserved. Core and full-detail revisions are tracked independently; unchanged values are not resent. Older clients can still use core fields.
+
+Current-value reception supports Tailscale routes and respects the mobile PC Link cellular permission. Fresh acquisition from an iPad over Tailscale succeeded from both Mac and Windows. Availability still depends on the device diagnostics service; cellular-radio operation, long locks and every model are not guaranteed. Failed refreshes retain previous values and acquisition time. This does not enable locked daily Analytics-file acquisition.
+
