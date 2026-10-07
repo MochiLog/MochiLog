@@ -8,6 +8,8 @@ See the [full Mac research and next controlled experiment](https://github.com/Mo
 
 The same day's follow-up [independent research client](https://github.com/MochiLog/MochiLog-Mac/tree/main/scripts/research) uses its own C tunnel assertion, HTTP/2/RemoteXPC, plist and AFC implementation without importing/executing pymobiledevice3. Authentication/discovery and the 21,327,604-byte stat succeeded, but read-only open again received PERM_DENIED while the iPhone stayed AFU-locked. The saved RemotePairing unlock credential returned EscrowFailure. This isolates the denial from the upstream file-read code; no working locked-state acquisition or iPhone runtime change resulted. A newly accepted credential and while-unlocked control remain unverified.
 
+Additional direct-service research found longer-lock native tunnel rejection (1016) and classic diagnostic/file_relay service rejection (PasswordProtected). The existing OS snapshot key differs from the tool's key. The new OS-credential check-in probe has not reached RSD because tunnel creation was rejected, so the credential's validity and locked-file effect remain unverified. Backup/Mirroring are excluded. No new pairing, key creation, security-setting change, parser change or app update occurred; the Mac memo records the details. The 13 offline tests do not substitute for successful real locked-state content acquisition.
+
 Status: **wireless Analytics acquisition and app-launch Mac-to-iPhone reception confirmed on iOS 27; app-launch reception confirmed on iOS 16**. This is a research note and an experiment-only receiver, not a product implementation. The proposed Mac transfer feature will target iOS 17 and later; the iOS 16 observation is research only.
 
 ## Device and connection
