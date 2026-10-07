@@ -17,4 +17,3 @@ Live Battery now displays all fields returned by the diagnostics battery API, gr
 Values remain in memory only and are never saved to history, records, iCloud or support logs. Existing encrypted pairings are preserved. Core and full-detail revisions are tracked independently; unchanged values are not resent. Older clients can still use core fields.
 
 Current-value reception supports Tailscale routes and respects the mobile PC Link cellular permission. Fresh acquisition from an iPad over Tailscale succeeded from both Mac and Windows. Availability still depends on the device diagnostics service; cellular-radio operation, long locks and every model are not guaranteed. Failed refreshes retain previous values and acquisition time. This does not enable locked daily Analytics-file acquisition.
-
