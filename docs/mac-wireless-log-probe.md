@@ -1,5 +1,11 @@
 # Wireless Analytics log access probe (2026-09-25)
 
+## Locked-state follow-up (2026-10-07)
+
+The current investigation explicitly excludes before-first-unlock after reboot and targets after-first-unlock followed by screen lock. A paired iPhone 17 on iOS 27.2 again exposed Analytics names and file sizes while locked, but a 21,327,604-byte report failed native AFC FILE_OPEN with PERM_DENIED (10). CoreDevice copy failed on remote openat with EPERM. Adding the existing RemotePairing unlock credential returned EscrowFailure; classic Wi-Fi escrow did not produce a successful service connection. No working locked-state body acquisition was verified, and runtime behavior has not changed.
+
+See the [full Mac research and next controlled experiment](https://github.com/MochiLog/MochiLog-Mac/blob/main/docs/LOCKED_ANALYTICS_RESEARCH.md) and [Windows applicability](https://github.com/MochiLog/MochiLog-Windows/blob/main/docs/LOCKED_ANALYTICS_RESEARCH.md). Windows' userspace route has not yet been live-tested in this locked-state investigation. Metadata visibility must not be treated as collection success.
+
 Status: **wireless Analytics acquisition and app-launch Mac-to-iPhone reception confirmed on iOS 27; app-launch reception confirmed on iOS 16**. This is a research note and an experiment-only receiver, not a product implementation. The proposed Mac transfer feature will target iOS 17 and later; the iOS 16 observation is research only.
 
 ## Device and connection
