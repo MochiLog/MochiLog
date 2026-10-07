@@ -6,6 +6,8 @@ The current investigation explicitly excludes before-first-unlock after reboot a
 
 See the [full Mac research and next controlled experiment](https://github.com/MochiLog/MochiLog-Mac/blob/main/docs/LOCKED_ANALYTICS_RESEARCH.md) and [Windows applicability](https://github.com/MochiLog/MochiLog-Windows/blob/main/docs/LOCKED_ANALYTICS_RESEARCH.md). Windows' userspace route has not yet been live-tested in this locked-state investigation. Metadata visibility must not be treated as collection success.
 
+The same day's follow-up [independent research client](https://github.com/MochiLog/MochiLog-Mac/tree/main/scripts/research) uses its own C tunnel assertion, HTTP/2/RemoteXPC, plist and AFC implementation without importing/executing pymobiledevice3. Authentication/discovery and the 21,327,604-byte stat succeeded, but read-only open again received PERM_DENIED while the iPhone stayed AFU-locked. The saved RemotePairing unlock credential returned EscrowFailure. This isolates the denial from the upstream file-read code; no working locked-state acquisition or iPhone runtime change resulted. A newly accepted credential and while-unlocked control remain unverified.
+
 Status: **wireless Analytics acquisition and app-launch Mac-to-iPhone reception confirmed on iOS 27; app-launch reception confirmed on iOS 16**. This is a research note and an experiment-only receiver, not a product implementation. The proposed Mac transfer feature will target iOS 17 and later; the iOS 16 observation is research only.
 
 ## Device and connection
