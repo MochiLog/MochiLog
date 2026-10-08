@@ -29,7 +29,7 @@ struct AutomaticCollectionSettingsView: View {
           .accessibilityIdentifier("autoCollection.localToggle")
         NavigationLink { LocalDiagnosticsSettingsView() } label: {
           Label(text("local_title"), systemImage: "iphone.radiowaves.left.and.right")
-        }
+        }.accessibilityIdentifier("autoCollection.localSettings")
         Text(text("auto_local_note")).font(.caption).foregroundStyle(.secondary)
       }
     }.navigationTitle(text("auto_collection_title"))
@@ -38,12 +38,15 @@ struct AutomaticCollectionSettingsView: View {
 
 @available(iOS 27, *)
 struct LocalDiagnosticsSettingsView: View {
+  @ObservedObject private var settings = AppSettings.shared
   @ObservedObject private var manager = LocalDiagnosticsManager.shared
   @ObservedObject private var transfer = MacTransferManager.shared
+  @ObservedObject private var pairing = LocalDevicePairing.shared
   @State private var importing = false
   @State private var expectedUDID = ""
   @State private var errorMessage: String?
   @State private var forgetConfirmation = false
+  @State private var pairConfirmation = false
   private func text(_ key: String) -> String { L10n.text(key, table: "MacTransfer") }
   var body: some View {
     Form {
@@ -61,18 +64,36 @@ struct LocalDiagnosticsSettingsView: View {
       }
       Section(text("local_pairing_step")) {
         Text(text("local_pairing_note")).font(.callout)
+        VStack(alignment: .leading, spacing: 12) {
+          Label(text("local_pair_title"), systemImage: "iphone.and.arrow.forward").font(.headline)
+          Text(text("local_pair_instructions")).font(.callout)
+          if !pairing.hostName.isEmpty { Text(pairing.hostName).font(.caption.monospaced()).textSelection(.enabled) }
+          if pairing.active {
+            ProgressView(text(pairing.statusKey))
+            if !pairing.pin.isEmpty {
+              Text(text("local_pair_code")).font(.caption)
+              Text(pairing.pin).font(.system(.largeTitle, design: .monospaced).bold()).textSelection(.enabled)
+            }
+            if pairing.shortBackground { Text(text("local_pair_short_background")).font(.caption).foregroundStyle(.orange) }
+            Button(L10n.text("cancel", table: "Common"), role: .cancel) { pairing.cancel() }
+              .accessibilityIdentifier("localPairing.cancel")
+          } else {
+            Button {
+              if manager.configured { pairConfirmation = true } else { pairing.start() }
+            } label: { Label(text("local_pair_start"), systemImage: "key.horizontal.fill") }
+              .disabled(manager.busy).accessibilityIdentifier("localPairing.start")
+            if pairing.statusKey != "local_pair_ready" { Text(text(pairing.statusKey)).font(.callout) }
+          }
+        }.padding(.vertical, 8)
         ForEach(transfer.pairings, id: \.hostID) { pair in
           Button { Task { await manager.reuse(pair) } } label: {
             Label(text("local_reuse") + " · " + (pair.platform == "windows" ? "Windows" : "Mac"), systemImage: "key.horizontal")
-          }.disabled(manager.busy)
-        }
-        if transfer.pairings.isEmpty {
-          NavigationLink { MacTransferSettingsView() } label: { Label(text("mt_071"), systemImage: "laptopcomputer.and.iphone") }
+          }.disabled(manager.busy || pairing.active)
         }
         DisclosureGroup(text("local_import_title")) {
           Text(text("local_import_note")).font(.caption).foregroundStyle(.secondary)
           TextField(text("local_udid"), text: $expectedUDID).textInputAutocapitalization(.never).autocorrectionDisabled()
-          Button(text("local_import_button")) { importing = true }.disabled(expectedUDID.isEmpty || manager.busy)
+          Button(text("local_import_button")) { importing = true }.disabled(expectedUDID.isEmpty || manager.busy || pairing.active)
           Link("idevice_pair", destination: URL(string: "https://github.com/jkcoxson/idevice_pair/releases")!)
         }
       }
@@ -84,18 +105,37 @@ struct LocalDiagnosticsSettingsView: View {
           .textInputAutocapitalization(.never).autocorrectionDisabled()
         Text(text("local_vpn_caution")).font(.caption).foregroundStyle(.secondary)
       }
+      Section(text("live_title")) {
+        Toggle(text("local_live_enable"), isOn: $settings.liveBatteryEnabled)
+          .accessibilityIdentifier("localBattery.enable")
+        Text(text("local_live_note")).font(.caption).foregroundStyle(.secondary)
+        Button { Task { await manager.receiveBatteryNow() } } label: {
+          Label(text("live_receive"), systemImage: "battery.100percent")
+        }.disabled(!manager.configured || manager.batteryBusy || pairing.active || !settings.liveBatteryEnabled || !settings.localAutomaticCollectionEnabled)
+          .accessibilityIdentifier("localBattery.receive")
+        if manager.batteryBusy { ProgressView() }
+        if let reading = manager.reading {
+          LabeledContent(text("live_last")) { Text(reading.acquiredAt, format: .dateTime.month().day().hour().minute().second()) }
+        }
+        NavigationLink { LiveBatteryView() } label: { Label(text("live_title"), systemImage: "chart.bar") }
+          .disabled(!settings.liveBatteryEnabled).accessibilityIdentifier("localBattery.values")
+      }
       Section {
         Button { Task { await manager.collectNow() } } label: {
           Label(text("local_collect_now"), systemImage: "arrow.down.doc")
-        }.disabled(!manager.configured || manager.busy || !AppSettings.shared.localAutomaticCollectionEnabled)
+        }.disabled(!manager.configured || manager.busy || pairing.active || !AppSettings.shared.localAutomaticCollectionEnabled)
         if manager.busy { ProgressView(text("local_working")) }
         Text(text("local_limits")).font(.caption).foregroundStyle(.secondary)
-        Button(text("local_forget"), role: .destructive) { forgetConfirmation = true }.disabled(!manager.configured)
+        Button(text("local_forget"), role: .destructive) { forgetConfirmation = true }.disabled(!manager.configured || pairing.active)
       }
       Section {
         NavigationLink { MacTransferDebugLogView() } label: { Label(text("mt_068"), systemImage: "ladybug") }
       }
     }.navigationTitle(text("local_title"))
+      .alert(text("local_pair_title"), isPresented: $pairConfirmation) {
+        Button(text("local_pair_start")) { pairing.start() }
+        Button(L10n.text("cancel", table: "Common"), role: .cancel) {}
+      } message: { Text(text("local_pair_replace_note")) }
       .alert(text("local_forget"), isPresented: $forgetConfirmation) {
         Button(text("local_forget"), role: .destructive) { manager.forget() }
         Button(L10n.text("cancel", table: "Common"), role: .cancel) {}

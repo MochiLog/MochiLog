@@ -14,6 +14,7 @@ final class MochiLogApp: UIResponder, UIApplicationDelegate {
   ) -> Bool {
     prepareApplicationSupportDirectories()
     CrashDiagnostics.shared.start()
+    if #available(iOS 27, *) { LocalDevicePairing.register() }
     WatchConnectivityManager.shared.startSession()
     return true
   }

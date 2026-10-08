@@ -98,7 +98,7 @@ final class LocalDiagnosticsManager: ObservableObject {
         message = text("local_reuse_failed"); return
       }
       try save(LocalDiagnosticsCredential.validate(data, expectedUDID: udid, physicalDeviceID: pair.physicalDeviceID))
-      MacTransferManager.appendDebugEvent("Local diagnostics: own-device OS pairing reused over authenticated v3; keys stored in device-only Keychain")
+      MacTransferManager.appendDebugEvent("Local diagnostics: own-device OS pairing reused over authenticated v3; source=\(pair.platform ?? "mac"), computer=\(pair.hostID); keys stored in device-only Keychain")
     } catch { message = text("local_reuse_failed") }
   }
   #if DEBUG
@@ -140,7 +140,7 @@ final class LocalDiagnosticsManager: ObservableObject {
   }
   #endif
   func updateActivity() {
-    guard AppSettings.shared.localAutomaticCollectionEnabled, !ProcessInfo.processInfo.isiOSAppOnMac,
+    guard !LocalDevicePairing.shared.active, AppSettings.shared.localAutomaticCollectionEnabled, !ProcessInfo.processInfo.isiOSAppOnMac,
       configured, UIApplication.shared.connectedScenes.contains(where: { $0.activationState == .foregroundActive }) else { stop(); return }
     if loop == nil {
       restoreStagedFiles() 
@@ -155,7 +155,7 @@ final class LocalDiagnosticsManager: ObservableObject {
     if AppSettings.shared.liveBatteryEnabled && batteryLoop == nil {
       batteryLoop = Task { [weak self] in
         while !Task.isCancelled {
-          await self?.receiveBatteryNow()
+          await self?.receiveBatteryNow(manual: false)
           do { try await Task.sleep(for: .seconds(15)) } catch { return }
         }
       }
@@ -169,15 +169,21 @@ final class LocalDiagnosticsManager: ObservableObject {
       (parts[0] == 172 && (16...31).contains(parts[1])) || LiveBatteryManager.isTailnet(address) else { return nil }
     return address
   }
-  func receiveBatteryNow() async {
-    guard !batteryBusy, let credential, let address = safeAddress,
+  func receiveBatteryNow(manual: Bool = true) async {
+    guard !LocalDevicePairing.shared.active, !batteryBusy, let credential, let address = safeAddress,
       AppSettings.shared.localAutomaticCollectionEnabled, AppSettings.shared.liveBatteryEnabled else { return }
     batteryBusy = true; defer { batteryBusy = false }; let epoch = generation
     do {
       let value = try await Task.detached(priority: .utility) { try LocalDiagnosticsTransport.battery(credential, address: address) }.value
       guard generation == epoch, !Task.isCancelled else { return }
       reading = value; state = "current"
-    } catch { if generation == epoch { state = reading == nil ? "unavailable" : "stale" } }
+      if manual { MacTransferManager.appendDebugEvent("Local diagnostics: current battery received directly; coreFields=\(value.values.count); no history record saved") }
+    } catch {
+      if generation == epoch {
+        state = reading == nil ? "unavailable" : "stale"
+        if manual { MacTransferManager.appendDebugEvent("Local diagnostics: current battery request failed; error=\(error)") }
+      }
+    }
   }
   private static func japanDay(_ date: Date = Date()) -> String {
     let f = DateFormatter(); f.locale = Locale(identifier: "en_US_POSIX"); f.timeZone = TimeZone(identifier: "Asia/Tokyo"); f.dateFormat = "yyyy-MM-dd"; return f.string(from: date)
@@ -186,7 +192,7 @@ final class LocalDiagnosticsManager: ObservableObject {
     Set(UserDefaults.standard.stringArray(forKey: "LocalDiagnosticsImported." + id.uuidString) ?? [])
   }
   func collectNow(manual: Bool = true) async {
-    guard !busy, let credential, let address = safeAddress, AppSettings.shared.localAutomaticCollectionEnabled else { return }
+    guard !LocalDevicePairing.shared.active, !busy, let credential, let address = safeAddress, AppSettings.shared.localAutomaticCollectionEnabled else { return }
     let day = Self.japanDay()
     let imported = importedBases(credential.physicalDeviceID)
     if !manual {

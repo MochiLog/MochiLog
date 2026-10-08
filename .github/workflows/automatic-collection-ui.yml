@@ -9,6 +9,10 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
+      - name: Verify on-device pairing boundary and localization
+        run: |
+          bash scripts/test-local-pairing.sh
+          python3 scripts/audit-localizations.py
       - name: Build local diagnostics dependency
         env:
           CARGO_BUILD_JOBS: '3'

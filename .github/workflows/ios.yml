@@ -37,6 +37,9 @@ jobs:
       - name: Verify cloud log sharing and safe convergence
         run: bash scripts/test-cloud-sharing.sh
 
+      - name: Verify own-device pairing address boundary
+        run: bash scripts/test-local-pairing.sh
+
       - name: Verify live battery comparison
         run: bash scripts/test-live-battery-comparison.sh
 

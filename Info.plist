@@ -16,12 +16,17 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>同じWi-FiのMochiLog Macから解析ログを安全に受信するために使用します。</string>
+	<string>Used for secure log transfer with Mac and Windows and OS pairing on this device.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>MochiLog Macのペアリング用QRコードを読み取るために使用します。</string>
+	<string>Used to scan pairing QR codes from MochiLog Mac and Windows.</string>
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_mochilog._tcp</string>
+		<string>_remotepairing-pairable-host._tcp</string>
+	</array>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>net.ryuya-dev.MochiLog.local-pairing</string>
 	</array>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
@@ -136,6 +141,7 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
+		<string>processing</string>
 	</array>
 </dict>
 </plist>

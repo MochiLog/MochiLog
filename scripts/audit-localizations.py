@@ -28,7 +28,7 @@ def placeholders(value):
 
 errors = []
 count = 0
-paths = sorted(root.glob('MochiLog/Resources/strings/*.xcstrings')) + sorted(root.glob('MochiLog Watch App/*.xcstrings')) + sorted(root.glob('Shared/*.xcstrings'))
+paths = sorted(root.glob('MochiLog/Resources/strings/*.xcstrings')) + sorted(root.glob('MochiLog/Resources/InfoPlist.xcstrings')) + sorted(root.glob('MochiLog Watch App/*.xcstrings')) + sorted(root.glob('Shared/*.xcstrings'))
 for path in paths:
     catalog = json.loads(path.read_text(encoding='utf-8'))
     for key, entry in catalog['strings'].items():

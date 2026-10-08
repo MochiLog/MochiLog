@@ -1,0 +1,112 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "NSLocalNetworkUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Used for secure log transfer with Mac and Windows and OS pairing on this device."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mac・Windowsとの安全なログ転送と、この端末のOSペアリングを行うために使用します。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Für sichere Protokollübertragung mit Mac und Windows und OS-Kopplung auf diesem Gerät."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para transferir registros de forma segura con Mac y Windows y emparejar el sistema en este dispositivo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour transférer les journaux avec Mac et Windows et effectuer le jumelage système sur cet appareil."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mac·Windows와의 안전한 로그 전송 및 이 기기의 OS 페어링에 사용합니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用于与Mac和Windows安全传输日志，以及本设备的系统配对。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用於與Mac和Windows安全傳輸日誌，以及本裝置的系統配對。"
+          }
+        }
+      }
+    },
+    "NSCameraUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Used to scan pairing QR codes from MochiLog Mac and Windows."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MochiLog Mac・Windowsのペアリング用QRコードを読み取るために使用します。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zum Scannen der Kopplungs-QR-Codes von MochiLog Mac und Windows."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para escanear códigos QR de emparejamiento de MochiLog Mac y Windows."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour scanner les codes QR de jumelage de MochiLog Mac et Windows."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MochiLog Mac·Windows의 페어링 QR 코드를 스캔하는 데 사용합니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用于扫描MochiLog Mac和Windows的配对二维码。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用於掃描MochiLog Mac和Windows的配對QR碼。"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

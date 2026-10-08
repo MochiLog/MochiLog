@@ -11,9 +11,13 @@ MacまたはWindows 11アプリが解析ログを収集し、スマホを開い�
 対応するローカルVPN／リフレクターの経路を使って、そのiPhone・iPad自身の診断サービスに接続します。LocalDevVPNは別アプリです。MochiLogがVPNを自動的に置き換えることはありません。
 
 1. 「自動ログ収集 → 端末内取得」を開く。
-2. 対応する最新版PCとペアリング済みなら、そのPCの初期設定情報を明示的に引き継ぐ。再度のMochiLog QR登録は不要。
-3. PCでOSペアリングしたことがない場合は、最初にOSの信頼設定を済ませる。外部ツールで作成したRPPairing形式のファイルも読み込めます。MochiLogのQRだけではAppleのOSペアリング情報は作成できません。
-4. LocalDevVPNなどの対応経路を有効にし、端末内取得をオンにする。iOS/iPadOS 27以降でアプリを開いている間に動作します。初回設定・Developer Modeオフ・バックグラウンドでの取得を保証する機能ではありません。
+2. iOS/iPadOS 27以降では「端末内ペアリングを開始」を選べます。ローカルネットワークを許可し、設定 → プライバシーとセキュリティ → デベロッパモードで、アプリに表示されたMochiLogの名前を選んでください。端末のパスコードによるOS承認と、タスクのバナー／通知に出る6桁コードの入力が必要です。外部ペアリングファイルの用意・PCへの接続はこの方式では不要です。OSが求める場合はDeveloper Modeをオンにします。
+3. 既存のPCのOSペアリングを引き継ぐ方法も残っています。「既存ペアリングを利用」を選ぶと、更新済みの認証済みPCからこの端末自身の認証情報を暗号化して取得します。外部ツールのRPPairingファイルの読み込みも利用できます。MochiLogのQRだけではAppleのOS信頼は作成されません。
+4. LocalDevVPNなどの対応経路を有効にし、端末内取得をオンにします。MochiLogを開いている間に取得します。バックグラウンドでの取得やDeveloper Modeオフでの動作は保証していません。
+
+ペアリング中だけ設定アプリへ移動するための継続処理を申請します。OSに許可されない場合は短い制限時間を画面に表示し、期限切れ・中止で待受を停止します。成功したときだけ端末専用Keychainの認証情報を置き換えます。PCのペアリングや保存済み記録は変更しません。
+
+端末内取得の設定には、現在のバッテリータブの表示切り替え・「今すぐ受信」・現在値画面への導線があります。現在値はログ収集と別の認証接続で約15秒ごとに更新し、最終取得日時を表示します。PCを介さず、履歴記録には保存しません。
 
 Apple Watchの解析ログは、ペアになっているiPhone内の保存先から取得します。取得したログは既存のiPhone側パーサーで解析します。両方式を同時に使う場合も、ファイルのハッシュ・個体ID・既存記録を確認し、共通の取り込み待ちへ渡します。解析前に終了した場合は保存済みファイルから再開し、成功後は一時ファイルを削除します。
 
@@ -33,10 +37,12 @@ Manual log import works without a computer. Settings → Automatic Log Collectio
 
 PC companions collect raw logs and transfer them when MochiLog is open. Saved logs and current battery values can also be received over Tailscale when mobile data is allowed. Fresh diagnostic collection still depends on device lock state and service reachability.
 
-On-device collection is experimental and needs a compatible local VPN/reflector route, such as the separate LocalDevVPN app. Explicitly reuse your own device's existing OS pairing through an updated, authenticated PC companion, or import an RPPairing file. A MochiLog QR invitation alone does not create Apple's OS trust. Initial OS pairing must be completed first. iOS/iPadOS 27 or later and foreground use are required; first-time setup without Developer Mode and background collection are not guaranteed. MochiLog does not replace or configure another VPN silently.
+On-device collection is experimental and needs a compatible local VPN/reflector route, such as the separate LocalDevVPN app. On iOS/iPadOS 27, choose Start on-device pairing. Allow Local Network, select the displayed MochiLog host in Settings → Privacy & Security → Developer Mode, authorize with the device passcode, and enter the six-digit code from the task banner or notification. This route requires neither an external pairing file nor a PC. Enable Developer Mode if requested by the OS. Existing encrypted credential reuse from an authenticated PC and RPPairing import remain available. A MochiLog QR invitation alone does not create Apple's OS trust. Initial OS pairing must be completed first. iOS/iPadOS 27 or later and foreground use are required; first-time setup without Developer Mode and background collection are not guaranteed. MochiLog does not replace or configure another VPN silently.
 
 Watch logs are read from the paired iPhone. Both acquisition paths feed the same mobile parser and import queue, using physical-device identity, hashes and saved records to prevent duplicate imports. Staged files survive interruptions and are removed after a successful import.
 
 Live Battery is an optional tab. Values and acquisition timestamps are displayed without becoming history records. Common values from multiple computers are combined and differences remain inspectable. Other physical devices appear only when both devices opt into iCloud sync and the same Apple Account is confirmed. Sync-off, different-account and unconfirmed cases are excluded.
 
 PC automatic update checks are off by default, offered once, and can be changed in settings. Manual checks remain available.
+
+The on-device settings also expose Live Battery opt-in, Receive Now and the current-value screen. Current values refresh on an independent authenticated connection while MochiLog is open, without becoming history records.

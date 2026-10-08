@@ -48,8 +48,8 @@ struct LiveBatteryView: View {
             Button { Task { async let pc: () = manager.receiveNow(refresh: true); async let own: () = local.receiveBatteryNow(); _ = await (pc, own) } } label: {
               Label(text("live_request"), systemImage: "paperplane")
             }.accessibilityIdentifier("live.send")
-            if manager.busy { ProgressView() }
-          }.buttonStyle(.bordered).disabled(manager.busy)
+            if manager.busy || local.batteryBusy { ProgressView() }
+          }.buttonStyle(.bordered).disabled(manager.busy || local.batteryBusy)
           if sources.isEmpty {
             ContentUnavailableView(text("live_pair_first"), systemImage: "laptopcomputer.and.iphone",
               description: Text(text("live_pair_detail")))
@@ -62,7 +62,7 @@ struct LiveBatteryView: View {
       }
       .navigationTitle(text("live_title"))
       .navigationBarTitleDisplayMode(.inline)
-      .onAppear { manager.updateActivity() }
+      .onAppear { manager.updateActivity(); local.updateActivity() }
     }
   }
 

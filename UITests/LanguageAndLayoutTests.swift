@@ -41,6 +41,17 @@ final class LanguageAndLayoutTests: XCTestCase {
       XCTAssertEqual(app.switches["autoCollection.localToggle"].value as? String, "0")
       if UIDevice.current.userInterfaceIdiom == .pad { XCTAssertTrue(app.buttons["settings.category.general"].exists) }
       screenshot("Automatic collection \(language)")
+      let local = app.buttons["autoCollection.localSettings"]
+      XCTAssertTrue(local.waitForExistence(timeout: 5)); local.tap()
+      let start = app.buttons["localPairing.start"]
+      for _ in 0..<4 { if start.isHittable { break }; app.swipeUp() }
+      XCTAssertTrue(start.exists, "On-device setup must be available without a PC pairing")
+      screenshot("On-device pairing instructions \(language)")
+      let battery = app.switches["localBattery.enable"]
+      for _ in 0..<6 { if battery.isHittable { break }; app.swipeUp() }
+      XCTAssertTrue(battery.exists)
+      XCTAssertTrue(app.buttons["localBattery.receive"].exists)
+      XCTAssertFalse(app.buttons["localBattery.receive"].isEnabled, "Unconfigured devices must not query diagnostics")
       app.terminate()
     }
   }
