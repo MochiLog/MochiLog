@@ -101,6 +101,44 @@ final class LocalDiagnosticsManager: ObservableObject {
       MacTransferManager.appendDebugEvent("Local diagnostics: own-device OS pairing reused over authenticated v3; keys stored in device-only Keychain")
     } catch { message = text("local_reuse_failed") }
   }
+  #if DEBUG
+  private var probeStarted = false
+  /// Read-only real-device probe: never imports records or changes opt-in settings.
+  func debugProbeIfRequested() {
+    guard !probeStarted, ProcessInfo.processInfo.environment["MOCHI_LOCAL_DIAGNOSTICS_TEST"] == "1",
+      !ProcessInfo.processInfo.isiOSAppOnMac else { return }
+    probeStarted = true
+    Task {
+      let alreadyConfigured = configured
+      let previousOptIn = AppSettings.shared.localAutomaticCollectionEnabled
+      defer {
+        if !alreadyConfigured { forget(); AppSettings.shared.localAutomaticCollectionEnabled = previousOptIn }
+      }
+      if !alreadyConfigured {
+        for pair in MacTransferManager.shared.pairings {
+          await reuse(pair)
+          if configured { break }
+        }
+      }
+      guard let credential, let address = safeAddress else {
+        MacTransferManager.appendDebugEvent("Local diagnostics probe: OS credential reuse unavailable"); return
+      }
+      stop()
+      do {
+        let value = try await Task.detached { try LocalDiagnosticsTransport.battery(credential, address: address) }.value
+        let count = (try? RawBatteryField.decode(value.detailsJSON ?? "[]", revision: value.detailsRevision ?? String(repeating: "0", count: 64)).count) ?? 0
+        MacTransferManager.appendDebugEvent("Local diagnostics probe: native battery success; coreFields=\(value.values.count), detailedFields=\(count); values not logged")
+      } catch { MacTransferManager.appendDebugEvent("Local diagnostics probe: native battery failure=\(error)") }
+      do {
+        let logs = try await Task.detached { try LocalDiagnosticsTransport.logs(credential, address: address, alreadyReceived: []) }.value
+        let host = logs.filter { $0.source == nil && MacTransferManager.looksLikeBatteryLog($0.bytes) }.count
+        let watch = logs.filter { $0.source != nil && MacTransferManager.looksLikeBatteryLog($0.bytes) }.count
+        MacTransferManager.appendDebugEvent("Local diagnostics probe: native file read success; hostBatteryFiles=\(host), watchBatteryFiles=\(watch); no records imported")
+      } catch { MacTransferManager.appendDebugEvent("Local diagnostics probe: native file read failure=\(error)") }
+      updateActivity()
+    }
+  }
+  #endif
   func updateActivity() {
     guard AppSettings.shared.localAutomaticCollectionEnabled, !ProcessInfo.processInfo.isiOSAppOnMac,
       configured, UIApplication.shared.connectedScenes.contains(where: { $0.activationState == .foregroundActive }) else { stop(); return }

@@ -155,6 +155,9 @@ final class MochiLogSceneDelegate: UIResponder, UIWindowSceneDelegate {
       MacTransferManager.shared.start()
       LiveBatteryManager.shared.updateActivity()
       LocalDiagnosticsManager.shared.updateActivity()
+      #if DEBUG
+      LocalDiagnosticsManager.shared.debugProbeIfRequested()
+      #endif
     }
     guard let root = SharedLogInbox.root else { return }
     do {
