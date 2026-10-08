@@ -152,8 +152,8 @@ final class MochiLogSceneDelegate: UIResponder, UIWindowSceneDelegate {
   }
 
   func sceneDidBecomeActive(_ scene: UIScene) {
-    if #available(iOS 27, *) {
-      MacTransferManager.shared.start()
+    if #available(iOS 27, *) { MacTransferManager.shared.start() }
+    if #available(iOS 17, *) {
       LiveBatteryManager.shared.updateActivity()
       LocalDiagnosticsManager.shared.updateActivity()
       #if DEBUG
@@ -176,8 +176,8 @@ final class MochiLogSceneDelegate: UIResponder, UIWindowSceneDelegate {
     guard !UIApplication.shared.connectedScenes.contains(where: {
       $0.activationState == .foregroundActive || $0.activationState == .foregroundInactive
     }) else { return }
-    if #available(iOS 27, *) {
-      MacTransferManager.shared.stopForBackground()
+    if #available(iOS 27, *) { MacTransferManager.shared.stopForBackground() }
+    if #available(iOS 17, *) {
       LiveBatteryManager.shared.stop()
       LocalDiagnosticsManager.shared.stop()
     }
@@ -244,7 +244,7 @@ struct MochiLogRootView: View {
           dataStore.runMigrations()
         }
         .onReceive(dataStore.$recordsDescending) { records in
-          if #available(iOS 27, *) {
+          if #available(iOS 17, *) {
             MacTransferManager.shared.observeSavedRecords(records)
           }
         }

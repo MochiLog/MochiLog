@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-@available(iOS 27, *)
+@available(iOS 17, *)
 struct MacTransferDebugLogView: View {
   @StateObject private var manager = MacTransferManager.shared
   @State private var revision = 0
@@ -106,7 +106,7 @@ struct MacTransferDebugLogView: View {
   }
 }
 
-@available(iOS 27, *)
+@available(iOS 17, *)
 private struct MacTransferLogDayView: View {
   @StateObject private var manager = MacTransferManager.shared
   @State private var logText = ""
@@ -166,7 +166,7 @@ private struct MacTransferLogDayView: View {
   }
 }
 
-@available(iOS 27, *)
+@available(iOS 17, *)
 private struct MacTransferLogStorageView: View {
   @StateObject private var manager = MacTransferManager.shared
   @State private var revision = 0

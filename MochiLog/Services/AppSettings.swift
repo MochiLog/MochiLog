@@ -258,7 +258,7 @@ final class AppSettings: ObservableObject {
   @Published var localAutomaticCollectionEnabled = UserDefaults.standard.bool(forKey: "localAutomaticCollectionEnabled") {
     didSet {
       UserDefaults.standard.set(localAutomaticCollectionEnabled, forKey: "localAutomaticCollectionEnabled")
-      if #available(iOS 27, *) { LocalDiagnosticsManager.shared.updateActivity() }
+      if #available(iOS 17, *) { LocalDiagnosticsManager.shared.updateActivity() }
     }
   }
 
@@ -266,7 +266,7 @@ final class AppSettings: ObservableObject {
     didSet {
       UserDefaults.standard.set(liveBatteryEnabled, forKey: "liveBatteryEnabled")
       if !liveBatteryEnabled && selectedTabIndex == 3 { selectedTabIndex = 0 }
-      if #available(iOS 27, *) { LiveBatteryManager.shared.updateActivity(); LocalDiagnosticsManager.shared.updateActivity() }
+      if #available(iOS 17, *) { LiveBatteryManager.shared.updateActivity(); LocalDiagnosticsManager.shared.updateActivity() }
     }
   }
 

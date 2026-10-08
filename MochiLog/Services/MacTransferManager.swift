@@ -36,7 +36,7 @@ private struct DailyImportFailures: Codable {
   var watchSources: Set<String> = []
 }
 
-@available(iOS 27, *)
+@available(iOS 17, *)
 struct SecureMacPairingCandidate: Identifiable {
   let pairing: MacTransferPairing
   let sessionID: UUID
@@ -47,13 +47,13 @@ struct SecureMacPairingCandidate: Identifiable {
   var id: UUID { sessionID }
 }
 
-@available(iOS 27, *)
+@available(iOS 17, *)
 enum MacTransferConnectionPhase {
   case needsPairing, checkingNetwork, offline, waitingForWiFi
   case searching, connecting, receiving, available, retrying
 }
 
-@available(iOS 27, *)
+@available(iOS 17, *)
 @MainActor
 final class MacTransferManager: ObservableObject {
   static let shared = MacTransferManager()
@@ -639,6 +639,7 @@ final class MacTransferManager: ObservableObject {
   }
 
   func start() {
+    guard #available(iOS 27, *) else { return }
     guard AppSettings.shared.pcAutomaticCollectionEnabled || manualReceive else { return }
     guard !ProcessInfo.processInfo.isiOSAppOnMac else { return }
     startRevocationTimer()
@@ -688,6 +689,7 @@ final class MacTransferManager: ObservableObject {
   }
 
   func receiveNow() {
+    guard #available(iOS 27, *) else { return }
     guard !ProcessInfo.processInfo.isiOSAppOnMac else { return }
     guard pairing != nil, !isReceiving else { return }
     manualReceive = true
@@ -2281,7 +2283,7 @@ final class MacTransferManager: ObservableObject {
   }
 }
 
-@available(iOS 27, *)
+@available(iOS 17, *)
 private enum PairingTransport {
   nonisolated static func exchange(routes: [NWEndpoint], payload: Data,
     allowCellular: Bool, continueOnInvalidResponse: Bool = false) async throws -> Data {

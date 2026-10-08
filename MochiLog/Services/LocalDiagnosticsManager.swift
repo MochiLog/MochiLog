@@ -5,10 +5,11 @@ import Network
 import Security
 import UIKit
 
-@available(iOS 27, *)
+@available(iOS 17, *)
 @MainActor
 final class LocalDiagnosticsManager: ObservableObject {
   static let shared = LocalDiagnosticsManager()
+  @Published private(set) var pairingActive = false
   @Published private(set) var configured = false
   @Published private(set) var busy = false
   @Published private(set) var batteryBusy = false
@@ -43,7 +44,10 @@ final class LocalDiagnosticsManager: ObservableObject {
       item[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
       result = SecItemAdd(item as CFDictionary, nil)
     }
-    guard result == errSecSuccess else { throw LocalDiagnosticsTransport.Failure.invalid }
+    guard result == errSecSuccess else {
+      MacTransferManager.appendDebugEvent("Local diagnostics: Keychain save failed; status=\(result); previous credential retained")
+      throw LocalDiagnosticsTransport.Failure.invalid
+    }
     stop(); credential = value; configured = true; message = text("local_configured"); updateActivity()
   }
   func forget() {
@@ -57,6 +61,7 @@ final class LocalDiagnosticsManager: ObservableObject {
     try save(value)
   }
   func reuse(_ pair: MacTransferPairing) async {
+    guard #available(iOS 27, *) else { return }
     guard !busy else { return }; busy = true; defer { busy = false }
     do {
       var routes: [NWEndpoint] = []
@@ -139,8 +144,12 @@ final class LocalDiagnosticsManager: ObservableObject {
     }
   }
   #endif
+  func setPairingActive(_ value: Bool) {
+    pairingActive = value
+    updateActivity()
+  }
   func updateActivity() {
-    guard !LocalDevicePairing.shared.active, AppSettings.shared.localAutomaticCollectionEnabled, !ProcessInfo.processInfo.isiOSAppOnMac,
+    guard !pairingActive, AppSettings.shared.localAutomaticCollectionEnabled, !ProcessInfo.processInfo.isiOSAppOnMac,
       configured, UIApplication.shared.connectedScenes.contains(where: { $0.activationState == .foregroundActive }) else { stop(); return }
     if loop == nil {
       restoreStagedFiles() 
@@ -170,7 +179,7 @@ final class LocalDiagnosticsManager: ObservableObject {
     return address
   }
   func receiveBatteryNow(manual: Bool = true) async {
-    guard !LocalDevicePairing.shared.active, !batteryBusy, let credential, let address = safeAddress,
+    guard !pairingActive, !batteryBusy, let credential, let address = safeAddress,
       AppSettings.shared.localAutomaticCollectionEnabled, AppSettings.shared.liveBatteryEnabled else { return }
     batteryBusy = true; defer { batteryBusy = false }; let epoch = generation
     do {
@@ -192,7 +201,7 @@ final class LocalDiagnosticsManager: ObservableObject {
     Set(UserDefaults.standard.stringArray(forKey: "LocalDiagnosticsImported." + id.uuidString) ?? [])
   }
   func collectNow(manual: Bool = true) async {
-    guard !LocalDevicePairing.shared.active, !busy, let credential, let address = safeAddress, AppSettings.shared.localAutomaticCollectionEnabled else { return }
+    guard !pairingActive, !busy, let credential, let address = safeAddress, AppSettings.shared.localAutomaticCollectionEnabled else { return }
     let day = Self.japanDay()
     let imported = importedBases(credential.physicalDeviceID)
     if !manual {

@@ -11,7 +11,7 @@ struct AdvancedSettingsDetailView: View {
 
   var body: some View {
     Form {
-      if #available(iOS 27, *), !ProcessInfo.processInfo.isiOSAppOnMac {
+      if #available(iOS 17, *), !ProcessInfo.processInfo.isiOSAppOnMac {
         Section {
           Toggle(isOn: Binding(get: { appSettings.liveBatteryEnabled }, set: { value in withAnimation(.smooth(duration: 0.35)) { appSettings.liveBatteryEnabled = value } })) {
             Label(L10n.text("live_enable", table: "MacTransfer"), systemImage: "battery.100percent")

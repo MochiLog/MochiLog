@@ -48,7 +48,7 @@ final class LocalDevicePairing: NSObject, ObservableObject, NetServiceDelegate {
     active = true; token = UUID(); pin = ""; shortBackground = false
     hostName = "MochiLog-" + (UIDevice.current.userInterfaceIdiom == .pad ? "iPad-" : "iPhone-") + UUID().uuidString.prefix(8)
     statusKey = "local_pair_preparing"
-    LocalDiagnosticsManager.shared.stop()
+    LocalDiagnosticsManager.shared.setPairingActive(true)
     MacTransferManager.appendDebugEvent("Local pairing: explicitly started; own-device only, random PIN required; existing credentials retained")
     let request = BGContinuedProcessingTaskRequest(identifier: Self.taskID,
       title: text("local_pair_title"), subtitle: text("local_pair_waiting"))
@@ -59,6 +59,8 @@ final class LocalDevicePairing: NSObject, ObservableObject, NetServiceDelegate {
       catch {
         guard let self, self.active, self.token == attempt, self.worker == nil else { return }
         self.shortBackground = true
+        let problem = error as NSError
+        MacTransferManager.appendDebugEvent("Local pairing: background request rejected; domain=\(problem.domain), code=\(problem.code)")
         self.background = UIApplication.shared.beginBackgroundTask(withName: "MochiLog OS pairing") { [weak self] in
           Task { @MainActor [weak self] in self?.finish(success: false, key: "local_pair_expired") }
         }
@@ -132,7 +134,7 @@ final class LocalDevicePairing: NSObject, ObservableObject, NetServiceDelegate {
     UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [notificationID])
     UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [notificationID])
     MacTransferManager.appendDebugEvent("Local pairing: \(success ? "completed; own-device credential saved in device-only Keychain" : "stopped; existing credential preserved"), reason=\(key)")
-    LocalDiagnosticsManager.shared.updateActivity()
+    LocalDiagnosticsManager.shared.setPairingActive(false)
   }
 
   nonisolated func netServiceDidPublish(_ sender: NetService) {
@@ -146,6 +148,7 @@ final class LocalDevicePairing: NSObject, ObservableObject, NetServiceDelegate {
   nonisolated func netService(_ sender: NetService, didNotPublish errorDict: [String: NSNumber]) {
     Task { @MainActor in
       guard self.service === sender else { return }
+      MacTransferManager.appendDebugEvent("Local pairing: Bonjour publication failed; code=\(errorDict["NSNetServicesErrorCode"]?.intValue ?? 0)")
       self.finish(success: false, key: "local_pair_failed")
     }
   }

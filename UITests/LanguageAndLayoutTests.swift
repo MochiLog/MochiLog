@@ -22,6 +22,7 @@ final class LanguageAndLayoutTests: XCTestCase {
   func testAutomaticCollectionInEightLanguages() {
     let titles = [("en", "Automatic Log Collection"), ("ja", "自動ログ収集"), ("de", "Automatische Protokollerfassung"), ("es", "Recopilación automática de registros"), ("fr", "Collecte automatique des journaux"), ("ko", "자동 로그 수집"), ("zh-Hans", "自动日志收集"), ("zh-Hant", "自動日誌收集")]
     let settingsTitles = ["de": "Einstellungen", "en": "Settings", "es": "Ajustes", "fr": "Réglages", "ja": "設定", "ko": "설정", "zh-Hans": "设置", "zh-Hant": "設定"]
+    let batteryTitles = ["en":"Live Battery", "ja":"現在のバッテリー", "de":"Aktueller Akku", "es":"Batería actual", "fr":"Batterie actuelle", "ko":"현재 배터리", "zh-Hans":"当前电池", "zh-Hant":"目前電池"]
     for (language, title) in titles {
       app.launchArguments = ["-hasCompletedTutorial", "YES", "-showPopupOnLoad", "NO",
         "-appLanguage", language, "-AppleLanguages", "(\(language))", "-selectedTabIndex", "2",
@@ -52,6 +53,12 @@ final class LanguageAndLayoutTests: XCTestCase {
       XCTAssertTrue(battery.exists)
       XCTAssertTrue(app.buttons["localBattery.receive"].exists)
       XCTAssertFalse(app.buttons["localBattery.receive"].isEnabled, "Unconfigured devices must not query diagnostics")
+      battery.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5)).tap()
+      let values = app.buttons["localBattery.values"]
+      XCTAssertTrue(values.isEnabled); values.tap()
+      XCTAssertTrue(app.navigationBars[batteryTitles[language]!].waitForExistence(timeout: 5))
+      XCTAssertEqual(app.navigationBars.count, 1, "Embedded current values must use the existing settings navigation")
+      screenshot("On-device current battery setup \(language)")
       app.terminate()
     }
   }

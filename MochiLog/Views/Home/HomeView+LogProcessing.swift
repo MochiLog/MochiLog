@@ -550,7 +550,7 @@ extension HomeView {
                   let result = text.map {
                     LogParser.parse(text: $0, enableValidation: validation, validationThreshold: threshold)
                   }
-                  if #available(iOS 27, *), url.pathComponents.contains("MacTransferInbox") {
+                  if #available(iOS 17, *), url.pathComponents.contains("MacTransferInbox") {
                     let message = "Import trace: parsed \(url.lastPathComponent), elapsedMs=\(Int((ProcessInfo.processInfo.systemUptime - started) * 1000)), readable=\(text != nil), parsed=\(result != nil)"
                     Task { @MainActor in MacTransferManager.appendDebugEvent(message) }
                   }
@@ -591,7 +591,7 @@ extension HomeView {
               errorMessage: L10n.string("file_read_error", table: "Home"), sourceURL: url)
           }
           let status = batchImportResults[id].status
-          if #available(iOS 27, *), url.pathComponents.contains("MacTransferInbox") {
+          if #available(iOS 17, *), url.pathComponents.contains("MacTransferInbox") {
             let result = batchImportResults[id]
             MacTransferManager.shared.recordImportOutcome(filename: result.filename,
               status: String(describing: status), logDate: result.parsedDate,
@@ -636,7 +636,7 @@ extension HomeView {
       (!pending.existingRecordIDs.contains($0.id) || $0.id == expectedID) && pending.signature.matches($0)
     }) else { return }
     pendingBatchReview = nil
-    if #available(iOS 27, *), pending.sourceURL.pathComponents.contains("MacTransferInbox") {
+    if #available(iOS 17, *), pending.sourceURL.pathComponents.contains("MacTransferInbox") {
       MacTransferManager.shared.recordImportOutcome(filename: pending.sourceURL.lastPathComponent,
         status: "success", logDate: pending.signature.logDate, detail: "manual review saved", sourceURL: pending.sourceURL)
     }

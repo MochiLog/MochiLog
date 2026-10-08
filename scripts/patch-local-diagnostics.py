@@ -34,3 +34,13 @@ pub unsafe extern "C" fn mochilog_crash_entries_free(entries: *mut *mut c_char, 
 }
 '''
 p.write_text(s)
+
+# lockdownd_connect borrows its provider. Upstream erroneously drops it on an
+# error, so the Swift owner would double-free after a refused/closed connection.
+p = Path(sys.argv[1]) / "ffi/src/lockdown.rs"
+s = p.read_text()
+start = s.index('pub unsafe extern "C" fn lockdownd_connect(')
+end = s.index('/// Creates a new LockdownClient via RSD', start)
+block = s[start:end]
+block = block.replace('            let _ = unsafe { Box::from_raw(provider) };\n', '')
+p.write_text(s[:start] + block + s[end:])

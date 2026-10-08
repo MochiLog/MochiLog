@@ -9,12 +9,29 @@ nonisolated struct LocalDiagnosticsCredential: Codable, Sendable {
   let pairing: Data
   static func validate(_ data: Data, expectedUDID: String, physicalDeviceID: UUID) throws -> Self {
     guard data.count <= 65536, expectedUDID.range(of: "^[A-Fa-f0-9-]{16,64}$", options: .regularExpression) != nil,
-      let plist = try PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any],
-      let pub = plist["public_key"] as? Data, pub.count == 32,
-      let priv = plist["private_key"] as? Data, priv.count == 32,
-      let id = plist["identifier"] as? String, !id.isEmpty, id.count <= 128 else { throw LocalDiagnosticsTransport.Failure.invalid }
+      let plist = try PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else { throw LocalDiagnosticsTransport.Failure.invalid }
+    if plist["public_key"] != nil || plist["private_key"] != nil {
+      guard plist["HostID"] == nil, let pub = plist["public_key"] as? Data, pub.count == 32,
+        let priv = plist["private_key"] as? Data, priv.count == 32,
+        let id = plist["identifier"] as? String, !id.isEmpty, id.count <= 128 else { throw LocalDiagnosticsTransport.Failure.invalid }
+    } else {
+      guard ["DeviceCertificate", "HostCertificate", "HostPrivateKey", "RootCertificate", "RootPrivateKey"].allSatisfy({
+        guard let bytes = plist[$0] as? Data else { return false }; return !bytes.isEmpty
+      }), ["HostID", "SystemBUID"].allSatisfy({ (plist[$0] as? String)?.isEmpty == false }),
+        plist["WiFiMACAddress"] is String,
+        plist["UDID"] == nil || plist["UDID"] as? String == expectedUDID else { throw LocalDiagnosticsTransport.Failure.invalid }
+      // Let the maintained parser also validate the certificate/key encodings.
+      var parsed: OpaquePointer?
+      try data.withUnsafeBytes { try LocalDiagnosticsTransport.check(idevice_pairing_file_from_bytes($0.bindMemory(to: UInt8.self).baseAddress, UInt($0.count), &parsed)) }
+      guard let parsed else { throw LocalDiagnosticsTransport.Failure.invalid }
+      idevice_pairing_file_free(parsed)
+    }
     return Self(expectedUDID: expectedUDID, physicalDeviceID: physicalDeviceID, pairing: data)
   }
+  var usesLockdown: Bool {
+    (try? PropertyListSerialization.propertyList(from: pairing, format: nil) as? [String: Any])?["HostID"] != nil
+  }
+
 }
 
 nonisolated struct LocalDiagnosticLog: Sendable {
@@ -32,9 +49,61 @@ nonisolated enum LocalDiagnosticsTransport {
   static func check(_ error: UnsafeMutablePointer<IdeviceFfiError>?) throws {
     if let error { let code = error.pointee.code; idevice_error_free(error); throw Failure.service(Int32(code)) }
   }
+  enum Connection {
+    case remote(OpaquePointer, OpaquePointer)
+    case lockdown(OpaquePointer)
+    func batteryClient(_ client: inout OpaquePointer?) throws {
+      switch self {
+      case .remote(let adapter, let handshake): try check(diagnostics_relay_client_connect_rsd(adapter, handshake, &client))
+      case .lockdown(let provider): try check(diagnostics_relay_client_connect(provider, &client))
+      }
+    }
+    func crashClient(_ client: inout OpaquePointer?) throws {
+      switch self {
+      case .remote(let adapter, let handshake): try check(crash_report_client_connect_rsd(adapter, handshake, &client))
+      case .lockdown(let provider): try check(crash_report_client_connect(provider, &client))
+      }
+    }
+  }
+  /// Imported legacy records use authenticated lockdown; no automatic fallback
+  /// from a failed remote verification and no new trust request during reads.
+  private static func lockdownSession<T>(_ credential: LocalDiagnosticsCredential, address: String,
+    work: (Connection) throws -> T) throws -> T {
+    var pair: OpaquePointer?
+    try credential.pairing.withUnsafeBytes { try check(idevice_pairing_file_from_bytes($0.bindMemory(to: UInt8.self).baseAddress, UInt($0.count), &pair)) }
+    guard let parsed = pair else { throw Failure.invalid }
+    defer { if let pair { idevice_pairing_file_free(pair) } }
+    var addr = sockaddr_in(); addr.sin_family = sa_family_t(AF_INET)
+    addr.sin_len = UInt8(MemoryLayout<sockaddr_in>.size)
+    guard address.withCString({ inet_pton(AF_INET, $0, &addr.sin_addr) }) == 1 else { throw Failure.invalid }
+    var provider: OpaquePointer?
+    try withUnsafePointer(to: &addr) { pointer in
+      try pointer.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+        try check(idevice_tcp_provider_new($0, parsed, "MochiLogLocalDiagnostics", &provider))
+      }
+    }
+    pair = nil // Provider owns the parsed record after successful creation.
+    guard let provider else { throw Failure.invalid }
+    defer { idevice_provider_free(provider) }
+    var lockdown: OpaquePointer?
+    try check(lockdownd_connect(provider, &lockdown))
+    guard let lockdown else { throw Failure.invalid }
+    defer { lockdownd_client_free(lockdown) }
+    var sessionPair: OpaquePointer?
+    try check(idevice_provider_get_pairing_file(provider, &sessionPair))
+    guard let sessionPair else { throw Failure.invalid }
+    defer { idevice_pairing_file_free(sessionPair) }
+    try check(lockdownd_start_session(lockdown, sessionPair))
+    var identity: plist_t?
+    try check(lockdownd_get_value(lockdown, "UniqueDeviceID", nil, &identity))
+    defer { if let identity { plist_free(identity) } }
+    guard value(identity) as? String == credential.expectedUDID else { throw Failure.identity }
+    return try work(.lockdown(provider))
+  }
   static func session<T>(_ credential: LocalDiagnosticsCredential, address: String,
-    work: (OpaquePointer, OpaquePointer) throws -> T) throws -> T {
+    work: (Connection) throws -> T) throws -> T {
     _ = initialize
+    if credential.usesLockdown { return try lockdownSession(credential, address: address, work: work) }
     var pair: OpaquePointer?
     try credential.pairing.withUnsafeBytes { bytes in
       try check(rp_pairing_file_from_bytes(bytes.bindMemory(to: UInt8.self).baseAddress, UInt(bytes.count), &pair))
@@ -61,12 +130,12 @@ nonisolated enum LocalDiagnosticsTransport {
     try check(lockdownd_get_value(lockdown, "UniqueDeviceID", nil, &identity))
     defer { if let identity { plist_free(identity) } }
     guard value(identity) as? String == credential.expectedUDID else { throw Failure.identity }
-    return try work(adapter, handshake)
+    return try work(.remote(adapter, handshake))
   }
   static func battery(_ credential: LocalDiagnosticsCredential, address: String) throws -> LiveBatteryReading {
-    try session(credential, address: address) { adapter, handshake in
+    try session(credential, address: address) { connection in
       var client: OpaquePointer?
-      try check(diagnostics_relay_client_connect_rsd(adapter, handshake, &client))
+      try connection.batteryClient(&client)
       guard let client else { throw Failure.invalid }
       defer { diagnostics_relay_client_free(client) }
       var node: plist_t?
@@ -78,9 +147,9 @@ nonisolated enum LocalDiagnosticsTransport {
   }
   static func logs(_ credential: LocalDiagnosticsCredential, address: String,
     alreadyReceived: Set<String>) throws -> [LocalDiagnosticLog] {
-    try session(credential, address: address) { adapter, handshake in
+    try session(credential, address: address) { connection in
       var crash: OpaquePointer?
-      try check(crash_report_client_connect_rsd(adapter, handshake, &crash))
+      try connection.crashClient(&crash)
       guard let crash else { throw Failure.invalid }
       // to_afc consumes crash even on failure.
       var consumed = false

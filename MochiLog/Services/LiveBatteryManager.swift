@@ -102,7 +102,7 @@ nonisolated struct LiveBatteryReading: Equatable {
 }
 
 /// Foreground-only, session-only current values. No record or iCloud writes.
-@available(iOS 27, *)
+@available(iOS 17, *)
 @MainActor
 final class LiveBatteryManager: ObservableObject {
   static let shared = LiveBatteryManager()
@@ -142,6 +142,7 @@ final class LiveBatteryManager: ObservableObject {
         lanAddresses: [ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_HOST"] ?? "127.0.0.1"], lanPort: port, requiresSecureTransfer: true)]
     }
     #endif
+    guard #available(iOS 27, *) else { return [] }
     return MacTransferManager.shared.pairings
   }
 
@@ -164,6 +165,7 @@ final class LiveBatteryManager: ObservableObject {
   }
 
   func updateActivity() {
+    guard #available(iOS 27, *) else { stop(); return }
     let shouldRun = AppSettings.shared.liveBatteryEnabled && !ProcessInfo.processInfo.isiOSAppOnMac
       && UIApplication.shared.connectedScenes.contains { $0.activationState == .foregroundActive }
     guard shouldRun != active else { return }
@@ -282,6 +284,7 @@ final class LiveBatteryManager: ObservableObject {
   }
 
   func receiveNow(refresh: Bool = false) async {
+    guard #available(iOS 27, *) else { return }
     guard active, !busy else { return }
     busy = true
     defer { busy = false }
@@ -433,7 +436,7 @@ final class LiveBatteryManager: ObservableObject {
   }
 }
 
-@available(iOS 27, *)
+@available(iOS 17, *)
 final class LiveBatteryTransport: @unchecked Sendable {
   enum Failure: Error { case unavailable, invalid, unsupported }
   private let connection: NWConnection

@@ -55,7 +55,7 @@ struct MainTabView: View {
   }
 
   private var showsLiveBattery: Bool {
-    if #available(iOS 27, *) { return appSettings.liveBatteryEnabled && !ProcessInfo.processInfo.isiOSAppOnMac }
+    if #available(iOS 17, *) { return appSettings.liveBatteryEnabled && !ProcessInfo.processInfo.isiOSAppOnMac }
     return false
   }
 
@@ -184,7 +184,7 @@ struct MainTabView: View {
       Tab(AppTab.settings.title, systemImage: AppTab.settings.icon, value: .settings) {
         SettingsView()
       }
-      if #available(iOS 27, *), showsLiveBattery {
+      if #available(iOS 17, *), showsLiveBattery {
         Tab(AppTab.liveBattery.title, systemImage: AppTab.liveBattery.icon, value: .liveBattery) {
           LiveBatteryView()
         }
@@ -230,7 +230,7 @@ struct MainTabView: View {
         case .settings:
           SettingsView()
         case .liveBattery:
-          if #available(iOS 27, *), showsLiveBattery { LiveBatteryView() }
+          if #available(iOS 17, *), showsLiveBattery { LiveBatteryView() }
         }
       }
       .id(selectedTab)
@@ -256,7 +256,7 @@ struct MainTabView: View {
           Label(AppTab.settings.title, systemImage: AppTab.settings.icon)
         }
         .tag(AppTab.settings)
-      if #available(iOS 27, *), showsLiveBattery {
+      if #available(iOS 17, *), showsLiveBattery {
         LiveBatteryView().tabItem { Label(AppTab.liveBattery.title, systemImage: AppTab.liveBattery.icon) }
           .tag(AppTab.liveBattery)
       }

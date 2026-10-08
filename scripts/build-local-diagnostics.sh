@@ -16,7 +16,7 @@ python3 scripts/patch-local-diagnostics.py "$root"
 rustup target add aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios
 mkdir -p "$out"
 export IPHONEOS_DEPLOYMENT_TARGET=16.0
-features=ring,tunnel_tcp_stack,remote_pairing,rsd,diagnostics_relay,crashreportcopymobile
+features=ring,tcp,tunnel_tcp_stack,remote_pairing,rsd,diagnostics_relay,crashreportcopymobile
 for target in aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios; do
   cargo build --locked --manifest-path "$root/Cargo.toml" -p idevice-ffi --no-default-features --features "$features" --target "$target" --release
   mkdir -p "$out/$target/Headers"

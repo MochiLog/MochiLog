@@ -1,6 +1,6 @@
 import SwiftUI
 
-@available(iOS 27, *)
+@available(iOS 17, *)
 struct LiveBatteryView: View {
   @ObservedObject private var manager = LiveBatteryManager.shared
   @ObservedObject private var local = LocalDiagnosticsManager.shared
@@ -34,8 +34,11 @@ struct LiveBatteryView: View {
     return computers
   }
 
-  var body: some View {
-    NavigationStack {
+  var embeddedInSettings = false
+  @ViewBuilder var body: some View {
+    if embeddedInSettings { content } else { NavigationStack { content } }
+  }
+  private var content: some View {
       ScrollView {
         VStack(alignment: .leading, spacing: 20) {
           Label(text("live_title"), systemImage: "battery.100percent").font(.largeTitle.bold())
@@ -53,7 +56,7 @@ struct LiveBatteryView: View {
           if sources.isEmpty {
             ContentUnavailableView(text("live_pair_first"), systemImage: "laptopcomputer.and.iphone",
               description: Text(text("live_pair_detail")))
-            NavigationLink { MacTransferSettingsView() } label: { Text(text("live_pair_open")) }
+            NavigationLink { AutomaticCollectionSettingsView() } label: { Text(text("live_pair_open")) }
           }
           ForEach(LiveBatteryComparison.devices(sources)) { device in
             deviceCard(device)
@@ -63,7 +66,6 @@ struct LiveBatteryView: View {
       .navigationTitle(text("live_title"))
       .navigationBarTitleDisplayMode(.inline)
       .onAppear { manager.updateActivity(); local.updateActivity() }
-    }
   }
 
   private func deviceName(_ device: LiveBatteryDeviceReadings) -> String {
@@ -147,7 +149,7 @@ struct LiveBatteryView: View {
   }
 }
 
-@available(iOS 27, *)
+@available(iOS 17, *)
 private struct ComparedRawBatteryFieldsView: View {
   let fields: [ComparedBatteryField<BatteryFieldPath, RawBatteryField>]
   let names: [String]
