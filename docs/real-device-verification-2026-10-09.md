@@ -17,7 +17,7 @@ DEBUG限定の `MOCHI_LOCAL_DIAGNOSTICS_TEST=1` を使い、既存の認証済�
 
 初回試験ではOSペアリングの再利用自体は成功したが、その後のpair-verifyが失敗した。pymobiledevice3の `platform.node()` と、Swiftの `ProcessInfo.hostName` / C#の `Environment.MachineName` でホスト名の大文字・小文字が違い、同じ鍵から引き継ぐホストUUIDv3が変わっていた。
 
-Macは `gethostname`、Windowsは `Dns.GetHostName` に変更。明示的な保存済みidentifierがあれば引き続きそちらを優先する。名前の再生成に正規化を使わない。既存の信頼・MochiLogペアリングを削除する必要はない。両実機の上表はMac修正後の結果。Windows経由の再利用は配布用修正版で別途確認する。
+Macは `gethostname`、Windowsは `Dns.GetHostName` に変更。明示的な保存済みidentifierがあれば引き続きそちらを優先する。名前の再生成に正規化を使わない。既存の信頼・MochiLogペアリングを削除する必要はない。両実機の上表はMac修正後の結果。Windows経由の再利用は0.1.18実機更新後、下記のLocalDevVPN試験で確認した。
 
 ## その他の確認と未完了範囲
 
@@ -45,4 +45,4 @@ Mac 0.2.21 / Windows 0.1.18のGitHubプレリリースを公開。Macの更新�
 
 4.0.0（1041）のTestFlight配信（37857916176）が成功。日本語・英語のビルドノートを登録し、既存内部2グループと外部mainグループへ割り当て、外部状態 `IN_BETA_TESTING` を確認。GitHubの `v4.0.0-beta.1041` もプレリリースとして公開した。安定版のApp Store審査には提出していない。
 
-Windowsの修正はプロトコルCIと実機のインストール・起動まで確認済み。Windowsから再利用した資格情報でのiPad自己取得は、利用者による再試行待ち。Macからの自己取得の成功をWindows経由の合格と数えない。
+Windowsの修正はプロトコルCI、実機のインストール・起動に加え、0.1.18から再利用した資格情報でのiPad自己取得も成功。利用者がWindowsを選んで08:12:06に資格情報を再取得し、LocalDevVPNへ切り替えて08:12:08に手動収集。08:12:23に完了（約15秒）し、別の既存2件の電池ログについても重複保存を防いだ。Mac経由の試験とは別に確認した。
