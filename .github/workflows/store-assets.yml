@@ -1,6 +1,14 @@
 name: Inspect Store Assets
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        type: choice
+        default: inspect
+        options: [inspect, upload-duo]
+      store_version:
+        type: string
+        default: '3.2.2'
 permissions:
   contents: read
 jobs:
@@ -14,11 +22,16 @@ jobs:
       - run: gem install jwt --no-document
       - name: Inspect supported placements and existing versions
         env:
+          STORE_VERSION: ${{ inputs.store_version }}
+          ASSET_MODE: ${{ inputs.mode }}
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
-        run: ruby scripts/inspect-store-assets.rb
+        run: |
+          ruby scripts/inspect-store-assets.rb
+          if [ "$ASSET_MODE" = upload-duo ]; then ruby scripts/upload-duo-store-assets.rb; fi
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: store-asset-inventory
           path: build/store-asset-inventory/
