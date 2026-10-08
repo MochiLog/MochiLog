@@ -158,6 +158,7 @@ final class MochiLogSceneDelegate: UIResponder, UIWindowSceneDelegate {
       LocalDiagnosticsManager.shared.updateActivity()
       #if DEBUG
       LocalDiagnosticsManager.shared.debugProbeIfRequested()
+      if #available(iOS 27, *) { LocalDevicePairing.shared.debugProbeIfRequested() }
       #endif
     }
     guard let root = SharedLogInbox.root else { return }

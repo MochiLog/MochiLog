@@ -10,16 +10,8 @@ nonisolated struct LocalDiagnosticsCredential: Codable, Sendable {
   static func validate(_ data: Data, expectedUDID: String, physicalDeviceID: UUID) throws -> Self {
     guard data.count <= 65536, expectedUDID.range(of: "^[A-Fa-f0-9-]{16,64}$", options: .regularExpression) != nil,
       let plist = try PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else { throw LocalDiagnosticsTransport.Failure.invalid }
-    if plist["public_key"] != nil || plist["private_key"] != nil {
-      guard plist["HostID"] == nil, let pub = plist["public_key"] as? Data, pub.count == 32,
-        let priv = plist["private_key"] as? Data, priv.count == 32,
-        let id = plist["identifier"] as? String, !id.isEmpty, id.count <= 128 else { throw LocalDiagnosticsTransport.Failure.invalid }
-    } else {
-      guard ["DeviceCertificate", "HostCertificate", "HostPrivateKey", "RootCertificate", "RootPrivateKey"].allSatisfy({
-        guard let bytes = plist[$0] as? Data else { return false }; return !bytes.isEmpty
-      }), ["HostID", "SystemBUID"].allSatisfy({ (plist[$0] as? String)?.isEmpty == false }),
-        plist["WiFiMACAddress"] is String,
-        plist["UDID"] == nil || plist["UDID"] as? String == expectedUDID else { throw LocalDiagnosticsTransport.Failure.invalid }
+    guard let format = LocalPairingFileFormat.detect(plist, expectedUDID: expectedUDID) else { throw LocalDiagnosticsTransport.Failure.invalid }
+    if format == .lockdown {
       // Let the maintained parser also validate the certificate/key encodings.
       var parsed: OpaquePointer?
       try data.withUnsafeBytes { try LocalDiagnosticsTransport.check(idevice_pairing_file_from_bytes($0.bindMemory(to: UInt8.self).baseAddress, UInt($0.count), &parsed)) }
@@ -29,7 +21,8 @@ nonisolated struct LocalDiagnosticsCredential: Codable, Sendable {
     return Self(expectedUDID: expectedUDID, physicalDeviceID: physicalDeviceID, pairing: data)
   }
   var usesLockdown: Bool {
-    (try? PropertyListSerialization.propertyList(from: pairing, format: nil) as? [String: Any])?["HostID"] != nil
+    guard let plist = try? PropertyListSerialization.propertyList(from: pairing, format: nil) as? [String: Any] else { return false }
+    return LocalPairingFileFormat.detect(plist, expectedUDID: expectedUDID) == .lockdown
   }
 
 }

@@ -31,3 +31,7 @@ For multiple computers reading the same physical device, identical values appear
 The normal view is a field/value table for understood readings such as verified root design capacity, cycle count, charging, external power, voltage and current. Additional rows require the exact known path and expected type. Nominal/raw/full-charge capacity, nested BatteryData capacities and ambiguous charge-level fields remain in details. **Show detailed information** is collapsed by default and preserves uncertain internal values, unknown codes and channel metadata without guessing units or meanings. An IOReport channel name is not a live temperature reading. All fields stay in memory and are excluded from history and support logs.
 
 PC側のPythonはpymobiledevice3による端末接続・API呼び出し・型を保持したplistの出力だけを担当する。検証・分類・ハッシュ・取得日時はSwift／C#へ移した。スマホへの暗号化形式と既存ペアリングは変更しない。詳細は各PCリポジトリの `docs/NATIVE_PYTHON_BOUNDARY.md` を参照。
+
+## 端末内取得からの現在値（次のベータ更新）
+
+設定 → 自動ログ収集 → 端末内取得で、対応VPN経由の取得元を設定できます。ログ収集と現在値の接続は分離し、現在値を記録には保存しません。端末内取得・表示はiOS／iPadOS 17以上、端末内の初回ペアリングは27以上です。17〜26はペアリングファイルを取り込みます。PC経由の通信は引き続き27以上です。17系の実機動作と27系の初回OS承認は検証待ちです。

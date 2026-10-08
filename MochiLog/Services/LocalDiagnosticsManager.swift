@@ -107,6 +107,7 @@ final class LocalDiagnosticsManager: ObservableObject {
     } catch { message = text("local_reuse_failed") }
   }
   #if DEBUG
+  var debugCredentialSnapshot: LocalDiagnosticsCredential? { credential }
   private var probeStarted = false
   /// Read-only real-device probe: never imports records or changes opt-in settings.
   func debugProbeIfRequested() {

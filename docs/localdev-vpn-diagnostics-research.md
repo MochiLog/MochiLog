@@ -102,3 +102,13 @@ xcodebuild -project scripts/research/LocalDevDiagnosticsProbe/LocalDevDiagnostic
 - [idevice](https://github.com/jkcoxson/idevice)
 - [FFI tunnel provider](https://github.com/jkcoxson/idevice/blob/d32c8189c51c2789496b0768039419c3705498c3/ffi/src/tunnel_provider.rs)
 - [pymobiledevice3のhost identifier](https://github.com/doronz88/pymobiledevice3/blob/v11.19.1/pymobiledevice3/pair_records.py)
+
+## 2026-10-09: 対応OSの分離
+
+- ユーザー指定: 端末内取得はiOS/iPadOS 17以上、端末内だけの初回ペアリングは27以上。アプリ本体は16以上、PC連携は27以上のまま。
+- 取得・現在値・取り込み結果・デバッグ画面を17で利用できるよう変更。共有取り込み台帳は17でも利用するが、PC通信の開始・手動受信・現在値PC接続は27でガード。
+- 新規OSペアリングは27の別UIに分離。17〜26はペアリングファイルを取り込む。17.0〜17.3向けには認証済みlockdown経路を追加。RPPairingの失敗から従来方式へ自動ダウングレードしない。ファイル形式が明示的にLockdownの場合だけ従来経路を選ぶ。
+- 上流の[idevice_pair README](https://github.com/jkcoxson/idevice_pair#over-usb)はRPPairingが17.4以上、Lockdownは従来OS対応と説明。維持されているideviceのTCP provider・TLSセッション・diagnostics_relay・crashreportcopymobileを利用し、自作暗号処理は追加していない。
+- import時に形式混在・不完全な鍵・異なるUDIDを拒否。Lockdownの証明書は上流パーサーで再検証。取得時も認証済みセッションでUniqueDeviceIDを検査。個体ID・既存のKeychain JSONを変更せず、RPPairingの既存設定をそのまま読める。
+- 上流FFI lockdownd_connectの接続失敗時に、借用providerを誤って解放する処理を最小パッチで除去。Swift所有者が最後に一度だけ解放する。
+- アドレス検査、信頼ファイル形式／別個体拒否、8言語カタログの検査は成功。旧OS実機は手元になく17.0〜17.3のサービス到達性は未検証。27の完全初回OS承認はユーザーが操作できないため保留。これらを実測成功として報告しない。

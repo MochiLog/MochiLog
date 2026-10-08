@@ -8,12 +8,12 @@ MacまたはWindows 11アプリが解析ログを収集し、スマホを開い�
 
 ## 端末内取得（実験機能）
 
-対応するローカルVPN／リフレクターの経路を使って、そのiPhone・iPad自身の診断サービスに接続します。LocalDevVPNは別アプリです。MochiLogがVPNを自動的に置き換えることはありません。
+対応するローカルVPN／リフレクターの経路を使って、そのiPhone・iPad自身の診断サービスに接続します。対応VPNは別アプリです。MochiLogがVPNを自動的に置き換えることはありません。
 
-1. 「自動ログ収集 → 端末内取得」を開く。
+1. iOS／iPadOS 17以上で「自動ログ収集 → 端末内取得」を開く。
 2. iOS/iPadOS 27以降では「端末内ペアリングを開始」を選べます。ローカルネットワークを許可し、設定 → プライバシーとセキュリティ → デベロッパモードで、アプリに表示されたMochiLogの名前を選んでください。端末のパスコードによるOS承認と、タスクのバナー／通知に出る6桁コードの入力が必要です。外部ペアリングファイルの用意・PCへの接続はこの方式では不要です。OSが求める場合はDeveloper Modeをオンにします。
-3. 既存のPCのOSペアリングを引き継ぐ方法も残っています。「既存ペアリングを利用」を選ぶと、更新済みの認証済みPCからこの端末自身の認証情報を暗号化して取得します。外部ツールのRPPairingファイルの読み込みも利用できます。MochiLogのQRだけではAppleのOS信頼は作成されません。
-4. LocalDevVPNなどの対応経路を有効にし、端末内取得をオンにします。MochiLogを開いている間に取得します。バックグラウンドでの取得やDeveloper Modeオフでの動作は保証していません。
+3. 既存のPCのOSペアリングを引き継ぐ方法も残っています。「既存ペアリングを利用」を選ぶと、更新済みの認証済みPCからこの端末自身の認証情報を暗号化して取得します。17〜26では、PCで用意したペアリングファイルを取り込みます。17.0〜17.3はLockdown形式、17.4以上はRPPairing形式も選べます。MochiLogのQRだけではAppleのOS信頼は作成されません。
+4. 対応VPNなどの経路を有効にし、端末内取得をオンにします。MochiLogを開いている間に取得します。バックグラウンドでの取得やDeveloper Modeオフでの動作は保証していません。
 
 ペアリング中だけ設定アプリへ移動するための継続処理を申請します。OSに許可されない場合は短い制限時間を画面に表示し、期限切れ・中止で待受を停止します。成功したときだけ端末専用Keychainの認証情報を置き換えます。PCのペアリングや保存済み記録は変更しません。
 
@@ -37,7 +37,7 @@ Manual log import works without a computer. Settings → Automatic Log Collectio
 
 PC companions collect raw logs and transfer them when MochiLog is open. Saved logs and current battery values can also be received over Tailscale when mobile data is allowed. Fresh diagnostic collection still depends on device lock state and service reachability.
 
-On-device collection is experimental and needs a compatible local VPN/reflector route, such as the separate LocalDevVPN app. On iOS/iPadOS 27, choose Start on-device pairing. Allow Local Network, select the displayed MochiLog host in Settings → Privacy & Security → Developer Mode, authorize with the device passcode, and enter the six-digit code from the task banner or notification. This route requires neither an external pairing file nor a PC. Enable Developer Mode if requested by the OS. Existing encrypted credential reuse from an authenticated PC and RPPairing import remain available. A MochiLog QR invitation alone does not create Apple's OS trust. Initial OS pairing must be completed first. iOS/iPadOS 27 or later and foreground use are required; first-time setup without Developer Mode and background collection are not guaranteed. MochiLog does not replace or configure another VPN silently.
+On-device collection is experimental and needs a compatible local VPN/reflector route, through a separate compatible VPN app. On iOS/iPadOS 27, choose Start on-device pairing. Allow Local Network, select the displayed MochiLog host in Settings → Privacy & Security → Developer Mode, authorize with the device passcode, and enter the six-digit code from the task banner or notification. This route requires neither an external pairing file nor a PC. Enable Developer Mode if requested by the OS. On 17–26, import a pairing file prepared on a computer: Lockdown for 17.0–17.3, with RPPairing also available from 17.4. Encrypted reuse from an authenticated PC remains available on 27+. A MochiLog QR invitation alone does not create Apple's OS trust. Initial OS pairing must be completed first. iOS/iPadOS 17 or later and foreground use are required; first-time setup without Developer Mode and background collection are not guaranteed. MochiLog does not replace or configure another VPN silently.
 
 Watch logs are read from the paired iPhone. Both acquisition paths feed the same mobile parser and import queue, using physical-device identity, hashes and saved records to prevent duplicate imports. Staged files survive interruptions and are removed after a successful import.
 
@@ -46,3 +46,13 @@ Live Battery is an optional tab. Values and acquisition timestamps are displayed
 PC automatic update checks are off by default, offered once, and can be changed in settings. Manual checks remain available.
 
 The on-device settings also expose Live Battery opt-in, Receive Now and the current-value screen. Current values refresh on an independent authenticated connection while MochiLog is open, without becoming history records.
+
+## 対応環境と検証状況（1042準備中）
+
+| 機能 | iOS／iPadOS |
+| --- | --- |
+| 端末内のログ取得・現在のバッテリー | 17以上。17〜26は外部ペアリングファイルを取り込み |
+| 端末内だけで行う初回OSペアリング | 27以上 |
+| MochiLog PCアプリ経由の取得・転送 | 27以上 |
+
+17.0〜17.3の従来経路は、VPNから端末自身のlockdownサービスへ到達できる必要があります。到達できない場合に認証を省略したり、別の端末へ取得先を変えたりはしません。27系では現在の新しい診断トンネルを使います。端末内の初回OS承認と17系の実機試験はまだ完了していません。上記は1042で実装している対応条件で、配布済み1041の保証範囲を広げるものではありません。

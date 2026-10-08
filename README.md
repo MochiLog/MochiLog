@@ -24,7 +24,7 @@ iPhone・iPadの解析ログから容量と充放電回数を記録し、履歴�
 
 ## 言語と対応環境
 
-日本語、英語、簡体字中国語、繁体字中国語、韓国語、スペイン語、フランス語、ドイツ語に対応します。本体はiOS/iPadOS 16以降、iCloud同期は17以降、PC連携と現在値表示は27以降です。PC版を更新しても既存のペアリングを引き継ぎます。ベータ版とApp Store公開版では利用できる機能が異なります。
+日本語、英語、簡体字中国語、繁体字中国語、韓国語、スペイン語、フランス語、ドイツ語に対応します。本体はiOS/iPadOS 16以降、iCloud同期は17以降、PC連携は27以降です。次のベータ更新では、端末内取得とその現在値表示は17以降、端末内の初回ペアリングは27以降に対応します（初回承認と旧OSの実機検証は進行中）。PC版を更新しても既存のペアリングを引き継ぎます。ベータ版とApp Store公開版では利用できる機能が異なります。
 
 [プライバシーポリシー](https://mochilog.ryuya-dev.net/privacy?lang=ja) · [利用規約](https://mochilog.ryuya-dev.net/terms?lang=ja) · [サポート](https://mochilog.ryuya-dev.net/support?lang=ja)
 
@@ -33,6 +33,8 @@ iPhone・iPadの解析ログから容量と充放電回数を記録し、履歴�
 MochiLog turns imported iPhone and iPad Analytics files into battery records and trend charts. Manual import works without a computer. Optional iCloud sync and viewing records on a paired Apple Watch are also available.
 
 The 4.0.0 beta supports encrypted daily-log transfer from a Mac (macOS 27) or Windows 11 to mobile (iOS/iPadOS 27). An optional **Live Battery** tab shows current cycle count and capacity through your existing computer pairing. Enable it in Advanced Settings; it is off by default. It refreshes while open, displays friendly model names, combines identical readings from multiple computers and compares only differences. Each source retains its acquisition time, missing fields and outdated state. Current values are not saved to history, records or iCloud.
+
+In the upcoming beta update, on-device collection and current readings target iOS/iPadOS 17+, while device-only initial pairing requires 27+. Earlier versions import a pairing file; 17.0–17.3 use Lockdown format and 17.4+ can use RPPairing. First-time OS approval and older-OS real-device validation remain pending. Computer collection still requires 27+.
 
 See the [live-value guide](docs/LIVE_BATTERY.md) and desktop user guides linked above. Build and test notes from the earlier development branch are preserved in [developer documentation](docs/README_20260908_DEVELOPMENT.md).
 

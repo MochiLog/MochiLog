@@ -42,7 +42,7 @@ final class LocalDevicePairing: NSObject, ObservableObject, NetServiceDelegate {
     }
   }
 
-  func start() {
+  func start(requestNotifications: Bool = true) {
     guard !active, !ProcessInfo.processInfo.isiOSAppOnMac else { return }
     Self.register()
     active = true; token = UUID(); pin = ""; shortBackground = false
@@ -73,7 +73,7 @@ final class LocalDevicePairing: NSObject, ObservableObject, NetServiceDelegate {
       self?.finish(success: false, key: "local_pair_expired")
     }
     // Notifications are optional; the OS task banner and in-app screen also show the code.
-    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
+    if requestNotifications { UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in } }
   }
 
   private func launch() {
@@ -118,6 +118,33 @@ final class LocalDevicePairing: NSObject, ObservableObject, NetServiceDelegate {
     } }
     worker.run()
   }
+
+  #if DEBUG
+  private var debugProbeStarted = false
+  /// Exercises waiting/cancellation without requesting OS trust or notifications.
+  /// A successful cancellation is not evidence that first-time OS pairing works.
+  func debugProbeIfRequested() {
+    guard !debugProbeStarted, !active,
+      ProcessInfo.processInfo.environment["MOCHI_LOCAL_PAIRING_TEST"] == "1",
+      !ProcessInfo.processInfo.isiOSAppOnMac else { return }
+    debugProbeStarted = true
+    let original = LocalDiagnosticsManager.shared.debugCredentialSnapshot
+    Task {
+      for attempt in 1...2 {
+        start(requestNotifications: false)
+        try? await Task.sleep(for: .seconds(3))
+        let published = service != nil && statusKey == "local_pair_waiting"
+        weak var oldWorker = worker
+        cancel()
+        try? await Task.sleep(for: .seconds(2))
+        let saved = LocalDiagnosticsManager.shared.debugCredentialSnapshot
+        let preserved = original?.pairing == saved?.pairing && original?.expectedUDID == saved?.expectedUDID && original?.physicalDeviceID == saved?.physicalDeviceID
+        let cleaned = !active && pin.isEmpty && service == nil && worker == nil && timeout == nil && processing == nil && background == .invalid && oldWorker == nil && !LocalDiagnosticsManager.shared.pairingActive
+        MacTransferManager.appendDebugEvent("Local pairing probe: attempt=\(attempt), published=\(published), cancelledAndReleased=\(cleaned), credentialPreserved=\(preserved); OS approval not tested, no PIN or credentials logged")
+      }
+    }
+  }
+  #endif
 
   func cancel() { finish(success: false, key: "local_pair_cancelled") }
   private func finish(success: Bool, key: String) {
