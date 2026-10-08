@@ -97,6 +97,7 @@ final class MacTransferManager: ObservableObject {
   private var cloudPolicyBusy = false
   private var cloudPolicyDirty = false
   private var cloudCapableHosts: Set<UUID> = []
+  private var cloudUnsupportedHosts: Set<UUID> = []
   private var savedRecordIDs: Set<UUID> = []
   private var watchRegistration: AnyCancellable?
   private var watchOSPairing: AnyCancellable?
@@ -644,6 +645,7 @@ final class MacTransferManager: ObservableObject {
     guard pairing != nil else { return }
     guard !isRunning else { return }
     isRunning = true
+    cloudUnsupportedHosts.removeAll()
     CloudLogSharingState.shared.refresh()
     cloudPolicyTask = Task { [weak self] in
       while !Task.isCancelled {
@@ -678,6 +680,7 @@ final class MacTransferManager: ObservableObject {
         Self.appendDebugEvent("Network path changed: Wi-Fi \(self.networkUsesWiFiOrEthernet), cellular \(path.usesInterfaceType(.cellular)); automatic reconnect triggered")
         self.retryDelay = 5
         self.beginDiscovery()
+        Task { await self.refreshCloudPolicies() }
       }
     }
     monitor.start(queue: queue)
@@ -1065,7 +1068,8 @@ final class MacTransferManager: ObservableObject {
   }
 
   /// Small authenticated consent checks keep foreign sharing separate from daily log polling.
-  /// They run only while the app is active, only against a PC that advertised support.
+  /// A bounded v3 probe also bootstraps existing pairings whose daily cycle is paused.
+  /// A valid old-PC response disables further probes for this foreground session.
   private func refreshCloudPolicies() async {
     guard isRunning, networkPermitsTransfer else { return }
     if cloudPolicyBusy { cloudPolicyDirty = true; return }
@@ -1078,7 +1082,10 @@ final class MacTransferManager: ObservableObject {
       }
     }
     let scope = AppSettings.shared.iCloudSyncEnabled ? CloudLogSharingState.shared.scope ?? "" : ""
-    for host in pairings where cloudCapableHosts.contains(host.hostID) {
+    for host in pairings where CloudSharingCapability.shouldProbe(
+      advertised: cloudCapableHosts.contains(host.hostID),
+      secureRequired: host.requiresSecureTransfer,
+      unsupported: cloudUnsupportedHosts.contains(host.hostID)) {
       guard isRunning, !Task.isCancelled else { return }
       var routes: [NWEndpoint] = []
       func add(_ address: String?, _ port: UInt16?) {
@@ -1103,9 +1110,14 @@ final class MacTransferManager: ObservableObject {
           let plain = try AES.GCM.open(AES.GCM.SealedBox(combined: encrypted), using: SymmetricKey(data: host.secret), authenticating: context)
           guard plain.count >= 2, plain[0] == 0, plain[1] == 0,
             let report = (try? JSONSerialization.jsonObject(with: plain.dropFirst(2))) as? [String: String],
-            report["type"] == "cloud-sharing-policy" else { continue }
+            report["type"] == "cloud-sharing-policy", report["cloudSharingVersion"] == "1" else {
+            cloudUnsupportedHosts.insert(host.hostID)
+            Self.appendDebugEvent("Cloud sharing: computer does not advertise support; bootstrap deferred until next foreground session")
+            break
+          }
           guard isRunning, scope == (AppSettings.shared.iCloudSyncEnabled ? CloudLogSharingState.shared.scope ?? "" : ""),
             pairings.contains(where: { $0.hostID == host.hostID && $0.physicalDeviceID == host.physicalDeviceID }) else { return }
+          rememberCloudCapability(host.hostID)
           Self.appendDebugEvent("Cloud sharing: permission=\(scope.isEmpty ? "off/unavailable" : "confirmed"), computer=\(host.hostID.uuidString), pending=\(report["pending"] ?? "false")")
           if report["pending"] == "true", !isReceiving, connection == nil {
             manualReceive = true // foreign pending work may bypass this device's completed-day pause
@@ -1114,9 +1126,29 @@ final class MacTransferManager: ObservableObject {
             else { beginDiscovery() }
           }
           break
-        } catch { Self.appendDebugEvent("Cloud sharing: consent check deferred; computer unavailable") }
+        } catch {
+          if let failure = error as? LiveBatteryTransport.Failure, case .unsupported = failure {
+            cloudUnsupportedHosts.insert(host.hostID)
+            Self.appendDebugEvent("Cloud sharing: bounded bootstrap response unsupported; no log ACK sent")
+            break
+          }
+          Self.appendDebugEvent("Cloud sharing: consent check deferred; computer unavailable")
+        }
       }
     }
+  }
+
+  private func rememberCloudCapability(_ hostID: UUID) {
+    guard cloudCapableHosts.insert(hostID).inserted,
+      let index = pairings.firstIndex(where: { $0.hostID == hostID }) else { return }
+    var updated = pairings
+    updated[index].cloudSharingVersion = "1"
+    updated[index].requiresSecureTransfer = true
+    if (try? Self.savePairings(updated)) != nil {
+      pairings = updated
+      if pairing?.hostID == hostID { pairing = updated[index] }
+    }
+    Self.appendDebugEvent("Cloud sharing: computer capability confirmed independently of daily receive; computer=\(hostID.uuidString)")
   }
 
   private var requestStartedUptime: TimeInterval = 0
@@ -1355,14 +1387,8 @@ final class MacTransferManager: ObservableObject {
         if !usingLegacyTransfer,
           let json = (try? JSONSerialization.jsonObject(with: report)) as? [String: Any],
           json["cloudSharingVersion"] as? String == "1",
-          cloudCapableHosts.insert(pairing.hostID).inserted {
-          if let index = pairings.firstIndex(where: { $0.hostID == pairing.hostID }) {
-            var updated = pairings
-            updated[index].cloudSharingVersion = "1"
-            if (try? Self.savePairings(updated)) != nil {
-              pairings = updated; self.pairing = updated[index]
-            }
-          }
+          !cloudCapableHosts.contains(pairing.hostID) {
+          rememberCloudCapability(pairing.hostID)
           Task { await self.refreshCloudPolicies() }
         }
         if let offer = try? JSONSerialization.jsonObject(with: report) as? [String: String],

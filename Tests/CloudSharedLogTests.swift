@@ -3,6 +3,12 @@ import Foundation
 
 @main struct CloudSharedLogTests {
   static func main() {
+    // Completed daily receipts do not block the first capability/consent probe.
+    precondition(CloudSharingCapability.shouldProbe(advertised: false, secureRequired: true, unsupported: false))
+    precondition(CloudSharingCapability.shouldProbe(advertised: false, secureRequired: nil, unsupported: false))
+    precondition(!CloudSharingCapability.shouldProbe(advertised: false, secureRequired: false, unsupported: false))
+    precondition(!CloudSharingCapability.shouldProbe(advertised: false, secureRequired: true, unsupported: true))
+    precondition(CloudSharingCapability.shouldProbe(advertised: true, secureRequired: true, unsupported: true))
     let origin = UUID(), other = UUID(), scope = String(repeating: "a", count: 64)
     let base = "Host::Analytics-2026-10-08-090000.ips.ca.synced"
     let value = CloudSharedLogToken(scope: scope, origin: origin, base: base)
