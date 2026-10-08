@@ -29,6 +29,8 @@ begin
   library = api.get("/apps/#{app}/assetLibrary").fetch("data").fetch("id")
   selected = all(api, "/apps/#{app}/appStoreVersions", "limit" => "50").find { |x| x.dig("attributes", "platform") == "IOS" && x.dig("attributes", "versionString") == version }
   raise "Store version #{version} does not exist; no version is created automatically" unless selected
+  editable = %w[PREPARE_FOR_SUBMISSION DEVELOPER_REJECTED REJECTED METADATA_REJECTED].include?(selected.dig("attributes", "appStoreState"))
+  puts "Store version #{version} is #{selected.dig('attributes', 'appStoreState')}; saving images to the library only" unless editable
   locales = all(api, "/appStoreVersions/#{selected.fetch('id')}/appStoreVersionLocalizations", "limit" => "200").to_h { |x| [x.dig("attributes", "locale"), x.fetch("id")] }
   existing = all(api, "/appAssetLibraries/#{library}/images", "limit" => "200")
   %w[ja en-US].each do |locale|
@@ -48,6 +50,10 @@ begin
         image = api.post("/appAssetLibraryImages", data: {type: "appAssetLibraryImages", attributes: {
           category: "APP_SCREENSHOTS_AND_PREVIEWS", fileName: File.basename(file), fileSize: bytes.bytesize, referenceName: reference},
           relationships: {assetLibrary: {data: {type: "appAssetLibraries", id: library}}}}).fetch("data")
+        existing << image
+      end
+      if image.dig("attributes", "state") == "AWAITING_UPLOAD"
+        image = api.get("/appAssetLibraryImages/#{image.fetch('id')}").fetch("data")
         image.dig("attributes", "uploadOperations").each do |operation|
           uri = URI(operation.fetch("url"))
           raise "Upload URL is not HTTPS" unless uri.scheme == "https"
@@ -58,7 +64,6 @@ begin
           raise "Image upload returned HTTP #{response.code}" unless response.is_a?(Net::HTTPSuccess)
         end
         api.patch("/appAssetLibraryImages/#{image.fetch('id')}", data: {type: "appAssetLibraryImages", id: image.fetch("id"), attributes: {uploaded: true}})
-        existing << image
       end
       id = image.fetch("id")
       30.times do
@@ -68,13 +73,20 @@ begin
       end
       state = image.dig("attributes", "state")
       raise "Image #{File.basename(file)} is #{state}" if %w[FAILED AWAITING_UPLOAD UPLOAD_COMPLETE].include?(state)
+      result = {locale: locale, filename: File.basename(file), imageID: id, imageState: state, targetVersion: version}
+      unless editable
+        results << result.merge(placementState: "WAITING_FOR_EDITABLE_VERSION")
+        File.write(result_path, JSON.pretty_generate(results))
+        puts "Saved #{locale}/#{File.basename(file)} to library (#{state})"
+        next
+      end
       placements = all(api, "/appAssetLibraryImages/#{id}/placements", "limit" => "200", "include" => "appStoreVersionLocalization")
       placement = placements.find { |x| x.dig("attributes", "placementGroup") == "IPHONE_DUO_PROFILE" && x.dig("relationships", "appStoreVersionLocalization", "data", "id") == localization }
       placement ||= api.post("/appAssetLibraryPlacements", data: {type: "appAssetLibraryPlacements", attributes: {
         placementType: "APP_SCREENSHOT", placementGroup: "IPHONE_DUO_PROFILE"}, relationships: {
         image: {data: {type: "appAssetLibraryImages", id: id}},
         appStoreVersionLocalization: {data: {type: "appStoreVersionLocalizations", id: localization}}}}).fetch("data")
-      results << {locale: locale, filename: File.basename(file), imageID: id, imageState: state, placementID: placement.fetch("id"), placementState: placement.dig("attributes", "state")}
+      results << result.merge(placementID: placement.fetch("id"), placementState: placement.dig("attributes", "state"))
       puts "Registered #{locale}/#{File.basename(file)} (#{state})"
       File.write(result_path, JSON.pretty_generate(results))
     end
@@ -82,4 +94,4 @@ begin
 ensure
   File.write(result_path, JSON.pretty_generate(results))
 end
-puts "Added #{results.size} Duo images. No review or stable release was submitted."
+puts "Saved #{results.size} Duo images; #{results.count { |x| x[:placementID] }} placed on version #{version}. No review or stable release was submitted."
