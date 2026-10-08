@@ -1,4 +1,4 @@
-Added a beta view of current battery information for paired iPhones and iPads, separate from daily Analytics logs. Enable Live Battery in the mobile app’s Advanced Settings to show a dedicated tab; it is off by default. 
+Added a beta view of current battery information for paired iPhones and iPads, separate from daily Analytics logs. Enable Live Battery in the mobile app’s Advanced Settings to show a dedicated tab; it is off by default.
 
 The field/value table uses verified exact paths for cycle count, root design capacity, charging, external power, voltage and current. Design capacity is unavailable when the root field is absent. Ambiguous nominal, raw maximum, full-charge and charge-level values, nested BatteryData capacities, unknown codes and channel metadata remain under Show detailed information, collapsed by default. Original names and values keep their precision without guessed units. A channel name is not an actual temperature measurement.
 
