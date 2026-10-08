@@ -1,0 +1,156 @@
+[
+  {
+    "os": "27.2",
+    "stage": "start",
+    "time": "2026-10-08T11:24:07Z",
+    "transport": "device-originated TCP via existing Tailscale reflector"
+  },
+  {
+    "host": "10.7.0.1",
+    "port": "62078",
+    "result": "closed",
+    "stage": "TCP",
+    "tcpReady": "true"
+  },
+  {
+    "host": "10.7.0.1",
+    "port": "49152",
+    "result": "ready",
+    "stage": "TCP",
+    "tcpReady": "true"
+  },
+  {
+    "host": "127.0.0.1",
+    "port": "62078",
+    "result": "timeout",
+    "stage": "TCP"
+  },
+  {
+    "host": "127.0.0.1",
+    "port": "49152",
+    "result": "ready",
+    "stage": "TCP",
+    "tcpReady": "true"
+  },
+  {
+    "host": "10.7.0.1",
+    "result": "ready",
+    "stage": "authenticated tunnel"
+  },
+  {
+    "host": "10.7.0.1",
+    "result": "own device verified",
+    "stage": "identity"
+  },
+  {
+    "available": "true",
+    "host": "10.7.0.1",
+    "service": "com.apple.mobile.diagnostics_relay.shim.remote",
+    "stage": "service available"
+  },
+  {
+    "available": "true",
+    "host": "10.7.0.1",
+    "service": "com.apple.crashreportcopymobile.shim.remote",
+    "stage": "service available"
+  },
+  {
+    "host": "10.7.0.1",
+    "numericMetricNames": "AppleRawMaxCapacity,CycleCount,DesignCapacity,FullChargeCapacity,NominalChargeCapacity",
+    "result": "response received",
+    "stage": "battery query",
+    "valuesPersisted": "false"
+  },
+  {
+    "directories": "1",
+    "host": "10.7.0.1",
+    "stage": "proxied accessories"
+  },
+  {
+    "analyticsCandidates": "0",
+    "directory": "/",
+    "entries": "58",
+    "host": "10.7.0.1",
+    "stage": "daily directory"
+  },
+  {
+    "analyticsCandidates": "17",
+    "directory": "/Retired",
+    "entries": "285",
+    "host": "10.7.0.1",
+    "stage": "daily directory"
+  },
+  {
+    "analyticsCandidates": "0",
+    "directory": "/ProxiedDevice-[redacted]",
+    "entries": "1",
+    "host": "10.7.0.1",
+    "stage": "daily directory"
+  },
+  {
+    "analyticsCandidates": "0",
+    "directory": "/ProxiedDevice-[redacted]/Retired",
+    "entries": "2",
+    "host": "10.7.0.1",
+    "stage": "daily directory"
+  },
+  {
+    "host": "10.7.0.1",
+    "stage": "daily sampling",
+    "substantialCandidates": "6"
+  },
+  {
+    "batteryMarkers": "last_value_CycleCount,last_value_NominalChargeCapacity",
+    "bodyPersisted": "false",
+    "bytes": "10164421",
+    "complete": "true",
+    "fileBodyRead": "true",
+    "host": "10.7.0.1",
+    "lines": "15214",
+    "logDate": "2026-10-06",
+    "logPlatform": "iPhone OS",
+    "sha256": "49d687f629dde411dcd83d4bd150259cf367f3d6a8af28b21ff905c44eaed551",
+    "stage": "daily body"
+  },
+  {
+    "host": "10.7.0.1",
+    "logPlatform": "iPhone OS",
+    "result": "already sampled; skipped body",
+    "stage": "daily header"
+  },
+  {
+    "host": "10.7.0.1",
+    "logPlatform": "iPhone OS",
+    "result": "already sampled; skipped body",
+    "stage": "daily header"
+  },
+  {
+    "host": "10.7.0.1",
+    "logPlatform": "iPhone OS",
+    "result": "already sampled; skipped body",
+    "stage": "daily header"
+  },
+  {
+    "host": "10.7.0.1",
+    "logPlatform": "iPhone OS",
+    "result": "already sampled; skipped body",
+    "stage": "daily header"
+  },
+  {
+    "host": "10.7.0.1",
+    "logPlatform": "iPhone OS",
+    "result": "already sampled; skipped body",
+    "stage": "daily header"
+  },
+  {
+    "error": "Socket(Os { code: 54, kind: ConnectionReset, message: \"Connection reset by peer\" })",
+    "errorCode": "1",
+    "host": "127.0.0.1",
+    "stage": "authenticated tunnel"
+  },
+  {
+    "batteryValuesAcquired": "true",
+    "dailyFileAcquired": "true",
+    "stage": "complete"
+  }
+]

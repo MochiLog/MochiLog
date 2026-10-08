@@ -1,0 +1,33 @@
+name: LocalDevDiagnosticsProbe
+options:
+  bundleIdPrefix: net.ryuya-dev.MochiLog.research
+  deploymentTarget:
+    iOS: '27.0'
+settings:
+  base:
+    DEVELOPMENT_TEAM: FZ35ZF3CZV
+    CODE_SIGN_STYLE: Automatic
+    SWIFT_INCLUDE_PATHS: "$(inherited) $(PROJECT_DIR)/../../../Build/localdev-probe-library"
+    HEADER_SEARCH_PATHS: "$(inherited) $(PROJECT_DIR)/../../../Build/localdev-probe-library"
+    LIBRARY_SEARCH_PATHS: "$(inherited) $(PROJECT_DIR)/../../../Build/localdev-probe-library"
+    OTHER_LDFLAGS: "$(inherited) -lidevice_ffi -lresolv -liconv -framework Security -framework SystemConfiguration"
+    SWIFT_VERSION: '5.0'
+    MARKETING_VERSION: '0.0.1'
+    CURRENT_PROJECT_VERSION: '1'
+targets:
+  LocalDevDiagnosticsProbe:
+    type: application
+    platform: iOS
+    sources: [Probe.swift, FFIProbe.swift]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: net.ryuya-dev.MochiLog.research.localdev
+        TARGETED_DEVICE_FAMILY: '1,2'
+    info:
+      path: Info.plist
+      properties:
+        CFBundleDisplayName: MochiLog経路調査
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight, UIInterfaceOrientationPortraitUpsideDown]
+        NSLocalNetworkUsageDescription: 自分の端末の診断サービスへ、現在接続中のVPNリフレクター経由で到達できるか調査します。
+        NSBonjourServices: ['_remotepairing._tcp', '_apple-mobdev2._tcp']

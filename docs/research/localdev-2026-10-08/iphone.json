@@ -1,0 +1,167 @@
+[
+  {
+    "os": "27.2",
+    "stage": "start",
+    "time": "2026-10-08T11:24:03Z",
+    "transport": "device-originated TCP via existing Tailscale reflector"
+  },
+  {
+    "host": "10.7.0.1",
+    "port": "62078",
+    "result": "closed",
+    "stage": "TCP",
+    "tcpReady": "true"
+  },
+  {
+    "host": "10.7.0.1",
+    "port": "49152",
+    "result": "ready",
+    "stage": "TCP",
+    "tcpReady": "true"
+  },
+  {
+    "host": "127.0.0.1",
+    "port": "62078",
+    "result": "timeout",
+    "stage": "TCP"
+  },
+  {
+    "host": "127.0.0.1",
+    "port": "49152",
+    "result": "ready",
+    "stage": "TCP",
+    "tcpReady": "true"
+  },
+  {
+    "host": "10.7.0.1",
+    "result": "ready",
+    "stage": "authenticated tunnel"
+  },
+  {
+    "host": "10.7.0.1",
+    "result": "own device verified",
+    "stage": "identity"
+  },
+  {
+    "available": "true",
+    "host": "10.7.0.1",
+    "service": "com.apple.mobile.diagnostics_relay.shim.remote",
+    "stage": "service available"
+  },
+  {
+    "available": "true",
+    "host": "10.7.0.1",
+    "service": "com.apple.crashreportcopymobile.shim.remote",
+    "stage": "service available"
+  },
+  {
+    "host": "10.7.0.1",
+    "numericMetricNames": "AppleRawMaxCapacity,CycleCount,DesignCapacity,FullChargeCapacity,NominalChargeCapacity",
+    "result": "response received",
+    "stage": "battery query",
+    "valuesPersisted": "false"
+  },
+  {
+    "directories": "3",
+    "host": "10.7.0.1",
+    "stage": "proxied accessories"
+  },
+  {
+    "analyticsCandidates": "0",
+    "directory": "/",
+    "entries": "13",
+    "host": "10.7.0.1",
+    "stage": "daily directory"
+  },
+  {
+    "analyticsCandidates": "21",
+    "directory": "/Retired",
+    "entries": "474",
+    "host": "10.7.0.1",
+    "stage": "daily directory"
+  },
+  {
+    "analyticsCandidates": "0",
+    "directory": "/ProxiedDevice-[redacted]",
+    "entries": "6",
+    "host": "10.7.0.1",
+    "stage": "daily directory"
+  },
+  {
+    "analyticsCandidates": "12",
+    "directory": "/ProxiedDevice-[redacted]/Retired",
+    "entries": "157",
+    "host": "10.7.0.1",
+    "stage": "daily directory"
+  },
+  {
+    "analyticsCandidates": "0",
+    "directory": "/ProxiedDevice-[redacted]",
+    "entries": "2",
+    "host": "10.7.0.1",
+    "stage": "daily directory"
+  },
+  {
+    "analyticsCandidates": "0",
+    "directory": "/ProxiedDevice-[redacted]/Retired",
+    "entries": "2",
+    "host": "10.7.0.1",
+    "stage": "daily directory"
+  },
+  {
+    "analyticsCandidates": "0",
+    "directory": "/ProxiedDevice-[redacted]",
+    "entries": "1",
+    "host": "10.7.0.1",
+    "stage": "daily directory"
+  },
+  {
+    "analyticsCandidates": "0",
+    "directory": "/ProxiedDevice-[redacted]/Retired",
+    "entries": "2",
+    "host": "10.7.0.1",
+    "stage": "daily directory"
+  },
+  {
+    "host": "10.7.0.1",
+    "stage": "daily sampling",
+    "substantialCandidates": "16"
+  },
+  {
+    "batteryMarkers": "last_value_CycleCount,last_value_NominalChargeCapacity",
+    "bodyPersisted": "false",
+    "bytes": "23106915",
+    "complete": "true",
+    "fileBodyRead": "true",
+    "host": "10.7.0.1",
+    "lines": "34647",
+    "logDate": "2026-10-08",
+    "logPlatform": "iPhone OS",
+    "sha256": "ae551aaacd16895d5b276e0cc2b0996814818ab1f48906d2a7b0dbdaf6828da4",
+    "stage": "daily body"
+  },
+  {
+    "batteryMarkers": "last_value_CycleCount,last_value_NominalChargeCapacity",
+    "bodyPersisted": "false",
+    "bytes": "13322676",
+    "complete": "true",
+    "fileBodyRead": "true",
+    "host": "10.7.0.1",
+    "lines": "21474",
+    "logDate": "2026-10-08",
+    "logPlatform": "watchOS",
+    "sha256": "3ab9a235f05a973f0d1f6515e7d234991c94da0e8d9d68c01b663505a42e1694",
+    "stage": "daily body"
+  },
+  {
+    "error": "Socket(Os { code: 54, kind: ConnectionReset, message: \"Connection reset by peer\" })",
+    "errorCode": "1",
+    "host": "127.0.0.1",
+    "stage": "authenticated tunnel"
+  },
+  {
+    "batteryValuesAcquired": "true",
+    "dailyFileAcquired": "true",
+    "stage": "complete"
+  }
+]
