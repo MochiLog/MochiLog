@@ -36,7 +36,15 @@ for kind in ipad iphone; do
   if ! bounded 300 xcrun simctl bootstatus "$device" -b > "Build/automatic-ui-$kind-boot.log" 2>&1; then
     cat "Build/automatic-ui-$kind-boot.log"; failed=1; cleanup; device=""; continue
   fi
-  if ! bounded 900 xcodebuild test -project MochiLog.xcodeproj -scheme MochiLogUITests \
+  # Compilation can consume the full test budget on a fresh hosted runner.
+  # Give compilation and actual UI execution separate bounded phases.
+  if ! bounded 1200 xcodebuild build-for-testing -project MochiLog.xcodeproj -scheme MochiLogUITests \
+    -destination "platform=iOS Simulator,id=$device" -derivedDataPath Build/automatic-ui-derived \
+    -parallel-testing-enabled NO -jobs 2 \
+    > "Build/automatic-ui-$kind-build.log" 2>&1; then
+    tail -30 "Build/automatic-ui-$kind-build.log"; failed=1; cleanup; device=""; continue
+  fi
+  if ! bounded 900 xcodebuild test-without-building -project MochiLog.xcodeproj -scheme MochiLogUITests \
     -destination "platform=iOS Simulator,id=$device" -derivedDataPath Build/automatic-ui-derived \
     -parallel-testing-enabled NO -jobs 2 -collect-test-diagnostics never \
     -resultBundlePath "Build/automatic-ui-$kind.xcresult" \
