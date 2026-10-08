@@ -1,6 +1,8 @@
-Added a beta view of current battery information for paired iPhones and iPads, separate from daily Analytics logs. Enable Live Battery in the mobile app’s Advanced Settings to show a dedicated tab; it is off by default.
+New: Multiple computers’ readings for the same device now share identical values and show only differences by computer. Each source keeps its acquisition time and state. Model identifiers use existing device-name mappings. Mac 0.2.18 and Windows 0.1.15 put Live Battery in a separate tab; Overview starts with paired devices.
 
-The field/value table uses verified exact paths for cycle count, root design capacity, charging, external power, voltage and current. Design capacity is unavailable when the root field is absent. Ambiguous nominal, raw maximum, full-charge and charge-level values, nested BatteryData capacities, unknown codes and channel metadata remain under Show detailed information, collapsed by default. Original names and values keep their precision without guessed units. A channel name is not an actual temperature measurement.
+Live Battery (off by default in Advanced Settings) shows paired iPhone/iPad current values separately from daily logs.
+
+The table uses verified paths for cycle count, root design capacity, charging, power, voltage and current. Missing root design capacity is unavailable. Uncertain nominal/raw/full-charge capacities, charge levels, nested capacities, unknown codes and channel metadata stay in collapsed optional details, preserving precision without guessed units. A channel name is not a temperature measurement.
 
 While the app is open, values refresh periodically and only changed values are transferred using encryption. Acquisition time, unavailable fields and outdated values after a failed refresh are shown separately. Receive Now, Send Now and mobile requests to refresh the computer are available. Values remain in memory only and are never saved to history, records, iCloud or diagnostic logs.
 

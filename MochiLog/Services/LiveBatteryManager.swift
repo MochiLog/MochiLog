@@ -26,7 +26,7 @@ struct RawBatteryField: Codable, Equatable {
 }
 
 /// Conservative display allowlist. Unknown paths and invalid representations stay in details.
-struct BatterySummaryRow: Identifiable {
+struct BatterySummaryRow: Identifiable, Equatable {
   let key: String
   let value: String?
   var kind = "number"
@@ -118,6 +118,14 @@ final class LiveBatteryManager: ObservableObject {
   private var pairingObserver: AnyCancellable?
   var activePairings: [MacTransferPairing] {
     #if DEBUG
+    if ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_TEST"] == "1" {
+      let count = ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_MULTI_TEST"] == "1" ? 2 : 1
+      return (1...count).map { index in
+        MacTransferPairing(hostID: UUID(uuidString: String(format: "00000000-0000-0000-0000-%012d", index))!,
+          physicalDeviceID: UUID(uuidString: "00000000-0000-0000-0000-000000000002")!,
+          model: "iPad16,6", secret: Data(repeating: 7, count: 32), platform: index == 1 ? "mac" : "windows")
+      }
+    }
     if let text = ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_PORT"],
       let port = UInt16(text), port != 0 {
       return [MacTransferPairing(hostID: UUID(uuidString: "00000000-0000-0000-0000-000000000001")!,
@@ -163,6 +171,16 @@ final class LiveBatteryManager: ObservableObject {
       readings[id]?.detailsJSON = displayDetails
       readings[id]?.detailsRevision = SHA256.hash(data: Data(displayDetails.utf8)).map { String(format: "%02x", $0) }.joined()
       states[id] = "current"
+      if ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_MULTI_TEST"] == "1" {
+        let other = UUID(uuidString: "00000000-0000-0000-0000-000000000002")!
+        let otherDetails = displayDetails.replacingOccurrences(of: "4010", with: "3990")
+          .replacingOccurrences(of: "\"Flag\",\"kind\":\"boolean\",\"value\":\"false\"", with: "\"Flag\",\"kind\":\"boolean\",\"value\":\"true\"")
+        readings[other] = LiveBatteryReading(values: readings[id]!.values, charging: false,
+          revision: String(repeating: "b", count: 64), acquiredAt: Date().addingTimeInterval(-120),
+          detailsJSON: otherDetails,
+          detailsRevision: SHA256.hash(data: Data(otherDetails.utf8)).map { String(format: "%02x", $0) }.joined())
+        states[other] = "stale"
+      }
       return
     }
     #endif

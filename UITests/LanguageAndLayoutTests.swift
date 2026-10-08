@@ -50,6 +50,36 @@ final class LanguageAndLayoutTests: XCTestCase {
     XCTAssertFalse(app.buttons["Live Battery"].exists)
   }
 
+  func testLiveBatteryMultipleComputersCompareValues() {
+    app.launchEnvironment["MOCHI_LIVE_BATTERY_TEST"] = "1"
+    app.launchEnvironment["MOCHI_LIVE_BATTERY_MULTI_TEST"] = "1"
+    app.launchArguments += ["-appLanguage", "en", "-liveBatteryEnabled", "YES"]
+    app.launch()
+    let tab = app.buttons["Live Battery"].firstMatch
+    XCTAssertTrue(tab.waitForExistence(timeout: 15))
+    tab.tap()
+    XCTAssertTrue(app.staticTexts["live.deviceName"].waitForExistence(timeout: 10))
+    XCTAssertEqual(app.staticTexts["live.deviceName"].label, "iPad Pro 13 (M4)")
+    XCTAssertEqual(app.staticTexts.matching(identifier: "live.deviceName").count, 1)
+    XCTAssertEqual(app.staticTexts.matching(identifier: "live.CycleCount").count, 1)
+    XCTAssertEqual(app.staticTexts["live.diff.Voltage.Mac"].label, "4010 mV")
+    XCTAssertEqual(app.staticTexts["live.diff.Voltage.Windows"].label, "3990 mV")
+    XCTAssertFalse(app.staticTexts["18446744073709551615"].exists)
+    let details = app.buttons["live.details"]
+    for _ in 0..<8 { if details.isHittable { break }; app.swipeUp() }
+    XCTAssertTrue(details.isHittable)
+    details.tap()
+    let group = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "BatteryData")).firstMatch
+    for _ in 0..<4 { if group.isHittable { break }; app.swipeUp() }
+    XCTAssertTrue(group.isHittable)
+    group.tap()
+    XCTAssertEqual(app.staticTexts.matching(NSPredicate(format: "label == %@", "18446744073709551615")).count, 1)
+    screenshot("Live Battery computer differences")
+    XCUIDevice.shared.orientation = .landscapeLeft
+    XCTAssertTrue(app.staticTexts["live.CycleCount"].exists)
+    screenshot("Live Battery computer differences landscape")
+  }
+
   func testLiveBatteryEncryptedComputerExchange() throws {
     guard let port = ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_PORT"] else {
       throw XCTSkip("Set MOCHI_LIVE_BATTERY_PORT for the isolated encrypted server")

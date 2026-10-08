@@ -1,6 +1,6 @@
 ## 現在のバッテリー値（ベータ）
 
-ペアリングしたiPhone・iPadの充放電回数、設計容量、最大容量などを、PCの概要画面で端末ごとに確認できます。スマホでも使う場合は **設定 → 高度な設定 → 現在のバッテリー** をオンにしてください。初期状態はオフです。既存のPCペアリングを使うため、この機能のための再ペアリングは不要です。
+ペアリングしたiPhone・iPadの充放電回数、設計容量、最大容量などを、PCの「現在のバッテリー」専用タブで端末ごとに確認できます。概要の先頭ではペアリング済み端末一覧を確認できます。スマホでも使う場合は **設定 → 高度な設定 → 現在のバッテリー** をオンにしてください。初期状態はオフです。既存のPCペアリングを使うため、この機能のための再ペアリングは不要です。
 
 アプリを開いている間は定期的に取得し、変化した値だけを暗号化して送ります。最終取得日時を表示し、取得できない項目は空欄として扱います。接続できない場合は最後の値を過去の値として表示します。**今すぐ受信／送信**で手動更新もできます。スマホからのPC更新要求は、PCの取得完了後に次の受信で反映されます。
 
@@ -8,15 +8,19 @@
 
 スマホはMochiLog 4.0.0の新しいベータ、PCはMochiLog Mac 0.2.14／MochiLog Windows 0.1.11以降に更新してください。モバイル通信ではPC連携のモバイル通信設定とTailscaleによる接続が必要です。
 
+同じ個体IDの端末を複数PCから取得した場合、共通値は一度だけ表示し、異なる項目だけPC別に比較できます。取得日時と接続状態はPC別に残します。機種番号は既存の変換データで機種名へ変換します。同じ機種の別個体をまとめることはありません。
+
 ## Current battery values (beta)
 
-View cycle count, design capacity and other current capacity fields for each paired iPhone or iPad on the computer dashboard. On mobile, enable **Settings → Advanced Settings → Live Battery** to show the new tab. It is **off by default**. It uses your existing computer pairing; no new pairing is required.
+View cycle count, design capacity and other current capacity fields for each paired iPhone or iPad in the computer’s dedicated Live Battery tab. Overview starts with the paired-device list. On mobile, enable **Settings → Advanced Settings → Live Battery** to show the new tab. It is **off by default**. It uses your existing computer pairing; no new pairing is required.
 
 Values refresh periodically while the app is open. Only changed values are sent, using encrypted transfer. The display includes the last acquisition time; unavailable fields remain empty, and a failed refresh leaves the previous values marked as outdated. Use **Receive Now / Send Now** for a manual update. A mobile request to refresh the computer appears on a subsequent receive after acquisition completes.
 
 These are current diagnostic values, separate from daily Analytics files. They are not saved as history, battery records or iCloud data, and are discarded when the app exits. Available fields and their meaning depend on the device and OS; they may differ from daily Analytics values. A locked-device query has succeeded in testing, but long locks and connection conditions can prevent acquisition. This feature does not measure live Apple Watch battery values. Manual log import on mobile remains available without a computer.
 
 Use the new MochiLog 4.0.0 beta with MochiLog Mac 0.2.14 or MochiLog Windows 0.1.11 or later. Cellular access requires the companion cellular setting and connectivity through Tailscale.
+
+For multiple computers reading the same physical device, identical values appear once and differing fields are compared by computer. Acquisition time and state remain per source. Model identifiers use the existing device-name mapping. Separate devices of the same model are never merged.
 
 ## 検証メモ
 

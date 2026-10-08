@@ -18,7 +18,7 @@ iPhone・iPadの解析ログから容量と充放電回数を記録し、履歴�
 
 [MochiLog Mac](https://github.com/MochiLog/MochiLog-Mac/releases)と[MochiLog Windows](https://github.com/MochiLog/MochiLog-Windows/releases)が日次のバッテリー解析ログを収集し、スマホでアプリを開いたときに暗号化して転送します。解析と記録はスマホ側で行います。スマホはiOS/iPadOS 27、MacはmacOS 27、WindowsはWindows 11が対象です。PC連携を設定しなくても通常の手動読み込みは使えます。
 
-現在の充放電回数・設計容量・最大容量などを確認する専用タブも追加しました。**設定 → 高度な設定 → 現在のバッテリー**をオンにすると表示します（初期状態はオフ）。既存のPCペアリングを使用し、アプリを開いている間に更新します。最終取得日時、取得できない項目、古い値を区別して表示し、現在値は履歴・記録・iCloudに保存しません。
+現在の充放電回数・設計容量・最大容量などを確認する専用タブも追加しました。**設定 → 高度な設定 → 現在のバッテリー**をオンにすると表示します（初期状態はオフ）。既存のPCペアリングを使用し、アプリを開いている間に更新します。機種名を表示し、複数PCの共通値はまとめ、違う値だけ比較できます。PCごとの最終取得日時、取得できない項目、古い値を区別して表示し、現在値は履歴・記録・iCloudに保存しません。
 
 [現在値の使い方と注意点](docs/LIVE_BATTERY.md) · [Macの利用ガイド](https://github.com/MochiLog/MochiLog-Mac/blob/main/docs/USER_GUIDE.md) · [Windowsの利用ガイド](https://github.com/MochiLog/MochiLog-Windows/blob/main/docs/USER_GUIDE.md)
 
@@ -32,6 +32,6 @@ iPhone・iPadの解析ログから容量と充放電回数を記録し、履歴�
 
 MochiLog turns imported iPhone and iPad Analytics files into battery records and trend charts. Manual import works without a computer. Optional iCloud sync and viewing records on a paired Apple Watch are also available.
 
-The 4.0.0 beta supports encrypted daily-log transfer from a Mac (macOS 27) or Windows 11 to mobile (iOS/iPadOS 27). An optional **Live Battery** tab shows current cycle count and capacity through your existing computer pairing. Enable it in Advanced Settings; it is off by default. It refreshes while the app is open and shows acquisition time, missing fields and outdated values. Current values are not saved to history, records or iCloud.
+The 4.0.0 beta supports encrypted daily-log transfer from a Mac (macOS 27) or Windows 11 to mobile (iOS/iPadOS 27). An optional **Live Battery** tab shows current cycle count and capacity through your existing computer pairing. Enable it in Advanced Settings; it is off by default. It refreshes while open, displays friendly model names, combines identical readings from multiple computers and compares only differences. Each source retains its acquisition time, missing fields and outdated state. Current values are not saved to history, records or iCloud.
 
 See the [live-value guide](docs/LIVE_BATTERY.md) and desktop user guides linked above. Build and test notes from the earlier development branch are preserved in [developer documentation](docs/README_20260908_DEVELOPMENT.md).
