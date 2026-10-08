@@ -29,3 +29,6 @@ For policy questions or requests to delete support emails, contact support@mochi
 Revised: 2026-10-07
 
 The full-field battery view can also handle manufacturing metadata, battery identifiers and status flags in memory. It shows original API names and values without guessing units. These fields are not saved or attached to support logs and use encrypted transfer with the existing pairing.
+
+
+PC log sharing can deliver another device’s logs encrypted only when both devices are paired with the same computer, have iCloud sync enabled, and the same Apple Account is confirmed. Matching uses a hash derived from an app-scoped CloudKit user ID; the Apple ID, email and original user ID are not sent to the computer. This hash is an account-matching identifier, not a guarantee of anonymity. Consent is held temporarily in computer memory and revoked when sync is disabled or the account changes. If a device cannot communicate, revocation is not immediate and the last consent may remain for up to 15 minutes. Records retain the source device’s identity. Logs are not sent to a developer server.

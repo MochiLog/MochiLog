@@ -7,7 +7,7 @@ MochiLog Macは[専用リポジトリ](https://github.com/MochiLog/MochiLog-Mac)
 - 新しい記録には任意の`physicalDeviceID`を持たせる。旧記録はnilのままとし、機種名だけで既存履歴を一括統合しない。iCloud同期とYAMLエクスポート/インポートはIDを保持する。
 - 手動取り込みの出所は機種名だけでは証明できないため、初期設定では個体IDを付けない。利用者が「同じ機種の手動ログをこの端末として記録」をオンにした場合に限り、現在の端末と機種が一致する新規記録にIDを付ける。
 - Macから受信したログは、端末IDと日付で既存記録を確認する。同じファイルがIDなし旧記録として保存済みなら、日付・充放電回数・公称容量・生容量の一致で重複扱いにする。同じ機種・同じ日だけの一致は確認待ちとし、別個体の可能性を残す。
-- Macは受信確認後に転送済みファイル名を永続化する。iCloud同期とMac転送が競合して完全一致のID付きレコードが二つ入った場合は、SwiftDataの更新時に一方へ収束させる。
+- Macは受信確認後に転送済みファイル名を永続化する。新しいPC取込では原本SHA-256と個体IDからレコードIDを決め、CloudKitで同じ論理IDのコピーが届いた場合は永続化createdAtを保持基準にして収束する。旧ランダムIDの同じ値だけをこの処理で自動削除しない。詳しくは [cloud-log-sharing.md](cloud-log-sharing.md)。
 - ペアリング済みApple WatchのAnalyticsはiPhoneの`ProxiedDevice-…/Retired`から取得する。iPhone本体の`/Retired`と取得元別に保存し、同日・同名のファイルがあっても衝突させない。ファイル先頭の`os_version`が`Watch OS`のログだけをWatch側に振り分ける。iPhone本体のログにもWatchの機種名が現れるため、本文にWatch名があるだけでは判定しない。
 - WatchログにはiPhoneの`physicalDeviceID`をそのまま付けない。Macからの`ProxiedDevice`出所とペアリング済みiPhoneのIDからWatchごとに別のIDを導出し、複数のiPhone・Watchが同じ機種でもログを区別する。Watchの機種登録・選択はiPhoneの既存の手動取り込みフローを利用する。
 - ログはiPhoneで全件受信した後、各ファイルの受信確認をMacに返す。Macが最後の確認を処理して空の終端応答を返した時点で、一括解析・記録を始める。

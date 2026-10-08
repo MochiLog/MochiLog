@@ -34,6 +34,9 @@ jobs:
           xcodebuild -version
           test "$(xcrun --sdk iphoneos --show-sdk-version | cut -d. -f1)" = 27
 
+      - name: Verify cloud log sharing and safe convergence
+        run: bash scripts/test-cloud-sharing.sh
+
       - name: Verify live battery comparison
         run: bash scripts/test-live-battery-comparison.sh
 

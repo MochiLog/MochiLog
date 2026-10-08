@@ -30,6 +30,8 @@ struct MacTransferSettingsView: View {
             symbol: "macbook.and.iphone")
           guidePoint("mt_guide_import_title", "mt_guide_import_detail",
             symbol: "arrow.down.doc")
+          guidePoint("mt_guide_cloud_title", "mt_guide_cloud_detail",
+            symbol: "icloud.and.arrow.down")
           guidePoint("mt_guide_without_title", "mt_guide_without_detail",
             symbol: "iphone")
         }

@@ -640,7 +640,7 @@ struct HomeView: View {
         if registeredWatches.isEmpty {
           HierarchicalDevicePickerView(initialCategory: .watch, lockCategory: true) {
             name, identifier in
-            guard let result = pendingParseResult else { return }
+            guard let result = pendingParseResult, canContinueBatchReview() else { return }
             let record = createRecord(
               from: result,
               deviceName: name,
@@ -669,7 +669,7 @@ struct HomeView: View {
           }
         } else {
           RegisteredWatchSelectSheet { selectedWatch in
-            guard let result = pendingParseResult else { return }
+            guard let result = pendingParseResult, canContinueBatchReview() else { return }
             let logDate = result.logDate ?? Date()
 
             // 重複チェック
@@ -755,7 +755,7 @@ struct HomeView: View {
       }
       .sheet(isPresented: $showingManualDevicePicker) {
         HierarchicalDevicePickerView { name, identifier in
-          guard let result = pendingParseResult else { return }
+          guard let result = pendingParseResult, canContinueBatchReview() else { return }
           let record = createRecord(
             from: result,
             deviceName: name,
@@ -803,6 +803,11 @@ struct HomeView: View {
       // MARK: - バッチインポート結果シート
       .sheet(isPresented: $showingBatchResults) {
         BatchImportResultView(results: $sharedImports.results) { result in
+          if let sourceURL = result.sourceURL, !CloudLogSharingState.allowsImport(sourceURL) {
+            NotificationCenter.default.post(name: NSNotification.Name("ShowImportError"), object: nil,
+              userInfo: ["errorMessage": L10n.string("cloud_sharing_unavailable", table: "Settings")])
+            return
+          }
           // 1. シートを閉じる
           showingBatchResults = false
 
@@ -813,6 +818,7 @@ struct HomeView: View {
                 signature: signature, existingRecordIDs: Set(records.map(\.id)))
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+              guard canContinueBatchReview() else { return }
               processLogTextAsync(text, silent: false, contentHash: text.hashValue,
                 physicalDeviceID: result.physicalDeviceID)
             }

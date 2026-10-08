@@ -1,5 +1,6 @@
 // HomeView+Utilities.swift
 // ユーティリティメソッドをHomeViewから分離
+import CryptoKit
 import SwiftUI
 import UIKit  // for UIImage in Bundle extension
 
@@ -24,13 +25,22 @@ extension HomeView {
     from result: LogParser.ParseResult,
     deviceName: String,
     deviceModelCodeOverride: String? = nil,
-    designCapacityOverride: Int? = nil
+    designCapacityOverride: Int? = nil,
+    idOverride: UUID? = nil
   ) -> BatteryRecord {
     let logDate = result.logDate ?? Date()
     let modelCodeUsed = deviceModelCodeOverride ?? result.deviceModelCode
     let designCapacityUsed = DeviceProfileStore.shared.capacityVariant(for: deviceName, productSku: result.productSku)?.capacity
       ?? designCapacityOverride ?? result.designCapacity ?? 0
+    let reviewID: UUID? = pendingBatchReview.flatMap { pending in
+      guard let origin = pendingSourcePhysicalDeviceID,
+        pending.signature.physicalDeviceID == origin,
+        let bytes = try? Data(contentsOf: pending.sourceURL, options: .mappedIfSafe) else { return nil }
+      let digest = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
+      return CloudSharedLogToken.recordID(origin: origin, digest: digest)
+    }
     let record = BatteryRecord(
+      id: idOverride ?? reviewID ?? UUID(),
       logDate: logDate,
       deviceName: deviceName,
       deviceModelCode: modelCodeUsed,

@@ -29,3 +29,6 @@ Consultas y solicitudes de eliminación de correos de soporte: support@mochilog.
 Revised: 2026-10-07
 
 La vista completa puede tratar metadatos de fabricación, identificadores de batería e indicadores de estado en memoria. Muestra los nombres y valores originales sin deducir unidades. No se guardan ni se adjuntan a los registros de soporte y se transfieren cifrados mediante el enlace existente.
+
+
+El uso compartido de registros del PC transmite cifrados los registros de otro dispositivo solo si ambos están enlazados al mismo ordenador, tienen la sincronización con iCloud activada y se confirma la misma cuenta de Apple. Se compara un hash del ID de usuario de CloudKit específico de la app; no se envían el Apple ID, correo ni ID original al ordenador. El hash es un identificador para comparar cuentas, no una garantía de anonimato. El permiso se mantiene temporalmente en la memoria del ordenador y se revoca al desactivar la sincronización o cambiar de cuenta. Sin conexión, el permiso anterior puede durar hasta 15 minutos. Se conserva la identidad de origen. No se envían registros a un servidor del desarrollador.

@@ -374,7 +374,7 @@ final class LiveBatteryManager: ObservableObject {
 }
 
 @available(iOS 27, *)
-private final class LiveBatteryTransport: @unchecked Sendable {
+final class LiveBatteryTransport: @unchecked Sendable {
   enum Failure: Error { case unavailable, invalid, unsupported }
   private let connection: NWConnection
   private let queue = DispatchQueue(label: "net.ryuya-dev.MochiLog.live-battery")
@@ -386,21 +386,21 @@ private final class LiveBatteryTransport: @unchecked Sendable {
     parameters.prohibitExpensivePaths = !allowsCellular
     connection = NWConnection(to: endpoint, using: parameters)
   }
-  static func exchange(_ endpoint: NWEndpoint, payload: Data) async throws -> Data {
+  static func exchange(_ endpoint: NWEndpoint, payload: Data, timeoutSeconds: TimeInterval = 30) async throws -> Data {
     let transport = LiveBatteryTransport(endpoint, allowsCellular: MacTransferManager.shared.allowsCellularTransfer)
     return try await withTaskCancellationHandler {
       try await withCheckedThrowingContinuation { continuation in
-        transport.queue.async { transport.begin(payload, continuation) }
+        transport.queue.async { transport.begin(payload, continuation, timeoutSeconds: timeoutSeconds) }
       }
     } onCancel: {
       transport.queue.async { transport.finish(.failure(CancellationError())) }
     }
   }
-  private func begin(_ payload: Data, _ continuation: CheckedContinuation<Data, Error>) {
+  private func begin(_ payload: Data, _ continuation: CheckedContinuation<Data, Error>, timeoutSeconds: TimeInterval) {
     completion = continuation
     let deadline = DispatchWorkItem { [weak self] in self?.finish(.failure(Failure.unavailable)) }
     timeout = deadline
-    queue.asyncAfter(deadline: .now() + 30, execute: deadline)
+    queue.asyncAfter(deadline: .now() + timeoutSeconds, execute: deadline)
     connection.stateUpdateHandler = { [weak self] state in
       guard let self else { return }
       switch state {

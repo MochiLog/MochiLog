@@ -1,5 +1,6 @@
 // HomeView+LogProcessing.swift
 // ログ処理関連のメソッドをHomeViewから分離
+import CryptoKit
 import SwiftUI
 
 // MARK: - 共通処理メソッド
@@ -62,7 +63,15 @@ extension HomeView {
   }
 
   /// レコードを保存する（キャッシュ追加 + データベース挿入）
+  func canContinueBatchReview() -> Bool {
+    guard let pending = pendingBatchReview, !CloudLogSharingState.allowsImport(pending.sourceURL) else { return true }
+    NotificationCenter.default.post(name: NSNotification.Name("ShowImportError"), object: nil,
+      userInfo: ["errorMessage": L10n.string("cloud_sharing_unavailable", table: "Settings")])
+    return false
+  }
+
   private func saveRecord(_ record: BatteryRecord, deviceName: String) {
+    guard canContinueBatchReview() else { return }
     // キャッシュに追加（save前に行う）
     let key = "\(record.logDate.timeIntervalSince1970)_\(deviceName)"
     HomeView.recentlyAddedLogs[key] = Date()
@@ -104,6 +113,14 @@ extension HomeView {
     logDate: Date,
     silent: Bool
   ) -> (record: BatteryRecord?, shouldReturn: Bool) {
+    if let pending = pendingBatchReview, CloudLogSharingState.sharedToken(in: pending.sourceURL) != nil {
+      guard canContinueBatchReview() else { return (nil, true) }
+      // This log belongs to another iPhone. Its Watch cannot be inferred from
+      // this receiver's sole registered Watch; require an explicit choice.
+      pendingParseResult = result
+      showingWatchSelection = true
+      return (nil, true)
+    }
     let registeredWatches = AppSettings.shared.registeredWatches
 
     // 複数のWatchが登録されている場合 → ユーザーに選択させる
@@ -528,9 +545,14 @@ extension HomeView {
             group.addTask {
               await withCheckedContinuation { continuation in
                 DispatchQueue.global(qos: .userInitiated).async {
+                  let started = ProcessInfo.processInfo.systemUptime
                   let text = try? LogTextReader.read(url)
                   let result = text.map {
                     LogParser.parse(text: $0, enableValidation: validation, validationThreshold: threshold)
+                  }
+                  if #available(iOS 27, *), url.pathComponents.contains("MacTransferInbox") {
+                    let message = "Import trace: parsed \(url.lastPathComponent), elapsedMs=\(Int((ProcessInfo.processInfo.systemUptime - started) * 1000)), readable=\(text != nil), parsed=\(result != nil)"
+                    Task { @MainActor in MacTransferManager.appendDebugEvent(message) }
                   }
                   continuation.resume(returning: (index, text, result))
                 }
@@ -548,7 +570,13 @@ extension HomeView {
           if let text, let parsedResult {
             var item = processBatchItem(id: id, parseResult: parsedResult,
               filename: url.lastPathComponent, rawText: text,
-              physicalDeviceID: queue.physicalDeviceID(for: url))
+              physicalDeviceID: queue.physicalDeviceID(for: url),
+              transportRecordID: queue.physicalDeviceID(for: url).flatMap { origin in
+                guard let bytes = try? Data(contentsOf: url, options: .mappedIfSafe) else { return nil }
+                let digest = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
+                return CloudSharedLogToken.recordID(origin: origin, digest: digest)
+              }, foreignSource: CloudLogSharingState.sharedToken(in: url) != nil,
+              importAllowed: CloudLogSharingState.allowsImport(url))
             item.sourceURL = url
             if let date = parsedResult.logDate, let cycles = parsedResult.cycleCount,
               let nominal = parsedResult.nominalCapacity, let raw = parsedResult.rawCapacity {
@@ -598,11 +626,20 @@ extension HomeView {
   /// appears in the persisted store. Cancelling selection leaves the file for retry.
   @MainActor
   func finishBatchReviewIfSaved(in updatedRecords: [BatteryRecord]) {
-    guard let pending = pendingBatchReview,
-      updatedRecords.contains(where: {
-        !pending.existingRecordIDs.contains($0.id) && pending.signature.matches($0)
-      }) else { return }
+    guard let pending = pendingBatchReview else { return }
+    let expectedID: UUID? = pending.signature.physicalDeviceID.flatMap { origin in
+      guard let bytes = try? Data(contentsOf: pending.sourceURL, options: .mappedIfSafe) else { return nil }
+      let digest = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
+      return CloudSharedLogToken.recordID(origin: origin, digest: digest)
+    }
+    guard updatedRecords.contains(where: {
+      (!pending.existingRecordIDs.contains($0.id) || $0.id == expectedID) && pending.signature.matches($0)
+    }) else { return }
     pendingBatchReview = nil
+    if #available(iOS 27, *), pending.sourceURL.pathComponents.contains("MacTransferInbox") {
+      MacTransferManager.shared.recordImportOutcome(filename: pending.sourceURL.lastPathComponent,
+        status: "success", logDate: pending.signature.logDate, detail: "manual review saved", sourceURL: pending.sourceURL)
+    }
     SharedImportQueue.shared.acknowledge(pending.sourceURL, saved: true)
     if let index = batchImportResults.firstIndex(where: { $0.sourceURL == pending.sourceURL }) {
       let item = batchImportResults[index]
@@ -620,8 +657,18 @@ extension HomeView {
     parseResult: LogParser.ParseResult,
     filename: String,
     rawText: String,
-    physicalDeviceID: UUID? = nil
+    physicalDeviceID: UUID? = nil,
+    transportRecordID: UUID? = nil, foreignSource: Bool = false, importAllowed: Bool = true
   ) -> FileImportResult {
+    guard importAllowed else {
+      return FileImportResult(id: id, filename: filename, parsedDate: parseResult.logDate,
+        deviceName: nil, rawText: nil, status: .error,
+        errorMessage: L10n.string("cloud_sharing_unavailable", table: "Settings"))
+    }
+    if let transportRecordID, dataStore.recordsDescending.contains(where: { $0.id == transportRecordID }) {
+      return FileImportResult(id: id, filename: filename, parsedDate: parseResult.logDate,
+        deviceName: nil, rawText: nil, status: .duplicate, errorMessage: nil)
+    }
 
     // 基本バリデーション（必須フィールドの確認）
     guard let logDate = parseResult.logDate,
@@ -687,7 +734,8 @@ extension HomeView {
 
     // Apple Watch の処理
     if isWatchDevice(parseResult: parseResult, deviceName: actualDeviceName) {
-      if automaticRegisteredWatch() == nil {
+      let sourceWatch = foreignSource ? records.first(where: { $0.physicalDeviceID == physicalDeviceID })?.deviceName : automaticRegisteredWatch()
+      if sourceWatch == nil {
         // The interactive import below owns registration and model selection.
         return FileImportResult(
           id: id,
@@ -699,7 +747,7 @@ extension HomeView {
           errorMessage: nil,
           physicalDeviceID: physicalDeviceID
         )
-      } else if let watch = automaticRegisteredWatch() {
+      } else if let watch = sourceWatch {
         actualDeviceName = watch
         actualModelCode = DeviceLibrary.getIdentifierForDeviceName(watch) ?? actualModelCode
       }
@@ -760,7 +808,8 @@ extension HomeView {
       from: parseResult,
       deviceName: actualDeviceName,
       deviceModelCodeOverride: actualModelCode,
-      designCapacityOverride: designCap
+      designCapacityOverride: designCap,
+      idOverride: transportRecordID
     )
     record.physicalDeviceID = sourcePhysicalID
     dataStore.insert(record)

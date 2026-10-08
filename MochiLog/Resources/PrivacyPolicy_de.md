@@ -29,3 +29,6 @@ Fragen und Anfragen zur Löschung von Support-E-Mails: support@mochilog.ryuya-de
 Revised: 2026-10-07
 
 Die vollständige Akkuansicht kann auch Herstellungsdaten, Akku-Kennungen und Statuskennzeichen im Arbeitsspeicher verarbeiten. Originalnamen und Werte der API werden ohne angenommene Einheiten angezeigt. Sie werden nicht gespeichert oder Supportprotokollen beigefügt und mit der bestehenden Kopplung verschlüsselt übertragen.
+
+
+Die PC-Protokollfreigabe überträgt Protokolle anderer Geräte verschlüsselt nur, wenn beide mit demselben Computer gekoppelt sind, iCloud-Synchronisierung aktiviert ist und derselbe Apple Account bestätigt wurde. Ein Hash der app-spezifischen CloudKit-Benutzer-ID dient zum Abgleich; Apple ID, E-Mail und ursprüngliche Benutzer-ID werden nicht an den Computer gesendet. Der Hash ist ein Account-Kennzeichen, keine Anonymitätsgarantie. Die Zustimmung wird befristet im Computerspeicher gehalten und bei deaktivierter Synchronisierung oder Account-Wechsel widerrufen. Ohne Verbindung kann die letzte Zustimmung bis zu 15 Minuten bestehen bleiben. Die Identität des Quellgeräts bleibt erhalten. Protokolle gehen nicht an einen Entwicklerserver.

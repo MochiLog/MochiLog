@@ -29,3 +29,6 @@ Questions et demandes de suppression des courriels de support : support@mochilog
 Revised: 2026-10-07
 
 La vue complète peut traiter en mémoire les métadonnées de fabrication, identifiants de batterie et indicateurs d’état. Les noms et valeurs de l’API sont affichés sans déduire les unités. Ils ne sont ni enregistrés ni joints aux journaux d’assistance et sont transférés chiffrés avec le jumelage existant.
+
+
+Le partage de journaux PC transmet les journaux d’un autre appareil chiffrés uniquement si les deux sont jumelés au même ordinateur, ont la synchronisation iCloud activée et si le même compte Apple est confirmé. La comparaison utilise une empreinte de l’identifiant CloudKit propre à l’app ; l’Apple ID, l’adresse e-mail et l’identifiant original ne sont pas transmis au PC. Cette empreinte identifie le compte pour comparaison et ne garantit pas l’anonymat. Le consentement est temporaire en mémoire et révoqué à la désactivation de la synchronisation ou au changement de compte. Sans connexion, il peut subsister jusqu’à 15 minutes. L’identité source est conservée. Aucun journal n’est envoyé à un serveur du développeur.

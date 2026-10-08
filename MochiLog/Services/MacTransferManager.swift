@@ -19,6 +19,7 @@ struct MacTransferPairing: Codable {
   // Old pairings can temporarily use v2 with an older computer. Once v3
   // succeeds, the connection is pinned and never silently downgraded.
   var requiresSecureTransfer: Bool? = nil
+  var cloudSharingVersion: String? = nil
 }
 
 private struct DailyTransferReceipt: Codable {
@@ -91,6 +92,12 @@ final class MacTransferManager: ObservableObject {
   private var debugManifestCapturedAt: Date?
   private var lastAutomaticHold: String?
   private var skippedHostKeys: Set<String> = []
+  private var cloudSubscription: AnyCancellable?
+  private var cloudPolicyTask: Task<Void, Never>?
+  private var cloudPolicyBusy = false
+  private var cloudPolicyDirty = false
+  private var cloudCapableHosts: Set<UUID> = []
+  private var savedRecordIDs: Set<UUID> = []
   private var watchRegistration: AnyCancellable?
   private var watchOSPairing: AnyCancellable?
   private var endpoint: NWEndpoint?
@@ -115,9 +122,18 @@ final class MacTransferManager: ObservableObject {
     pairings = Self.loadPairings()
     pendingRevocations = Self.loadStoredPairings(account: "revoked-hosts")
     pairing = pairings.first
+    cloudCapableHosts = Set(pairings.filter { $0.cloudSharingVersion == "1" }.map(\.hostID))
     status = MacTransferStatus.text(pairing == nil ? "mt_s_00" : "mt_s_01")
     connectionPhase = pairing == nil ? .needsPairing : .checkingNetwork
     pendingAck = UserDefaults.standard.string(forKey: pendingAckKey)
+    cloudSubscription = CloudLogSharingState.shared.$scope.dropFirst().sink { [weak self] _ in
+      Task { @MainActor [weak self] in
+        guard let self else { return }
+        Self.appendDebugEvent("Cloud sharing: account/sync permission changed; policy refresh requested")
+        await self.refreshCloudPolicies()
+        if self.isRunning { for host in self.pairings { self.requeueConfirmedFiles(for: host) } }
+      }
+    }
     watchRegistration = AppSettings.shared.$registeredWatches.dropFirst().sink { [weak self] watches in
       Task { @MainActor [weak self] in
         guard let self, self.isRunning else { return }
@@ -258,6 +274,7 @@ final class MacTransferManager: ObservableObject {
   }
 
   func observeSavedRecords(_ records: [BatteryRecord]) {
+    savedRecordIDs = Set(records.map(\.id))
     guard !dailyReceipt.hostReceived, let physicalID = pairing?.physicalDeviceID else {
       return
     }
@@ -395,6 +412,10 @@ final class MacTransferManager: ObservableObject {
       return
     }
     let next = pairings[(index + 1) % pairings.count]
+    activatePairing(next)
+  }
+
+  private func activatePairing(_ next: MacTransferPairing) {
     Self.appendDebugEvent("Connection: switching computer to \(next.hostID.uuidString)")
     // Automatic rotation keeps the path monitor and revocation timer alive.
     // Restarting the whole manager here used to recreate both every minute
@@ -623,6 +644,13 @@ final class MacTransferManager: ObservableObject {
     guard pairing != nil else { return }
     guard !isRunning else { return }
     isRunning = true
+    CloudLogSharingState.shared.refresh()
+    cloudPolicyTask = Task { [weak self] in
+      while !Task.isCancelled {
+        await self?.refreshCloudPolicies()
+        do { try await Task.sleep(for: .seconds(300)) } catch { return }
+      }
+    }
     // Importing an already confirmed file is local work. The daily network
     // pause must not prevent a failed import from being retried after an update.
     for savedPairing in pairings { requeueConfirmedFiles(for: savedPairing) }
@@ -865,6 +893,7 @@ final class MacTransferManager: ObservableObject {
 
   func stop() {
     isRunning = false
+    cloudPolicyTask?.cancel(); cloudPolicyTask = nil
     revocationTimer?.invalidate()
     revocationTimer = nil
     reconnectTask?.cancel()
@@ -1035,6 +1064,65 @@ final class MacTransferManager: ObservableObject {
     return true
   }
 
+  /// Small authenticated consent checks keep foreign sharing separate from daily log polling.
+  /// They run only while the app is active, only against a PC that advertised support.
+  private func refreshCloudPolicies() async {
+    guard isRunning, networkPermitsTransfer else { return }
+    if cloudPolicyBusy { cloudPolicyDirty = true; return }
+    cloudPolicyBusy = true
+    defer {
+      cloudPolicyBusy = false
+      if cloudPolicyDirty {
+        cloudPolicyDirty = false
+        Task { await self.refreshCloudPolicies() }
+      }
+    }
+    let scope = AppSettings.shared.iCloudSyncEnabled ? CloudLogSharingState.shared.scope ?? "" : ""
+    for host in pairings where cloudCapableHosts.contains(host.hostID) {
+      guard isRunning, !Task.isCancelled else { return }
+      var routes: [NWEndpoint] = []
+      func add(_ address: String?, _ port: UInt16?) {
+        guard let address, let ip = IPv4Address(address), let port, let p = NWEndpoint.Port(rawValue: port), port != 0 else { return }
+        if !networkUsesWiFiOrEthernet && !LiveBatteryManager.isTailnet(address) { return }
+        let route: NWEndpoint = .hostPort(host: .ipv4(ip), port: p)
+        if !routes.contains(route) { routes.append(route) }
+      }
+      add(host.manualHostAddress, host.lanPort ?? (host.platform == "windows" ? 54556 : 54555))
+      for ip in host.lanAddresses ?? [] { add(ip, host.lanPort) }
+      add(host.tailnetAddress, host.tailnetPort)
+      for route in routes.prefix(4) {
+        do {
+          let nonce = UUID()
+          let request: [String: String] = ["version": "2", "hostID": host.hostID.uuidString,
+            "physicalDeviceID": host.physicalDeviceID.uuidString, "nonce": nonce.uuidString,
+            "ack": "", "mac": Self.authenticationCode("v2|\(host.hostID.uuidString)|\(host.physicalDeviceID.uuidString)|\(nonce.uuidString)|", secret: host.secret),
+            "cloudSharingVersion": "1", "cloudSharingScope": scope, "cloudSharingOnly": "1"]
+          guard let payload = Self.sealedRequest(request, pairing: host, nonce: nonce) else { break }
+          let encrypted = try await LiveBatteryTransport.exchange(route, payload: payload + Data([10]), timeoutSeconds: 5)
+          let context = Data("v2|response|\(host.hostID.uuidString)|\(host.physicalDeviceID.uuidString)|\(nonce.uuidString)".utf8)
+          let plain = try AES.GCM.open(AES.GCM.SealedBox(combined: encrypted), using: SymmetricKey(data: host.secret), authenticating: context)
+          guard plain.count >= 2, plain[0] == 0, plain[1] == 0,
+            let report = (try? JSONSerialization.jsonObject(with: plain.dropFirst(2))) as? [String: String],
+            report["type"] == "cloud-sharing-policy" else { continue }
+          guard isRunning, scope == (AppSettings.shared.iCloudSyncEnabled ? CloudLogSharingState.shared.scope ?? "" : ""),
+            pairings.contains(where: { $0.hostID == host.hostID && $0.physicalDeviceID == host.physicalDeviceID }) else { return }
+          Self.appendDebugEvent("Cloud sharing: permission=\(scope.isEmpty ? "off/unavailable" : "confirmed"), computer=\(host.hostID.uuidString), pending=\(report["pending"] ?? "false")")
+          if report["pending"] == "true", !isReceiving, connection == nil {
+            manualReceive = true // foreign pending work may bypass this device's completed-day pause
+            Self.appendDebugEvent("Cloud sharing: pending work found; automatically selecting computer=\(host.hostID.uuidString)")
+            if pairing?.hostID != host.hostID { activatePairing(host) }
+            else { beginDiscovery() }
+          }
+          break
+        } catch { Self.appendDebugEvent("Cloud sharing: consent check deferred; computer unavailable") }
+      }
+    }
+  }
+
+  private var requestStartedUptime: TimeInterval = 0
+  private var requestSentUptime: TimeInterval = 0
+  private var firstByteUptime: TimeInterval = 0
+
   private func pull() {
     guard isRunning, let pairing, networkPermitsTransfer,
       endpoint != nil || routeIndex < directRoutes.count else {
@@ -1049,6 +1137,10 @@ final class MacTransferManager: ObservableObject {
     isReceiving = true
     connectionPhase = .connecting
     let nonce = UUID()
+    requestStartedUptime = ProcessInfo.processInfo.systemUptime
+    requestSentUptime = 0
+    firstByteUptime = 0
+    Self.appendDebugEvent("Transfer trace: start request=\(nonce.uuidString), computer=\(pairing.hostID.uuidString), recipient=\(pairing.physicalDeviceID.uuidString), pairedComputers=\(pairings.count), permission=\(CloudLogSharingState.shared.scope == nil ? "off/unavailable" : "confirmed")")
     let ack = pendingAck ?? ""
     let message = "v2|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)|\(ack)"
     let mac = Self.authenticationCode(message, secret: pairing.secret)
@@ -1071,12 +1163,16 @@ final class MacTransferManager: ObservableObject {
       "presenceMAC": presenceMAC,
       "clientDiagnosticsBox": diagnosticsBox.base64EncodedString()
     ]
+    if !usingLegacyTransfer {
+      request["cloudSharingVersion"] = "1"
+      request["cloudSharingScope"] = AppSettings.shared.iCloudSyncEnabled ? CloudLogSharingState.shared.scope ?? "" : ""
+    }
     request["offerVersion"] = "1"
     request["offerMAC"] = Self.authenticationCode(
       "file-offer|v1|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)",
       secret: pairing.secret)
     if let offer = activeFileOffer, offer.hostID == pairing.hostID {
-      Self.appendDebugEvent("Preflight: sending signed decision=\(offer.decision) for \(offer.token); SHA-256 \(offer.digest.prefix(12)); computer=\(pairing.hostID.uuidString)")
+      Self.appendDebugEvent("Preflight: sending signed decision=\(offer.decision) for \(CloudSharedLogToken.debugLabel(offer.token)); SHA-256 \(offer.digest.prefix(12)); computer=\(pairing.hostID.uuidString)")
       request["offerToken"] = offer.token
       request["offerDigest"] = offer.digest
       request["offerDecision"] = offer.decision
@@ -1144,7 +1240,8 @@ final class MacTransferManager: ObservableObject {
             if let error {
               self.routeFailed(connection, error: error.localizedDescription)
             } else {
-              Self.appendDebugEvent("Connection: request sent")
+              self.requestSentUptime = ProcessInfo.processInfo.systemUptime
+              Self.appendDebugEvent("Connection: request sent; request=\(nonce.uuidString), connectMs=\(Int((self.requestSentUptime - self.requestStartedUptime) * 1000))")
               self.receive(on: connection)
             }
           }
@@ -1178,6 +1275,10 @@ final class MacTransferManager: ObservableObject {
       guard let self else { return }
       Task { @MainActor in
         guard self.isRunning, self.connection === connection else { return }
+        if let data, !data.isEmpty, self.firstByteUptime == 0 {
+          self.firstByteUptime = ProcessInfo.processInfo.systemUptime
+          Self.appendDebugEvent("Transfer trace: first byte request=\(self.activeRequestNonce?.uuidString ?? "none"), waitMs=\(Int((self.firstByteUptime - self.requestSentUptime) * 1000))")
+        }
         if let data { self.accumulated.append(data) }
         if let data, !data.isEmpty { self.connectionPhase = .receiving }
         if self.accumulated.count > 64 * 1024 * 1024 + 1_024 {
@@ -1251,23 +1352,43 @@ final class MacTransferManager: ObservableObject {
         // The Mac has processed the final file acknowledgement and returned
         // an authenticated terminal reply. Only now may imports begin.
         let report = plain.dropFirst(2)
+        if !usingLegacyTransfer,
+          let json = (try? JSONSerialization.jsonObject(with: report)) as? [String: Any],
+          json["cloudSharingVersion"] as? String == "1",
+          cloudCapableHosts.insert(pairing.hostID).inserted {
+          if let index = pairings.firstIndex(where: { $0.hostID == pairing.hostID }) {
+            var updated = pairings
+            updated[index].cloudSharingVersion = "1"
+            if (try? Self.savePairings(updated)) != nil {
+              pairings = updated; self.pairing = updated[index]
+            }
+          }
+          Task { await self.refreshCloudPolicies() }
+        }
         if let offer = try? JSONSerialization.jsonObject(with: report) as? [String: String],
           offer["type"] == "file-offer", let token = offer["token"],
           let digest = offer["sha256"], digest.count == 64,
           digest.allSatisfy({ $0.isHexDigit }),
           token.count <= 1024,
           (token.hasPrefix("Host::") || token.hasPrefix("Watch::") ||
-            token.hasPrefix("Analytics-")) {
+            token.hasPrefix("Analytics-") || CloudSharedLogToken.parse(token) != nil) {
           if let previous = activeFileOffer, previous.hostID == pairing.hostID {
-            Self.appendDebugEvent("Preflight: computer replied with another offer after decision=\(previous.decision) for \(previous.token)")
+            Self.appendDebugEvent("Preflight: computer replied with another offer after decision=\(previous.decision) for \(CloudSharedLogToken.debugLabel(previous.token))")
+          }
+          let shared = CloudSharedLogToken.parse(token)
+          if let shared {
+            guard AppSettings.shared.iCloudSyncEnabled,
+              CloudLogSharingState.shared.scope == shared.scope else { throw TransferError.invalidPayload }
           }
           let forced = offer["force"] == "true"
           let existingSource = forced ? nil : receivedDigestSource(digest,
-            physicalDeviceID: pairing.physicalDeviceID)
+            physicalDeviceID: shared?.origin ?? pairing.physicalDeviceID,
+            recordOrigin: CloudSharedLogToken.measurementOrigin(base: shared?.base ?? token,
+              origin: shared?.origin ?? pairing.physicalDeviceID))
           let alreadyReceived = !forced && existingSource != nil
           let decision = alreadyReceived ? "have" : "send"
           activeFileOffer = (pairing.hostID, token, digest, decision)
-          Self.appendDebugEvent("Preflight: offer \(token); SHA-256 \(digest.prefix(12)); local=\(forced ? "not checked (manual resend)" : existingSource ?? "absent"); forced=\(forced); decision=\(decision)")
+          Self.appendDebugEvent("Preflight: offer \(CloudSharedLogToken.debugLabel(token)); SHA-256 \(digest.prefix(12)); local=\(forced ? "not checked (manual resend)" : existingSource ?? "absent"); forced=\(forced); decision=\(decision)")
           DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
             guard let self, self.isRunning,
               self.pairing?.hostID == pairing.hostID else { return }
@@ -1281,7 +1402,7 @@ final class MacTransferManager: ObservableObject {
           throw TransferError.invalidPayload
         }
         if let previous = activeFileOffer, previous.hostID == pairing.hostID {
-          Self.appendDebugEvent("Preflight: computer completed decision=\(previous.decision) for \(previous.token); no file body returned")
+          Self.appendDebugEvent("Preflight: computer completed decision=\(previous.decision) for \(CloudSharedLogToken.debugLabel(previous.token)); no file body returned")
         }
         activeFileOffer = nil
         if let control = try? JSONSerialization.jsonObject(with: report) as? [String: String],
@@ -1336,7 +1457,7 @@ final class MacTransferManager: ObservableObject {
         let confirmedCount = confirmReceivedFiles(for: pairing)
         let archiveSyncPending = debugArchiveNeedsSync()
         if confirmedCount > 0 {
-          Self.appendDebugEvent("Transfer: confirmed \(confirmedCount) received file(s)")
+          Self.appendDebugEvent("Transfer: confirmed \(confirmedCount) received file(s); computer=\(pairing.hostID.uuidString), recipient=\(pairing.physicalDeviceID.uuidString), request=\(activeRequestNonce?.uuidString ?? "none")")
         }
         if pendingAck != nil {
           pendingAck = nil
@@ -1392,9 +1513,21 @@ final class MacTransferManager: ObservableObject {
         } else { scheduleReconnect(after: 60) }
         return
       }
-      let token = name.components(separatedBy: "::")
+      let shared = CloudSharedLogToken.parse(name)
+      if let shared {
+        guard !usingLegacyTransfer, AppSettings.shared.iCloudSyncEnabled,
+          CloudLogSharingState.shared.scope == shared.scope else { throw TransferError.invalidPayload }
+      }
+      if shared != nil {
+        guard let offer = activeFileOffer, offer.hostID == pairing.hostID,
+          offer.token == name, offer.decision == "send",
+          Self.hashDigest(Data(plain.dropFirst(2 + nameLength))) == offer.digest else {
+          throw TransferError.invalidPayload
+        }
+      }
+      let token = (shared?.base ?? name).components(separatedBy: "::")
       if let offer = activeFileOffer, offer.hostID == pairing.hostID {
-        Self.appendDebugEvent("Preflight: received file body \(name), \(plain.count - 2 - nameLength) bytes after decision=\(offer.decision)")
+        Self.appendDebugEvent("Preflight: received file body \(CloudSharedLogToken.debugLabel(name)), \(plain.count - 2 - nameLength) bytes after decision=\(offer.decision)")
       }
       activeFileOffer = nil
       let kind: String
@@ -1430,8 +1563,13 @@ final class MacTransferManager: ObservableObject {
         return
       }
       let content = plain.dropFirst(2 + nameLength)
-      var folder = try Self.inbox(for: pairing).appendingPathComponent(kind,
-        isDirectory: true)
+      var folder = try Self.inbox(for: pairing)
+      if let shared {
+        folder.appendPathComponent("Shared", isDirectory: true)
+        folder.appendPathComponent(shared.scope, isDirectory: true)
+        folder.appendPathComponent(shared.origin.uuidString, isDirectory: true)
+      }
+      folder.appendPathComponent(kind, isDirectory: true)
       if let source { folder.appendPathComponent(source, isDirectory: true) }
       try FileManager.default.createDirectory(at: folder,
         withIntermediateDirectories: true)
@@ -1440,6 +1578,7 @@ final class MacTransferManager: ObservableObject {
         try Data(content).write(to: destination, options: .atomic)
       }
       Self.appendDebugEvent("Transfer: saved \(filename), \(content.count) bytes")
+      Self.appendDebugEvent("Transfer trace: persisted request=\(activeRequestNonce?.uuidString ?? "none"), computer=\(pairing.hostID.uuidString), source=\((shared?.origin ?? pairing.physicalDeviceID).uuidString), recipient=\(pairing.physicalDeviceID.uuidString), file=\(CloudSharedLogToken.debugLabel(name)), bytes=\(content.count), totalMs=\(Int((ProcessInfo.processInfo.systemUptime - requestStartedUptime) * 1000)), bodyMs=\(Int((ProcessInfo.processInfo.systemUptime - firstByteUptime) * 1000)); awaiting authenticated ACK")
       var unconfirmed = Self.storedFileIDs(for: unconfirmedKey, pairing: pairing)
       guard let identifier = Self.storedFileID(for: destination, pairing: pairing) else {
         throw TransferError.invalidPayload
@@ -1530,6 +1669,10 @@ final class MacTransferManager: ObservableObject {
     let prefix = folder.standardizedFileURL.path + "/"
     guard file.standardizedFileURL.path.hasPrefix(prefix) else { return nil }
     let parts = file.standardizedFileURL.path.dropFirst(prefix.count).split(separator: "/")
+    if parts.first == "Shared" {
+      let token = parts.joined(separator: "::")
+      return CloudSharedLogToken.parse(token)?.value
+    }
     guard let filename = parts.last.map(String.init),
       filename.hasPrefix("Analytics-"), filename.hasSuffix(".ips.ca.synced") else { return nil }
     if parts.count == 1 { return filename }
@@ -1565,6 +1708,10 @@ final class MacTransferManager: ObservableObject {
     }
   }
 
+  private static func hashDigest(_ data: Data) -> String {
+    SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
+  }
+
   private static func digest(of file: URL) -> String? {
     guard let bytes = try? Data(contentsOf: file, options: .mappedIfSafe) else {
       return nil
@@ -1572,15 +1719,19 @@ final class MacTransferManager: ObservableObject {
     return SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
   }
 
-  private func receivedDigestSource(_ digest: String, physicalDeviceID: UUID) -> String? {
+  private func receivedDigestSource(_ digest: String, physicalDeviceID: UUID, recordOrigin: UUID?) -> String? {
     let ledger = UserDefaults.standard.dictionary(forKey: Self.receivedDigestKey)
       as? [String: [String: Double]] ?? [:]
     if ledger[physicalDeviceID.uuidString]?[digest] != nil { return "imported" }
     // A different computer can offer the same file before the first import finishes.
-    let inInbox = pairings.filter { $0.physicalDeviceID == physicalDeviceID }
-      .contains { host in
-        allInboxFiles(for: host).contains { Self.digest(of: $0) == digest }
+    let inInbox = pairings.contains { host in
+      allInboxFiles(for: host).contains {
+        (CloudLogSharingState.sharedToken(in: $0)?.origin ?? host.physicalDeviceID) == physicalDeviceID && Self.digest(of: $0) == digest
       }
+    }
+    if let recordOrigin, savedRecordIDs.contains(CloudSharedLogToken.recordID(origin: recordOrigin, digest: digest)) {
+      return "iCloud record"
+    }
     return inInbox ? "inbox" : nil
   }
 
@@ -1601,6 +1752,10 @@ final class MacTransferManager: ObservableObject {
   private func enqueueFiles(_ files: [URL], for pairing: MacTransferPairing) {
     var batch: [(url: URL, physicalDeviceID: UUID?)] = []
     for file in files where file.lastPathComponent.hasPrefix("Analytics-") {
+      guard CloudLogSharingState.allowsImport(file) else {
+        Self.appendDebugEvent("Cloud sharing: staged source log withheld because sync/account permission is unavailable")
+        continue
+      }
       if file.lastPathComponent.localizedCaseInsensitiveContains("session") ||
         (try? Data(contentsOf: file, options: .mappedIfSafe)).map({ !Self.looksLikeBatteryLog($0) }) == true {
         try? FileManager.default.removeItem(at: file)
@@ -1612,21 +1767,11 @@ final class MacTransferManager: ObservableObject {
   }
 
   private static func sourcePhysicalID(for file: URL, pairing: MacTransferPairing) -> UUID? {
-    let parts = file.pathComponents
-    guard let watchIndex = parts.firstIndex(of: "Watch") else {
-      return pairing.physicalDeviceID
-    }
-    guard parts.indices.contains(watchIndex + 1) else { return nil }
-    let source = parts[watchIndex + 1]
-    guard source.range(of: #"^ProxiedDevice-[a-fA-F0-9]+$"#,
-      options: .regularExpression) != nil else { return nil }
-    let digest = SHA256.hash(data: Data("\(pairing.physicalDeviceID.uuidString)|\(source)".utf8))
-    var bytes = Array(digest.prefix(16))
-    bytes[6] = (bytes[6] & 0x0f) | 0x50
-    bytes[8] = (bytes[8] & 0x3f) | 0x80
-    return UUID(uuid: (bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5],
-      bytes[6], bytes[7], bytes[8], bytes[9], bytes[10], bytes[11], bytes[12],
-      bytes[13], bytes[14], bytes[15]))
+    let origin = CloudLogSharingState.sharedToken(in: file)?.origin ?? pairing.physicalDeviceID
+    guard let token = queueToken(for: file, pairing: pairing) else { return nil }
+    let base = CloudSharedLogToken.parse(token)?.base ?? token
+    if !base.contains("::") { return origin } // first beta's flat Host queue
+    return CloudSharedLogToken.measurementOrigin(base: base, origin: origin)
   }
 
   private static func looksLikeBatteryLog(_ bytes: Data) -> Bool {
@@ -1774,12 +1919,15 @@ final class MacTransferManager: ObservableObject {
       let host = pairings.first(where: {
         Self.storedFileID(for: sourceURL, pairing: $0) != nil
       }) {
-      rememberReceivedDigest(of: sourceURL, physicalDeviceID: host.physicalDeviceID)
+      rememberReceivedDigest(of: sourceURL, physicalDeviceID: CloudLogSharingState.sharedToken(in: sourceURL)?.origin ?? host.physicalDeviceID)
     }
     let date = logDate.map(Self.localTime) ?? "unknown"
     let message = "Import: \(filename); result=\(status); logDate=\(date)" +
       (detail.map { "; detail=\($0)" } ?? "")
     Self.appendDebugEvent(message)
+    let shared = CloudLogSharingState.sharedToken(in: sourceURL)
+    let computer = pairings.first { Self.storedFileID(for: sourceURL, pairing: $0) != nil }
+    Self.appendDebugEvent("Import trace: result=\(status), source=\((shared?.origin ?? computer?.physicalDeviceID)?.uuidString ?? "unknown"), computer=\(computer?.hostID.uuidString ?? "unknown"), crossDevice=\(shared != nil), file=\(filename)")
     guard filename.hasPrefix("Analytics-\(Self.japanDay())-"),
       status == "error" || status == "success" || status == "duplicate" ||
         status == "needsReview",
@@ -2010,9 +2158,9 @@ final class MacTransferManager: ObservableObject {
     }
   }
 
-  private static func appendDebugEvent(_ message: String) {
+  static func appendDebugEvent(_ message: String) {
     migrateDebugEvents()
-    let normalized = String(message.replacingOccurrences(of: "\n", with: " ").prefix(240))
+    let normalized = String(message.replacingOccurrences(of: "\n", with: " ").prefix(1024))
     var events = debugEvents()
     guard events.last?.hasSuffix(" | \(normalized)") != true else { return }
     let formatter = ISO8601DateFormatter()

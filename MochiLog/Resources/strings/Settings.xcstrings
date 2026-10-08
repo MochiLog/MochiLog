@@ -1,6 +1,58 @@
 {
   "sourceLanguage" : "ja",
   "strings" : {
+    "cloud_sharing_unavailable" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protokolle anderer Geräte wurden nicht importiert, da die iCloud-Synchronisierung oder das Konto nicht bestätigt werden konnte."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logs from other devices were not imported because iCloud sync or the account could not be confirmed."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se importaron los registros de otros dispositivos porque no se pudo confirmar la sincronización de iCloud o la cuenta."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les journaux des autres appareils n’ont pas été importés, car la synchronisation iCloud ou le compte n’a pas pu être confirmé."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud同期またはアカウントを確認できないため、他の端末のログは取り込んでいません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 동기화 또는 계정을 확인할 수 없어 다른 기기의 로그를 가져오지 않았습니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法确认 iCloud 同步或账户，因此未导入其他设备的日志。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法確認 iCloud 同步或帳號，因此未匯入其他裝置的日誌。"
+          }
+        }
+      }
+    },
     "cloud_diagnostic_server_count" : {
       "localizations": {
         "de": {

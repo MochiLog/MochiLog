@@ -197,6 +197,11 @@ final class SwiftDataStore: DataStore {
   // MARK: - CRUD
 
   override func insert(_ record: BatteryRecord) {
+    if record.id.uuid.6 >> 4 == 5 {
+      let target: UUID? = record.id
+      let query = FetchDescriptor<SDBatteryRecord>(predicate: #Predicate { $0.recordID == target })
+      if (try? modelContext.fetch(query).isEmpty) == false { return }
+    }
     let sdRecord = SDBatteryRecord(from: record)
     modelContext.insert(sdRecord)
   }
@@ -208,8 +213,12 @@ final class SwiftDataStore: DataStore {
     let descriptor = FetchDescriptor<SDBatteryRecord>(
       predicate: #Predicate { $0.recordID == optionalTargetID }
     )
-    if let sdRecord = try? modelContext.fetch(descriptor).first {
-      modelContext.delete(sdRecord)
+    if let copies = try? modelContext.fetch(descriptor) {
+      // One explicit user deletion applies to the complete logical transport
+      // record, including cloud copies that were displayed as one row.
+      for copy in record.id.uuid.6 >> 4 == 5 ? copies : Array(copies.prefix(1)) {
+        modelContext.delete(copy)
+      }
     }
   }
 
@@ -321,7 +330,13 @@ final class SwiftDataStore: DataStore {
       sortBy: [SortDescriptor(\.logDate, order: .reverse)]
     )
     let sdRecords = (try? modelContext.fetch(descriptor)) ?? []
-    let records = sdRecords.map { $0.toBatteryRecord() }
+    let redundant = ProcessInfo.processInfo.isiOSAppOnMac ? [] : CloudSharedLogToken.redundantCopies(sdRecords, id: { $0.recordID ?? UUID() },
+      origin: { $0.physicalDeviceID }, date: { $0.logDate }, createdAt: { $0.createdAt })
+    let redundantIDs = Set(redundant.map { ObjectIdentifier($0) })
+    for copy in redundant { modelContext.delete(copy) }
+    let records = sdRecords.filter { !redundantIDs.contains(ObjectIdentifier($0)) }.map { $0.toBatteryRecord() }
+    // The canonical keeper uses persisted createdAt, not local object IDs.
+    // Two devices seeing copies in opposite orders can never delete different keepers.
     // toBatteryRecord() が旧レコードに recordID を付与した場合、変更を保存
     if modelContext.hasChanges {
       do {
@@ -330,6 +345,8 @@ final class SwiftDataStore: DataStore {
         print("[SwiftDataStore] Save failed in refreshRecords (conflict?): \(error)")
         ICloudSyncManager.shared.handleSaveError(error)
         modelContext.rollback()
+        updateCachedRecords(sdRecords.map { $0.toBatteryRecord() })
+        return
       }
     }
     updateCachedRecords(records)
