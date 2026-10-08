@@ -30,4 +30,6 @@ jobs:
         if: always()
         with:
           name: automatic-collection-ui-results
-          path: Build/automatic-ui-*.xcresult
+          path: |
+            Build/automatic-ui-*.xcresult
+            Build/automatic-ui-*.log
