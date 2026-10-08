@@ -14,7 +14,7 @@ import zipfile
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--devices', nargs='+', choices=['iphone', 'ipad', 'duo', 'watch'], default=['iphone', 'ipad', 'duo', 'watch'])
-parser.add_argument("--duo-screen", choices=["inner", "outer"], default="inner",
+parser.add_argument("--duo-screen", choices=["inner", "outer"], default="outer",
                     help="Select Open/Closed in Xcode Device Hub before capture; screenshots are dimension-checked.")
 args = parser.parse_args()
 selected = set(args.devices)
