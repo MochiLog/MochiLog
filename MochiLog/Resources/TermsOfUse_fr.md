@@ -28,4 +28,4 @@ Le droit japonais s’applique sans réduire les droits impératifs des consomma
 
 Revised: 2026-10-09
 
-La collecte sur l’appareil est expérimentale et nécessite iOS/iPadOS 27 ou ultérieur, l’app ouverte, un chemin VPN/réflecteur compatible et la confiance initiale du système. Elle se règle indépendamment du transfert PC. La configuration initiale entièrement sans fil, le fonctionnement sans mode développeur et la collecte en arrière-plan ou continue ne sont pas garantis.
+La collecte sur l’appareil est expérimentale et nécessite iOS/iPadOS 17 ou ultérieur, l’app ouverte, un chemin VPN/réflecteur compatible et la confiance initiale du système. Elle se règle indépendamment du transfert PC. La configuration initiale entièrement sans fil, le fonctionnement sans mode développeur et la collecte en arrière-plan ou continue ne sont pas garantis. Le jumelage initial uniquement sur l’appareil exige la version 27 ou ultérieure ; les versions 17–26 nécessitent un fichier importé.

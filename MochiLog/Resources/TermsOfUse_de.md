@@ -28,4 +28,4 @@ Es gilt japanisches Recht, unbeschadet zwingender Verbraucherrechte am Wohnsitz.
 
 Revised: 2026-10-09
 
-Die Erfassung auf dem Gerät ist experimentell und benötigt iOS/iPadOS 27 oder neuer, eine geöffnete App, einen kompatiblen VPN-/Reflektorweg und anfängliches OS-Vertrauen. Sie lässt sich unabhängig von der PC-Übertragung einstellen. Vollständig drahtlose Ersteinrichtung, Betrieb ohne Entwicklermodus und Hintergrund- oder dauerhafte Erfassung werden nicht garantiert.
+Die Erfassung auf dem Gerät ist experimentell und benötigt iOS/iPadOS 17 oder neuer, eine geöffnete App, einen kompatiblen VPN-/Reflektorweg und anfängliches OS-Vertrauen. Sie lässt sich unabhängig von der PC-Übertragung einstellen. Vollständig drahtlose Ersteinrichtung, Betrieb ohne Entwicklermodus und Hintergrund- oder dauerhafte Erfassung werden nicht garantiert. Das erste Pairing direkt auf dem Gerät erfordert Version 27 oder neuer; unter 17–26 muss eine Pairing-Datei importiert werden.

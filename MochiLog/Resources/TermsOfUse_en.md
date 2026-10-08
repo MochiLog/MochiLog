@@ -28,4 +28,4 @@ Japanese law governs these terms, without limiting mandatory consumer rights in 
 
 Revised: 2026-10-09
 
-On-device acquisition is experimental and requires iOS/iPadOS 27 or later, foreground use, a compatible VPN/reflector route and initial OS trust. It is independently configurable from PC transfer. Fully wireless initial setup, Developer Mode-off operation, background or continuous acquisition are not guaranteed.
+On-device acquisition is experimental and requires iOS/iPadOS 17 or later, foreground use, a compatible VPN/reflector route and initial OS trust. It is independently configurable from PC transfer. Fully wireless initial setup, Developer Mode-off operation, background or continuous acquisition are not guaranteed. Device-only initial pairing requires 27 or later; versions 17–26 require an imported pairing file.

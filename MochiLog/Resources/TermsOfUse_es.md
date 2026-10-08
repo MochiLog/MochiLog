@@ -28,4 +28,4 @@ Se aplica la ley japonesa sin limitar los derechos imperativos de consumidores e
 
 Revised: 2026-10-09
 
-La obtención en el dispositivo es experimental y requiere iOS/iPadOS 27 o posterior, la app abierta, una ruta VPN/reflector compatible y confianza inicial del sistema. Se configura independientemente de la transferencia por PC. No se garantiza la configuración inicial totalmente inalámbrica, el funcionamiento sin modo de desarrollador ni la obtención en segundo plano o continua.
+La obtención en el dispositivo es experimental y requiere iOS/iPadOS 17 o posterior, la app abierta, una ruta VPN/reflector compatible y confianza inicial del sistema. Se configura independientemente de la transferencia por PC. No se garantiza la configuración inicial totalmente inalámbrica, el funcionamiento sin modo de desarrollador ni la obtención en segundo plano o continua. El emparejamiento inicial solo en el dispositivo requiere 27 o posterior; las versiones 17–26 necesitan importar un archivo de emparejamiento.
