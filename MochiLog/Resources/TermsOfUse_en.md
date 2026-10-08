@@ -26,4 +26,6 @@ These terms may be revised to reflect changes in features or law. The revised te
 
 Japanese law governs these terms, without limiting mandatory consumer rights in your place of residence. Contact support@mochilog.ryuya-dev.net with questions.
 
-Revised: 2026-10-07
+Revised: 2026-10-09
+
+On-device acquisition is experimental and requires iOS/iPadOS 27 or later, foreground use, a compatible VPN/reflector route and initial OS trust. It is independently configurable from PC transfer. Fully wireless initial setup, Developer Mode-off operation, background or continuous acquisition are not guaranteed.

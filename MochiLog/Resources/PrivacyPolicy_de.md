@@ -26,9 +26,11 @@ MochiLog nutzt keine Werbe-, Tracking- oder Drittanbieter-Nutzungsanalyse-SDKs. 
 
 Fragen und Anfragen zur Löschung von Support-E-Mails: support@mochilog.ryuya-dev.net.
 
-Revised: 2026-10-07
+Revised: 2026-10-09
 
 Die vollständige Akkuansicht kann auch Herstellungsdaten, Akku-Kennungen und Statuskennzeichen im Arbeitsspeicher verarbeiten. Originalnamen und Werte der API werden ohne angenommene Einheiten angezeigt. Sie werden nicht gespeichert oder Supportprotokollen beigefügt und mit der bestehenden Kopplung verschlüsselt übertragen.
 
 
 Die PC-Protokollfreigabe überträgt Protokolle anderer Geräte verschlüsselt nur, wenn beide mit demselben Computer gekoppelt sind, iCloud-Synchronisierung aktiviert ist und derselbe Apple Account bestätigt wurde. Ein Hash der app-spezifischen CloudKit-Benutzer-ID dient zum Abgleich; Apple ID, E-Mail und ursprüngliche Benutzer-ID werden nicht an den Computer gesendet. Der Hash ist ein Account-Kennzeichen, keine Anonymitätsgarantie. Die Zustimmung wird befristet im Computerspeicher gehalten und bei deaktivierter Synchronisierung oder Account-Wechsel widerrufen. Ohne Verbindung kann die letzte Zustimmung bis zu 15 Minuten bestehen bleiben. Die Identität des Quellgeräts bleibt erhalten. Protokolle gehen nicht an einen Entwicklerserver.
+
+Die optionale Erfassung auf dem Gerät authentifiziert sich über ein lokales VPN bzw. einen Reflektor beim Diagnosedienst dieses Geräts. OS-Kopplungsdaten liegen im gerätespezifischen Schlüsselbund und werden ausdrücklich über eine verschlüsselte, authentifizierte PC-Verbindung übernommen oder vom Nutzer importiert. Schlüssel und Analyseprotokolle werden nicht an einen Entwicklerserver gesendet. Zwischendateien werden nach erfolgreichem Import gelöscht. Aktuelle Werte anderer Geräte am selben PC werden nur bei bestätigter iCloud-Synchronisierung auf beiden Geräten und gleichem Apple Account geteilt; die Werte werden nicht im Verlauf, in iCloud oder in Diagnoseprotokollen gespeichert. Automatische PC-Updateprüfungen sind standardmäßig aus und verbinden sich bei Aktivierung mit GitHub. Die Datenschutzbedingungen des VPN-Dienstes gelten ebenfalls.

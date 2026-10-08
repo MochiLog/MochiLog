@@ -26,4 +26,6 @@ App Store版可能通过Apple应用内购买提供自愿打赏；AltStore PAL版
 
 适用日本法律，但不限制居住地强制性消费者权益。联系：support@mochilog.ryuya-dev.net。
 
-Revised: 2026-10-07
+Revised: 2026-10-09
+
+设备内获取是实验功能，需要iOS/iPadOS 27或更高版本、应用处于前台、兼容的VPN或反射器路径及初始系统信任设置。可与PC传输分别开关。不保证完全无线的初始设置、关闭开发者模式时的运行、后台或持续获取。

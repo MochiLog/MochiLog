@@ -26,4 +26,6 @@ Bei Änderungen von Funktionen oder Gesetzen können diese Bedingungen angepasst
 
 Es gilt japanisches Recht, unbeschadet zwingender Verbraucherrechte am Wohnsitz. Kontakt: support@mochilog.ryuya-dev.net.
 
-Revised: 2026-10-07
+Revised: 2026-10-09
+
+Die Erfassung auf dem Gerät ist experimentell und benötigt iOS/iPadOS 27 oder neuer, eine geöffnete App, einen kompatiblen VPN-/Reflektorweg und anfängliches OS-Vertrauen. Sie lässt sich unabhängig von der PC-Übertragung einstellen. Vollständig drahtlose Ersteinrichtung, Betrieb ohne Entwicklermodus und Hintergrund- oder dauerhafte Erfassung werden nicht garantiert.

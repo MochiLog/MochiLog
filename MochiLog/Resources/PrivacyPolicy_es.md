@@ -26,9 +26,11 @@ MochiLog no usa SDK de publicidad, seguimiento ni análisis de uso de terceros. 
 
 Consultas y solicitudes de eliminación de correos de soporte: support@mochilog.ryuya-dev.net.
 
-Revised: 2026-10-07
+Revised: 2026-10-09
 
 La vista completa puede tratar metadatos de fabricación, identificadores de batería e indicadores de estado en memoria. Muestra los nombres y valores originales sin deducir unidades. No se guardan ni se adjuntan a los registros de soporte y se transfieren cifrados mediante el enlace existente.
 
 
 El uso compartido de registros del PC transmite cifrados los registros de otro dispositivo solo si ambos están enlazados al mismo ordenador, tienen la sincronización con iCloud activada y se confirma la misma cuenta de Apple. Se compara un hash del ID de usuario de CloudKit específico de la app; no se envían el Apple ID, correo ni ID original al ordenador. El hash es un identificador para comparar cuentas, no una garantía de anonimato. El permiso se mantiene temporalmente en la memoria del ordenador y se revoca al desactivar la sincronización o cambiar de cuenta. Sin conexión, el permiso anterior puede durar hasta 15 minutos. Se conserva la identidad de origen. No se envían registros a un servidor del desarrollador.
+
+La obtención opcional en el dispositivo se autentica en su propio servicio de diagnóstico mediante una VPN local o reflector. Las credenciales de enlace del sistema se guardan en el llavero exclusivo del dispositivo y se reutilizan expresamente mediante una conexión al PC cifrada y autenticada, o se importan por el usuario. No se envían claves ni registros a un servidor del desarrollador. Los archivos temporales se eliminan tras una importación correcta. Los valores actuales de otro dispositivo del mismo PC solo se comparten si ambos tienen sincronización iCloud confirmada y la misma cuenta de Apple; no se guardan en el historial, iCloud ni registros de diagnóstico. La búsqueda automática de actualizaciones del PC está desactivada inicialmente y conecta con GitHub al activarse. También se aplica la política de datos de la VPN.

@@ -26,4 +26,6 @@ Ces conditions peuvent évoluer avec les fonctionnalités ou la loi. La nouvelle
 
 Le droit japonais s’applique sans réduire les droits impératifs des consommateurs dans leur pays de résidence. Contact : support@mochilog.ryuya-dev.net.
 
-Revised: 2026-10-07
+Revised: 2026-10-09
+
+La collecte sur l’appareil est expérimentale et nécessite iOS/iPadOS 27 ou ultérieur, l’app ouverte, un chemin VPN/réflecteur compatible et la confiance initiale du système. Elle se règle indépendamment du transfert PC. La configuration initiale entièrement sans fil, le fonctionnement sans mode développeur et la collecte en arrière-plan ou continue ne sont pas garantis.

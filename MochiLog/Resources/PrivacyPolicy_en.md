@@ -26,9 +26,11 @@ MochiLog does not use advertising, tracking SDKs, or third-party usage analytics
 
 For policy questions or requests to delete support emails, contact support@mochilog.ryuya-dev.net.
 
-Revised: 2026-10-07
+Revised: 2026-10-09
 
 The full-field battery view can also handle manufacturing metadata, battery identifiers and status flags in memory. It shows original API names and values without guessing units. These fields are not saved or attached to support logs and use encrypted transfer with the existing pairing.
 
 
 PC log sharing can deliver another device’s logs encrypted only when both devices are paired with the same computer, have iCloud sync enabled, and the same Apple Account is confirmed. Matching uses a hash derived from an app-scoped CloudKit user ID; the Apple ID, email and original user ID are not sent to the computer. This hash is an account-matching identifier, not a guarantee of anonymity. Consent is held temporarily in computer memory and revoked when sync is disabled or the account changes. If a device cannot communicate, revocation is not immediate and the last consent may remain for up to 15 minutes. Records retain the source device’s identity. Logs are not sent to a developer server.
+
+Optional on-device acquisition authenticates to this device’s diagnostic service through a local VPN/reflector route. OS pairing credentials are held in device-only Keychain and explicitly reused over an encrypted authenticated PC connection or imported by the user. Keys and analytics files are not sent to a developer server. Staged files are removed after successful import. Current readings from another device using the same PC are shared only with confirmed iCloud sync enabled on both devices and the same Apple Account; readings are not saved to history, iCloud or diagnostic logs. PC automatic update checks are off by default and connect to GitHub when enabled. The data practices of your VPN service also apply.
