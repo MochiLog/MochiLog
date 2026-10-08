@@ -1,4 +1,6 @@
-Added a beta view of current cycle count, design capacity and other capacity fields for paired iPhones and iPads, separate from daily Analytics logs. Each device has a card on the computer dashboard. Enable Live Battery in the mobile app’s Advanced Settings to show a dedicated tab; it is off by default. Existing pairings are preserved.
+Added a beta view of current cycle count, design capacity and other capacity fields for paired iPhones and iPads, separate from daily Analytics logs. Enable Live Battery in the mobile app’s Advanced Settings to show a dedicated tab; it is off by default. 
+
+The table uses verified exact paths. Ambiguous capacity and charge-level fields remain in optional details without guessed units.
 
 While the app is open, values refresh periodically and only changed values are transferred using encryption. Acquisition time, unavailable fields and outdated values after a failed refresh are shown separately. Receive Now, Send Now and mobile requests to refresh the computer are available. Values remain in memory only and are never saved to history, records, iCloud or diagnostic logs.
 
@@ -16,6 +18,6 @@ Live Battery now uses a field/value table for understood readings such as capaci
 
 Internal values, unknown codes and channel metadata remain under Show detailed information, collapsed by default. Original names and values are preserved without guessing units or meanings. Large integers keep their precision; a channel name is not treated as an actual temperature measurement.
 
-Python is limited to the maintained pymobiledevice3 device connection, API calls and data output. Field selection, validation, hashes, acquisition timestamps and log-candidate selection now run in native Swift/C#. Readable adapter sources and architecture notes are in the repositories. Python is bundled.
+Python is limited to the maintained pymobiledevice3 device connection, API calls and data output. Field selection, validation, hashes, acquisition timestamps and log-candidate selection now run in native Swift/C#. Sources are documented. Python is bundled.
 
 Existing encrypted pairings and older clients’ core-field views are preserved. Current values stay in memory only, never in history, records, iCloud or support logs. Fresh acquisition depends on the device diagnostics service and connectivity. This is separate from daily Analytics files and live Apple Watch values.
