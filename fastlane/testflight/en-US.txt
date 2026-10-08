@@ -1,6 +1,6 @@
-Added a beta view of current cycle count, design capacity and other capacity fields for paired iPhones and iPads, separate from daily Analytics logs. Enable Live Battery in the mobile app’s Advanced Settings to show a dedicated tab; it is off by default. 
+Added a beta view of current battery information for paired iPhones and iPads, separate from daily Analytics logs. Enable Live Battery in the mobile app’s Advanced Settings to show a dedicated tab; it is off by default. 
 
-The table uses verified exact paths. Ambiguous capacity and charge-level fields remain in optional details without guessed units.
+The field/value table uses verified exact paths for cycle count, root design capacity, charging, external power, voltage and current. Design capacity is unavailable when the root field is absent. Ambiguous nominal, raw maximum, full-charge and charge-level values, nested BatteryData capacities, unknown codes and channel metadata remain under Show detailed information, collapsed by default. Original names and values keep their precision without guessed units. A channel name is not an actual temperature measurement.
 
 While the app is open, values refresh periodically and only changed values are transferred using encryption. Acquisition time, unavailable fields and outdated values after a failed refresh are shown separately. Receive Now, Send Now and mobile requests to refresh the computer are available. Values remain in memory only and are never saved to history, records, iCloud or diagnostic logs.
 
@@ -14,10 +14,4 @@ View and copy diagnostics by date. Dedicated support can attach both sides’ lo
 
 Previous fixes include the record-sharing crash, charts with localized device names, recurring Watch processing results and mobile-app launch on Mac. AES-GCM request encryption, expiry, persistent replay protection and downgrade prevention preserve existing pairings and support staged upgrades. This is beta software: report problems with dated diagnostics and the steps that triggered them.
 
-Live Battery now uses a field/value table for understood readings such as capacity, cycle count, charging, external power, voltage and current. Unavailable readings are shown separately.
-
-Internal values, unknown codes and channel metadata remain under Show detailed information, collapsed by default. Original names and values are preserved without guessing units or meanings. Large integers keep their precision; a channel name is not treated as an actual temperature measurement.
-
-Python is limited to the maintained pymobiledevice3 device connection, API calls and data output. Field selection, validation, hashes, acquisition timestamps and log-candidate selection now run in native Swift/C#. Sources are documented. Python is bundled.
-
-Existing encrypted pairings and older clients’ core-field views are preserved. Current values stay in memory only, never in history, records, iCloud or support logs. Fresh acquisition depends on the device diagnostics service and connectivity. This is separate from daily Analytics files and live Apple Watch values.
+Python is limited to the maintained pymobiledevice3 connection/API adapter and lossless data output. Validation, display classification, hashes, timestamps and log-candidate selection run in native Swift/C#. Readable sources and architecture notes are in the repositories. Runtime dependencies remain bundled; users do not configure Python. Existing encrypted pairings and older clients’ six core-field wire format are preserved.
