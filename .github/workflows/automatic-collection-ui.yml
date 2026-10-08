@@ -1,0 +1,33 @@
+name: Automatic collection UI verification
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        type: string
+        default: experiment/mac-log-transfer
+        description: Mobile beta source branch
+permissions:
+  contents: read
+jobs:
+  ui:
+    runs-on: xcode-27
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+      - name: Build local diagnostics dependency
+        env:
+          CARGO_BUILD_JOBS: '3'
+        run: |
+          export PATH="$HOME/.cargo/bin:$PATH"
+          if ! command -v rustup >/dev/null; then curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y; fi
+          rustup update stable
+          bash scripts/build-local-diagnostics.sh
+      - name: Verify eight languages and tab changes on iPad and iPhone
+        run: bash scripts/test-automatic-collection-ui.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: automatic-collection-ui-results
+          path: Build/automatic-ui-*.xcresult
