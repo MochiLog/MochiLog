@@ -63,11 +63,15 @@ let fileManager = FileManager.default
 let expectedNames: [String: [String]] = [
     "iphone": ["01_home", "02_details", "03_analytics", "04_settings"],
     "ipad": ["01_home", "02_details", "03_analytics", "04_settings"],
+    "duo_outer": ["01_home", "02_details", "03_analytics", "04_settings"],
+    "duo_inner": ["01_home", "02_details", "03_analytics", "04_settings"],
     "watch": ["01_devices", "02_logs", "03_health", "04_metrics"]
 ]
 let expectedSizes: [String: CGSize] = [
     "iphone": CGSize(width: 1320, height: 2868),
     "ipad": CGSize(width: 2064, height: 2752),
+    "duo_outer": CGSize(width: 1398, height: 2034),
+    "duo_inner": CGSize(width: 2007, height: 2853),
     "watch": CGSize(width: 416, height: 496)
 ]
 
@@ -101,7 +105,8 @@ func drawArtwork(source: NSImage, kind: String, message: Message, index: Int, de
                       userInfo: [NSLocalizedDescriptionKey: "Unexpected \(kind) input size: \(source.size)"])
     }
     let isWatch = kind == "watch"
-    let scale: CGFloat = isWatch ? 1 : (kind == "ipad" ? 1.55 : 1)
+    let isDuo = kind.hasPrefix("duo_")
+    let scale: CGFloat = isWatch ? 1 : (isDuo ? canvas.width / 1320 : (kind == "ipad" ? 1.55 : 1))
     let accent = color(0x46D477)
     let bitmap = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(canvas.width),
                                   pixelsHigh: Int(canvas.height), bitsPerSample: 8,
@@ -124,8 +129,8 @@ func drawArtwork(source: NSImage, kind: String, message: Message, index: Int, de
     NSGradient(starting: color(0x1A8655, alpha: isWatch ? 0.24 : 0.22), ending: color(0x1A8655, alpha: 0))!
         .draw(in: glow, relativeCenterPosition: .zero)
 
-    let margin: CGFloat = isWatch ? 27 : (kind == "ipad" ? 134 : 94)
-    let top: CGFloat = isWatch ? 21 : (kind == "ipad" ? 95 : 108)
+    let margin: CGFloat = isWatch ? 27 : (isDuo ? 70 * scale : (kind == "ipad" ? 134 : 94))
+    let top: CGFloat = isWatch ? 21 : (isDuo ? 45 * scale : (kind == "ipad" ? 95 : 108))
     let dotSize: CGFloat = isWatch ? 7 : 13 * scale
     accent.setFill()
     NSBezierPath(ovalIn: rectFromTop(margin, top + (isWatch ? 6 : 15), dotSize, dotSize, canvas: canvas)).fill()
@@ -144,19 +149,19 @@ func drawArtwork(source: NSImage, kind: String, message: Message, index: Int, de
         accent.setFill()
         NSBezierPath(roundedRect: bar, xRadius: 2, yRadius: 2).fill()
     } else {
-        let headlineY: CGFloat = kind == "ipad" ? 193 : 211
-        let headlineSize: CGFloat = kind == "ipad" ? 106 : 98
+        let headlineY: CGFloat = isDuo ? 120 * scale : (kind == "ipad" ? 193 : 211)
+        let headlineSize: CGFloat = isDuo ? 70 * scale : (kind == "ipad" ? 106 : 98)
         drawText(message.headline, x: margin, y: headlineY,
                  width: canvas.width - margin * 2,
-                 height: kind == "ipad" ? 280 : 260,
+                 height: isDuo ? 170 * scale : (kind == "ipad" ? 280 : 260),
                  size: headlineSize, weight: .bold, ink: color(0xF7FBF8), canvas: canvas,
                  lineSpacing: 7)
-        let detailY: CGFloat = kind == "ipad" ? 486 : 475
+        let detailY: CGFloat = isDuo ? 300 * scale : (kind == "ipad" ? 486 : 475)
         drawText(message.detail, x: margin, y: detailY,
-                 width: canvas.width - margin * 2, height: kind == "ipad" ? 94 : 135,
-                 size: kind == "ipad" ? 40 : 39, weight: .regular,
+                 width: canvas.width - margin * 2, height: isDuo ? 70 * scale : (kind == "ipad" ? 94 : 135),
+                 size: isDuo ? 27 * scale : (kind == "ipad" ? 40 : 39), weight: .regular,
                  ink: color(0xA8B9B0), canvas: canvas)
-        let lineY: CGFloat = kind == "ipad" ? 617 : 650
+        let lineY: CGFloat = isDuo ? 390 * scale : (kind == "ipad" ? 617 : 650)
         color(0x4A6A5A, alpha: 0.75).setFill()
         NSBezierPath(roundedRect: rectFromTop(margin, lineY, canvas.width - margin * 2, 2, canvas: canvas),
                      xRadius: 1, yRadius: 1).fill()
@@ -166,9 +171,9 @@ func drawArtwork(source: NSImage, kind: String, message: Message, index: Int, de
                  ink: accent, canvas: canvas)
     }
 
-    let screenshotX: CGFloat = isWatch ? 20 : (kind == "ipad" ? 115 : 93)
-    let screenshotY: CGFloat = isWatch ? 155 : (kind == "ipad" ? 720 : 765)
-    let screenshotWidth = canvas.width - 2 * screenshotX
+    let screenshotY: CGFloat = isWatch ? 155 : (isDuo ? 470 * scale : (kind == "ipad" ? 720 : 765))
+    let screenshotWidth = isDuo ? min(canvas.width - 120 * scale, (canvas.height - screenshotY - 70 * scale) * canvas.width / canvas.height) : canvas.width - 2 * (isWatch ? 20 : (kind == "ipad" ? 115 : 93))
+    let screenshotX = (canvas.width - screenshotWidth) / 2
     let screenshotHeight = screenshotWidth * canvas.height / canvas.width
     let screenshotRect = rectFromTop(screenshotX, screenshotY, screenshotWidth, screenshotHeight, canvas: canvas)
     let radius: CGFloat = isWatch ? 40 : (kind == "ipad" ? 73 : 92)
@@ -185,7 +190,19 @@ func drawArtwork(source: NSImage, kind: String, message: Message, index: Int, de
 
     graphics.flushGraphics()
     NSGraphicsContext.restoreGraphicsState()
-    guard let data = bitmap.representation(using: .png, properties: [:]) else {
+    // App Store images must not carry an alpha channel. AppKit drawing needs
+    // RGBA; encode a separate RGB bitmap after painting the opaque background.
+    let rgb = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(canvas.width),
+      pixelsHigh: Int(canvas.height), bitsPerSample: 8, samplesPerPixel: 3,
+      hasAlpha: false, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)!
+    let input = bitmap.bitmapData!, output = rgb.bitmapData!
+    for y in 0..<Int(canvas.height) {
+      for x in 0..<Int(canvas.width) {
+        let src = y * bitmap.bytesPerRow + x * 4, dst = y * rgb.bytesPerRow + x * 3
+        output[dst] = input[src]; output[dst + 1] = input[src + 1]; output[dst + 2] = input[src + 2]
+      }
+    }
+    guard let data = rgb.representation(using: .png, properties: [:]) else {
         throw NSError(domain: "ScreenshotDesign", code: 3,
                       userInfo: [NSLocalizedDescriptionKey: "Cannot encode PNG"])
     }
@@ -194,9 +211,9 @@ func drawArtwork(source: NSImage, kind: String, message: Message, index: Int, de
 
 var count = 0
 for locale in ["ja", "en-US"] {
-    for kind in ["iphone", "ipad", "watch"] {
+    for kind in ["iphone", "ipad", "duo_outer", "duo_inner", "watch"] {
         let names = expectedNames[kind]!
-        let messages = copy[locale]![kind]!
+        let messages = copy[locale]![kind.hasPrefix("duo_") ? "iphone" : kind]!
         for (index, screenName) in names.enumerated() {
             let filename = "\(kind)_\(screenName).png"
             let input = sourceRoot.appendingPathComponent(locale).appendingPathComponent(filename)

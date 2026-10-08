@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Capture real UI in dedicated, reusable simulators; never erase personal simulators."""
 import argparse
+import atexit
 import datetime
 import json
 import os
@@ -12,13 +13,23 @@ import struct
 import zipfile
 
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('--devices', nargs='+', choices=['iphone', 'ipad', 'watch'], default=['iphone', 'ipad', 'watch'])
-selected = set(parser.parse_args().devices)
+parser.add_argument('--devices', nargs='+', choices=['iphone', 'ipad', 'duo', 'watch'], default=['iphone', 'ipad', 'duo', 'watch'])
+parser.add_argument("--duo-screen", choices=["inner", "outer"], default="inner",
+                    help="Select Open/Closed in Xcode Device Hub before capture; screenshots are dimension-checked.")
+args = parser.parse_args()
+selected = set(args.devices)
 ROOT = Path(__file__).resolve().parents[1]
 os.chdir(ROOT)
 OUTPUT = ROOT / 'build' / 'store-screenshots' / datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
 DERIVED = ROOT / 'build' / 'store-derived'
+if shutil.disk_usage(ROOT).free < 12 * 1024**3:
+    raise RuntimeError("Store capture needs at least 12 GB free; remove old owned build outputs first.")
 OUTPUT.mkdir(parents=True)
+owned_boots = set()
+def cleanup_simulators():
+    for device in owned_boots:
+        subprocess.run(['xcrun', 'simctl', 'shutdown', device], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+atexit.register(cleanup_simulators)
 
 def run(*args, **kwargs):
     return subprocess.run(args, check=True, text=True, **kwargs)
@@ -37,6 +48,7 @@ def simulator(name, device_type, runtime):
                                    'com.apple.CoreSimulator.SimDeviceType.' + device_type, runtime], text=True).strip()
 
 def boot(device, watch=False):
+    owned_boots.add(device)
     state = [d for ds in json_command('xcrun', 'simctl', 'list', 'devices', '-j')['devices'].values()
              for d in ds if d['udid'] == device][0]['state']
     if state != 'Booted':
@@ -52,7 +64,7 @@ def xcode(scheme, device, platform, action, label, tests=()):
     command = ['xcodebuild', action, '-project', 'MochiLog.xcodeproj', '-scheme', scheme,
                '-destination', f'platform={platform} Simulator,id={device}',
                '-derivedDataPath', str(DERIVED), '-parallel-testing-enabled', 'NO',
-               '-collect-test-diagnostics', 'never']
+               '-collect-test-diagnostics', 'never', '-jobs', '1']
     if tests:
         command += ['-resultBundlePath', str(OUTPUT / (label + '.xcresult'))]
         command += ['-only-testing:' + t for t in tests]
@@ -77,7 +89,7 @@ def export(label):
             with source.open('rb') as image:
                 image.seek(16)
                 dimensions = struct.unpack('>II', image.read(8))
-            expected = {'iphone': (1320, 2868), 'ipad': (2064, 2752), 'watch': (416, 496)}[label]
+            expected = {'iphone': (1320, 2868), 'ipad': (2064, 2752), 'watch': (416, 496), 'duo_outer': (1398, 2034), 'duo_inner': (2007, 2853)}[label]
             if dimensions != expected:
                 raise RuntimeError(f'{label}: unexpected screenshot dimensions {dimensions}, expected {expected}')
             shutil.copy2(source, destination / f'{label}_{screen}.png')
@@ -86,20 +98,16 @@ def export(label):
         raise RuntimeError(f'{label}: expected 8 screenshots, got {count}')
 
 version = subprocess.check_output(['xcodebuild', '-version'], text=True)
-if not version.startswith('Xcode 27.0\n'):
-    raise RuntimeError('Select stable Xcode 27.0 (or set DEVELOPER_DIR) before store capture.\n' + version)
-phone = simulator('MochiLog Store iPhone 17 Pro Max', 'iPhone-17-Pro-Max', 'com.apple.CoreSimulator.SimRuntime.iOS-27-0')
-pad = simulator('MochiLog Store iPad Pro 13', 'iPad-Pro-13-inch-M5-12GB', 'com.apple.CoreSimulator.SimRuntime.iOS-27-0')
-watch = simulator('MochiLog Store Watch 46mm', 'Apple-Watch-Series-11-46mm', 'com.apple.CoreSimulator.SimRuntime.watchOS-27-0')
+if not re.match(r'Xcode 27\.(?:[1-9]|[1-9][0-9])(?:\n|\.)', version):
+    raise RuntimeError('Select Xcode 27.1 or newer (or set DEVELOPER_DIR) before store capture.\n' + version)
+phone = simulator('MochiLog Store iPhone 17 Pro Max', 'iPhone-17-Pro-Max', 'com.apple.CoreSimulator.SimRuntime.iOS-27-0') if {'iphone','watch'} & selected else None
+pad = simulator('MochiLog Store iPad Pro 13', 'iPad-Pro-13-inch-M5-12GB', 'com.apple.CoreSimulator.SimRuntime.iOS-27-0') if 'ipad' in selected else None
+watch = simulator('MochiLog Store Watch 46mm', 'Apple-Watch-Series-11-46mm', 'com.apple.CoreSimulator.SimRuntime.watchOS-27-0') if 'watch' in selected else None
+duo = simulator('MochiLog Store iPhone Duo', 'iPhone-Duo', 'com.apple.CoreSimulator.SimRuntime.iOS-27-1') if 'duo' in selected else None
 if 'watch' in selected:
     pairs = json_command('xcrun', 'simctl', 'list', 'pairs', '-j')['pairs']
     if not any(p.get('watch', {}).get('udid') == watch and p.get('phone', {}).get('udid') == phone for p in pairs.values()):
         run('xcrun', 'simctl', 'pair', watch, phone)
-    boot(phone)
-    boot(watch, watch=True)
-    xcode('MochiLogWatchUITests', watch, 'watchOS', 'build-for-testing', 'watch-build')
-    watch_app = DERIVED / 'Build/Products/Debug-watchsimulator/MochiLog Watch App.app'
-    run('xcrun', 'simctl', 'install', watch, str(watch_app))
 for label, device in [('iphone', phone), ('ipad', pad)]:
     if label not in selected and not (label == 'iphone' and 'watch' in selected):
         continue
@@ -108,7 +116,25 @@ for label, device in [('iphone', phone), ('ipad', pad)]:
         'MochiLogUITests/LanguageAndLayoutTests/testStoreScreenshotsEnglish',
         'MochiLogUITests/LanguageAndLayoutTests/testStoreScreenshotsJapanese'])
     export(label)
+    run('xcrun', 'simctl', 'shutdown', device)
+if duo:
+    boot(duo)
+    # Device Hub owns the hinge posture. Powering displays off does not fold the
+    # device and can leave SpringBoard without an active scene. Select Open for
+    # inner or Closed for outer in Device Hub; reject any incorrect dimensions.
+    label = 'duo_' + args.duo_screen
+    xcode('MochiLogUITests', duo, 'iOS', 'test', label, [
+        'MochiLogUITests/LanguageAndLayoutTests/testStoreScreenshotsEnglish',
+        'MochiLogUITests/LanguageAndLayoutTests/testStoreScreenshotsJapanese'])
+    export(label)
+    run('xcrun', 'simctl', 'shutdown', duo)
 if 'watch' in selected:
+    # watchOS tests need their companion, so this final phase alone uses a pair.
+    boot(phone)
+    boot(watch, watch=True)
+    xcode('MochiLogWatchUITests', watch, 'watchOS', 'build-for-testing', 'watch-build')
+    watch_app = DERIVED / 'Build/Products/Debug-watchsimulator/MochiLog Watch App.app'
+    run('xcrun', 'simctl', 'install', watch, str(watch_app))
     def data_container(device, bundle):
         return Path(subprocess.check_output(['xcrun', 'simctl', 'get_app_container', device, bundle, 'data'], text=True).strip())
     fixture_name = 'store-screenshot-records.json'
@@ -120,8 +146,10 @@ if 'watch' in selected:
         'MochiLogWatchUITests/WatchLayoutTests/testStoreScreenshotsEnglish',
         'MochiLogWatchUITests/WatchLayoutTests/testStoreScreenshotsJapanese'])
     export('watch')
+    run('xcrun', 'simctl', 'shutdown', watch)
+    run('xcrun', 'simctl', 'shutdown', phone)
 (OUTPUT / 'capture.json').write_text(json.dumps({'gitCommit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
-    'xcode': version.strip(), 'devices': {'iphone': phone, 'ipad': pad, 'watch': watch}, 'appearance': 'dark'}, indent=2))
+    'xcode': version.strip(), 'devices': {'iphone': phone, 'ipad': pad, 'watch': watch, 'duo': duo}, 'appearance': 'dark'}, indent=2))
 print(f'\n{len(list((OUTPUT / "screenshots").rglob("*.png")))} screenshots saved: {OUTPUT / "screenshots"}', flush=True)
 artwork = OUTPUT / 'app-store-artwork'
 run('swift', 'scripts/compose-store-screenshots.swift', str(OUTPUT / 'screenshots'), str(artwork))
