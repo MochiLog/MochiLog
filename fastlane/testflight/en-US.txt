@@ -12,8 +12,10 @@ View and copy diagnostics by date. Dedicated support can attach both sides’ lo
 
 Previous fixes include the record-sharing crash, charts with localized device names, recurring Watch processing results and mobile-app launch on Mac. AES-GCM request encryption, expiry, persistent replay protection and downgrade prevention preserve existing pairings and support staged upgrades. This is beta software: report problems with dated diagnostics and the steps that triggered them.
 
-Live Battery now displays all fields returned by the diagnostics battery API, grouped under All API fields, alongside the main cycle-count and capacity cards. Manufacturing metadata, battery identifiers and flags are retained. Large integers keep their precision; binary data is shown as Base64. Units and field meanings are not guessed.
+Live Battery now uses a field/value table for understood readings such as capacity, cycle count, charging, external power, voltage and current. Unavailable readings are shown separately.
 
-Values remain in memory only and are never saved to history, records, iCloud or support logs. Existing encrypted pairings are preserved. Core and full-detail revisions are tracked independently; unchanged values are not resent. Older clients can still use core fields.
+Internal values, unknown codes and channel metadata remain under Show detailed information, collapsed by default. Original names and values are preserved without guessing units or meanings. Large integers keep their precision; a channel name is not treated as an actual temperature measurement.
 
-Current-value reception supports Tailscale routes and respects the mobile PC Link cellular permission. Fresh acquisition from an iPad over Tailscale succeeded from both Mac and Windows. Availability still depends on the device diagnostics service; cellular-radio operation, long locks and every model are not guaranteed. Failed refreshes retain previous values and acquisition time. This does not enable locked daily Analytics-file acquisition.
+Python is limited to the maintained pymobiledevice3 device connection, API calls and data output. Field selection, validation, hashes, acquisition timestamps and log-candidate selection now run in native Swift/C#. Readable adapter sources and architecture notes are in the repositories. Python is bundled.
+
+Existing encrypted pairings and older clients’ core-field views are preserved. Current values stay in memory only, never in history, records, iCloud or support logs. Fresh acquisition depends on the device diagnostics service and connectivity. This is separate from daily Analytics files and live Apple Watch values.

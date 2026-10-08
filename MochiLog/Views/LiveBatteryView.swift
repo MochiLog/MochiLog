@@ -55,22 +55,25 @@ struct LiveBatteryView: View {
       }
       Label(text("live_state_" + state), systemImage: state == "current" ? "checkmark.circle" : "clock")
         .foregroundStyle(state == "current" ? Color.green : Color.secondary)
-      LazyVGrid(columns: [GridItem(.adaptive(minimum: 145), alignment: .leading)], alignment: .leading, spacing: 20) {
-        ForEach(["CycleCount", "DesignCapacity", "NominalChargeCapacity", "AppleRawMaxCapacity", "FullChargeCapacity", "CurrentCapacity"], id: \.self) { key in
-          VStack(alignment: .leading, spacing: 6) {
-            Text(text("live_" + key)).font(.caption).foregroundStyle(.secondary)
-            Text(reading?.values[key].map { value in
-              value.formatted() + (key == "CycleCount" ? "" : key == "CurrentCapacity" ? "%" : " mAh")
-            } ?? text("live_missing"))
-            .font(.title2.weight(.semibold)).monospacedDigit()
-            .accessibilityIdentifier("live." + key)
+      Grid(alignment: .leading, horizontalSpacing: 24, verticalSpacing: 12) {
+        GridRow { Text(text("live_field")); Text(text("live_value")) }
+          .font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+        ForEach(BatteryPresentation.summary(values: reading?.values ?? [:], charging: reading?.charging,
+          fields: reading?.fields ?? [])) { row in
+          Divider().gridCellColumns(2)
+          GridRow(alignment: .top) {
+            Text(text("live_" + row.key)).frame(maxWidth: .infinity, alignment: .leading)
+            Text(row.display(text: text)).monospacedDigit().textSelection(.enabled)
+              .fixedSize(horizontal: false, vertical: true)
+              .accessibilityIdentifier("live." + row.key)
           }
         }
-      }
+      }.font(.callout)
       if let reading {
         DisclosureGroup {
           if reading.fields.isEmpty { Text(text("live_details_missing")).font(.caption) }
-          else { RawBatteryFieldsView(fields: reading.fields, text: text) }
+          else { RawBatteryFieldsView(fields: BatteryPresentation.details(values: reading.values,
+            charging: reading.charging, fields: reading.fields), text: text) }
         } label: { Label(text("live_details"), systemImage: "list.bullet.rectangle") }
         .accessibilityIdentifier("live.details")
         HStack(alignment: .firstTextBaseline) {
@@ -91,6 +94,7 @@ private struct RawBatteryFieldsView: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 14) {
       Text(text("live_details_note")).font(.caption).foregroundStyle(.secondary)
+      if fields.isEmpty { Text(text("live_details_empty")).font(.caption) }
       ForEach(groups.keys.sorted(), id: \.self) { group in
         DisclosureGroup {
           VStack(alignment: .leading, spacing: 12) {

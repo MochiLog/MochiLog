@@ -30,7 +30,12 @@ final class LanguageAndLayoutTests: XCTestCase {
     XCTAssertEqual(app.staticTexts["live.CycleCount"].label, "245")
     XCTAssertTrue(app.buttons["live.receive"].isHittable)
     XCTAssertTrue(app.buttons["live.send"].isHittable)
-    app.buttons["live.details"].tap()
+    XCTAssertEqual(app.staticTexts["live.Voltage"].label, "4010 mV")
+    XCTAssertFalse(app.staticTexts["18446744073709551615"].exists)
+    let details = app.buttons["live.details"]
+    for _ in 0..<6 { if details.isHittable { break }; app.swipeUp() }
+    XCTAssertTrue(details.isHittable)
+    details.tap()
     let batteryGroup = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "BatteryData")).firstMatch
     XCTAssertTrue(batteryGroup.waitForExistence(timeout: 5))
     batteryGroup.tap()
@@ -64,7 +69,11 @@ final class LanguageAndLayoutTests: XCTestCase {
     app.buttons["live.receive"].tap()
     XCTAssertEqual(cycle.label, "245")
     XCTAssertFalse(app.alerts.firstMatch.exists)
-    app.buttons["live.details"].tap()
+    XCTAssertFalse(app.staticTexts["18446744073709551615"].exists)
+    let details = app.buttons["live.details"]
+    for _ in 0..<6 { if details.isHittable { break }; app.swipeUp() }
+    XCTAssertTrue(details.isHittable)
+    details.tap()
     let group = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "BatteryData")).firstMatch
     XCTAssertTrue(group.waitForExistence(timeout: 5)); group.tap()
     XCTAssertTrue(app.staticTexts["18446744073709551615"].waitForExistence(timeout: 5))

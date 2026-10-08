@@ -22,6 +22,8 @@ Use the new MochiLog 4.0.0 beta with MochiLog Mac 0.2.14 or MochiLog Windows 0.1
 
 現在値はLiveBatteryManagerのセッション内だけで保持する。レコード保存、iCloud同期、サポートの診断ログには含めない。個体IDは既存のPCペアリングを使用する。合成データはDEBUG環境変数指定時だけで、配布版には入らない。暗号化TCP試験は合成サーバーとxctestrunのEnvironmentVariablesにMOCHI_LIVE_BATTERY_PORTを渡して実施する。未指定の場合はこの試験だけスキップする。
 
-「APIの全項目」を展開すると、APIが返す製造情報・状態フラグ・バッテリー識別情報なども確認できます。元の項目名・値を表示し、単位は推測しません。これらもメモリ内だけで扱い、履歴・サポートログには保存しません。TailscaleとPC連携のモバイル通信許可を使って外出先からも受信できます。PCから新しい値を取得するには端末の診断サービスに接続できる必要があり、VPNの接続だけで取得を保証するものではありません。
+通常の画面は、意味が確認できた容量・充放電回数・充電状態・外部電源・電圧・電流などを「項目／値」の表で表示する。存在する正しい型の項目だけを追加する。「詳細情報を表示」は初期状態では閉じており、推測が必要な内部値・不明なコード・IOReportのチャンネル情報などを元の名前と値で確認できる。未知の単位は推測しない。チャンネル名だけで現在の温度が得られたと扱わない。これらもメモリ内だけで扱い、履歴・サポートログには保存しない。
 
-Expand **All API fields** to view manufacturing metadata, flags, battery identifiers and other returned fields. Original names and values are preserved without guessing units; fields remain in memory and are not saved to history or support logs. Existing Tailscale routes and the PC Link cellular permission also allow receiving outside the local network. Fresh acquisition additionally requires a reachable device diagnostics service; VPN connectivity alone does not guarantee acquisition.
+The normal view is a field/value table for understood readings such as capacity, cycle count, charging, external power, voltage and current. Additional rows require the exact known path and expected type. **Show detailed information** is collapsed by default and preserves uncertain internal values, unknown codes and channel metadata without guessing units or meanings. An IOReport channel name is not a live temperature reading. All fields stay in memory and are excluded from history and support logs.
+
+PC側のPythonはpymobiledevice3による端末接続・API呼び出し・型を保持したplistの出力だけを担当する。検証・分類・ハッシュ・取得日時はSwift／C#へ移した。スマホへの暗号化形式と既存ペアリングは変更しない。詳細は各PCリポジトリの `docs/NATIVE_PYTHON_BOUNDARY.md` を参照。

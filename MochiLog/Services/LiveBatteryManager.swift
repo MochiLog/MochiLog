@@ -25,6 +25,64 @@ struct RawBatteryField: Codable, Equatable {
   }
 }
 
+/// Conservative display allowlist. Unknown paths and invalid representations stay in details.
+struct BatterySummaryRow: Identifiable {
+  let key: String
+  let value: String?
+  var kind = "number"
+  var unit = ""
+  var id: String { key }
+  func display(text: (String) -> String) -> String {
+    guard let value else { return text("live_missing") }
+    return kind == "boolean" ? text(value == "true" ? "live_true" : "live_false") : value + unit
+  }
+}
+
+enum BatteryPresentation {
+  static let primaryKeys = ["CycleCount", "DesignCapacity", "NominalChargeCapacity", "AppleRawMaxCapacity", "FullChargeCapacity", "CurrentCapacity"]
+  static let extraKeys = ["IsCharging", "FullyCharged", "ExternalConnected", "ExternalChargeCapable",
+    "AppleRawExternalConnected", "BatteryInstalled", "AtCriticalLevel", "Voltage", "Amperage", "InstantAmperage", "Serial"]
+  static func extra(_ field: RawBatteryField) -> BatterySummaryRow? {
+    guard field.path.count == 1, let key = field.path.first, extraKeys.contains(key) else { return nil }
+    if ["Voltage", "Amperage", "InstantAmperage"].contains(key) {
+      guard field.kind == "number", let value = Int64(field.value),
+        (key == "Voltage" ? 0...100000 : -2000000...2000000).contains(value) else { return nil }
+      return BatterySummaryRow(key: key, value: field.value, unit: key == "Voltage" ? " mV" : " mA")
+    }
+    if key == "Serial" {
+      guard field.kind == "string", !field.value.isEmpty else { return nil }
+      return BatterySummaryRow(key: key, value: field.value, kind: "string")
+    }
+    guard field.kind == "boolean", ["true", "false"].contains(field.value) else { return nil }
+    return BatterySummaryRow(key: key, value: field.value, kind: "boolean")
+  }
+  static func summary(values: [String: Int], charging: Bool?, fields: [RawBatteryField]) -> [BatterySummaryRow] {
+    var rows = primaryKeys.map { key in
+      BatterySummaryRow(key: key, value: values[key].map { $0.formatted() },
+        unit: key == "CycleCount" ? "" : key == "CurrentCapacity" ? "%" : " mAh")
+    }
+    for key in extraKeys {
+      if key == "IsCharging", let charging {
+        rows.append(BatterySummaryRow(key: key, value: charging ? "true" : "false", kind: "boolean"))
+      } else if let field = fields.first(where: { $0.path == [key] }), let row = extra(field) { rows.append(row) }
+    }
+    return rows
+  }
+  static func details(values: [String: Int], charging: Bool?, fields: [RawBatteryField]) -> [RawBatteryField] {
+    fields.filter { field in
+      if let row = extra(field) {
+        // A contradictory raw charging flag must remain inspectable.
+        return row.key == "IsCharging" && charging != nil && row.value != (charging! ? "true" : "false")
+      }
+      guard let key = field.path.last, primaryKeys.contains(key), field.kind == "number",
+        let value = Int(field.value), values[key] == value else { return true }
+      let isRoot = field.path == [key]
+      let isCapacity = field.path == ["BatteryData", key] && !["CycleCount", "CurrentCapacity"].contains(key)
+      return !isRoot && !isCapacity
+    }
+  }
+}
+
 struct LiveBatteryReading: Equatable {
   let values: [String: Int]
   let charging: Bool?
@@ -95,8 +153,10 @@ final class LiveBatteryManager: ObservableObject {
         "FullChargeCapacity": 3800, "CurrentCapacity": 67], charging: false,
         revision: String(repeating: "a", count: 64), acquiredAt: Date())
       let details = "[{\"path\":[\"BatteryData\",\"Huge\"],\"kind\":\"number\",\"value\":\"18446744073709551615\"},{\"path\":[\"Flag\"],\"kind\":\"boolean\",\"value\":\"false\"}]"
-      readings[id]?.detailsJSON = details
-      readings[id]?.detailsRevision = SHA256.hash(data: Data(details.utf8)).map { String(format: "%02x", $0) }.joined()
+      let known = ",{\"path\":[\"Voltage\"],\"kind\":\"number\",\"value\":\"4010\"},{\"path\":[\"ExternalConnected\"],\"kind\":\"boolean\",\"value\":\"true\"}]"
+      let displayDetails = String(details.dropLast()) + known
+      readings[id]?.detailsJSON = displayDetails
+      readings[id]?.detailsRevision = SHA256.hash(data: Data(displayDetails.utf8)).map { String(format: "%02x", $0) }.joined()
       states[id] = "current"
       return
     }
