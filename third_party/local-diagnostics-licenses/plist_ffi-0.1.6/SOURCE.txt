@@ -1,0 +1,4 @@
+Published crate plist_ffi-0.1.6
+VCS revision 265379167ab3f9a5664621a7f1c0f494b2ac7c96
+License declaration: MIT
+No standalone LICENSE included in the published crate.

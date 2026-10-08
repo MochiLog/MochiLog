@@ -190,6 +190,7 @@ struct MainTabView: View {
         }
       }
     }
+    .animation(.smooth(duration: 0.35), value: showsLiveBattery)
     .tabViewStyle(.sidebarAdaptable)
     .tint(accentColor.color)
   }

@@ -4,7 +4,7 @@ import Foundation
 import Network
 import UIKit
 
-struct RawBatteryField: Codable, Equatable {
+nonisolated struct RawBatteryField: Codable, Equatable {
   let path: [String]
   let kind: String
   let value: String
@@ -88,7 +88,7 @@ enum BatteryPresentation {
   }
 }
 
-struct LiveBatteryReading: Equatable {
+nonisolated struct LiveBatteryReading: Equatable {
   let values: [String: Int]
   let charging: Bool?
   let revision: String
@@ -107,6 +107,14 @@ struct LiveBatteryReading: Equatable {
 final class LiveBatteryManager: ObservableObject {
   static let shared = LiveBatteryManager()
   @Published private(set) var readings: [UUID: LiveBatteryReading] = [:]
+  struct SharedSource {
+    let model: String
+    let scope: String
+    var reading: LiveBatteryReading?
+    var state: String
+  }
+  @Published private(set) var sharedSources: [UUID: [UUID: SharedSource]] = [:]
+  private var cloudObserver: AnyCancellable?
   @Published private(set) var states: [UUID: String] = [:]
   @Published private(set) var busy = false
   private var browser: NWBrowser?
@@ -138,12 +146,19 @@ final class LiveBatteryManager: ObservableObject {
   }
 
   private init() {
+    cloudObserver = CloudLogSharingState.shared.$scope.sink { [weak self] scope in
+      Task { @MainActor in
+        guard let self else { return }
+        self.sharedSources = self.sharedSources.mapValues { $0.filter { $0.value.scope == scope } }
+      }
+    }
     pairingObserver = MacTransferManager.shared.$pairings.sink { [weak self] pairings in
       Task { @MainActor in
         guard let self else { return }
         let hosts = Set(self.activePairings.map(\.hostID))
         self.readings = self.readings.filter { hosts.contains($0.key) }
         self.states = self.states.filter { hosts.contains($0.key) }
+        self.sharedSources = self.sharedSources.filter { hosts.contains($0.key) }
       }
     }
   }
@@ -157,6 +172,7 @@ final class LiveBatteryManager: ObservableObject {
 
   private func start() {
     active = true
+    CloudLogSharingState.shared.refresh()
     #if DEBUG
     if ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_TEST"] == "1" {
       // Synthetic display fixture, never a persisted pairing or battery record.
@@ -232,7 +248,7 @@ final class LiveBatteryManager: ObservableObject {
     browser?.cancel(); browser = nil
     monitor?.cancel(); monitor = nil
     discovered = [:]
-    if !AppSettings.shared.liveBatteryEnabled { readings = [:]; states = [:] }
+    if !AppSettings.shared.liveBatteryEnabled { readings = [:]; states = [:]; sharedSources = [:] }
   }
 
   static func isTailnet(_ address: String) -> Bool {
@@ -274,6 +290,15 @@ final class LiveBatteryManager: ObservableObject {
       guard !Task.isCancelled, active else { return }
       let candidates = routes(for: pairing)
       if candidates.isEmpty { states[pairing.hostID] = "network"; continue }
+      var sourceIDs = [pairing.physicalDeviceID]
+      var sourceIndex = 0
+      while sourceIndex < sourceIDs.count {
+      let sourceID = sourceIDs[sourceIndex]
+      sourceIndex += 1
+      let own = sourceID == pairing.physicalDeviceID
+      let consentScope = CloudLogSharingState.shared.scope
+      if !own && consentScope == nil { continue }
+      let previous = own ? readings[pairing.hostID] : sharedSources[pairing.hostID]?[sourceID]?.reading
       var received = false
       for route in candidates.prefix(6) {
         guard !Task.isCancelled, active else { return }
@@ -285,9 +310,11 @@ final class LiveBatteryManager: ObservableObject {
           let request: [String: String] = ["hostID": pairing.hostID.uuidString,
             "physicalDeviceID": pairing.physicalDeviceID.uuidString, "nonce": nonce.uuidString,
             "ack": "", "mac": mac, "version": "2", "liveBatteryVersion": "1",
-            "liveBatteryRevision": readings[pairing.hostID]?.revision ?? "",
+            "liveBatteryRevision": previous?.revision ?? "",
+            "liveBatterySharedVersion": "1", "liveBatterySourceID": sourceID.uuidString,
+            "cloudSharingVersion": "1", "cloudSharingScope": consentScope ?? "",
             "liveBatteryRefresh": refresh ? "1" : "0", "liveBatteryDetailsVersion": "1",
-            "liveBatteryDetailsRevision": readings[pairing.hostID]?.detailsRevision ?? ""]
+            "liveBatteryDetailsRevision": previous?.detailsRevision ?? ""]
           let issuedAt = Int64(Date().timeIntervalSince1970)
           let aad = Data("v3|request|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)|\(issuedAt)".utf8)
           let inner = try JSONSerialization.data(withJSONObject: request)
@@ -304,22 +331,55 @@ final class LiveBatteryManager: ObservableObject {
           guard json?["type"] as? String == "live-battery", json?["version"] as? Int == 1,
             let state = json?["state"] as? String,
             ["waiting", "unavailable", "stale", "current"].contains(state) else { throw LiveBatteryTransport.Failure.unsupported }
-          if let json, let reading = try Self.reading(json, previous: readings[pairing.hostID]) {
-            guard active, activePairings.contains(where: {
-              $0.hostID == pairing.hostID && $0.physicalDeviceID == pairing.physicalDeviceID
-            }) else { return }
-            readings[pairing.hostID] = reading
+          guard let json, active, !Task.isCancelled,
+            activePairings.contains(where: { $0.hostID == pairing.hostID && $0.physicalDeviceID == pairing.physicalDeviceID }) else { return }
+          if json["sharedVersion"] as? Int == 1 {
+            guard json["sourcePhysicalDeviceID"] as? String == sourceID.uuidString else { throw LiveBatteryTransport.Failure.invalid }
+            if !own {
+              guard let consentScope, consentScope == CloudLogSharingState.shared.scope,
+                json["scope"] as? String == consentScope else { throw LiveBatteryTransport.Failure.invalid }
+            }
+            if own {
+              var accepted: [UUID: SharedSource] = [:]
+              if let consentScope, json["scope"] as? String == consentScope,
+                let manifest = json["sources"] as? [[String: String]], manifest.count <= 64 {
+                for source in manifest {
+                  guard let id = source["physicalDeviceID"].flatMap(UUID.init(uuidString:)), id != pairing.physicalDeviceID,
+                    let model = source["model"], model.count <= 128 else { continue }
+                  let old = sharedSources[pairing.hostID]?[id]
+                  accepted[id] = SharedSource(model: model, scope: consentScope,
+                    reading: old?.scope == consentScope ? old?.reading : nil, state: old?.state ?? "waiting")
+                  if !sourceIDs.contains(id) { sourceIDs.append(id) }
+                }
+              }
+              sharedSources[pairing.hostID] = accepted
+            }
+          } else if !own { throw LiveBatteryTransport.Failure.unsupported }
+          else { sharedSources[pairing.hostID] = [:] }
+          let reading = try Self.reading(json, previous: previous)
+          if own {
+            if let reading { readings[pairing.hostID] = reading }
+            states[pairing.hostID] = state
+          } else {
+            sharedSources[pairing.hostID]?[sourceID]?.reading = reading ?? previous
+            sharedSources[pairing.hostID]?[sourceID]?.state = state
           }
-          guard active, !Task.isCancelled else { return }
-          states[pairing.hostID] = state
           received = true
           break
         } catch LiveBatteryTransport.Failure.unsupported {
-          states[pairing.hostID] = "update"
+          if own { states[pairing.hostID] = "update" }
+          else { sharedSources[pairing.hostID]?[sourceID]?.state = "update" }
           received = true; break
-        } catch { states[pairing.hostID] = "offline" }
+        } catch {
+          if own { states[pairing.hostID] = "offline" }
+          else { sharedSources[pairing.hostID]?[sourceID]?.state = "offline" }
+        }
       }
-      if !received { states[pairing.hostID] = "offline" }
+      if !received {
+        if own { states[pairing.hostID] = "offline" }
+        else { sharedSources[pairing.hostID]?[sourceID]?.state = "offline" }
+      }
+      }
     }
   }
 

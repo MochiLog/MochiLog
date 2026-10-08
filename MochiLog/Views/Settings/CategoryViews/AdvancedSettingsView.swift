@@ -13,12 +13,7 @@ struct AdvancedSettingsView: View {
     List {
       if #available(iOS 27, *), !ProcessInfo.processInfo.isiOSAppOnMac {
         Section {
-          NavigationLink(destination: MacTransferSettingsView()) {
-            Label(L10n.text("mt_071", table: "MacTransfer"),
-              systemImage: "laptopcomputer.and.iphone")
-          }
-          .accessibilityIdentifier("settings.macTransfer")
-          Toggle(isOn: $appSettings.liveBatteryEnabled) {
+          Toggle(isOn: Binding(get: { appSettings.liveBatteryEnabled }, set: { value in withAnimation(.smooth(duration: 0.35)) { appSettings.liveBatteryEnabled = value } })) {
             Label(L10n.text("live_enable", table: "MacTransfer"), systemImage: "battery.100percent")
           }.accessibilityIdentifier("settings.liveBattery")
           Text(L10n.text("live_enable_note", table: "MacTransfer"))

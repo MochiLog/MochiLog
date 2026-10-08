@@ -259,7 +259,14 @@ struct SettingsView: View {
           Divider()  // ヘッダーとの境界線
           ScrollView {
             VStack(spacing: 16) {
-              ForEach(SettingsCategory.allCases.filter { $0 != .iCloud }) { category in
+              ForEach(SettingsCategory.allCases.filter { category in
+                if category == .iCloud { return false }
+                if category == .automaticCollection {
+                  if #available(iOS 27, *) { return !ProcessInfo.processInfo.isiOSAppOnMac }
+                  return false
+                }
+                return true
+              }) { category in
                 Button {
                   selectedCategory.wrappedValue = category
                 } label: {
@@ -299,6 +306,8 @@ struct SettingsView: View {
             } else if selectedCategory.wrappedValue == .language {
               LanguageSettingsView(isEmbedded: true)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if selectedCategory.wrappedValue == .automaticCollection {
+              if #available(iOS 27, *) { AutomaticCollectionSettingsView().frame(maxWidth: .infinity, maxHeight: .infinity) }
             } else if selectedCategory.wrappedValue == .advanced {
               AdvancedSettingsView(appSettings: appSettings)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -339,7 +348,7 @@ struct SettingsView: View {
                       AboutSettingsView()
                     case .debug:
                       DebugSettingsView(appSettings: appSettings)
-                    case .advanced, .language:
+                    case .advanced, .language, .automaticCollection:
                       EmptyView()
                     }
                   }
@@ -655,6 +664,13 @@ struct SettingsView: View {
       }
     }
 
+    if #available(iOS 27, *), !ProcessInfo.processInfo.isiOSAppOnMac {
+      Section {
+        NavigationLink { AutomaticCollectionSettingsView() } label: {
+          Label(L10n.text("auto_collection_title", table: "MacTransfer"), systemImage: "arrow.down.document.fill")
+        }.accessibilityIdentifier("settings.automaticCollection")
+      }
+    }
     // MARK: - 高度な設定
     Section {
       NavigationLink(

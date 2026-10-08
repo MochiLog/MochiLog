@@ -154,6 +154,7 @@ final class MochiLogSceneDelegate: UIResponder, UIWindowSceneDelegate {
     if #available(iOS 27, *) {
       MacTransferManager.shared.start()
       LiveBatteryManager.shared.updateActivity()
+      LocalDiagnosticsManager.shared.updateActivity()
     }
     guard let root = SharedLogInbox.root else { return }
     do {
@@ -174,6 +175,7 @@ final class MochiLogSceneDelegate: UIResponder, UIWindowSceneDelegate {
     if #available(iOS 27, *) {
       MacTransferManager.shared.stopForBackground()
       LiveBatteryManager.shared.stop()
+      LocalDiagnosticsManager.shared.stop()
     }
   }
 

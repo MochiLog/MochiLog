@@ -3,6 +3,7 @@ import SwiftUI
 @available(iOS 27, *)
 struct LiveBatteryView: View {
   @ObservedObject private var manager = LiveBatteryManager.shared
+  @ObservedObject private var local = LocalDiagnosticsManager.shared
   @ObservedObject private var transfer = MacTransferManager.shared
   private func text(_ key: String) -> String { L10n.text(key, table: "MacTransfer") }
 
@@ -10,15 +11,27 @@ struct LiveBatteryView: View {
     let pairs = manager.activePairings
     let totals = Dictionary(grouping: pairs, by: { $0.platform == "windows" ? "Windows" : "Mac" }).mapValues(\.count)
     var indices: [String: Int] = [:]
-    return pairs.map { pair in
+    let computers = pairs.flatMap { pair -> [LiveBatterySource] in
       let platform = pair.platform == "windows" ? "Windows" : "Mac"
       let index = indices[platform, default: 0] + 1
       indices[platform] = index
       let name = totals[platform, default: 0] > 1 ? "\(platform) \(index)" : platform
-      return LiveBatterySource(id: pair.hostID, physicalDeviceID: pair.physicalDeviceID,
+      let own = LiveBatterySource(id: pair.hostID, physicalDeviceID: pair.physicalDeviceID,
         model: pair.model, name: name, reading: manager.readings[pair.hostID],
         state: manager.states[pair.hostID] ?? "waiting")
+      let shared = (manager.sharedSources[pair.hostID] ?? [:]).sorted { $0.key.uuidString < $1.key.uuidString }
+        .filter { $0.value.scope == CloudLogSharingState.shared.scope }
+        .map { id, source in LiveBatterySource(id: pair.hostID, physicalDeviceID: id,
+          model: source.model, name: name, reading: source.reading, state: source.state) }
+      return [own] + shared
     }
+    if AppSettings.shared.localAutomaticCollectionEnabled && local.configured {
+      let own = LiveBatterySource(id: UUID(uuidString: "00000000-0000-0000-0000-000000000010")!,
+        physicalDeviceID: PhysicalDeviceIdentityStore.current(), model: DeviceLibrary.localModelIdentifier() ?? "",
+        name: text("local_source"), reading: local.reading, state: local.state)
+      return computers + [own]
+    }
+    return computers
   }
 
   var body: some View {
@@ -29,10 +42,10 @@ struct LiveBatteryView: View {
           Text(text("live_note")).foregroundStyle(.secondary)
           Text(text("live_network_note")).font(.caption).foregroundStyle(.secondary)
           HStack {
-            Button { Task { await manager.receiveNow() } } label: {
+            Button { Task { async let pc: () = manager.receiveNow(); async let own: () = local.receiveBatteryNow(); _ = await (pc, own) } } label: {
               Label(text("live_receive"), systemImage: "arrow.down.circle")
             }.accessibilityIdentifier("live.receive")
-            Button { Task { await manager.receiveNow(refresh: true) } } label: {
+            Button { Task { async let pc: () = manager.receiveNow(refresh: true); async let own: () = local.receiveBatteryNow(); _ = await (pc, own) } } label: {
               Label(text("live_request"), systemImage: "paperplane")
             }.accessibilityIdentifier("live.send")
             if manager.busy { ProgressView() }

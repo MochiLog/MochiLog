@@ -8,6 +8,7 @@ enum SettingsCategory: String, CaseIterable, Identifiable {
   case dataManagement
   case support
   case debug
+  case automaticCollection
   case advanced
   case about
   case language
@@ -24,6 +25,7 @@ enum SettingsCategory: String, CaseIterable, Identifiable {
     case .support: return "book.fill"
     case .about: return "info.circle"
     case .debug: return "envelope.fill"
+    case .automaticCollection: return "arrow.down.document.fill"
     case .advanced: return "gearshape.2.fill"
     }
   }
@@ -38,6 +40,7 @@ enum SettingsCategory: String, CaseIterable, Identifiable {
     case .support: return L10n.string("support", table: "Settings")
     case .about: return L10n.string("about_app", table: "Settings")
     case .debug: return L10n.string("debug", table: "Support")
+    case .automaticCollection: return L10n.text("auto_collection_title", table: "MacTransfer")
     case .advanced: return L10n.string("advanced_settings", table: "Settings")
     }
   }

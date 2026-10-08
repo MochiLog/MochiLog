@@ -205,7 +205,7 @@ final class MacTransferManager: ObservableObject {
     }
   }
 
-  private func expectedWatchCount() -> Int? {
+  func expectedWatchCount() -> Int? {
     // OS pairing and MochiLog registration are different. An unregistered
     // paired Watch may still produce a log that needs to reach the import flow.
     // Wait for WatchConnectivity to finish activation before deciding that
@@ -639,6 +639,7 @@ final class MacTransferManager: ObservableObject {
   }
 
   func start() {
+    guard AppSettings.shared.pcAutomaticCollectionEnabled || manualReceive else { return }
     guard !ProcessInfo.processInfo.isiOSAppOnMac else { return }
     startRevocationTimer()
     Task { await retryPendingRevocations() }
@@ -864,6 +865,7 @@ final class MacTransferManager: ObservableObject {
 
   private func scheduleReconnect(after seconds: UInt64, interruptActive: Bool = false) {
     guard isRunning else { return }
+    guard AppSettings.shared.pcAutomaticCollectionEnabled || manualReceive else { stop(); return }
     reconnectTask?.cancel()
     if seconds > 300 {
       Self.appendDebugEvent("Automatic reconnect scheduled for \(Self.localTime(Date().addingTimeInterval(TimeInterval(seconds))))")
@@ -1448,6 +1450,7 @@ final class MacTransferManager: ObservableObject {
           isReceiving = false
           connectionPhase = .available
           Self.appendDebugEvent("Automatic collection paused by computer \(pairing.hostID.uuidString) until \(Self.localTime(Date(timeIntervalSince1970: TimeInterval(control["until"] ?? "") ?? 0))); receipt confirmed")
+          if !AppSettings.shared.pcAutomaticCollectionEnabled { stop(); return }
           if let wait = automaticWait() { scheduleReconnect(after: wait) }
           else { advancePairing() }
           return
@@ -1512,6 +1515,7 @@ final class MacTransferManager: ObservableObject {
           return
         }
         debugSyncBurst = 0
+        if !AppSettings.shared.pcAutomaticCollectionEnabled { stop(); return }
         if activePauseUntil != nil {
           Self.appendDebugEvent("Computer did not acknowledge automatic pause")
         } else if dailyComplete(dailyReceipt),
@@ -1758,8 +1762,17 @@ final class MacTransferManager: ObservableObject {
     if let recordOrigin, savedRecordIDs.contains(CloudSharedLogToken.recordID(origin: recordOrigin, digest: digest)) {
       return "iCloud record"
     }
-    return inInbox ? "inbox" : nil
+    let localRoot = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+      .appendingPathComponent("MacTransferInbox/LocalDevice/" + physicalDeviceID.uuidString)
+    let localFiles = FileManager.default.enumerator(at: localRoot, includingPropertiesForKeys: [.isRegularFileKey])?.allObjects.compactMap { $0 as? URL } ?? []
+    let inLocal = localFiles.contains { $0.lastPathComponent.hasPrefix("Analytics-") && Self.digest(of: $0) == digest }
+    return (inInbox || inLocal) ? "inbox" : nil
   }
+
+  func receivedLocalDigestState(_ digest: String, parentID: UUID, recordOrigin: UUID?) -> String? {
+    receivedDigestSource(digest, physicalDeviceID: parentID, recordOrigin: recordOrigin)
+  }
+  func rememberLocalDigest(_ file: URL, parentID: UUID) { rememberReceivedDigest(of: file, physicalDeviceID: parentID) }
 
   private func rememberReceivedDigest(of file: URL, physicalDeviceID: UUID) {
     guard let digest = Self.digest(of: file) else { return }
@@ -1800,7 +1813,7 @@ final class MacTransferManager: ObservableObject {
     return CloudSharedLogToken.measurementOrigin(base: base, origin: origin)
   }
 
-  private static func looksLikeBatteryLog(_ bytes: Data) -> Bool {
+  static func looksLikeBatteryLog(_ bytes: Data) -> Bool {
     var lines = 0
     for byte in bytes where byte == 10 {
       lines += 1
@@ -1941,6 +1954,7 @@ final class MacTransferManager: ObservableObject {
 
   func recordImportOutcome(filename: String, status: String, logDate: Date?,
     detail: String?, sourceURL: URL) {
+    LocalDiagnosticsManager.shared.imported(sourceURL, success: status == "success" || status == "duplicate")
     if status == "success" || status == "duplicate",
       let host = pairings.first(where: {
         Self.storedFileID(for: sourceURL, pairing: $0) != nil

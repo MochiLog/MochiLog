@@ -1,0 +1,4 @@
+Published crate plist-macro-0.1.6
+VCS revision d1d48559ddc8e9bd263f36180bbe1d4f2a3d55e5
+License declaration: MIT
+No standalone LICENSE included in the published crate.

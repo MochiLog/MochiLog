@@ -40,6 +40,13 @@ jobs:
       - name: Verify live battery comparison
         run: bash scripts/test-live-battery-comparison.sh
 
+      - name: Build maintained local diagnostics library
+        run: |
+          if ! command -v rustup >/dev/null; then curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y; fi
+          export PATH="$HOME/.cargo/bin:$PATH"
+          rustup update stable
+          bash scripts/build-local-diagnostics.sh
+
       - name: Check bundled third-party licenses
         run: python3 scripts/check-third-party-licenses.py
 
@@ -86,6 +93,13 @@ jobs:
         run: |
           xcodebuild -version
           test "$(xcrun --sdk iphoneos --show-sdk-version | cut -d. -f1)" = 27
+
+      - name: Build maintained local diagnostics library
+        run: |
+          if ! command -v rustup >/dev/null; then curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y; fi
+          export PATH="$HOME/.cargo/bin:$PATH"
+          rustup update stable
+          bash scripts/build-local-diagnostics.sh
 
       - name: Check bundled third-party licenses
         run: python3 scripts/check-third-party-licenses.py

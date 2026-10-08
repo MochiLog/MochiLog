@@ -19,6 +19,57 @@ final class LanguageAndLayoutTests: XCTestCase {
     app.terminate()
   }
 
+  func testAutomaticCollectionInEightLanguages() {
+    let titles = [("en", "Automatic Log Collection"), ("ja", "自動ログ収集"), ("de", "Automatische Protokollerfassung"), ("es", "Recopilación automática de registros"), ("fr", "Collecte automatique des journaux"), ("ko", "자동 로그 수집"), ("zh-Hans", "自动日志收集"), ("zh-Hant", "自動日誌收集")]
+    let settingsTitles = ["de": "Einstellungen", "en": "Settings", "es": "Ajustes", "fr": "Réglages", "ja": "設定", "ko": "설정", "zh-Hans": "设置", "zh-Hant": "設定"]
+    for (language, title) in titles {
+      app.launchArguments = ["-hasCompletedTutorial", "YES", "-showPopupOnLoad", "NO",
+        "-appLanguage", language, "-AppleLanguages", "(\(language))", "-selectedTabIndex", "2",
+        "-LastKnownAppVersion", "4.0.0", "-liveBatteryEnabled", "NO", "-pcAutomaticCollectionEnabled", "NO",
+        "-localAutomaticCollectionEnabled", "NO"]
+      app.launch()
+      let settings = app.buttons[settingsTitles[language]!].firstMatch
+      XCTAssertTrue(settings.waitForExistence(timeout: 15)); settings.tap()
+      let collection = UIDevice.current.userInterfaceIdiom == .pad
+        ? app.buttons["settings.category.automaticCollection"] : app.buttons["settings.automaticCollection"]
+      for _ in 0..<10 { if collection.isHittable { break }; app.swipeUp() }
+      XCTAssertTrue(collection.waitForExistence(timeout: 10), app.debugDescription)
+      collection.tap()
+      XCTAssertTrue(app.navigationBars[title].waitForExistence(timeout: 10), app.debugDescription)
+      XCTAssertTrue(app.switches["autoCollection.pcToggle"].exists)
+      XCTAssertTrue(app.switches["autoCollection.localToggle"].exists)
+      XCTAssertEqual(app.switches["autoCollection.localToggle"].value as? String, "0")
+      if UIDevice.current.userInterfaceIdiom == .pad { XCTAssertTrue(app.buttons["settings.category.general"].exists) }
+      screenshot("Automatic collection \(language)")
+      app.terminate()
+    }
+  }
+
+  func testLiveBatteryTabChangesWithoutRelaunch() {
+    app.launchEnvironment["MOCHI_LIVE_BATTERY_TEST"] = "1"
+    app.launchArguments += ["-appLanguage", "en", "-liveBatteryEnabled", "NO", "-selectedTabIndex", "2"]
+    app.launch()
+    let settings = app.buttons["Settings"].firstMatch
+    XCTAssertTrue(settings.waitForExistence(timeout: 15)); settings.tap()
+    let advanced = UIDevice.current.userInterfaceIdiom == .pad
+      ? app.buttons["settings.category.advanced"] : app.buttons["settings.advanced"]
+    for _ in 0..<10 { if advanced.isHittable { break }; app.swipeUp() }
+    XCTAssertTrue(advanced.waitForExistence(timeout: 10)); advanced.tap()
+    let toggle = app.switches["settings.liveBattery"]
+    XCTAssertTrue(toggle.waitForExistence(timeout: 10))
+    let tab = app.buttons["Live Battery"].firstMatch
+    XCTAssertFalse(tab.exists)
+    toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5)).tap()
+    XCTAssertTrue(tab.waitForExistence(timeout: 5))
+    XCTAssertTrue(toggle.exists, "Adding a tab must retain the current settings screen")
+    screenshot("Native tab insertion")
+    toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5)).tap()
+    let gone = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: tab)
+    XCTAssertEqual(XCTWaiter.wait(for: [gone], timeout: 5), .completed)
+    XCTAssertTrue(toggle.exists)
+    screenshot("Native tab removal")
+  }
+
   func testLiveBatteryOptInAndLayout() {
     app.launchEnvironment["MOCHI_LIVE_BATTERY_TEST"] = "1"
     app.launchArguments += ["-appLanguage", "en", "-liveBatteryEnabled", "YES"]
@@ -383,7 +434,8 @@ final class LanguageAndLayoutTests: XCTestCase {
     settings.tap()
     let advanced = app.buttons["settings.category.advanced"]
     XCTAssertTrue(advanced.waitForExistence(timeout: 10))
-    advanced.tap()
+    let collection = app.buttons["settings.category.automaticCollection"]
+    XCTAssertTrue(collection.waitForExistence(timeout: 10)); collection.tap()
     let macTransfer = app.buttons["settings.macTransfer"]
     XCTAssertTrue(macTransfer.waitForExistence(timeout: 10))
     macTransfer.tap()
@@ -420,7 +472,7 @@ final class LanguageAndLayoutTests: XCTestCase {
       NSPredicate(format: "label == %@", "Settings")).firstMatch
     XCTAssertTrue(settings.waitForExistence(timeout: 10))
     settings.tap()
-    let advanced = app.buttons["settings.advanced"]
+    let advanced = app.buttons["settings.automaticCollection"]
     for _ in 0..<8 {
       if advanced.exists && advanced.isHittable { break }
       app.swipeUp()

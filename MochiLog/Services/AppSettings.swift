@@ -246,11 +246,27 @@ final class AppSettings: ObservableObject {
   /// 選択されているタブのインデックス（0: Home, 1: Analytics, 2: Settings）
   @Published var selectedTabIndex: Int = 0
 
+  @Published var pcAutomaticCollectionEnabled = UserDefaults.standard.object(forKey: "pcAutomaticCollectionEnabled") as? Bool ?? true {
+    didSet {
+      UserDefaults.standard.set(pcAutomaticCollectionEnabled, forKey: "pcAutomaticCollectionEnabled")
+      if #available(iOS 27, *) {
+        if pcAutomaticCollectionEnabled { MacTransferManager.shared.start() }
+        else { MacTransferManager.shared.stopForBackground() }
+      }
+    }
+  }
+  @Published var localAutomaticCollectionEnabled = UserDefaults.standard.bool(forKey: "localAutomaticCollectionEnabled") {
+    didSet {
+      UserDefaults.standard.set(localAutomaticCollectionEnabled, forKey: "localAutomaticCollectionEnabled")
+      if #available(iOS 27, *) { LocalDiagnosticsManager.shared.updateActivity() }
+    }
+  }
+
   @Published var liveBatteryEnabled = UserDefaults.standard.bool(forKey: "liveBatteryEnabled") {
     didSet {
       UserDefaults.standard.set(liveBatteryEnabled, forKey: "liveBatteryEnabled")
       if !liveBatteryEnabled && selectedTabIndex == 3 { selectedTabIndex = 0 }
-      if #available(iOS 27, *) { LiveBatteryManager.shared.updateActivity() }
+      if #available(iOS 27, *) { LiveBatteryManager.shared.updateActivity(); LocalDiagnosticsManager.shared.updateActivity() }
     }
   }
 
