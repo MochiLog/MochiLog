@@ -6,6 +6,14 @@ MochiLogは、iPhone・iPadの解析ログからバッテリーの容量や充�
 
 [App Store](https://apps.apple.com/app/mochilog/id6756904240) · [紹介サイト](https://mochilog.ryuya-dev.net/) · [使い方](https://mochilog.ryuya-dev.net/guide?lang=ja) · [Webリポジトリ](https://github.com/MochiLog/MochiLog-Web)
 
+## 次のベータで対応予定
+
+[idevice_pair](https://github.com/jkcoxson/idevice_pair)から、MochiLogを開かずにペアリングファイルを直接インストールする機能を、次の4.0.0ベータで対応予定です。MochiLog側のファイル選択は不要で、次回の起動・前面復帰で取り込みます。端末内取得はiOS/iPadOS 17以降、端末内の初回ペアリングは27以降が対象です。
+
+idevice_pair公式版へのアプリ登録は[PR #84](https://github.com/jkcoxson/idevice_pair/pull/84)で提案中です。作者の採用・配布までは公式版のインストール先にMochiLogは表示されません。現在のApp Store版・公開済みベータの対応を示すものではありません。
+
+Direct pairing-file installation from idevice_pair is planned for the next MochiLog 4.0.0 beta. The upstream app registration is proposed in a pull request; the official tool will list MochiLog only after the change is accepted and released. On-device acquisition targets iOS/iPadOS 17+, while device-only initial pairing requires 27+.
+
 ## このブランチについて
 
 このREADMEは `refactor/ios27-batch-import-adaptive-ui-20260908` の実装を説明しています。cloudfixの変更を統合し、iOS 27への対応確認、複数ログ取り込み、画面表示、言語設定、Watch連携を改善しています。**mainへのマージやApp Storeへの公開はまだ行っていません。** 公開版と利用できる機能が異なる場合があります。
