@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-09",
+  "deviceModel": "iPad Pro 13-inch (M4)",
+  "os": "iPadOS 27.2",
+  "mobileVersion": "4.0.0",
+  "build": "1042",
+  "checks": {
+    "freshOnDeviceHostAdvertised": true,
+    "explicitUserOSApproval": true,
+    "credentialStoredInDeviceOnlyKeychain": true,
+    "batteryReadWithNewCredential": true,
+    "analyticsReadWithNewCredential": true,
+    "noCredentialReusedFromPCDuringProbe": true
+  },
+  "completedAt": "2026-10-09T20:11:30+09:00",
+  "batteryReadAt": "2026-10-09T20:13:14+09:00",
+  "logReadAt": "2026-10-09T20:13:56+09:00",
+  "batteryCoreFields": 6,
+  "batteryDetailedFields": 335,
+  "batteryLogFiles": 4,
+  "watchLogFiles": 0,
+  "recordsImportedByProbe": 0,
+  "limitations": [
+    "Device already had other OS/PC trusts; entirely fresh device not tested",
+    "iPhone same flow not tested",
+    "Developer Mode-off not tested",
+    "iOS 17 physical OS not tested"
+  ]
+}
