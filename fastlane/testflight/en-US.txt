@@ -1,6 +1,8 @@
-MochiLog 4.0.0 beta (1043)
+MochiLog 4.0.0 beta (1044)
 
-Build 1043 requires Developer Mode for on-device pairing (27+). A prerequisite card explains settings, restart and approval. First setup and replacement require confirmation before starting. The app cannot detect the setting; confirm it is on. Cancel keeps credentials and starts no listener. All eight languages are covered.
+Build 1044 isolates the pairing Start button from the guide link so a Form row cannot activate both together.
+
+Developer Mode is required Developer Mode for on-device pairing (27+). A prerequisite card explains settings, restart and approval. First setup and replacement require confirmation before starting. The app cannot detect the setting; confirm it is on. Cancel keeps credentials and starts no listener. All eight languages are covered.
 
 A MochiLog-compatible idevice_pair can install a pairing file while MochiLog is closed; import is automatic on next launch or foreground return. The official app-registration PR is submitted, awaiting acceptance and a tool release. All files, with or without device-ID metadata, must authenticate existing OS trust and identity before replacing credentials. Disconnected VPNs, revoked keys, foreign-device files and unsupported routes keep the previous credential. Successful import uses device-only Keychain storage and removes staging. OS updates alone do not delete trust; old/new field names and additional metadata are retained.
 
