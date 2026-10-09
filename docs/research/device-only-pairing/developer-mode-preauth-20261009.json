@@ -1,0 +1,73 @@
+{
+  "date": "2026-10-09",
+  "requestScope": "GetValue and StartService only; no StartSession, Pair, enable or restart",
+  "initialTrustNotTested": true,
+  "devices": [
+    {
+      "transport": "Network",
+      "authenticatedSession": false,
+      "pairRequest": false,
+      "existingOSTrust": true,
+      "services": [
+        {
+          "service": "com.apple.amfi.lockdown",
+          "error": "SessionInactive",
+          "servicePortReturned": false
+        },
+        {
+          "service": "com.apple.mobile.mobile_image_mounter",
+          "error": "SessionInactive",
+          "servicePortReturned": false
+        },
+        {
+          "service": "com.apple.debugserver.DVTSecureSocketProxy",
+          "error": "SessionInactive",
+          "servicePortReturned": false
+        },
+        {
+          "service": "com.apple.dt.remotepairingdeviced.lockdown",
+          "error": "SessionInactive",
+          "servicePortReturned": false
+        }
+      ],
+      "os": "27.2",
+      "developerMode": {
+        "value": null,
+        "error": "GetProhibited"
+      }
+    },
+    {
+      "transport": "Network",
+      "authenticatedSession": false,
+      "pairRequest": false,
+      "existingOSTrust": true,
+      "services": [
+        {
+          "service": "com.apple.amfi.lockdown",
+          "error": "SessionInactive",
+          "servicePortReturned": false
+        },
+        {
+          "service": "com.apple.mobile.mobile_image_mounter",
+          "error": "SessionInactive",
+          "servicePortReturned": false
+        },
+        {
+          "service": "com.apple.debugserver.DVTSecureSocketProxy",
+          "error": "SessionInactive",
+          "servicePortReturned": false
+        },
+        {
+          "service": "com.apple.dt.remotepairingdeviced.lockdown",
+          "error": "SessionInactive",
+          "servicePortReturned": false
+        }
+      ],
+      "os": "27.2",
+      "developerMode": {
+        "value": null,
+        "error": "GetProhibited"
+      }
+    }
+  ]
+}
