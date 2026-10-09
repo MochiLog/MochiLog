@@ -11,7 +11,7 @@ MacまたはWindows 11アプリが解析ログを収集し、スマホを開い�
 対応するローカルVPN／リフレクターの経路を使って、そのiPhone・iPad自身の診断サービスに接続します。対応VPNは別アプリです。MochiLogがVPNを自動的に置き換えることはありません。
 
 1. iOS／iPadOS 17以上で「自動ログ収集 → 端末内取得」を開く。
-2. iOS/iPadOS 27以降では「端末内ペアリングを開始」を選べます。ローカルネットワークを許可し、設定 → プライバシーとセキュリティ → デベロッパモードで、アプリに表示されたMochiLogの名前を選んでください。端末のパスコードによるOS承認と、タスクのバナー／通知に出る6桁コードの入力が必要です。外部ペアリングファイルの用意・PCへの接続はこの方式では不要です。OSが求める場合はDeveloper Modeをオンにします。
+2. iOS/iPadOS 27以降では「端末内ペアリングを開始」を選べます。ローカルネットワークを許可し、設定 → プライバシーとセキュリティ → デベロッパモードで、アプリに表示されたMochiLogの名前を選んでください。端末のパスコードによるOS承認と、タスクのバナー／通知に出る6桁コードの入力が必要です。外部ペアリングファイルの用意・PCへの接続はこの方式では不要です。この端末内の初回ペアリングにはDeveloper Modeが必須です。オンにしてから開始してください。
 3. 既存のPCのOSペアリングを引き継ぐ方法も残っています。「既存ペアリングを利用」を選ぶと、更新済みの認証済みPCからこの端末自身の認証情報を暗号化して取得します。17〜26では、PCで用意したペアリングファイルを取り込みます。17.0〜17.3はLockdown形式、17.4以上はRPPairing形式も選べます。MochiLogのQRだけではAppleのOS信頼は作成されません。
 4. 対応VPNなどの経路を有効にし、端末内取得をオンにします。MochiLogを開いている間に取得します。バックグラウンドでの取得やDeveloper Modeオフでの動作は保証していません。
 
@@ -37,7 +37,7 @@ Manual log import works without a computer. Settings → Automatic Log Collectio
 
 PC companions collect raw logs and transfer them when MochiLog is open. Saved logs and current battery values can also be received over Tailscale when mobile data is allowed. Fresh diagnostic collection still depends on device lock state and service reachability.
 
-On-device collection is experimental and needs a compatible local VPN/reflector route, through a separate compatible VPN app. On iOS/iPadOS 27, choose Start on-device pairing. Allow Local Network, select the displayed MochiLog host in Settings → Privacy & Security → Developer Mode, authorize with the device passcode, and enter the six-digit code from the task banner or notification. This route requires neither an external pairing file nor a PC. Enable Developer Mode if requested by the OS. On 17–26, import a pairing file prepared on a computer: Lockdown for 17.0–17.3, with RPPairing also available from 17.4. Encrypted reuse from an authenticated PC remains available on 27+. A MochiLog QR invitation alone does not create Apple's OS trust. Initial OS pairing must be completed first. iOS/iPadOS 17 or later and foreground use are required; first-time setup without Developer Mode and background collection are not guaranteed. MochiLog does not replace or configure another VPN silently.
+On-device collection is experimental and needs a compatible local VPN/reflector route, through a separate compatible VPN app. On iOS/iPadOS 27, choose Start on-device pairing. Allow Local Network, select the displayed MochiLog host in Settings → Privacy & Security → Developer Mode, authorize with the device passcode, and enter the six-digit code from the task banner or notification. This route requires neither an external pairing file nor a PC. Developer Mode is required for this on-device initial pairing; enable it before starting. On 17–26, import a pairing file prepared on a computer: Lockdown for 17.0–17.3, with RPPairing also available from 17.4. Encrypted reuse from an authenticated PC remains available on 27+. A MochiLog QR invitation alone does not create Apple's OS trust. Initial OS pairing must be completed first. iOS/iPadOS 17 or later and foreground use are required; first-time setup without Developer Mode and background collection are not guaranteed. MochiLog does not replace or configure another VPN silently.
 
 Watch logs are read from the paired iPhone. Both acquisition paths feed the same mobile parser and import queue, using physical-device identity, hashes and saved records to prevent duplicate imports. Staged files survive interruptions and are removed after a successful import.
 
@@ -52,7 +52,7 @@ The on-device settings also expose Live Battery opt-in, Receive Now and the curr
 | 機能 | iOS／iPadOS |
 | --- | --- |
 | 端末内のログ取得・現在のバッテリー | 17以上。17〜26は外部ペアリングファイルを取り込み |
-| 端末内だけで行う初回OSペアリング | 27以上 |
+| 端末内だけで行う初回OSペアリング | 27以上・Developer Mode必須 |
 | MochiLog PCアプリ経由の取得・転送 | 27以上 |
 
 17.0〜17.3の従来経路は、VPNから端末自身のlockdownサービスへ到達できる必要があります。到達できない場合に認証を省略したり、別の端末へ取得先を変えたりはしません。27系では現在の新しい診断トンネルを使います。iPadOS 27.2では端末内の初回OS承認を完了し、新しい認証情報によるバッテリー情報・電池ログの取得も確認しました。17系の実機試験はまだ完了していません。上記は2026年10月9日にTestFlightで配布した1042の対応条件です。17系のシミュレーター試験と27.2の既存ペアリングを使った実機試験を実施しています。

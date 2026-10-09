@@ -1,6 +1,6 @@
 MochiLog 4.0.0 beta (1042)
 
-Build 1042 adds experimental device-initiated OS pairing on iOS/iPadOS 27+. Select the MochiLog host shown in Settings and approve with the device passcode and six-digit code. Existing PC pairing reuse remains available. On iPadOS 27.2 hardware, on-device OS approval succeeded; the new credential read battery data and Analytics logs.
+Build 1042 adds experimental device-initiated OS pairing on iOS/iPadOS 27+. Developer Mode is required for initial pairing. Select the MochiLog host shown in Settings and approve with the device passcode and six-digit code. Existing PC pairing reuse remains available. On iPadOS 27.2 hardware, on-device OS approval succeeded; the new credential read battery data and Analytics logs.
 
 A MochiLog-compatible idevice_pair can install a pairing file while MochiLog is closed; import is automatic on next launch or foreground return. The official app-registration PR is submitted, awaiting acceptance and a tool release. All files, with or without device-ID metadata, must authenticate existing OS trust and identity before replacing credentials. Disconnected VPNs, revoked keys, foreign-device files and unsupported routes keep the previous credential. Successful import uses device-only Keychain storage and removes staging. OS updates alone do not delete trust; old/new field names and additional metadata are retained.
 

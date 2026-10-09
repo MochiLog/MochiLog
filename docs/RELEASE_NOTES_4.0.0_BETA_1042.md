@@ -6,7 +6,7 @@ TestFlightベータ版です。App Store一般公開版は変更しません。 
 
 MochiLog 4.0.0 beta (1042)
 
-1042の更新：iOS/iPadOS 27以降では、端末内から初回のOSペアリングを開始する実験機能を追加しました。設定に表示されるMochiLogの名前を選び、端末のパスコードと6桁コードで承認します。PCの既存ペアリングを利用する方法も残ります。iPadOS 27.2実機で、端末内から新しいOS信頼を作成し、その認証情報でバッテリー情報と電池ログを取得できました。
+1042の更新：iOS/iPadOS 27以降では、端末内から初回のOSペアリングを開始する実験機能を追加しました。端末内の初回ペアリングにはDeveloper Modeが必須です。設定に表示されるMochiLogの名前を選び、端末のパスコードと6桁コードで承認します。PCの既存ペアリングを利用する方法も残ります。iPadOS 27.2実機で、端末内から新しいOS信頼を作成し、その認証情報でバッテリー情報と電池ログを取得できました。
 
 MochiLog対応版のidevice_pairでは、アプリを閉じたままインストールボタンからファイルを設置し、次の起動・前面復帰時に自動で取り込めます。公式ツールへのアプリ登録PRは提出済みで、公式配布版の対応は採用・リリース待ちです。端末IDの記載の有無にかかわらず、保存前に既存のOS信頼と端末IDを確認します。VPN未接続、失効した鍵、別端末のファイル、接続方式に合わないファイルは以前の資格情報を置き換えません。成功時は端末専用Keychainへ保存し、設置元を削除します。OS更新だけを理由にペアリングを削除しません。新旧フィールド名と追加情報も保持します。
 
@@ -30,7 +30,7 @@ PC経由の他端末共有では、共有元の同期許可を再確認します
 
 MochiLog 4.0.0 beta (1042)
 
-Build 1042 adds experimental device-initiated OS pairing on iOS/iPadOS 27+. Select the MochiLog host shown in Settings and approve with the device passcode and six-digit code. Existing PC pairing reuse remains available. On iPadOS 27.2 hardware, on-device OS approval succeeded; the new credential read battery data and Analytics logs.
+Build 1042 adds experimental device-initiated OS pairing on iOS/iPadOS 27+. Developer Mode is required for initial pairing. Select the MochiLog host shown in Settings and approve with the device passcode and six-digit code. Existing PC pairing reuse remains available. On iPadOS 27.2 hardware, on-device OS approval succeeded; the new credential read battery data and Analytics logs.
 
 A MochiLog-compatible idevice_pair can install a pairing file while MochiLog is closed; import is automatic on next launch or foreground return. The official app-registration PR is submitted, awaiting acceptance and a tool release. All files, with or without device-ID metadata, must authenticate existing OS trust and identity before replacing credentials. Disconnected VPNs, revoked keys, foreign-device files and unsupported routes keep the previous credential. Successful import uses device-only Keychain storage and removes staging. OS updates alone do not delete trust; old/new field names and additional metadata are retained.
 
@@ -64,3 +64,5 @@ If on-device authentication fails, update the companion to these versions or lat
 iPadOS 27.2で利用者が端末内ペアリングを開始し、OSのパスコード・6桁コード承認を実施。20:11:30 JSTに新規ホストのOS信頼作成と端末専用Keychainへの保存が完了。ファイル取り込みやPCの資格情報再利用をせず、新しい認証情報で20:13:14に現在のバッテリー（主要6項目・詳細335項目）、20:13:56に本体電池ログ4件を読み取った。Watchログ0件はWatchを持たないiPadとして正常。調査プローブは記録を取り込まず、既存のPCペアリング・設定を保持し、試験後は通常起動に戻した。
 
 承認前後の取得で `service(16)` があったが、利用者から同じ時間にWi-Fiを切断していたと申告された。再接続後は同じ新規認証情報で成功したため、認証不具合とは判定しない。完全な未設定端末、iPhoneでの同一手順、Developer Modeオフ、iOS 17の実機はこの試験では確認していない。PIN・秘密鍵・電池実値・生ログをリポジトリへ保存しない。
+
+利用者の実機確認により、端末内の初回ペアリングにはDeveloper Modeが必須と確認。TestFlightの日英説明と手順を修正し、アプリ内8言語の案内・失敗時の確認項目にも反映（アプリ内の変更は次回ビルドから）。初回承認後にDeveloper Modeをオフにした場合の取得は、今回未検証。

@@ -25,5 +25,7 @@
     "iPhone same flow not tested",
     "Developer Mode-off not tested",
     "iOS 17 physical OS not tested"
-  ]
+  ],
+  "developerModeRequiredForInitialPairing": true,
+  "conditionSource": "User confirmed on physical iPad; Developer Mode enabled during successful initial pairing"
 }
