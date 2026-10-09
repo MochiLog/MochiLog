@@ -59,7 +59,7 @@ final class LanguageAndLayoutTests: XCTestCase {
         "Cancelling prerequisites must not generate an OS pairing host")
       XCTAssertFalse(app.buttons["localPairing.cancel"].exists)
       let battery = app.switches["localBattery.enable"]
-      for _ in 0..<6 { if battery.isHittable && app.buttons["localBattery.receive"].exists { break }; app.swipeUp() }
+      revealLocalControl(battery)
       XCTAssertTrue(battery.exists)
       XCTAssertTrue(app.buttons["localBattery.receive"].exists)
       XCTAssertFalse(app.buttons["localBattery.receive"].isEnabled, "Unconfigured devices must not query diagnostics")
@@ -139,11 +139,13 @@ final class LanguageAndLayoutTests: XCTestCase {
     XCTAssertTrue(toggle.waitForExistence(timeout: 10))
     let tab = app.buttons["Live Battery"].firstMatch
     XCTAssertFalse(tab.exists)
-    toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5)).tap()
+    tapSwitch(toggle)
     XCTAssertTrue(tab.waitForExistence(timeout: 5))
+    XCTAssertEqual(toggle.value as? String, "1")
     XCTAssertTrue(toggle.exists, "Adding a tab must retain the current settings screen")
     screenshot("Native tab insertion")
-    toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5)).tap()
+    tapSwitch(toggle)
+    XCTAssertEqual(toggle.value as? String, "0")
     let gone = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: tab)
     XCTAssertEqual(XCTWaiter.wait(for: [gone], timeout: 5), .completed)
     XCTAssertTrue(toggle.exists)

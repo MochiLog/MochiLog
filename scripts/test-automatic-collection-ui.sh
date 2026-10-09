@@ -50,7 +50,24 @@ for kind in ipad iphone; do
     -resultBundlePath "Build/automatic-ui-$kind.xcresult" \
     -only-testing:MochiLogUITests/LanguageAndLayoutTests/testAutomaticCollectionInEightLanguages \
     -only-testing:MochiLogUITests/LanguageAndLayoutTests/testLiveBatteryTabChangesWithoutRelaunch \
-    > "Build/automatic-ui-$kind.log" 2>&1; then failed=1; fi
+    > "Build/automatic-ui-$kind.log" 2>&1; then
+    if rg -q 'Simulator device failed to launch .*xctrunner' "Build/automatic-ui-$kind.log"; then
+      # Retry only a simulator runner launch failure, never an assertion failure.
+      xcrun simctl shutdown "$device"
+      xcrun simctl boot "$device"
+      bounded 300 xcrun simctl bootstatus "$device" -b > "Build/automatic-ui-$kind-retry-boot.log" 2>&1
+      if ! bounded 900 xcodebuild test-without-building -project MochiLog.xcodeproj -scheme MochiLogUITests \
+        -destination "platform=iOS Simulator,id=$device" -derivedDataPath Build/automatic-ui-derived \
+        -parallel-testing-enabled NO -jobs 2 -collect-test-diagnostics never \
+        -resultBundlePath "Build/automatic-ui-$kind-retry.xcresult" \
+        -only-testing:MochiLogUITests/LanguageAndLayoutTests/testAutomaticCollectionInEightLanguages \
+        -only-testing:MochiLogUITests/LanguageAndLayoutTests/testLiveBatteryTabChangesWithoutRelaunch \
+        > "Build/automatic-ui-$kind-retry.log" 2>&1; then failed=1; fi
+      tail -30 "Build/automatic-ui-$kind-retry.log"
+    else
+      failed=1
+    fi
+  fi
   tail -30 "Build/automatic-ui-$kind.log"
   if ! bounded 180 python3 scripts/test-local-diagnostics-simulator.py "$device" \
     --app Build/automatic-ui-derived/Build/Products/Debug-iphonesimulator/MochiLog.app \

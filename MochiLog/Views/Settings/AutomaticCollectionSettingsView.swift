@@ -184,6 +184,8 @@ private struct LocalDevicePairingControls: View {
             if pairing.statusKey != "local_pair_ready" { Text(text(pairing.statusKey)).font(.callout) }
           }
         }.padding(.vertical, 8)
+          // Form rows must not activate the guide Link and pairing Button together.
+          .buttonStyle(.borderless)
 
       .alert(text("local_pair_developer_required"), isPresented: $pairConfirmation) {
         Button(text("local_pair_developer_confirm")) { pairing.start() }
