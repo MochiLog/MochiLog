@@ -49,3 +49,12 @@ Mac 0.2.21 Beta and Windows 0.1.18 Alpha offer automatic update checks, off by d
 Other-device sharing rechecks source consent. If revocation cannot reach a computer, previous consent expires within 15 minutes. The iOS app running on Mac hides PC transfer controls. Please report beta issues from the companion support screens.
 
 If on-device authentication fails, update the companion to these versions or later and reuse the existing pairing again. The companion fix preserves the original hostname spelling used for OS trust. Do not delete your QR pairing or reset USB trust.
+
+## 配信記録（2026-10-09）
+
+- TestFlight: 4.0.0（1042）、処理状態 `VALID`。既存内部グループ `iOS16`・`iCloud同期`、外部グループ `main` に割り当て済み。外部状態 `IN_BETA_TESTING`、通知有効。
+- 日本語1871文字、英語3939文字のテスト内容を登録。既存ベータ説明を保持。
+- 提出元: `ed45ce420b46e13f422484472036cbb8a9e97276`。
+- [署名・アップロード](https://github.com/MochiLog/MochiLog/actions/runs/37916952199)／[ノート・配布グループ登録](https://github.com/MochiLog/MochiLog/actions/runs/37917976510)。
+- 提出IPA内のiPhone・Watch双方が4.0.0（1042）。Releaseバイナリに調査用環境変数とDebug dylibが含まれないことを確認。
+- idevice_pair公式版への登録はPR #84の採用・配布待ち。端末内だけの初回OS承認とiOS 17実機の確認は引き続き未完了。
