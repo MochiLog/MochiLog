@@ -41,3 +41,5 @@ See the [live-value guide](docs/LIVE_BATTERY.md) and desktop user guides linked 
 同じPCとペアリングしたiPhone・iPadは、同じApple Accountで双方のiCloud同期が有効と確認できる場合に限り、他の端末のログも受信できます。元の端末の個体IDを保持して記録し、片方がオフ・別アカウント・未確認なら共有しません。共有元のアプリをしばらく開いていない場合は再確認まで保留します。
 
 Devices paired with the same PC can also receive each other’s logs when both have confirmed iCloud sync enabled on the same Apple Account. Records keep the original device identity. Disabled sync, different accounts and unconfirmed permissions prevent sharing. If the source app has not been opened for a while, sharing waits for renewed confirmation.
+
+idevice_pairからのペアリングファイル直接インストールは、次のベータで対応予定です。公式ツールへの登録は[PR #84](https://github.com/jkcoxson/idevice_pair/pull/84)で提案中で、採用・配布されるまでは公式版の一覧には表示されません。

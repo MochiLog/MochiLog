@@ -1,6 +1,6 @@
 # idevice_pairからMochiLogへの直接インストール
 
-2026-10-09。MochiLog側の受け口と上流ツールへの変更案を実装。公式へのPRは未提出、公式配布版の対応は未完了。
+2026-10-09。MochiLog側の受け口と上流ツールへの変更案を実装。[公式へのPR #84](https://github.com/jkcoxson/idevice_pair/pull/84)を提出済み。公式配布版の対応は未完了。
 
 ## 公式への追加方法を確認した結果
 
@@ -33,7 +33,7 @@ UDIDなしのファイルを受け取ったときはVPNと既存信頼の検証�
 
 MochiLog専用の書き込み分岐、端末IDの追記、AFC rename、Bundle ID分岐、依存ライブラリの追加は含めない。上流の標準ファイル・共通のインストール処理をそのまま使う。先の専用処理付きローカル案とそのビルド結果は、この最小登録案の実機動作証明として使わない。
 
-実機AFC設置と、起動後の利用確認が通るまで、ユーザーの指定に従って上流PRを提出しない。
+ユーザーの明示的な指示により、アプリ登録のみの[PR #84](https://github.com/jkcoxson/idevice_pair/pull/84)を先に提出。本文はKSignのPRと同じ簡潔な形式で、アプリ側の対応は次のベータ予定と明記した。実機AFC設置と、実RPPairingでの起動後の利用確認は未完了。
 
 ## 自動テスト
 
@@ -41,4 +41,8 @@ MochiLog専用の書き込み分岐、端末IDの追記、AFC rename、Bundle ID
 
 UDIDなしの標準ファイルは合成Lockdownサービスと相互TLSで検証する。Remoteの別名ケースは形式の互換性を確認するための合成鍵であり、Appleの実RPPairingサービスを再現するものではない。iOS 17の実機OSサービスの可否、USBの信頼ダイアログ、公式インストールボタン、AFC書き込み中の挙動、実RPPairingの最終利用は実機検証として別に残る。
 
-2026-10-09: iOS 17.0のiPhone 15 Proシミュレーターで、5つの起動時ケース × 19項目（95項目）が成功。値を含まない結果は `docs/research/direct-install-cold/phone-ios17.json`。UDIDのない標準ファイルも、既存信頼の認証後に端末IDを取得して取り込めた。iPadOS 27.0側は再確認中。
+2026-10-09: iOS 17.0のiPhone 15 Proシミュレーターで、5つの起動時ケース × 19項目（95項目）が成功。値を含まない結果は `docs/research/direct-install-cold/phone-ios17.json`。UDIDのない標準ファイルも、既存信頼の認証後に端末IDを取得して取り込めた。iPadOS 27.0のiPad Pro 13（M5）シミュレーターでも同じ95項目が成功。結果は `docs/research/direct-install-cold/ipad-ios27.json`。両方合わせて190項目。テスト用に作成した端末は全て削除した。
+
+最小登録案のmacOS・WindowsのフルGUIビルドはGitHub Actions [run 37881724143](https://github.com/MochiLog/MochiLog/actions/runs/37881724143)で成功。8言語のカタログ・書式・参照監査も成功（1410文字列、15カタログ）。
+
+8言語のiPad/iPhone UIとタブ変更の確認は、専用処理を除去する前のモバイルコミットd50dae2で [run 37878924744](https://github.com/MochiLog/MochiLog/actions/runs/37878924744) が成功。最小登録へ変更後のモバイル取り込み経路は8ff7fdaで上記190項目を検証。実機用4.0.0（1042）のDebug署名ビルドも再作成し、署名検証に成功。実機の信頼承認・AFC設置・実RPPairingの確認は残る。
