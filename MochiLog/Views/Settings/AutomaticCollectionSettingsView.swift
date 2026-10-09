@@ -60,6 +60,7 @@ struct LocalDiagnosticsSettingsView: View {
         Label(text(manager.configured ? "local_configured" : "local_setup_needed"),
           systemImage: manager.configured ? "checkmark.shield.fill" : "key.fill")
           .foregroundStyle(manager.configured ? .green : .secondary)
+        if manager.installingPairing { ProgressView(text("local_working")) }
         if !manager.message.isEmpty { Text(manager.message).font(.callout).textSelection(.enabled) }
       }
       Section(text("local_pairing_step")) {

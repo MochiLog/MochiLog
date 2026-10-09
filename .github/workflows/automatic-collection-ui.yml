@@ -1,10 +1,17 @@
 name: Automatic collection UI verification
 on:
   workflow_dispatch:
+    inputs:
+      verification:
+        description: Checks to run
+        type: choice
+        default: all
+        options: [all, installer, ui]
 permissions:
   contents: read
 jobs:
   pair-installer:
+    if: inputs.verification != 'ui'
     strategy:
       fail-fast: false
       matrix:
@@ -22,7 +29,7 @@ jobs:
           git checkout c8114c2bb88a80e2e17c0d9297b9915f09498ead
           git apply "$GITHUB_WORKSPACE/scripts/patches/idevice-pair-mochilog.patch"
           cargo fmt --check
-          cargo test --locked backend::mochilog::tests -j 2
+          cargo test --locked -j 2
           cargo build --locked -j 2
       - uses: actions/upload-artifact@v4
         with:
@@ -32,6 +39,7 @@ jobs:
             idevice-pair/target/debug/idevice_pair.exe
           retention-days: 2
   ui:
+    if: inputs.verification != 'installer'
     runs-on: xcode-27
     timeout-minutes: 60
     steps:

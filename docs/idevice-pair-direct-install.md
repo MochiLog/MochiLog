@@ -20,17 +20,25 @@ iOSの終了中プロセスはこの操作で起動しないため、Keychainへ
 
 ## アプリ側
 
-UIFileSharingEnabledを有効化し、Documents/pairingFile.plistまたはrpPairingFile.plistを認識する。64KiB以下の通常ファイルのみ読み、シンボリックリンクを拒否。両形式を厳格に区別し、UDIDメタデータが必須。既存の端末UDIDと異なるものや不正なファイルは採用せず、以前のKeychain資格情報・履歴・PCペアリングを保持する。認証後の診断読み取りでもUniqueDeviceIDを照合する。
+UIFileSharingEnabledを有効化し、Documents/pairingFile.plistまたはrpPairingFile.plistを認識する。64KiB以下の通常ファイルのみ読み、シンボリックリンクを拒否。両形式を厳格に区別し、UDIDメタデータが含まれる場合は既存の端末UDIDと照合する。標準ファイルにUDIDがない場合、MochiLog側で既存のOS信頼による接続を確認し、診断の読み取り前にUniqueDeviceIDを取得して資格情報へ紐づける。既存の資格情報がある場合はそのUDIDとも照合し、違う端末・認証失敗・不正なファイルでは以前のKeychain資格情報・履歴・PCペアリングを保持する。通常の読み取りでもUniqueDeviceIDを照合する。
 
-受け取った鍵はWhenUnlockedThisDeviceOnlyのKeychainに保存し、成功後に配置元を削除。ログにはキー、PIN、証明書本文を記録しない。iOSアプリのMac実行ではこの機能を開始しない。
+UDIDなしのファイルを受け取ったときはVPNと既存信頼の検証が成功するまで配置元を保持し、次の前面復帰で再試行する。新規のOSペアリングを自動で始めない。確認できた鍵はWhenUnlockedThisDeviceOnlyのKeychainに保存し、成功後に配置元を削除。ログにはキー、PIN、証明書本文を記録しない。iOSアプリのMac実行ではこの機能を開始しない。
 
 ## 上流ツール用変更案
 
-scripts/patches/idevice-pair-mochilog.patchは上流c8114c2bb88a80e2e17c0d9297b9915f09498eadに対して適用する。
+`scripts/patches/idevice-pair-mochilog.patch`は上流c8114c2bb88a80e2e17c0d9297b9915f09498eadに対して適用する。ユーザーの指定に従い、既存のKSign等の追加PRと同じ登録方式に限定した。
 
-- Lockdown/Remoteの両リストにMochiLogを追加し、正しいBundle IDのみに限定。
-- Remoteファイルに通常ないUDIDを、認証済みの対象端末から読み取って追加。既存UDIDが違えば書き込みを拒否する。
-- その他のペアリング項目は全て保持。他アプリへの書き込みは変更しない。
-- 一時ファイルを閉じてからAFC renameで設置し、途中のファイルをアプリが読むのを防ぐ。
+- `known_apps.rs`のLockdown/Remoteの両リストに `("MochiLog", PLIST)` を追加（2行）。
+- READMEの対応アプリ一覧にMochiLogのリンクを追加（1行）。
 
-上流パッチのplist変換部分は4項目のRustテストで確認。Mac・WindowsのフルGUIビルドと4項目のRustテストはGitHub Actions run 37878924744で成功。Mac/Windowsの公式ツールを使用した実機AFC設置は未確認。iPhone・iPadのiOS 17.0シミュレーターでは配置されたファイルの採用・異なる端末の拒否・破損ファイルで以前の設定を保持する動作を含む14項目が成功。両方の17系UI試験も成功。実機用MochiLogの署名ビルドを準備済み。帰宅後の実機AFC設置・起動後の利用確認が通るまで、ユーザーの指定に従って上流PRを提出しない。
+MochiLog専用の書き込み分岐、端末IDの追記、AFC rename、Bundle ID分岐、依存ライブラリの追加は含めない。上流の標準ファイル・共通のインストール処理をそのまま使う。先の専用処理付きローカル案とそのビルド結果は、この最小登録案の実機動作証明として使わない。
+
+実機AFC設置と、起動後の利用確認が通るまで、ユーザーの指定に従って上流PRを提出しない。
+
+## 自動テスト
+
+`scripts/test-local-diagnostics-cold-install.py`は、既存のシミュレーターを初期化せず、各ケース専用の端末を作成・削除する。終了中のMochiLogに合成ファイルを配置してから起動し、通常の初期化処理が取り込むかを確認する。正常ファイル、UDIDなしの標準ファイル、新旧Remoteフィールドの別名、破損ファイル、シンボリックリンクが対象。
+
+UDIDなしの標準ファイルは合成Lockdownサービスと相互TLSで検証する。Remoteの別名ケースは形式の互換性を確認するための合成鍵であり、Appleの実RPPairingサービスを再現するものではない。iOS 17の実機OSサービスの可否、USBの信頼ダイアログ、公式インストールボタン、AFC書き込み中の挙動、実RPPairingの最終利用は実機検証として別に残る。
+
+2026-10-09: iOS 17.0のiPhone 15 Proシミュレーターで、5つの起動時ケース × 19項目（95項目）が成功。値を含まない結果は `docs/research/direct-install-cold/phone-ios17.json`。UDIDのない標準ファイルも、既存信頼の認証後に端末IDを取得して取り込めた。iPadOS 27.0側は再確認中。

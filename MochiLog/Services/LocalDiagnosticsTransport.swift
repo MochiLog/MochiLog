@@ -66,7 +66,7 @@ nonisolated enum LocalDiagnosticsTransport {
   /// Imported legacy records use authenticated lockdown; no automatic fallback
   /// from a failed remote verification and no new trust request during reads.
   private static func lockdownSession<T>(_ credential: LocalDiagnosticsCredential, address: String,
-    work: (Connection) throws -> T) throws -> T {
+    expectedIdentity: String?, work: (Connection, String) throws -> T) throws -> T {
     var pair: OpaquePointer?
     try credential.pairing.withUnsafeBytes { try check(idevice_pairing_file_from_bytes($0.bindMemory(to: UInt8.self).baseAddress, UInt($0.count), &pair)) }
     guard let parsed = pair else { throw Failure.invalid }
@@ -95,13 +95,35 @@ nonisolated enum LocalDiagnosticsTransport {
     var identity: plist_t?
     try check(lockdownd_get_value(lockdown, "UniqueDeviceID", nil, &identity))
     defer { if let identity { plist_free(identity) } }
-    guard value(identity) as? String == credential.expectedUDID else { throw Failure.identity }
-    return try work(.lockdown(provider))
+    guard let udid = value(identity) as? String, validIdentity(udid),
+      expectedIdentity == nil || expectedIdentity == udid else { throw Failure.identity }
+    return try work(.lockdown(provider), udid)
   }
   static func session<T>(_ credential: LocalDiagnosticsCredential, address: String,
     work: (Connection) throws -> T) throws -> T {
+    try authenticatedSession(credential, address: address, expectedIdentity: credential.expectedUDID) { connection, _ in
+      try work(connection)
+    }
+  }
+  /// Standard idevice_pair files are unchanged. If identity metadata is absent,
+  /// learn it only after existing OS trust verifies; never start new pairing.
+  static func installedCredential(_ data: Data, expectedUDID: String?, physicalDeviceID: UUID,
+    address: String) throws -> LocalDiagnosticsCredential {
+    let provisional = try LocalDiagnosticsCredential.validate(data,
+      expectedUDID: expectedUDID ?? "0000000000000000", physicalDeviceID: physicalDeviceID)
+    return try authenticatedSession(provisional, address: address, expectedIdentity: expectedUDID) { _, udid in
+      try LocalDiagnosticsCredential.validate(data, expectedUDID: udid, physicalDeviceID: physicalDeviceID)
+    }
+  }
+  private static func validIdentity(_ value: String) -> Bool {
+    value.range(of: "^[A-Fa-f0-9-]{16,64}$", options: .regularExpression) != nil
+  }
+  private static func authenticatedSession<T>(_ credential: LocalDiagnosticsCredential, address: String,
+    expectedIdentity: String?, work: (Connection, String) throws -> T) throws -> T {
     _ = initialize
-    if credential.usesLockdown { return try lockdownSession(credential, address: address, work: work) }
+    if credential.usesLockdown {
+      return try lockdownSession(credential, address: address, expectedIdentity: expectedIdentity, work: work)
+    }
     var pair: OpaquePointer?
     try credential.pairing.withUnsafeBytes { bytes in
       try check(rp_pairing_file_from_bytes(bytes.bindMemory(to: UInt8.self).baseAddress, UInt(bytes.count), &pair))
@@ -127,8 +149,9 @@ nonisolated enum LocalDiagnosticsTransport {
     var identity: plist_t?
     try check(lockdownd_get_value(lockdown, "UniqueDeviceID", nil, &identity))
     defer { if let identity { plist_free(identity) } }
-    guard value(identity) as? String == credential.expectedUDID else { throw Failure.identity }
-    return try work(.remote(adapter, handshake))
+    guard let udid = value(identity) as? String, validIdentity(udid),
+      expectedIdentity == nil || expectedIdentity == udid else { throw Failure.identity }
+    return try work(.remote(adapter, handshake), udid)
   }
   static func battery(_ credential: LocalDiagnosticsCredential, address: String) throws -> LiveBatteryReading {
     try session(credential, address: address) { connection in

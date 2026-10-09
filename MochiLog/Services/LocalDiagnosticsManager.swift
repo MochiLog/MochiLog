@@ -16,6 +16,9 @@ final class LocalDiagnosticsManager: ObservableObject {
   @Published private(set) var reading: LiveBatteryReading?
   @Published private(set) var state = "waiting"
   @Published private(set) var message = ""
+  @Published private(set) var installingPairing = false
+  private var installedImportTask: Task<Void, Never>?
+  private var installedImportID: UUID?
   private var credential: LocalDiagnosticsCredential?
   private var loop: Task<Void, Never>?
   private var batteryLoop: Task<Void, Never>?
@@ -62,6 +65,7 @@ final class LocalDiagnosticsManager: ObservableObject {
     UserDefaults.standard.set(current, forKey: key)
   }
   func forget() {
+    installedImportTask?.cancel(); installedImportTask = nil; installedImportID = nil; installingPairing = false
     stop(); SecItemDelete(query as CFDictionary); credential = nil; configured = false
     reading = nil; state = "waiting"; message = ""
     AppSettings.shared.localAutomaticCollectionEnabled = false
@@ -74,7 +78,7 @@ final class LocalDiagnosticsManager: ObservableObject {
   /// idevice_pair writes into Documents through House Arrest without launching
   /// MochiLog. Adopt it automatically when our process next becomes active.
   func checkInstalledPairingFile(activateAfterImport: Bool = true) {
-    guard !busy, !batteryBusy, !pairingActive, !ProcessInfo.processInfo.isiOSAppOnMac else { return }
+    guard !busy, !batteryBusy, !pairingActive, !installingPairing, !ProcessInfo.processInfo.isiOSAppOnMac else { return }
     let root = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
     for name in ["pairingFile.plist", "rpPairingFile.plist"] {
       let file = root.appendingPathComponent(name)
@@ -85,7 +89,43 @@ final class LocalDiagnosticsManager: ObservableObject {
           let size = metadata.fileSize, size > 0, size <= 65536 else { throw LocalDiagnosticsTransport.Failure.invalid }
         let data = try Data(contentsOf: file)
         guard let raw = try PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any],
-          let plist = LocalPairingFileFormat.normalized(raw), let udid = plist["UDID"] as? String,
+          let plist = LocalPairingFileFormat.normalized(raw) else { throw LocalDiagnosticsTransport.Failure.invalid }
+        if plist["UDID"] == nil {
+          // The upstream installer writes standard bytes and has no MochiLog
+          // branch. Defer identity binding until OS trust authenticates.
+          let previous = credential
+          _ = try LocalDiagnosticsCredential.validate(data, expectedUDID: previous?.expectedUDID ?? "0000000000000000",
+            physicalDeviceID: previous?.physicalDeviceID ?? PhysicalDeviceIdentityStore.current())
+          guard let address = safeAddress else { throw LocalDiagnosticsTransport.Failure.invalid }
+          let importID = UUID(); installedImportID = importID; installingPairing = true
+          MacTransferManager.appendDebugEvent("Local diagnostics: standard installed file awaiting authenticated identity; source=\(name); previous credential retained")
+          installedImportTask = Task { [weak self] in
+            guard let self else { return }
+            defer {
+              if self.installedImportID == importID {
+                self.installingPairing = false; self.installedImportTask = nil; self.installedImportID = nil
+              }
+            }
+            do {
+              let physicalID = previous?.physicalDeviceID ?? PhysicalDeviceIdentityStore.current()
+              let candidate = try await Task.detached {
+                try LocalDiagnosticsTransport.installedCredential(data, expectedUDID: previous?.expectedUDID,
+                  physicalDeviceID: physicalID, address: address)
+              }.value
+              guard !Task.isCancelled, self.installedImportID == importID, self.credential?.pairing == previous?.pairing,
+                try Data(contentsOf: file) == data else { return }
+              try self.save(candidate, activate: true)
+              try FileManager.default.removeItem(at: file)
+              MacTransferManager.appendDebugEvent("Local diagnostics: standard installed file authenticated and adopted; staging removed; no upstream-specific fields required")
+            } catch {
+              guard !Task.isCancelled else { return }
+              self.message = self.text("local_direct_import_pending")
+              MacTransferManager.appendDebugEvent("Local diagnostics: standard installed file not adopted; authenticated identity unavailable; previous credential and staging retained; error=\(error)")
+            }
+          }
+          return
+        }
+        guard let udid = plist["UDID"] as? String,
           credential == nil || credential?.expectedUDID == udid else { throw LocalDiagnosticsTransport.Failure.identity }
         let candidate = try LocalDiagnosticsCredential.validate(data, expectedUDID: udid,
           physicalDeviceID: credential?.physicalDeviceID ?? PhysicalDeviceIdentityStore.current())
@@ -354,10 +394,12 @@ extension LocalDiagnosticsManager {
       let root = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         .appendingPathComponent("LocalDiagnosticsFixture")
       var results: [String: Bool] = [:]
+      await installedImportTask?.value
       let original = credential
       let originalMessage = message
       let osKey = "LocalDiagnosticsLastObservedOSVersion"
       let originalOS = UserDefaults.standard.object(forKey: osKey)
+      var expectedChecks = 17
       var q = query; q[kSecReturnData as String] = true
       var stored: CFTypeRef?
       let originalStatus = SecItemCopyMatching(q as CFDictionary, &stored)
@@ -373,7 +415,7 @@ extension LocalDiagnosticsManager {
         else { UserDefaults.standard.removeObject(forKey: osKey) }
         try? FileManager.default.removeItem(at: root)
         results["originalCredentialRestored"] = (restoreStatus == errSecSuccess || (originalBytes == nil && restoreStatus == errSecItemNotFound)) && credential?.pairing == original?.pairing
-        results["passed"] = results.count == 14 && results.values.allSatisfy { $0 }
+        results["passed"] = results.count == expectedChecks && results.values.allSatisfy { $0 }
         let output = root.deletingLastPathComponent().appendingPathComponent("LocalDiagnosticsFixtureResult.json")
         if let data = try? JSONSerialization.data(withJSONObject: results, options: [.sortedKeys]) { try? data.write(to: output, options: .atomic) }
         MacTransferManager.appendDebugEvent("Local diagnostics simulator fixture: \(results.filter { $0.value }.count) passing checks; no records imported; credentials restored")
@@ -384,6 +426,27 @@ extension LocalDiagnosticsManager {
           let hash = config?["sha256"] as? String, let name = config?["name"] as? String else { throw LocalDiagnosticsTransport.Failure.invalid }
         let old = try Data(contentsOf: root.appendingPathComponent("old.plist"))
         let new = try Data(contentsOf: root.appendingPathComponent("new.plist"))
+        if let coldCase = config?["coldCase"] as? String {
+          expectedChecks += 2
+          let staged = root.deletingLastPathComponent().appendingPathComponent("pairingFile.plist")
+          var attributesQuery = query; attributesQuery[kSecReturnAttributes as String] = true
+          var attributes: CFTypeRef?
+          let status = SecItemCopyMatching(attributesQuery as CFDictionary, &attributes)
+          if coldCase == "valid" || coldCase == "standard" || coldCase == "remote-aliases" {
+            let imported = credential.flatMap { try? PropertyListSerialization.propertyList(from: $0.pairing, format: nil) as? [String: Any] }
+            let expectedFormat = coldCase != "remote-aliases" ? credential?.usesLockdown == true :
+              credential?.usesLockdown == false && imported?["identifier"] as? String == "MochiLog-Fixture-Remote" &&
+                imported?["alt_irk"] as? Data == Data(repeating: 3, count: 16) && imported?["future_metadata"] as? String == "retained"
+            results["coldStartupAdoptsInstalledFile"] = configured && credential?.expectedUDID == udid && expectedFormat && !FileManager.default.fileExists(atPath: staged.path)
+            results["coldStartupUsesDeviceOnlyKeychain"] = status == errSecSuccess &&
+              (attributes as? [String: Any])?[kSecAttrAccessible as String] as? String == kSecAttrAccessibleWhenUnlockedThisDeviceOnly as String
+          } else {
+            results["coldStartupRejectsUntrustedFile"] = !configured && credential == nil && FileManager.default.fileExists(atPath: staged.path)
+            results["coldStartupDoesNotCreateCredential"] = status == errSecItemNotFound
+          }
+          // Only synthetic inputs on the disposable cold-start simulator.
+          if FileManager.default.fileExists(atPath: staged.path) { try FileManager.default.removeItem(at: staged) }
+        }
         func mode(_ value: UInt8) async throws { try await Task.detached { try Self.fixtureControl(port, value) }.value }
         func battery(_ value: LocalDiagnosticsCredential) async throws -> LiveBatteryReading {
           try await Task.detached { try LocalDiagnosticsTransport.battery(value, address: "127.0.0.1") }.value
@@ -405,6 +468,25 @@ extension LocalDiagnosticsManager {
         checkInstalledPairingFile()
         results["directInstallRejectsMalformed"] = credential?.pairing == old && FileManager.default.fileExists(atPath: installed.path)
         try FileManager.default.removeItem(at: installed)
+        var standard = try PropertyListSerialization.propertyList(from: old, format: nil) as! [String: Any]
+        standard.removeValue(forKey: "UDID")
+        let standardBytes = try PropertyListSerialization.data(fromPropertyList: standard, format: .binary, options: 0)
+        let learned = try await Task.detached {
+          try LocalDiagnosticsTransport.installedCredential(standardBytes, expectedUDID: nil,
+            physicalDeviceID: trusted.physicalDeviceID, address: "127.0.0.1")
+        }.value
+        results["standardFileLearnsAuthenticatedIdentity"] = learned.expectedUDID == udid && learned.pairing == standardBytes
+        for (modeByte, key) in [(UInt8(105), "standardFileRejectsChangedIdentity"), (102, "standardFileRejectsForeignCertificate")] {
+          try await mode(modeByte)
+          do {
+            _ = try await Task.detached {
+              try LocalDiagnosticsTransport.installedCredential(standardBytes, expectedUDID: udid,
+                physicalDeviceID: trusted.physicalDeviceID, address: "127.0.0.1")
+            }.value
+            results[key] = false
+          } catch { results[key] = credential?.pairing == old && configured }
+        }
+        try await mode(111)
         let reading = try await battery(trusted)
         results["nativeBattery"] = reading.values["CycleCount"] == 321 && reading.values["DesignCapacity"] == 4000
         let files = try await Task.detached { try LocalDiagnosticsTransport.logs(trusted, address: "127.0.0.1", alreadyReceived: []) }.value
