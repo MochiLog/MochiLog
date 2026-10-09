@@ -64,6 +64,9 @@ struct LocalDiagnosticsSettingsView: View {
       }
       Section(text("local_pairing_step")) {
         Text(text("local_pairing_note")).font(.callout)
+        Label(text("local_pairing_refresh_note"), systemImage: "arrow.clockwise.circle")
+          .font(.caption).foregroundStyle(.secondary)
+          .accessibilityIdentifier("localPairing.refreshNote")
         if #available(iOS 27, *) {
           LocalDevicePairingControls()
         } else {
@@ -118,7 +121,8 @@ struct LocalDiagnosticsSettingsView: View {
       Section {
         NavigationLink { MacTransferDebugLogView() } label: { Label(text("mt_068"), systemImage: "ladybug") }
       }
-    }.navigationTitle(text("local_title"))
+    }.accessibilityIdentifier("localDiagnostics.form")
+      .navigationTitle(text("local_title"))
       .alert(text("local_forget"), isPresented: $forgetConfirmation) {
         Button(text("local_forget"), role: .destructive) { manager.forget() }
         Button(L10n.text("cancel", table: "Common"), role: .cancel) {}

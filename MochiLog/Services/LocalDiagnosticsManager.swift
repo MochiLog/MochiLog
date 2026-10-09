@@ -33,6 +33,7 @@ final class LocalDiagnosticsManager: ObservableObject {
       let saved = try? JSONDecoder().decode(LocalDiagnosticsCredential.self, from: data),
       let verified = try? LocalDiagnosticsCredential.validate(saved.pairing, expectedUDID: saved.expectedUDID, physicalDeviceID: saved.physicalDeviceID) {
       credential = verified; configured = true
+      noteOSVersion()
     }
   }
   private func save(_ value: LocalDiagnosticsCredential) throws {
@@ -48,7 +49,15 @@ final class LocalDiagnosticsManager: ObservableObject {
       MacTransferManager.appendDebugEvent("Local diagnostics: Keychain save failed; status=\(result); previous credential retained")
       throw LocalDiagnosticsTransport.Failure.invalid
     }
-    stop(); credential = value; configured = true; message = text("local_configured"); updateActivity()
+    stop(); credential = value; configured = true; message = text("local_configured"); noteOSVersion(); updateActivity()
+  }
+  private func noteOSVersion() {
+    let key = "LocalDiagnosticsLastObservedOSVersion"
+    let current = UIDevice.current.systemVersion
+    if let previous = UserDefaults.standard.string(forKey: key), previous != current {
+      MacTransferManager.appendDebugEvent("Local diagnostics: OS version changed \(previous) -> \(current); existing credential retained; validate on next read, no automatic re-pairing")
+    }
+    UserDefaults.standard.set(current, forKey: key)
   }
   func forget() {
     stop(); SecItemDelete(query as CFDictionary); credential = nil; configured = false
@@ -295,3 +304,99 @@ final class LocalDiagnosticsManager: ObservableObject {
   }
   private func text(_ key: String) -> String { L10n.text(key, table: "MacTransfer") }
 }
+
+#if DEBUG && targetEnvironment(simulator)
+import Darwin
+
+extension LocalDiagnosticsManager {
+  /// Uses the real native transport against a loopback protocol fixture. Never
+  /// runs on hardware or in release builds, and never imports history records.
+  func debugSimulatorFixtureIfRequested() {
+    guard !probeStarted, ProcessInfo.processInfo.environment["MOCHI_LOCAL_NATIVE_FIXTURE"] == "1",
+      !AppSettings.shared.localAutomaticCollectionEnabled else { return }
+    probeStarted = true
+    Task {
+      let root = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        .appendingPathComponent("LocalDiagnosticsFixture")
+      var results: [String: Bool] = [:]
+      let original = credential
+      let originalMessage = message
+      let osKey = "LocalDiagnosticsLastObservedOSVersion"
+      let originalOS = UserDefaults.standard.object(forKey: osKey)
+      var q = query; q[kSecReturnData as String] = true
+      var stored: CFTypeRef?
+      let originalStatus = SecItemCopyMatching(q as CFDictionary, &stored)
+      let originalBytes = stored as? Data
+      defer {
+        stop()
+        var restoreStatus: OSStatus
+        if originalStatus == errSecSuccess, let originalBytes {
+          restoreStatus = SecItemUpdate(query as CFDictionary, [kSecValueData as String: originalBytes] as CFDictionary)
+        } else { restoreStatus = SecItemDelete(query as CFDictionary) }
+        credential = original; configured = original != nil; message = originalMessage
+        if let originalOS { UserDefaults.standard.set(originalOS, forKey: osKey) }
+        else { UserDefaults.standard.removeObject(forKey: osKey) }
+        try? FileManager.default.removeItem(at: root)
+        results["originalCredentialRestored"] = (restoreStatus == errSecSuccess || (originalBytes == nil && restoreStatus == errSecItemNotFound)) && credential?.pairing == original?.pairing
+        results["passed"] = results.count == 11 && results.values.allSatisfy { $0 }
+        let output = root.deletingLastPathComponent().appendingPathComponent("LocalDiagnosticsFixtureResult.json")
+        if let data = try? JSONSerialization.data(withJSONObject: results, options: [.sortedKeys]) { try? data.write(to: output, options: .atomic) }
+        MacTransferManager.appendDebugEvent("Local diagnostics simulator fixture: \(results.filter { $0.value }.count) passing checks; no records imported; credentials restored")
+      }
+      do {
+        let config = try JSONSerialization.jsonObject(with: Data(contentsOf: root.appendingPathComponent("config.json"))) as? [String: Any]
+        guard let udid = config?["udid"] as? String, let port = config?["controlPort"] as? UInt16,
+          let hash = config?["sha256"] as? String, let name = config?["name"] as? String else { throw LocalDiagnosticsTransport.Failure.invalid }
+        let old = try Data(contentsOf: root.appendingPathComponent("old.plist"))
+        let new = try Data(contentsOf: root.appendingPathComponent("new.plist"))
+        func mode(_ value: UInt8) async throws { try await Task.detached { try Self.fixtureControl(port, value) }.value }
+        func battery(_ value: LocalDiagnosticsCredential) async throws -> LiveBatteryReading {
+          try await Task.detached { try LocalDiagnosticsTransport.battery(value, address: "127.0.0.1") }.value
+        }
+        try importPairing(old, expectedUDID: udid)
+        guard let trusted = credential else { throw LocalDiagnosticsTransport.Failure.invalid }
+        let reading = try await battery(trusted)
+        results["nativeBattery"] = reading.values["CycleCount"] == 321 && reading.values["DesignCapacity"] == 4000
+        let files = try await Task.detached { try LocalDiagnosticsTransport.logs(trusted, address: "127.0.0.1", alreadyReceived: []) }.value
+        results["nativeLogBody"] = files.count == 1 && files[0].name == name &&
+          SHA256.hash(data: files[0].bytes).map { String(format: "%02x", $0) }.joined() == hash
+        let withheld = try await Task.detached { try LocalDiagnosticsTransport.logs(trusted, address: "127.0.0.1", alreadyReceived: ["Host::" + name]) }.value
+        results["alreadyReceivedWithheld"] = withheld.isEmpty
+        UserDefaults.standard.set("16.6-fixture", forKey: osKey)
+        noteOSVersion()
+        results["osChangePreservesCredential"] = credential?.pairing == old && configured
+        do { try importPairing(Data("invalid".utf8), expectedUDID: udid); results["invalidImportPreservesCredential"] = false }
+        catch { results["invalidImportPreservesCredential"] = credential?.pairing == old && configured }
+        for (modeByte, key) in [(UInt8(114), "revokedTrustRejected"), (105, "differentIdentityRejected"), (102, "foreignCertificateRejected"), (100, "closedConnectionRejected")] {
+          try await mode(modeByte)
+          do { _ = try await battery(trusted); results[key] = false }
+          catch { results[key] = credential?.pairing == old && configured }
+        }
+        try await mode(110)
+        try importPairing(new, expectedUDID: udid)
+        guard let refreshed = credential else { throw LocalDiagnosticsTransport.Failure.invalid }
+        let recovered = try await battery(refreshed)
+        results["reimportRecovers"] = recovered.values["CycleCount"] == 321 && credential?.pairing == new && configured
+      } catch {
+        results["fixtureCompleted"] = false
+        MacTransferManager.appendDebugEvent("Local diagnostics simulator fixture: native test failed; error=\(error); synthetic credentials only")
+      }
+
+    }
+  }
+  nonisolated private static func fixtureControl(_ port: UInt16, _ command: UInt8) throws {
+    let fd = socket(AF_INET, SOCK_STREAM, 0)
+    guard fd >= 0 else { throw LocalDiagnosticsTransport.Failure.invalid }
+    defer { close(fd) }
+    var timeout = timeval(tv_sec: 5, tv_usec: 0)
+    setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, socklen_t(MemoryLayout<timeval>.size))
+    var address = sockaddr_in(); address.sin_family = sa_family_t(AF_INET)
+    address.sin_len = UInt8(MemoryLayout<sockaddr_in>.size); address.sin_port = port.bigEndian
+    inet_pton(AF_INET, "127.0.0.1", &address.sin_addr)
+    let result = withUnsafePointer(to: &address) { $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { connect(fd, $0, socklen_t(MemoryLayout<sockaddr_in>.size)) } }
+    guard result == 0 else { throw LocalDiagnosticsTransport.Failure.invalid }
+    var command = command; var response: [UInt8] = [0, 0]
+    guard write(fd, &command, 1) == 1, read(fd, &response, 2) == 2, response == [79, 75] else { throw LocalDiagnosticsTransport.Failure.invalid }
+  }
+}
+#endif

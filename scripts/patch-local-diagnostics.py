@@ -44,3 +44,28 @@ end = s.index('/// Creates a new LockdownClient via RSD', start)
 block = s[start:end]
 block = block.replace('            let _ = unsafe { Box::from_raw(provider) };\n', '')
 p.write_text(s[:start] + block + s[end:])
+
+# Legacy lockdown must authenticate the device as well as the host. Upstream
+# skips server-certificate/signature checks to support Apple's unusual names.
+# Keep name independence, pin the exact DeviceCertificate from the imported
+# trust record, and delegate TLS proof-of-key verification to rustls.
+p = Path(sys.argv[1]) / "idevice/src/sni.rs"
+s = p.read_text()
+if 'MochiLog: pin imported device certificate' not in s:
+    s = s.replace('    inner: Arc<WebPkiServerVerifier>,', '    inner: Arc<WebPkiServerVerifier>,\n    device_certificate: CertificateDer<\'static>,', 1)
+    s = s.replace('pub fn new(inner: Arc<WebPkiServerVerifier>) -> Self {\n        Self { inner }', 'pub fn new(inner: Arc<WebPkiServerVerifier>, device_certificate: CertificateDer<\'static>) -> Self {\n        Self { inner, device_certificate }', 1)
+    s = s.replace('_end_entity: &CertificateDer<\'_>,', 'end_entity: &CertificateDer<\'_>,', 1)
+    s = s.replace('        Ok(ServerCertVerified::assertion())', '''        // MochiLog: pin imported device certificate; ignore only its server name.
+        if end_entity != &self.device_certificate {
+            return Err(rustls::Error::General("device certificate mismatch".into()));
+        }
+        Ok(ServerCertVerified::assertion())''', 1)
+    for version in ('12', '13'):
+        start = s.index(f'    fn verify_tls{version}_signature(')
+        end = s.index('\n    }', start) + 6
+        block = s[start:end].replace('_message', 'message').replace('_cert', 'cert').replace('_dss', 'dss')
+        block = block.replace('Ok(HandshakeSignatureValid::assertion())', f'self.inner.verify_tls{version}_signature(message, cert, dss)')
+        s = s[:start] + block + s[end:]
+    s = s.replace('NoServerNameVerification::new(inner)', 'NoServerNameVerification::new(inner, pairing_file.device_certificate.clone())', 1)
+    assert 'device certificate mismatch' in s
+    p.write_text(s)

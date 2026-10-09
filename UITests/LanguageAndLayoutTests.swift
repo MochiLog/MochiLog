@@ -55,6 +55,7 @@ final class LanguageAndLayoutTests: XCTestCase {
       XCTAssertFalse(app.buttons["localBattery.receive"].isEnabled, "Unconfigured devices must not query diagnostics")
       tapSwitch(battery)
       let values = app.buttons["localBattery.values"]
+      revealLocalControl(values)
       XCTAssertTrue(values.isEnabled); values.tap()
       XCTAssertTrue(app.navigationBars[batteryTitles[language]!].waitForExistence(timeout: 5))
       XCTAssertEqual(app.navigationBars.count, 1, "Embedded current values must use the existing settings navigation")
@@ -67,6 +68,15 @@ final class LanguageAndLayoutTests: XCTestCase {
     let control = element.switches.firstMatch
     if control.exists { control.tap() }
     else { element.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap() }
+  }
+
+  private func revealLocalControl(_ element: XCUIElement) {
+    let form = app.descendants(matching: .any)["localDiagnostics.form"].firstMatch
+    for _ in 0..<8 {
+      if element.exists && element.isHittable { return }
+      if form.exists { form.swipeUp() } else { app.swipeUp() }
+    }
+    XCTAssertTrue(element.exists && element.isHittable, app.debugDescription)
   }
 
   func testDeviceAcquisitionOnOlderOS() throws {
@@ -91,6 +101,7 @@ final class LanguageAndLayoutTests: XCTestCase {
     for _ in 0..<4 { if app.otherElements["localPairing.importRequired"].isHittable || app.staticTexts["localPairing.importRequired"].isHittable { break }; app.swipeUp() }
     XCTAssertTrue(app.descendants(matching: .any)["localPairing.importRequired"].firstMatch.exists)
     XCTAssertFalse(app.buttons["localPairing.start"].exists)
+    XCTAssertTrue(app.descendants(matching: .any)["localPairing.refreshNote"].firstMatch.exists)
     let battery = app.switches["localBattery.enable"]
     for _ in 0..<6 { if battery.isHittable && app.buttons["localBattery.receive"].exists { break }; app.swipeUp() }
     XCTAssertTrue(battery.exists)
@@ -98,6 +109,7 @@ final class LanguageAndLayoutTests: XCTestCase {
     tapSwitch(battery)
     XCTAssertEqual(battery.value as? String, "1")
     XCTAssertTrue(app.buttons["localBattery.values"].isEnabled)
+    revealLocalControl(app.buttons["localBattery.values"])
     app.buttons["localBattery.values"].tap()
     XCTAssertTrue(app.navigationBars["Live Battery"].waitForExistence(timeout: 5))
     screenshot("Older OS on-device acquisition boundary")

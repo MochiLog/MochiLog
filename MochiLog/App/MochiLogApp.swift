@@ -157,6 +157,9 @@ final class MochiLogSceneDelegate: UIResponder, UIWindowSceneDelegate {
       LiveBatteryManager.shared.updateActivity()
       LocalDiagnosticsManager.shared.updateActivity()
       #if DEBUG
+      #if targetEnvironment(simulator)
+      LocalDiagnosticsManager.shared.debugSimulatorFixtureIfRequested()
+      #endif
       LocalDiagnosticsManager.shared.debugProbeIfRequested()
       if #available(iOS 27, *) { LocalDevicePairing.shared.debugProbeIfRequested() }
       #endif
