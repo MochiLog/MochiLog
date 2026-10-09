@@ -8,11 +8,11 @@ MochiLogは、iPhone・iPadの解析ログからバッテリーの容量や充�
 
 ## 4.0.0ベータの対応
 
-[idevice_pair](https://github.com/jkcoxson/idevice_pair)から、MochiLogを開かずにペアリングファイルを直接インストールする機能に、[TestFlight 4.0.0（1042）](https://testflight.apple.com/join/vnHYsRgN)で対応しました。MochiLog側のファイル選択は不要で、次回の起動・前面復帰で取り込みます。端末内取得はiOS/iPadOS 17以降、端末内の初回ペアリングは27以降が対象で、Developer Modeが必須です。
+[idevice_pair](https://github.com/jkcoxson/idevice_pair)から、MochiLogを開かずにペアリングファイルを直接インストールする機能に、[TestFlight 4.0.0（1044）](https://testflight.apple.com/join/vnHYsRgN)で対応しました。MochiLog側のファイル選択は不要で、次回の起動・前面復帰で取り込みます。端末内取得はiOS/iPadOS 17以降、端末内の初回ペアリングは27以降が対象で、Developer Modeが必須です。アプリ内の開始前の案内で、設定経路・再起動・再起動後の承認を確認してください。
 
 idevice_pair公式版へのアプリ登録は[PR #84](https://github.com/jkcoxson/idevice_pair/pull/84)で提案中です。作者の採用・配布までは公式版のインストール先にMochiLogは表示されません。MochiLog対応版のツールが必要です。
 
-MochiLog 4.0.0 beta (1042) on TestFlight supports direct pairing-file installation from a MochiLog-compatible idevice_pair build. The upstream app registration is proposed in a pull request; the official tool will list MochiLog only after the change is accepted and released. On-device acquisition targets iOS/iPadOS 17+, while device-only initial pairing requires 27+ and Developer Mode.
+MochiLog 4.0.0 beta (1044) on TestFlight supports direct pairing-file installation from a MochiLog-compatible idevice_pair build. The upstream app registration is proposed in a pull request; the official tool will list MochiLog only after the change is accepted and released. On-device acquisition targets iOS/iPadOS 17+, while device-only initial pairing requires 27+ and Developer Mode. Follow the in-app prerequisite card for settings, restart and approval after restart.
 
 ## このブランチについて
 
