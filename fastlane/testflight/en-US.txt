@@ -1,8 +1,14 @@
-MochiLog 4.0.0 beta (1041)
+MochiLog 4.0.0 beta (1042)
+
+Build 1042 adds experimental device-initiated OS pairing on iOS/iPadOS 27+. Select the MochiLog host shown in Settings and approve with the device passcode and six-digit code. Existing PC pairing reuse remains available. First OS approval initiated entirely on-device still awaits physical validation; success is not guaranteed.
+
+A MochiLog-compatible idevice_pair can install a pairing file while MochiLog is closed; import is automatic on next launch or foreground return. The official app-registration PR is submitted, awaiting acceptance and a tool release. All files, with or without device-ID metadata, must authenticate existing OS trust and identity before replacing credentials. Disconnected VPNs, revoked keys, foreign-device files and unsupported routes keep the previous credential. Successful import uses device-only Keychain storage and removes staging. OS updates alone do not delete trust; old/new field names and additional metadata are retained.
+
+On iPadOS 27.2 hardware, standard Remote install, import, battery and Analytics reads succeeded. An unusable Lockdown file no longer replaces working credentials. The iOS 17 simulator passed 100 checks.
 
 Automatic Log Collection is now a separate Settings section. PC transfer and on-device acquisition have independent switches and can be used together. Manual log import remains available without a computer.
 
-On-device acquisition is experimental and off by default. It authenticates to this iPhone or iPad’s own diagnostic service through a compatible local VPN/reflector route. With an updated, already paired computer, explicitly reuse your own device’s OS pairing through encrypted authenticated transfer, or import an externally created RPPairing file. Initial Apple OS trust is still required: the MochiLog QR alone cannot create it. Enable a compatible route such as the separate LocalDevVPN app. This feature requires iOS/iPadOS 27 or later and foreground use. Fully wireless initial setup, Developer Mode-off operation and background acquisition are not guaranteed.
+On-device acquisition is experimental and off by default. It authenticates to this iPhone or iPad’s own diagnostic service through a compatible local VPN/reflector route. With an updated, already paired computer, explicitly reuse your own device’s OS pairing through encrypted authenticated transfer, or import an externally created pairing file. Initial Apple OS trust is still required: the MochiLog QR alone cannot create it. Enable a compatible route such as the separate LocalDevVPN app. On-device acquisition requires iOS/iPadOS 17 or later and foreground use: Lockdown for 17.0–17.3, RPPairing for 17.4+, with a compatible VPN route. iOS 17 physical OS services remain untested; authentication and import were tested in the simulator. PC transfer requires 27+. Fully wireless initial setup, Developer Mode-off operation and background acquisition are not guaranteed.
 
 Apple Watch logs are read from the paired iPhone. Both acquisition paths feed the same mobile parser and import queue, checking hashes, physical-device identity and existing records to avoid duplicates. Staged files survive interruptions and are removed after successful import. No parser was added to the computer apps. Daily logs and current battery values are acquired independently.
 
