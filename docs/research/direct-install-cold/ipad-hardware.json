@@ -13,7 +13,9 @@
     "unusableMetadataFileRejectedOnFixedBuild": true,
     "rejectedStagingRetainedUnmodified": true,
     "previousCredentialStillReadsBattery": true,
-    "previousCredentialStillReadsLogs": true
+    "previousCredentialStillReadsLogs": true,
+    "fixedBuildRemoteAuthenticatedAndAdopted": true,
+    "originalOptInAndAddressSettingsPreserved": true
   },
   "batteryCoreFields": 6,
   "batteryDetailedFields": 335,
