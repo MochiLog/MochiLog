@@ -81,6 +81,7 @@ struct LocalDiagnosticsSettingsView: View {
         }
         }
         DisclosureGroup(text("local_import_title")) {
+          Text(text("local_direct_import_note")).font(.caption).foregroundStyle(.secondary)
           Text(text("local_import_note")).font(.caption).foregroundStyle(.secondary)
           TextField(text("local_udid"), text: $expectedUDID).textInputAutocapitalization(.never).autocorrectionDisabled()
           Button(text("local_import_button")) { importing = true }.disabled(expectedUDID.isEmpty || manager.busy || manager.pairingActive)

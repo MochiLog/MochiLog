@@ -1,0 +1,17 @@
+{
+  "alreadyReceivedWithheld": true,
+  "closedConnectionRejected": true,
+  "differentIdentityRejected": true,
+  "directInstallAdopted": true,
+  "directInstallRejectsForeign": true,
+  "directInstallRejectsMalformed": true,
+  "foreignCertificateRejected": true,
+  "invalidImportPreservesCredential": true,
+  "nativeBattery": true,
+  "nativeLogBody": true,
+  "originalCredentialRestored": true,
+  "osChangePreservesCredential": true,
+  "passed": true,
+  "reimportRecovers": true,
+  "revokedTrustRejected": true
+}

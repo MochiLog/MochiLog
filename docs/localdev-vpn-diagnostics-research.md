@@ -122,3 +122,13 @@ xcodebuild -project scripts/research/LocalDevDiagnosticsProbe/LocalDevDiagnostic
 新しいネイティブ依存物はCI `37861568975` の成果物を使用し、最低OS16で作り直した。Swiftコードと配布用アーカイブのビルドは成功。実機初回OS承認・17系の実機通信は引き続き未検証。
 
 既存のiOS 17.0シミュレーターでiPhone 15 ProとiPad Proの対応境界UIを自動検証し、両方成功。端末内取得・ファイル取り込み・現在値設定は表示され、PC連携スイッチと端末内新規ペアリングボタンは表示されない。設定前の診断取得は無効で、現在値表示の有効化と画面遷移も確認した。これは17系実機での診断サービス通信を保証する試験ではない。27系CIではiPhoneの8言語・タブ切替は成功し、iPadは下部の遅延描画ボタンをスクロールする前に検査して失敗したため、テスト操作を修正して再実行する。
+
+## 2026-10-09：17系のネイティブ通信と新しいファイル項目
+
+iOS 17.0シミュレーターに、独立したループバックのLockdown・TLS・Diagnostics・AFCサービスを組み合わせた試験を追加。Swiftの本番LocalDiagnosticsTransportと実際のRust FFIを通す。合成の鍵・証明書・ログのみ使用し、記録は追加しない。バッテリー値、ログ本体のSHA-256、既読ログ除外、認証失効、別UDID、別証明書、通信切断、再取り込みでの回復、以前の資格情報の保持を確認。直接インストール時の正常ファイル採用・異なるUDIDの拒否・破損ファイルの拒否も確認する。
+
+これはAppleのOSサービスの可用性・VPN実機挙動・OS更新時の失効条件を再現するものではない。17系実機がないため、その範囲は未確認。試験前は上流TLSコードが同じCAで作られた別サーバー証明書を受け入れたが、DeviceCertificateの完全一致とTLS署名検証を維持するパッチ適用後は拒否を確認した。ホスト名だけをチェック対象から外し、鍵の保有証明は省略しない。
+
+[ideviceのRpPairingFile](https://github.com/jkcoxson/idevice/blob/d32c8189c51c2789496b0768039419c3705498c3/idevice/src/remote_pairing/rp_pairing_file.rs)ではalt_irkは任意の16バイト。[pymobiledevice3の説明](https://github.com/doronz88/pymobiledevice3/blob/master/misc/understanding_idevice_protocol_layers.md#remotepairing-over-wi-fi)はpeer_alt_irkが無線発見の端末照合に必要で、古い記録はUSB経由では使用できる場合があると説明する。これは一律に「26以上なら必須」と判定する情報ではない。MochiLogの明示的な端末内VPNアドレスへの接続では、発見キーがないことだけでファイルを拒否しない。
+
+host_identifier/peer_alt_irkはidentifier/alt_irkへ正規化し、元の未知項目は残す。新旧フィールドが食い違う、鍵の長さが不正、埋め込まれたUDIDが異なる場合は拒否する。26.4付近のLockdownからRPPairingへの変更は[StikDebug PR #354](https://github.com/StikDebug/StikDebug/pull/354)にも記録されているが、全てのOS・設定での失効条件は確定できない。

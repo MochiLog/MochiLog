@@ -1,0 +1,228 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index 673bf48..64d6dbd 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -1999,6 +1999,7 @@ dependencies = [
+  "futures-util",
+  "idevice",
+  "mdns-sd",
++ "plist",
+  "pollster 1.0.1",
+  "rfd",
+  "tokio",
+diff --git a/Cargo.toml b/Cargo.toml
+index 0e21e8f..0de9a77 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -23,6 +23,7 @@ eframe = "0.36.2"
+ rfd = "0.17"
+ tokio = { version = "1.53.2", features = ["rt-multi-thread", "net", "sync", "time"] }
+ futures-util = "0.3.34"
++plist = "1.10"
+ mdns-sd = "0.21"
+ uuid = { version = "1.27", features = ["v4"] }
+ tracing = "0.1.44"
+diff --git a/README.md b/README.md
+index d90ac0e..b19ff32 100644
+--- a/README.md
++++ b/README.md
+@@ -28,6 +28,7 @@ Apps with a known pairing file location:
+ - [Auto Capture](https://apps.apple.com/us/app/dev-auto-capture/id6755616902)
+ - [StosDebug](https://github.com/stossy11/StosDebug)
+ - [StikStore](https://stikstore.app/)
++- [MochiLog](https://github.com/MochiLog/MochiLog)
+ 
+ ## Prerequisites
+ 
+diff --git a/src/backend/install.rs b/src/backend/install.rs
+index eeca692..522c73a 100644
+--- a/src/backend/install.rs
++++ b/src/backend/install.rs
+@@ -6,6 +6,8 @@ use idevice::{
+ use super::{PairingKind, link::Link};
+ use crate::known_apps;
+ 
++const MOCHILOG_APP_ID: &str = "net.ryuya-dev.MochiLog";
++
+ const STIKDEBUG_APPSTORE_ID: &str = "com.stik.sj";
+ 
+ #[derive(Clone)]
+@@ -38,6 +40,9 @@ pub async fn list(link: &mut Link, kind: PairingKind) -> Result<Vec<InstalledApp
+             display_name
+         };
+ 
++        if name == "MochiLog" && bundle_id != MOCHILOG_APP_ID {
++            continue;
++        }
+         if let Some(path) = known_apps::path(kind, name) {
+             found.push(InstalledApp {
+                 name: name.to_string(),
+@@ -52,15 +57,36 @@ pub async fn list(link: &mut Link, kind: PairingKind) -> Result<Vec<InstalledApp
+ }
+ 
+ pub async fn write(link: &mut Link, app: &InstalledApp, bytes: &[u8]) -> Result<(), IdeviceError> {
++    // Remote pairing files do not normally contain a UDID. Bind MochiLog's
++    // import to the device reached through the authenticated connection.
++    let installed_bytes;
++    let bytes = if app.bundle_id == MOCHILOG_APP_ID {
++        let mut client = link.lockdown().await?;
++        let udid = super::link::value(&mut client, "UniqueDeviceID").await?;
++        installed_bytes = super::mochilog::with_identity(bytes, &udid)
++            .map_err(IdeviceError::UnexpectedResponse)?;
++        installed_bytes.as_slice()
++    } else {
++        bytes
++    };
+     let mut afc = link
+         .service::<HouseArrestClient>()
+         .await?
+         .vend_documents(app.bundle_id.clone())
+         .await?;
+ 
+-    let mut file = afc
+-        .open(format!("/Documents/{}", app.path), AfcFopenMode::Wr)
+-        .await?;
++    let final_path = format!("/Documents/{}", app.path);
++    let install_path = if app.bundle_id == MOCHILOG_APP_ID {
++        format!("{final_path}.installing")
++    } else {
++        final_path.clone()
++    };
++    let mut file = afc.open(install_path.clone(), AfcFopenMode::Wr).await?;
+     file.write_entire(bytes).await?;
+-    file.close().await
++    file.close().await?;
++    if app.bundle_id == MOCHILOG_APP_ID {
++        // A running app must never observe a partially written credential.
++        afc.rename(install_path, final_path).await?;
++    }
++    Ok(())
+ }
+diff --git a/src/backend/mochilog.rs b/src/backend/mochilog.rs
+new file mode 100644
+index 0000000..57e9fbb
+--- /dev/null
++++ b/src/backend/mochilog.rs
+@@ -0,0 +1,90 @@
++use std::io::Cursor;
++
++/// Preserve all pairing fields and add the authenticated device's identity.
++/// This metadata is for MochiLog only; other installation targets are unchanged.
++pub fn with_identity(bytes: &[u8], udid: &str) -> Result<Vec<u8>, String> {
++    if bytes.is_empty()
++        || bytes.len() > 65536
++        || !(16..=64).contains(&udid.len())
++        || !udid.bytes().all(|c| c.is_ascii_hexdigit() || c == b'-')
++    {
++        return Err("Invalid MochiLog pairing file or device identity".into());
++    }
++    let mut value = plist::Value::from_reader(Cursor::new(bytes))
++        .map_err(|_| "Invalid MochiLog pairing plist")?;
++    let dictionary = value
++        .as_dictionary_mut()
++        .ok_or("MochiLog pairing must be a dictionary")?;
++    for key in ["UDID", "udid"] {
++        if let Some(existing) = dictionary.get(key) {
++            if existing.as_string() != Some(udid) {
++                return Err("MochiLog pairing file belongs to a different device".into());
++            }
++        }
++    }
++    dictionary.insert("UDID".into(), udid.into());
++    let mut result = Vec::new();
++    value
++        .to_writer_xml(&mut result)
++        .map_err(|_| "Cannot encode MochiLog pairing file")?;
++    if result.len() > 65536 {
++        return Err("MochiLog pairing file is too large".into());
++    }
++    Ok(result)
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    const UDID: &str = "00008100-0000000000000001";
++
++    fn bytes(dictionary: plist::Dictionary) -> Vec<u8> {
++        let mut bytes = Vec::new();
++        plist::Value::Dictionary(dictionary)
++            .to_writer_binary(&mut bytes)
++            .unwrap();
++        bytes
++    }
++
++    #[test]
++    fn remote_metadata_and_keys_are_preserved() {
++        let mut source = plist::Dictionary::new();
++        source.insert("identifier".into(), "test".into());
++        source.insert("private_key".into(), plist::Value::Data(vec![1; 32]));
++        source.insert("alt_irk".into(), plist::Value::Data(vec![2; 16]));
++        source.insert("future_metadata".into(), "opaque".into());
++        let installed = with_identity(&bytes(source.clone()), UDID).unwrap();
++        let result = plist::Value::from_reader(Cursor::new(installed)).unwrap();
++        let result = result.as_dictionary().unwrap();
++        assert_eq!(
++            result.get("UDID").and_then(plist::Value::as_string),
++            Some(UDID)
++        );
++        for (key, value) in source {
++            assert_eq!(result.get(&key), Some(&value));
++        }
++    }
++
++    #[test]
++    fn mismatched_identity_is_never_rebound() {
++        for key in ["UDID", "udid"] {
++            let mut source = plist::Dictionary::new();
++            source.insert(key.into(), "00008100-0000000000000002".into());
++            assert!(with_identity(&bytes(source), UDID).is_err());
++        }
++    }
++
++    #[test]
++    fn matching_identity_survives() {
++        let mut source = plist::Dictionary::new();
++        source.insert("UDID".into(), UDID.into());
++        assert!(with_identity(&bytes(source), UDID).is_ok());
++    }
++
++    #[test]
++    fn malformed_and_oversized_inputs_fail_without_credentials_in_errors() {
++        assert!(with_identity(b"not a plist", UDID).is_err());
++        assert!(with_identity(&vec![0; 65537], UDID).is_err());
++        assert!(with_identity(&bytes(plist::Dictionary::new()), "not-an-identity").is_err());
++    }
++}
+diff --git a/src/backend/mod.rs b/src/backend/mod.rs
+index 9c3150c..01d368d 100644
+--- a/src/backend/mod.rs
++++ b/src/backend/mod.rs
+@@ -1,6 +1,7 @@
+ mod discovery;
+ mod install;
+ mod link;
++mod mochilog;
+ mod pairing;
+ mod usb;
+ mod validate;
+diff --git a/src/known_apps.rs b/src/known_apps.rs
+index 1761bb8..807a712 100644
+--- a/src/known_apps.rs
++++ b/src/known_apps.rs
+@@ -12,6 +12,7 @@ const LOCKDOWN: &[KnownApp] = &[
+     ("Feather", PLIST),
+     ("Ksign", PLIST),
+     ("LiveContainer", LIVE_CONTAINER),
++    ("MochiLog", PLIST),
+     ("Protokolle", PLIST),
+     ("SideStore", ALT),
+     ("SparseBox", PLIST),
+@@ -26,6 +27,7 @@ const REMOTE: &[KnownApp] = &[
+     ("Feather", PLIST),
+     ("Ksign", PLIST),
+     ("LiveContainer", LIVE_CONTAINER),
++    ("MochiLog", PLIST),
+     ("Protokolle", PLIST),
+     ("Reynard", PLIST),
+     ("SideStore", ALT),

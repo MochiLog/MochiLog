@@ -4,6 +4,33 @@ on:
 permissions:
   contents: read
 jobs:
+  pair-installer:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Verify upstream direct-install integration
+        shell: bash
+        run: |
+          git clone https://github.com/jkcoxson/idevice_pair.git idevice-pair
+          cd idevice-pair
+          git checkout c8114c2bb88a80e2e17c0d9297b9915f09498ead
+          git apply "$GITHUB_WORKSPACE/scripts/patches/idevice-pair-mochilog.patch"
+          cargo fmt --check
+          cargo test --locked backend::mochilog::tests -j 2
+          cargo build --locked -j 2
+      - uses: actions/upload-artifact@v4
+        with:
+          name: idevice-pair-mochilog-${{ matrix.os }}
+          path: |
+            idevice-pair/target/debug/idevice_pair
+            idevice-pair/target/debug/idevice_pair.exe
+          retention-days: 2
   ui:
     runs-on: xcode-27
     timeout-minutes: 60
@@ -32,4 +59,6 @@ jobs:
         if: always()
         with:
           name: automatic-collection-ui-results
-          path: Build/automatic-ui-*.xcresult
+          path: |
+            Build/automatic-ui-*.xcresult
+            Build/automatic-ui-*-native.json

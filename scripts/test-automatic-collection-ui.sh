@@ -52,6 +52,11 @@ for kind in ipad iphone; do
     -only-testing:MochiLogUITests/LanguageAndLayoutTests/testLiveBatteryTabChangesWithoutRelaunch \
     > "Build/automatic-ui-$kind.log" 2>&1; then failed=1; fi
   tail -30 "Build/automatic-ui-$kind.log"
+  if ! bounded 180 python3 scripts/test-local-diagnostics-simulator.py "$device" \
+    --app Build/automatic-ui-derived/Build/Products/Debug-iphonesimulator/MochiLog.app \
+    --output "Build/automatic-ui-$kind-native.json" \
+    > "Build/automatic-ui-$kind-native.log" 2>&1; then failed=1; fi
+  cat "Build/automatic-ui-$kind-native.log"
   cleanup; device=""
 done
 
@@ -70,6 +75,11 @@ if [[ -n "$legacy_runtime" ]]; then
       -only-testing:MochiLogUITests/LanguageAndLayoutTests/testDeviceAcquisitionOnOlderOS \
       > Build/automatic-ui-ios17.log 2>&1; then failed=1; fi
     tail -30 Build/automatic-ui-ios17.log
+    if ! bounded 180 python3 scripts/test-local-diagnostics-simulator.py "$device" \
+      --app Build/automatic-ui-derived/Build/Products/Debug-iphonesimulator/MochiLog.app \
+      --output Build/automatic-ui-ios17-native.json \
+      > Build/automatic-ui-ios17-native.log 2>&1; then failed=1; fi
+    cat Build/automatic-ui-ios17-native.log
   else
     failed=1
     tail -30 Build/automatic-ui-ios17-build.log 2>/dev/null || true

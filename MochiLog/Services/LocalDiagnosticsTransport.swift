@@ -9,7 +9,12 @@ nonisolated struct LocalDiagnosticsCredential: Codable, Sendable {
   let pairing: Data
   static func validate(_ data: Data, expectedUDID: String, physicalDeviceID: UUID) throws -> Self {
     guard data.count <= 65536, expectedUDID.range(of: "^[A-Fa-f0-9-]{16,64}$", options: .regularExpression) != nil,
-      let plist = try PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else { throw LocalDiagnosticsTransport.Failure.invalid }
+      let raw = try PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any],
+      let plist = LocalPairingFileFormat.normalized(raw) else { throw LocalDiagnosticsTransport.Failure.invalid }
+    let normalizedData = try NSDictionary(dictionary: raw).isEqual(to: plist) ? data :
+      PropertyListSerialization.data(fromPropertyList: plist, format: .binary, options: 0)
+    let data = normalizedData
+    guard data.count <= 65536 else { throw LocalDiagnosticsTransport.Failure.invalid }
     guard let format = LocalPairingFileFormat.detect(plist, expectedUDID: expectedUDID) else { throw LocalDiagnosticsTransport.Failure.invalid }
     if format == .lockdown {
       // Let the maintained parser also validate the certificate/key encodings.
