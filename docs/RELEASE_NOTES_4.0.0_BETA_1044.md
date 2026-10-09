@@ -60,3 +60,7 @@ If on-device authentication fails, update the companion to these versions or lat
 - iPad実機を1044へ無線更新し、起動まで確認。追加確認用シミュレーターは終了・削除しました。
 
 Developer Modeの未認証状態の自動判定は実装していません。調査結果は[開発メモ](research/device-only-pairing/developer-mode-check.md)を参照。
+
+## 配布確認
+
+1044の日本語・英語リリースノートを登録し、既存テスターグループへ配布しました。[配布処理](https://github.com/MochiLog/MochiLog/actions/runs/37947973211)が成功し、外部テスト状態は `IN_BETA_TESTING` です。
