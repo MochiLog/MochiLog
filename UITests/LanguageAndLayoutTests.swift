@@ -20,7 +20,14 @@ final class LanguageAndLayoutTests: XCTestCase {
   }
 
   func testAutomaticCollectionInEightLanguages() {
-    let titles = [("en", "Automatic Log Collection"), ("ja", "自動ログ収集"), ("de", "Automatische Protokollerfassung"), ("es", "Recopilación automática de registros"), ("fr", "Collecte automatique des journaux"), ("ko", "자동 로그 수집"), ("zh-Hans", "自动日志收集"), ("zh-Hant", "自動日誌收集")]
+    verifyAutomaticCollectionLanguages([("en", "Automatic Log Collection"), ("ja", "自動ログ収集"), ("de", "Automatische Protokollerfassung"), ("es", "Recopilación automática de registros"), ("fr", "Collecte automatique des journaux"), ("ko", "자동 로그 수집"), ("zh-Hans", "自动日志收集"), ("zh-Hant", "自動日誌收集")])
+  }
+
+  func testTraditionalChineseAutomaticCollectionControls() {
+    verifyAutomaticCollectionLanguages([("zh-Hant", "自動日誌收集")])
+  }
+
+  private func verifyAutomaticCollectionLanguages(_ titles: [(String, String)]) {
     let settingsTitles = ["de": "Einstellungen", "en": "Settings", "es": "Ajustes", "fr": "Réglages", "ja": "設定", "ko": "설정", "zh-Hans": "设置", "zh-Hant": "設定"]
     let batteryTitles = ["en":"Live Battery", "ja":"現在のバッテリー", "de":"Aktueller Akku", "es":"Batería actual", "fr":"Batterie actuelle", "ko":"현재 배터리", "zh-Hans":"当前电池", "zh-Hant":"目前電池"]
     let cancelTitles = ["en":"Cancel", "ja":"キャンセル", "de":"Abbrechen", "es":"Cancelar", "fr":"Annuler", "ko":"취소", "zh-Hans":"取消", "zh-Hant":"取消"]
@@ -61,6 +68,7 @@ final class LanguageAndLayoutTests: XCTestCase {
       let battery = app.switches["localBattery.enable"]
       revealLocalControl(battery)
       XCTAssertTrue(battery.exists)
+      revealLocalControl(app.buttons["localBattery.receive"])
       XCTAssertTrue(app.buttons["localBattery.receive"].exists)
       XCTAssertFalse(app.buttons["localBattery.receive"].isEnabled, "Unconfigured devices must not query diagnostics")
       tapSwitch(battery)

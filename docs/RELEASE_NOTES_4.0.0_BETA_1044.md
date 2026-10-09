@@ -20,7 +20,7 @@ Apple WatchのログはペアのiPhoneから取得します。端末内取得と
 
 現在のバッテリーでは、同じPCとペアリングした複数のiPhone・iPadについて、双方のiCloud同期がオン・同じApple Accountと確認できた場合だけ、他の端末の現在値も表示します。同期オフ・別アカウント・未確認では共有しません。同じ個体の共通値はまとめ、PCごとに異なる値だけ比較できます。値自体は履歴・記録・iCloud・サポートの診断ログに保存しません。タブの表示切り替えは標準タブバーのアニメーションを使います。
 
-新しいMac 0.2.21 Beta／Windows 0.1.18 Alphaでは、自動更新確認は初期状態でオフです。初回の選択画面または設定で有効にできます。既存ペアリングを引き継ぎ、旧版との自分の端末の転送も維持します。機能の案内、8言語、依存ライセンス、プライバシーポリシー・利用規約を更新しました。
+新しいMac 0.2.21 Beta／Windows 0.1.19 Alphaでは、自動更新確認は初期状態でオフです。初回の選択画面または設定で有効にできます。既存ペアリングを引き継ぎ、旧版との自分の端末の転送も維持します。機能の案内、8言語、依存ライセンス、プライバシーポリシー・利用規約を更新しました。
 
 PC経由の他端末共有では、共有元の同期許可を再確認します。通信不能で取り消しが届かない場合、PC内の直前の許可は最大15分で期限切れになります。Macで起動したiOS版にはPC連携の操作を表示しません。
 
@@ -46,7 +46,7 @@ Apple Watch logs are read from the paired iPhone. Both acquisition paths feed th
 
 Live Battery can now display other physical devices paired with the same computer only when both have confirmed iCloud sync enabled on the same Apple Account. Sync-off, different-account and unconfirmed cases are excluded. Common values from multiple computers reading the same device are combined; only differing values are compared. Current values are not saved to history, records, iCloud or support diagnostic logs. Enabling or disabling the tab uses the native tab bar animation.
 
-Mac 0.2.21 Beta and Windows 0.1.18 Alpha offer automatic update checks, off by default, in an initial choice and settings. Existing pairings and older own-device transfers remain compatible. Guides, all eight app languages, dependency licenses, privacy policy and terms have been updated.
+Mac 0.2.21 Beta and Windows 0.1.19 Alpha offer automatic update checks, off by default, in an initial choice and settings. Existing pairings and older own-device transfers remain compatible. Guides, all eight app languages, dependency licenses, privacy policy and terms have been updated.
 
 Other-device sharing rechecks source consent. If revocation cannot reach a computer, previous consent expires within 15 minutes. The iOS app running on Mac hides PC transfer controls. Please report beta issues from the companion support screens.
 
@@ -54,4 +54,9 @@ If on-device authentication fails, update the companion to these versions or lat
 
 ## 検証
 
-8言語の必須条件カードと初回確認・キャンセルをiPhone/iPadのUIテストで確認する。既存資格情報を使った状態検知は初回設定を解決しないため、自動判定として表示しない。Developer Mode検知の調査は[開発メモ](research/device-only-pairing/developer-mode-check.md)を参照。
+- [CI検証](https://github.com/MochiLog/MochiLog/actions/runs/37940699138)：iPadの8言語・タブ追加削除は2テストとも成功。iPhoneも8言語の必須条件カード・初回確認・キャンセルとタブ追加削除は通過しました。全体の実行結果は、繁体字で画面外の受信ボタンを探したテスト手順により失敗です。
+- テスト側で受信ボタンまでスクロールするよう修正。iOS 27.0のiPhone 17 Pro Maxシミュレーターで繁体字の設定一式とタブ追加削除を再実行し、2テストとも成功しました。追加の製品コード変更はありません。
+- 両CI端末で認証・ファイル取り込み・電池値・無効な資格情報の保護・OS更新後の資格情報保持の診断試験が成功。iOS 17の再UI試験はCIにランタイムがなく未実施です。
+- iPad実機を1044へ無線更新し、起動まで確認。追加確認用シミュレーターは終了・削除しました。
+
+Developer Modeの未認証状態の自動判定は実装していません。調査結果は[開発メモ](research/device-only-pairing/developer-mode-check.md)を参照。

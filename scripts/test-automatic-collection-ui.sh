@@ -51,7 +51,7 @@ for kind in ipad iphone; do
     -only-testing:MochiLogUITests/LanguageAndLayoutTests/testAutomaticCollectionInEightLanguages \
     -only-testing:MochiLogUITests/LanguageAndLayoutTests/testLiveBatteryTabChangesWithoutRelaunch \
     > "Build/automatic-ui-$kind.log" 2>&1; then
-    if rg -q 'Simulator device failed to launch .*xctrunner' "Build/automatic-ui-$kind.log"; then
+    if python3 -c 'import re,sys; sys.exit(0 if re.search(r"Simulator device failed to launch .*xctrunner", open(sys.argv[1]).read()) else 1)' "Build/automatic-ui-$kind.log"; then
       # Retry only a simulator runner launch failure, never an assertion failure.
       xcrun simctl shutdown "$device"
       xcrun simctl boot "$device"

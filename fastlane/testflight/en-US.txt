@@ -16,7 +16,7 @@ Apple Watch logs are read from the paired iPhone. Both acquisition paths feed th
 
 Live Battery can now display other physical devices paired with the same computer only when both have confirmed iCloud sync enabled on the same Apple Account. Sync-off, different-account and unconfirmed cases are excluded. Common values from multiple computers reading the same device are combined; only differing values are compared. Current values are not saved to history, records, iCloud or support diagnostic logs. Enabling or disabling the tab uses the native tab bar animation.
 
-Mac 0.2.21 Beta and Windows 0.1.18 Alpha offer automatic update checks, off by default, in an initial choice and settings. Existing pairings and older own-device transfers remain compatible. Guides, all eight app languages, dependency licenses, privacy policy and terms have been updated.
+Mac 0.2.21 Beta and Windows 0.1.19 Alpha offer automatic update checks, off by default, in an initial choice and settings. Existing pairings and older own-device transfers remain compatible. Guides, all eight app languages, dependency licenses, privacy policy and terms have been updated.
 
 Other-device sharing rechecks source consent. If revocation cannot reach a computer, previous consent expires within 15 minutes. The iOS app running on Mac hides PC transfer controls. Please report beta issues from the companion support screens.
 
