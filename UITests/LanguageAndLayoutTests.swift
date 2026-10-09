@@ -49,11 +49,11 @@ final class LanguageAndLayoutTests: XCTestCase {
       XCTAssertTrue(start.exists, "On-device setup must be available without a PC pairing")
       screenshot("On-device pairing instructions \(language)")
       let battery = app.switches["localBattery.enable"]
-      for _ in 0..<6 { if battery.isHittable { break }; app.swipeUp() }
+      for _ in 0..<6 { if battery.isHittable && app.buttons["localBattery.receive"].exists { break }; app.swipeUp() }
       XCTAssertTrue(battery.exists)
       XCTAssertTrue(app.buttons["localBattery.receive"].exists)
       XCTAssertFalse(app.buttons["localBattery.receive"].isEnabled, "Unconfigured devices must not query diagnostics")
-      battery.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5)).tap()
+      tapSwitch(battery)
       let values = app.buttons["localBattery.values"]
       XCTAssertTrue(values.isEnabled); values.tap()
       XCTAssertTrue(app.navigationBars[batteryTitles[language]!].waitForExistence(timeout: 5))
@@ -61,6 +61,46 @@ final class LanguageAndLayoutTests: XCTestCase {
       screenshot("On-device current battery setup \(language)")
       app.terminate()
     }
+  }
+
+  private func tapSwitch(_ element: XCUIElement) {
+    let control = element.switches.firstMatch
+    if control.exists { control.tap() }
+    else { element.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap() }
+  }
+
+  func testDeviceAcquisitionOnOlderOS() throws {
+    guard #available(iOS 17, *) else { throw XCTSkip("On-device acquisition starts at iOS 17") }
+    if #available(iOS 27, *) { throw XCTSkip("Use an iOS 17–26 simulator for the older-OS boundary") }
+    app.launchArguments += ["-appLanguage", "en", "-LastKnownAppVersion", "4.0.0",
+      "-selectedTabIndex", "2", "-liveBatteryEnabled", "NO", "-localAutomaticCollectionEnabled", "NO"]
+    if UIDevice.current.userInterfaceIdiom == .pad { XCUIDevice.shared.orientation = .landscapeLeft }
+    app.launch()
+    if app.buttons["ToggleSidebar"].exists && app.buttons["ToggleSidebar"].label == "Show Sidebar" { app.buttons["ToggleSidebar"].tap() }
+    let settings = UIDevice.current.userInterfaceIdiom == .pad
+      ? app.staticTexts["Settings"].firstMatch : app.buttons["Settings"].firstMatch
+    XCTAssertTrue(settings.waitForExistence(timeout: 15), app.debugDescription); settings.tap()
+    let collection = UIDevice.current.userInterfaceIdiom == .pad
+      ? app.buttons["settings.category.automaticCollection"] : app.buttons["settings.automaticCollection"]
+    for _ in 0..<10 { if collection.isHittable { break }; app.swipeUp() }
+    XCTAssertTrue(collection.waitForExistence(timeout: 10)); collection.tap()
+    XCTAssertTrue(app.switches["autoCollection.localToggle"].waitForExistence(timeout: 5))
+    XCTAssertFalse(app.switches["autoCollection.pcToggle"].exists)
+    let local = app.buttons["autoCollection.localSettings"]
+    XCTAssertTrue(local.exists); local.tap()
+    for _ in 0..<4 { if app.otherElements["localPairing.importRequired"].isHittable || app.staticTexts["localPairing.importRequired"].isHittable { break }; app.swipeUp() }
+    XCTAssertTrue(app.descendants(matching: .any)["localPairing.importRequired"].firstMatch.exists)
+    XCTAssertFalse(app.buttons["localPairing.start"].exists)
+    let battery = app.switches["localBattery.enable"]
+    for _ in 0..<6 { if battery.isHittable && app.buttons["localBattery.receive"].exists { break }; app.swipeUp() }
+    XCTAssertTrue(battery.exists)
+    XCTAssertFalse(app.buttons["localBattery.receive"].isEnabled)
+    tapSwitch(battery)
+    XCTAssertEqual(battery.value as? String, "1")
+    XCTAssertTrue(app.buttons["localBattery.values"].isEnabled)
+    app.buttons["localBattery.values"].tap()
+    XCTAssertTrue(app.navigationBars["Live Battery"].waitForExistence(timeout: 5))
+    screenshot("Older OS on-device acquisition boundary")
   }
 
   func testLiveBatteryTabChangesWithoutRelaunch() {

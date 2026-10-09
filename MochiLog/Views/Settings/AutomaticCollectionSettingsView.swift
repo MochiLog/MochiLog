@@ -68,6 +68,7 @@ struct LocalDiagnosticsSettingsView: View {
           LocalDevicePairingControls()
         } else {
           Label(text("local_pair_import_required"), systemImage: "doc.badge.arrow.up").font(.callout)
+            .accessibilityIdentifier("localPairing.importRequired")
         }
         if #available(iOS 27, *) {
         ForEach(transfer.pairings, id: \.hostID) { pair in

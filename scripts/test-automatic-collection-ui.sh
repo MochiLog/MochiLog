@@ -54,4 +54,28 @@ for kind in ipad iphone; do
   tail -30 "Build/automatic-ui-$kind.log"
   cleanup; device=""
 done
+
+# Reuse an installed older runtime when present; never download one here.
+legacy_runtime=$(xcrun simctl list runtimes -j | python3 -c 'import json,sys; r=[x for x in json.load(sys.stdin)["runtimes"] if x.get("isAvailable") and x["name"] == "iOS 17.0"]; print(r[0]["identifier"] if r else "")')
+if [[ -n "$legacy_runtime" ]]; then
+  device=$(xcrun simctl create "MochiLog CI iOS 17 boundary" com.apple.CoreSimulator.SimDeviceType.iPhone-15-Pro "$legacy_runtime")
+  xcrun simctl boot "$device"
+  if bounded 300 xcrun simctl bootstatus "$device" -b > Build/automatic-ui-ios17-boot.log 2>&1 && \
+     bounded 1200 xcodebuild build-for-testing -project MochiLog.xcodeproj -scheme MochiLogUITests \
+       -destination "platform=iOS Simulator,id=$device" -derivedDataPath Build/automatic-ui-derived -parallel-testing-enabled NO -jobs 2 \
+       > Build/automatic-ui-ios17-build.log 2>&1; then
+    if ! bounded 900 xcodebuild test-without-building -project MochiLog.xcodeproj -scheme MochiLogUITests \
+      -destination "platform=iOS Simulator,id=$device" -derivedDataPath Build/automatic-ui-derived -parallel-testing-enabled NO -jobs 2 \
+      -collect-test-diagnostics never -resultBundlePath Build/automatic-ui-ios17.xcresult \
+      -only-testing:MochiLogUITests/LanguageAndLayoutTests/testDeviceAcquisitionOnOlderOS \
+      > Build/automatic-ui-ios17.log 2>&1; then failed=1; fi
+    tail -30 Build/automatic-ui-ios17.log
+  else
+    failed=1
+    tail -30 Build/automatic-ui-ios17-build.log 2>/dev/null || true
+  fi
+  cleanup; device=""
+else
+  echo "iOS 17 runtime not installed; older-OS UI check skipped explicitly."
+fi
 exit "$failed"
