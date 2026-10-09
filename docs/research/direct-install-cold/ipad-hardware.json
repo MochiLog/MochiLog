@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-09",
+  "deviceModel": "iPad Pro 13-inch (M4)",
+  "os": "iPadOS 27.2",
+  "mobileVersion": "4.0.0",
+  "build": "1042",
+  "installerCommit": "89a8b6d",
+  "checks": {
+    "externalInstallerRegistrationOnly": true,
+    "remoteInstalledWhileAppStopped": true,
+    "standardRemoteHasNoUDID": true,
+    "remoteAuthenticatedAndAdopted": true,
+    "unusableMetadataFileRejectedOnFixedBuild": true,
+    "rejectedStagingRetainedUnmodified": true,
+    "previousCredentialStillReadsBattery": true,
+    "previousCredentialStillReadsLogs": true
+  },
+  "batteryCoreFields": 6,
+  "batteryDetailedFields": 335,
+  "batteryLogFiles": 4,
+  "watchLogFiles": 0,
+  "recordsImportedByProbe": 0,
+  "limitations": [
+    "iOS 17.0–17.3 physical OS services not tested",
+    "Lockdown connection unavailable on this iPad/VPN route"
+  ]
+}
