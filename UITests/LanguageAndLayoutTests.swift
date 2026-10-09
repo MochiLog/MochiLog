@@ -23,6 +23,7 @@ final class LanguageAndLayoutTests: XCTestCase {
     let titles = [("en", "Automatic Log Collection"), ("ja", "自動ログ収集"), ("de", "Automatische Protokollerfassung"), ("es", "Recopilación automática de registros"), ("fr", "Collecte automatique des journaux"), ("ko", "자동 로그 수집"), ("zh-Hans", "自动日志收集"), ("zh-Hant", "自動日誌收集")]
     let settingsTitles = ["de": "Einstellungen", "en": "Settings", "es": "Ajustes", "fr": "Réglages", "ja": "設定", "ko": "설정", "zh-Hans": "设置", "zh-Hant": "設定"]
     let batteryTitles = ["en":"Live Battery", "ja":"現在のバッテリー", "de":"Aktueller Akku", "es":"Batería actual", "fr":"Batterie actuelle", "ko":"현재 배터리", "zh-Hans":"当前电池", "zh-Hant":"目前電池"]
+    let cancelTitles = ["en":"Cancel", "ja":"キャンセル", "de":"Abbrechen", "es":"Cancelar", "fr":"Annuler", "ko":"취소", "zh-Hans":"取消", "zh-Hant":"取消"]
     for (language, title) in titles {
       app.launchArguments = ["-hasCompletedTutorial", "YES", "-showPopupOnLoad", "NO",
         "-appLanguage", language, "-AppleLanguages", "(\(language))", "-selectedTabIndex", "2",
@@ -47,7 +48,16 @@ final class LanguageAndLayoutTests: XCTestCase {
       let start = app.buttons["localPairing.start"]
       for _ in 0..<4 { if start.isHittable { break }; app.swipeUp() }
       XCTAssertTrue(start.exists, "On-device setup must be available without a PC pairing")
+      let requirement = app.descendants(matching: .any)["localPairing.developerRequired"].firstMatch
+      XCTAssertTrue(requirement.exists, "Developer Mode must be explained before starting")
       screenshot("On-device pairing instructions \(language)")
+      start.tap()
+      XCTAssertTrue(app.alerts.firstMatch.waitForExistence(timeout: 5), "First-time setup must confirm Developer Mode too")
+      XCTAssertFalse(app.buttons["localPairing.cancel"].exists, "Opening the prerequisite alert must not start OS pairing")
+      app.alerts.buttons[cancelTitles[language]!].tap()
+      XCTAssertFalse(app.descendants(matching: .any)["localPairing.hostName"].firstMatch.exists,
+        "Cancelling prerequisites must not generate an OS pairing host")
+      XCTAssertFalse(app.buttons["localPairing.cancel"].exists)
       let battery = app.switches["localBattery.enable"]
       for _ in 0..<6 { if battery.isHittable && app.buttons["localBattery.receive"].exists { break }; app.swipeUp() }
       XCTAssertTrue(battery.exists)

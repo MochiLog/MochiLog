@@ -153,8 +153,20 @@ private struct LocalDevicePairingControls: View {
   var body: some View {
         VStack(alignment: .leading, spacing: 12) {
           Label(text("local_pair_title"), systemImage: "iphone.and.arrow.forward").font(.headline)
+          VStack(alignment: .leading, spacing: 8) {
+            Label(text("local_pair_developer_required"), systemImage: "exclamationmark.shield.fill")
+              .font(.headline).foregroundStyle(.orange)
+              .accessibilityIdentifier("localPairing.developerRequired")
+            Text(text("local_pair_developer_steps")).font(.callout)
+            Link(text("local_pair_developer_guide"), destination: URL(string:
+              "https://developer.apple.com/documentation/xcode/enabling-developer-mode-on-a-device")!)
+          }.padding(12).frame(maxWidth: .infinity, alignment: .leading)
+            .background(.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
           Text(text("local_pair_instructions")).font(.callout)
-          if !pairing.hostName.isEmpty { Text(pairing.hostName).font(.caption.monospaced()).textSelection(.enabled) }
+          if !pairing.hostName.isEmpty {
+            Text(pairing.hostName).font(.caption.monospaced()).textSelection(.enabled)
+              .accessibilityIdentifier("localPairing.hostName")
+          }
           if pairing.active {
             ProgressView(text(pairing.statusKey))
             if !pairing.pin.isEmpty {
@@ -166,16 +178,19 @@ private struct LocalDevicePairingControls: View {
               .accessibilityIdentifier("localPairing.cancel")
           } else {
             Button {
-              if manager.configured { pairConfirmation = true } else { pairing.start() }
+              pairConfirmation = true
             } label: { Label(text("local_pair_start"), systemImage: "key.horizontal.fill") }
               .disabled(manager.busy).accessibilityIdentifier("localPairing.start")
             if pairing.statusKey != "local_pair_ready" { Text(text(pairing.statusKey)).font(.callout) }
           }
         }.padding(.vertical, 8)
 
-      .alert(text("local_pair_title"), isPresented: $pairConfirmation) {
-        Button(text("local_pair_start")) { pairing.start() }
+      .alert(text("local_pair_developer_required"), isPresented: $pairConfirmation) {
+        Button(text("local_pair_developer_confirm")) { pairing.start() }
         Button(L10n.text("cancel", table: "Common"), role: .cancel) {}
-      } message: { Text(text("local_pair_replace_note")) }
+      } message: {
+        Text(text("local_pair_developer_steps") +
+          (manager.configured ? "\n\n" + text("local_pair_replace_note") : ""))
+      }
   }
 }
