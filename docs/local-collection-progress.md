@@ -105,3 +105,18 @@ OSに背景実行の機会を要求する方式は追加候補になる。ただ
 OSによる背景起動にはwakeIDと実行時間を追加し、開始・終了・期限切れを対応付ける。通常起動にもOSのアプリ状態と保護データ利用可否を記録する。機能別ファイルと互換用ストリームは共通writer経由で保存する。形式番号は行ごとに付けず、各ファイルのJSONヘッダーに記録。詳細は `diagnostic-log-format.md`。
 
 [UI検証](https://github.com/MochiLog/MochiLog/actions/runs/38054908032) は両端末の3ケース・8言語とネイティブ23項目を確認して成功（提出元c956fa1、UIと通信経路は同一）。[1049の署名ビルド](https://github.com/MochiLog/MochiLog/actions/runs/38057342661) も成功したが、ログ形式追加を含めるため配布対象は1050へ進める。1049はこの作業ではGitHub／外部グループへ明示公開しない。共通判定は純Swiftテスト、ログ形式は旧ストリームの前方一致・形式番号・機能別ファイル・削除／期限掃除を追加テストする。
+
+
+### 1050の検証とベータ公開（2026-10-10）
+
+提出元は `79c178a`。[署名・Appleへのアップロード](https://github.com/MochiLog/MochiLog/actions/runs/38058268039) は成功。[TestFlight配布](https://github.com/MochiLog/MochiLog/actions/runs/38059234293) でVALID、日本語・英語のノート、既存の内部2グループと外部mainへの割り当て、外部の `IN_BETA_TESTING` を確認。[GitHub beta 1050](https://github.com/MochiLog/MochiLog/releases/tag/v4.0.0-beta.1050) も公開した。
+
+iPad実機を1050へ更新して起動し、`background-v2-4.0.0-1050.log` の形式2・ビルド1050・Asia/Tokyoヘッダーと起動状態の保存を確認。これはdevicectlでの起動であり、自然なOS定期起動の証明ではない。iPhoneはTestFlight環境を維持して配布対象に含めたが、1050が実機へ自動更新されたことは未確認。17系実機と自然な背景実行頻度は未検証。純Swiftの共有停止判定・期限切れ競合・ログ互換／分割テスト、多言語監査、jobs=1の実機向け増分ビルドは成功。
+
+PCも日付・機能別の形式2ファイルへ分割し、ローカルPCと受信済みスマホの両パネルで日付と機能を選択して閲覧・コピーする。旧形式／未知形式は「すべて」で保持する。Macの [最終ビルド・署名・公証](https://github.com/MochiLog/MochiLog-Mac/actions/runs/38058755225) は提出元b559762、Windowsの [最終ビルド](https://github.com/MochiLog/MochiLog-Windows/actions/runs/38058775856) はc100a81で成功。
+
+MochiLog-Webも1050の案内へ更新し、日英・各画面幅の11ケースが成功。本番Workerへデプロイ（version `0f57d0f0-5430-471b-87f2-818f480e7b80`）。公開の日本語・英語ガイドで1050と背景実行の説明を確認した。
+
+Mac実機は正規の `/Applications/MochiLog Mac.app` を0.2.23（26）へ置き換え、署名・公証・起動と `general` / `pc-transfer` の形式2ファイル生成を確認。Windows実機はGitHubの0.1.21インストーラーのSHA-256照合後、既存のユーザー別インストール先へ更新し、製品バージョン0.1.21・対話セッション1での起動・形式2ファイル生成を確認。診断ファイルの内容や秘密情報はリポジトリへ保存していない。
+
+SSHの非対話セッションからWindowsインストーラーを走らせた初回は、旧アプリが保持するclrjit.dllを置換できず終了コード5でロールバックされた。旧プロセス終了後の再実行は終了コード0で成功。起動用に一時登録した対話セッションのタスクは起動後に削除し、通常のスタートアップ設定を変更していない。PCビューアーの純粋ロジックとGUIビルドは成功したが、Macの自動UI接続が利用できず今回の最終実機画面の自動操作は未確認。
