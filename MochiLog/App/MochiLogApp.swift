@@ -14,9 +14,14 @@ final class MochiLogApp: UIResponder, UIApplicationDelegate {
   ) -> Bool {
     prepareApplicationSupportDirectories()
     CrashDiagnostics.shared.start()
+    if #available(iOS 17, *) { LocalCollectionScheduler.register() }
     if #available(iOS 27, *) { LocalDevicePairing.register() }
     WatchConnectivityManager.shared.startSession()
     return true
+  }
+
+  func applicationProtectedDataDidBecomeAvailable(_ application: UIApplication) {
+    if #available(iOS 17, *) { LocalDiagnosticsManager.shared.updateActivity() }
   }
 
   func application(_ application: UIApplication,

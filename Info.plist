@@ -30,6 +30,8 @@
 	<array>
 		<string>net.ryuya-dev.MochiLog.local-pairing</string>
 		<string>net.ryuya-dev.MochiLog.local-collection.*</string>
+		<string>net.ryuya-dev.MochiLog.local-scheduled-collection</string>
+		<string>net.ryuya-dev.MochiLog.local-scheduled-refresh</string>
 	</array>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
@@ -145,6 +147,7 @@
 	<array>
 		<string>remote-notification</string>
 		<string>processing</string>
+		<string>fetch</string>
 	</array>
 </dict>
 </plist>

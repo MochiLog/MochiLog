@@ -9,3 +9,5 @@ xcrun swiftc -parse-as-library MochiLog/Services/LocalPairingFileFormat.swift Te
 "$folder/format-tests"
 xcrun swiftc -parse-as-library MochiLog/Services/LocalCollectionProgress.swift Tests/LocalCollectionProgressTests.swift -o "$folder/progress-tests"
 "$folder/progress-tests"
+xcrun swiftc -parse-as-library MochiLog/Services/LocalCollectionSchedule.swift Tests/LocalCollectionScheduleTests.swift -o "$folder/schedule-tests"
+"$folder/schedule-tests"

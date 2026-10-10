@@ -90,7 +90,7 @@ final class LocalDiagnosticsManager: ObservableObject {
     if backgroundTask != .invalid { UIApplication.shared.endBackgroundTask(backgroundTask); backgroundTask = .invalid }
   }
   private func pauseCollection(reason: String) {
-    guard let cancellation = collectionCancellation, !cancellation.isCancelled else { return }
+    guard let cancellation = collectionCancellation else { return }
     cancellation.cancel(); collectionPaused = true; message = text("local_collection_paused")
     MacTransferManager.appendDebugEvent("Local diagnostics: collection paused; trigger=\(reason); completed file checkpoints retained, interrupted file retried")
     endCollectionBackground(success: false)
@@ -104,9 +104,12 @@ final class LocalDiagnosticsManager: ObservableObject {
   func dismissCollectionNotice() { collectionPaused = false; collectionProgress = nil }
   func suspendForBackground() {
     batteryLoop?.cancel(); batteryLoop = nil
+    // A sleeping foreground loop must not cancel an independently OS-owned job.
+    if !busy { loop?.cancel(); loop = nil }
+    LocalCollectionScheduler.reschedule()
     if busy {
       MacTransferManager.appendDebugEvent("Local diagnostics: app backgrounded; active collection continues within OS budget; completed files checkpointed")
-    } else { stop() }
+    }
   }
   private func publishCollectionProgress(_ value: LocalCollectionProgress) {
     let previous = collectionProgress
@@ -129,6 +132,8 @@ final class LocalDiagnosticsManager: ObservableObject {
   private var loop: Task<Void, Never>?
   private var batteryLoop: Task<Void, Never>?
   private var generation = 0
+  private var protectionObserver: NSObjectProtocol?
+  var hasStoredCredential: Bool { configured || UserDefaults.standard.bool(forKey: "LocalDiagnosticsHasCredential") }
   @Published var address = UserDefaults.standard.string(forKey: "LocalDiagnosticsAddress") ?? "10.7.0.1" {
     didSet { UserDefaults.standard.set(address, forKey: "LocalDiagnosticsAddress") }
   }
@@ -136,15 +141,27 @@ final class LocalDiagnosticsManager: ObservableObject {
   private var query: [String: Any] { [kSecClass as String: kSecClassGenericPassword,
     kSecAttrService as String: Self.service, kSecAttrAccount as String: "own-device"] }
   private init() {
+    reloadCredentialIfUnlocked()
+    protectionObserver = NotificationCenter.default.addObserver(forName: UIApplication.protectedDataWillBecomeUnavailableNotification,
+      object: nil, queue: .main) { [weak self] _ in
+      Task { @MainActor [weak self] in self?.pauseCollection(reason: "device locked; protected data unavailable") }
+    }
+    if UIApplication.shared.isProtectedDataAvailable { checkInstalledPairingFile() }
+  }
+  private func reloadCredentialIfUnlocked() {
+    guard UIApplication.shared.isProtectedDataAvailable, credential == nil else { return }
     var q = query; q[kSecReturnData as String] = true; q[kSecMatchLimit as String] = kSecMatchLimitOne
     var result: CFTypeRef?
-    if SecItemCopyMatching(q as CFDictionary, &result) == errSecSuccess, let data = result as? Data,
+    let status = SecItemCopyMatching(q as CFDictionary, &result)
+    if status == errSecSuccess, let data = result as? Data,
       let saved = try? JSONDecoder().decode(LocalDiagnosticsCredential.self, from: data),
       let verified = try? LocalDiagnosticsCredential.validate(saved.pairing, expectedUDID: saved.expectedUDID, physicalDeviceID: saved.physicalDeviceID) {
       credential = verified; configured = true
+      UserDefaults.standard.set(true, forKey: "LocalDiagnosticsHasCredential")
       noteOSVersion()
+    } else if status == errSecItemNotFound {
+      UserDefaults.standard.set(false, forKey: "LocalDiagnosticsHasCredential")
     }
-    checkInstalledPairingFile()
   }
   private func save(_ value: LocalDiagnosticsCredential, activate: Bool = true) throws {
     let bytes = try JSONEncoder().encode(value)
@@ -159,7 +176,7 @@ final class LocalDiagnosticsManager: ObservableObject {
       MacTransferManager.appendDebugEvent("Local diagnostics: Keychain save failed; status=\(result); previous credential retained")
       throw LocalDiagnosticsTransport.Failure.invalid
     }
-    stop(); credential = value; configured = true; message = text("local_configured"); noteOSVersion()
+    stop(); credential = value; configured = true; UserDefaults.standard.set(true, forKey: "LocalDiagnosticsHasCredential"); message = text("local_configured"); noteOSVersion()
     if activate { updateActivity() }
   }
   private func noteOSVersion() {
@@ -172,7 +189,7 @@ final class LocalDiagnosticsManager: ObservableObject {
   }
   func forget() {
     installedImportTask?.cancel(); installedImportTask = nil; installedImportID = nil; installingPairing = false
-    stop(); SecItemDelete(query as CFDictionary); credential = nil; configured = false
+    stop(); SecItemDelete(query as CFDictionary); credential = nil; configured = false; UserDefaults.standard.set(false, forKey: "LocalDiagnosticsHasCredential")
     reading = nil; state = "waiting"; message = ""
     AppSettings.shared.localAutomaticCollectionEnabled = false
   }
@@ -184,7 +201,7 @@ final class LocalDiagnosticsManager: ObservableObject {
   /// idevice_pair writes into Documents through House Arrest without launching
   /// MochiLog. Adopt it automatically when our process next becomes active.
   func checkInstalledPairingFile() {
-    guard !busy, !batteryBusy, !pairingActive, !installingPairing, !ProcessInfo.processInfo.isiOSAppOnMac else { return }
+    guard UIApplication.shared.isProtectedDataAvailable, !busy, !batteryBusy, !pairingActive, !installingPairing, !ProcessInfo.processInfo.isiOSAppOnMac else { return }
     let root = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
     for name in ["pairingFile.plist", "rpPairingFile.plist"] {
       let file = root.appendingPathComponent(name)
@@ -347,7 +364,8 @@ final class LocalDiagnosticsManager: ObservableObject {
       var success = false
       defer {
         endCollectionBackground(success: success)
-        collectionCancellation = nil; busy = false; collectionPaused = false; collectionProgress = nil
+        collectionCancellation = nil; busy = false
+        collectionPaused = false; collectionProgress = nil
         try? FileManager.default.removeItem(at: root)
         updateActivity()
       }
@@ -377,6 +395,8 @@ final class LocalDiagnosticsManager: ObservableObject {
     updateActivity()
   }
   func updateActivity() {
+    reloadCredentialIfUnlocked()
+    LocalCollectionScheduler.reschedule()
     #if DEBUG && targetEnvironment(simulator)
     if ProcessInfo.processInfo.environment["MOCHI_COLLECTION_PROGRESS_UI"] == "1" {
       if !collectionUITestStarted { collectionUITestStarted = true; showCollectionUIFixture() }
@@ -384,9 +404,12 @@ final class LocalDiagnosticsManager: ObservableObject {
     }
     #endif
     guard !pairingActive, AppSettings.shared.localAutomaticCollectionEnabled, !ProcessInfo.processInfo.isiOSAppOnMac,
-      configured, UIApplication.shared.connectedScenes.contains(where: { $0.activationState == .foregroundActive }) else { stop(); return }
+      configured else { stop(); return }
+    guard UIApplication.shared.connectedScenes.contains(where: { $0.activationState == .foregroundActive }) else {
+      suspendForBackground(); return
+    }
+    restoreStagedFiles()
     if loop == nil {
-      restoreStagedFiles() 
       let epoch = generation
       loop = Task { [weak self] in
         while !Task.isCancelled, self?.generation == epoch {
@@ -437,39 +460,64 @@ final class LocalDiagnosticsManager: ObservableObject {
   private func importedBases(_ id: UUID) -> Set<String> {
     Set(UserDefaults.standard.stringArray(forKey: "LocalDiagnosticsImported." + id.uuidString) ?? [])
   }
-  func collectNow(manual: Bool = true) async {
+  func backgroundSchedule(now: Date = Date()) -> LocalCollectionSchedule {
+    var received = credential.map { importedBases($0.physicalDeviceID) } ?? []
+    if UIApplication.shared.isProtectedDataAvailable, let credential {
+      received.formUnion(stagedBases(stagingRoot(credential.physicalDeviceID)))
+    }
+    return LocalCollectionSchedule.decide(now: now, received: received, expectedWatches: MacTransferManager.shared.expectedWatchCount())
+  }
+  private func stagingRoot(_ id: UUID) -> URL {
+    FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+      .appendingPathComponent("MacTransferInbox/LocalDevice/" + id.uuidString, isDirectory: true)
+  }
+  func cancelScheduledCollection(_ token: LocalCollectionCancellation) {
+    guard collectionCancellation === token else { return }
+    pauseCollection(reason: "scheduled task expired")
+  }
+  @discardableResult
+  func collectNow(manual: Bool = true, scheduled: LocalCollectionCancellation? = nil) async -> Bool {
     #if DEBUG && targetEnvironment(simulator)
     if ProcessInfo.processInfo.environment["MOCHI_COLLECTION_PROGRESS_UI"] == "1" {
-      showCollectionUIFixture(); return
+      showCollectionUIFixture(); return false
     }
     #endif
-    guard !pairingActive, !busy, let credential, let address = safeAddress, AppSettings.shared.localAutomaticCollectionEnabled else { return }
+    guard !ProcessInfo.processInfo.isiOSAppOnMac, UIApplication.shared.isProtectedDataAvailable else {
+      if scheduled != nil { MacTransferManager.appendDebugEvent("Local scheduler: deferred; device locked or viewing-only host") }
+      return false
+    }
+    reloadCredentialIfUnlocked()
+    guard !pairingActive, !installingPairing, !busy, let credential, let address = safeAddress,
+      AppSettings.shared.localAutomaticCollectionEnabled, scheduled?.isCancelled != true else {
+      if scheduled != nil { MacTransferManager.appendDebugEvent("Local scheduler: deferred; disabled, unconfigured, pairing or collection already active") }
+      return false
+    }
     let day = Self.japanDay()
     let imported = importedBases(credential.physicalDeviceID)
     if !manual {
-      var calendar = Calendar(identifier: .gregorian); calendar.timeZone = TimeZone(identifier: "Asia/Tokyo")!
-      let watches = Set(imported.filter { $0.hasPrefix("Watch::") && $0.contains("::Analytics-" + day + "-") }.compactMap { $0.components(separatedBy: "::").dropFirst().first })
-      let expected = MacTransferManager.shared.expectedWatchCount()
-      let complete = imported.contains(where: { $0.hasPrefix("Host::Analytics-" + day + "-") }) && expected.map { watches.count >= $0 } == true
-      if calendar.component(.hour, from: Date()) < 9 || complete {
-        message = text("local_daily_wait"); return
+      let decision = backgroundSchedule()
+      if !decision.shouldCollect {
+        message = text("local_daily_wait")
+        MacTransferManager.appendDebugEvent("Local diagnostics: automatic collection deferred; reason=\(decision.reason.rawValue), earliest=\(decision.earliest.ISO8601Format())")
+        return true
       }
     }
     let skippedBases = skipped()
     busy = true; collectionPaused = false; collectionProgress = LocalCollectionProgress(); collectionStartedAt = Date()
-    let cancellation = LocalCollectionCancellation(); collectionCancellation = cancellation
+    let cancellation = scheduled ?? LocalCollectionCancellation(); collectionCancellation = cancellation
     let epoch = generation; let started = ProcessInfo.processInfo.systemUptime
     var succeeded = false
     defer {
       endCollectionBackground(success: succeeded)
       collectionCancellation = nil; busy = false
+      if scheduled == nil { LocalCollectionScheduler.reschedule() }
+      if scheduled != nil, UIApplication.shared.connectedScenes.contains(where: { $0.activationState == .foregroundActive }) { restoreStagedFiles() }
       if !collectionPaused { collectionProgress = nil }
       MacTransferManager.appendDebugEvent("Local diagnostics: collection ended; success=\(succeeded), paused=\(collectionPaused), elapsedMs=\(Int((ProcessInfo.processInfo.systemUptime - started) * 1000))")
     }
-    MacTransferManager.appendDebugEvent("Local diagnostics: collection started; trigger=\(manual ? "manual" : "automatic"), ownDevice=\(credential.physicalDeviceID), dailyDate=\(day)")
-    await beginCollectionBackground(manual: manual)
-    let root = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-      .appendingPathComponent("MacTransferInbox/LocalDevice/" + credential.physicalDeviceID.uuidString, isDirectory: true)
+    MacTransferManager.appendDebugEvent("Local diagnostics: collection started; trigger=\(scheduled != nil ? "OS background wake" : manual ? "manual" : "automatic"), ownDevice=\(credential.physicalDeviceID), dailyDate=\(day)")
+    if scheduled == nil { await beginCollectionBackground(manual: manual) }
+    let root = stagingRoot(credential.physicalDeviceID)
     let existing = stagedBases(root)
     do {
       let owner = self
@@ -478,7 +526,7 @@ final class LocalDiagnosticsManager: ObservableObject {
         _ = try LocalDiagnosticsTransport.logs(credential, address: address,
           alreadyReceived: imported.union(skippedBases).union(existing), cancellation: cancellation,
           progress: { value in Task { @MainActor [weak owner] in
-            guard let owner, owner.generation == epoch, owner.collectionCancellation === cancellation else { return }
+            guard let owner, owner.generation == epoch, owner.collectionCancellation === cancellation, !cancellation.isCancelled else { return }
             owner.publishCollectionProgress(value)
           } }, onLog: { log in
             try cancellation.check()
@@ -491,15 +539,20 @@ final class LocalDiagnosticsManager: ObservableObject {
             var url = root
             for component in log.base.components(separatedBy: "::") { url.appendPathComponent(component) }
             try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try cancellation.check()
             try log.bytes.write(to: url, options: [.atomic, .completeFileProtection])
           })
         return excluded
       }.value
-      guard generation == epoch, !Task.isCancelled, AppSettings.shared.localAutomaticCollectionEnabled else { return }
+      guard generation == epoch, !Task.isCancelled, UIApplication.shared.isProtectedDataAvailable, AppSettings.shared.localAutomaticCollectionEnabled else { return false }
       for base in excluded { skip(base) }
       try cancellation.check()
-      let count = importStagedFiles(root, parentID: credential.physicalDeviceID)
-      message = String(format: text("local_received"), count)
+      if scheduled == nil {
+        let count = importStagedFiles(root, parentID: credential.physicalDeviceID)
+        message = String(format: text("local_received"), count)
+      } else {
+        MacTransferManager.appendDebugEvent("Local scheduler: complete files staged; count=\(stagedBases(root).count); existing deduplicated import runs on next foreground activation")
+      }
       succeeded = true
     } catch is CancellationError {
       collectionPaused = true; message = text("local_collection_paused")
@@ -509,6 +562,7 @@ final class LocalDiagnosticsManager: ObservableObject {
         MacTransferManager.appendDebugEvent("Local diagnostics: collection failed; stage=authenticated own-device read, errorType=\(String(describing: error)); complete file checkpoints retained")
       }
     }
+    return succeeded
   }
   private static func validCheckpoint(_ url: URL) -> Bool {
     guard let metadata = try? url.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey, .fileSizeKey]),

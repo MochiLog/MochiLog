@@ -1,13 +1,9 @@
-MochiLog 4.0.0 beta (1046)
+Automatic on-device collection can now attempt to run while MochiLog is not displayed.
 
-On-device acquisition now shows progress on both iPhone and iPad. A banner across the app, including Home, displays connection, listing, file download and import preparation, file counts, bytes and elapsed time. The status normally uses one compact row; tapping expands details in the same reserved area, without another popup or duplicate card. Pause and resume are available. All eight app languages are supported.
+- With on-device collection enabled, the device unlocked, and a VPN route to its diagnostic service available, collection runs when iOS grants background execution. Neither a fixed schedule nor daily execution is guaranteed. Force-quitting stops automatic collection until you open the app again.
+- Complete files are stored in a protected staging area. They are analyzed and recorded through the existing duplicate checks the next time you open MochiLog. If the OS budget expires, complete files remain available for the next attempt; interrupted files are retried.
+- Foreground and scheduled collection cannot run simultaneously. Unnecessary collection stops once the day's required files are available, accounting for devices without an Apple Watch and for multiple Watches.
+- Credentials are reloaded after unlocking if a cold background launch could not access them. Collection pauses when protected data becomes unavailable. Turning collection off cancels pending requests. Existing key and file protection remain in place.
+- Debug logs include OS wakes, deferral reasons, requested earliest times, expiration, and completed-file staging. The settings explanation supports all eight app languages.
 
-Manual collection uses BGContinuedProcessingTask on iOS/iPadOS 26 or later, with system progress and cancellation. Automatic collection and older systems use a short background execution allowance. If continued processing cannot start, collection falls back to that short allowance. Force-quitting the app, loss of the VPN or diagnostic service, or OS time limits can interrupt collection.
-
-Each complete, validated battery log is atomically checkpointed before reading the next file. Resume keeps completed files and retries unfinished ones. When the OS supplies a file size, the app checks it against the complete read; truncated files are not imported. Census/session files and short files without battery fields are excluded. Existing physical-device identity, hashes, duplicate prevention and pairings are preserved.
-
-On-device acquisition remains experimental and off by default. It needs a compatible local VPN route and OS trust for this device. Acquisition requires 17+, while PC transfer and initial on-device pairing require 27+. Developer Mode must be enabled for on-device pairing. Real OS services on iOS 17 hardware remain untested. Reusing existing computer pairing information and importing a pairing file remain supported.
-
-PC transfer and on-device acquisition have independent switches. Apple Watch logs are read from the paired iPhone. Both routes use the shared mobile import and parser pipeline; current battery values are not saved to history. Mac 0.2.22 Beta and Windows 0.1.20 Alpha are the latest companions. Manual import and other standalone mobile features remain available.
-
-Please report beta issues with the occurrence date and diagnostic logs using the support screen. A resolution or reply cannot be guaranteed.
+This beta also includes the previous progress display, pause/resume, and layout fixes. On-device collection supports iOS/iPadOS 17 and later; initial pairing entirely on the device requires 27 or later. Existing PC collection remains available alongside it. Background execution depends on OS scheduling, the VPN route, and diagnostic-service availability.
