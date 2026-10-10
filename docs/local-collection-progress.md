@@ -48,3 +48,5 @@
 両端末のネイティブTLS/AFCフィクスチャは23項目が全て成功。段階通知、完成ファイルの逐次公開、読み取り前・途中のキャンセル、完成済みチェックポイントの保持、不正な信頼情報の拒否、同一ログの再取り込み抑止を含む。シミュレーターはiOS/iPadOS 27.0。17系ランタイムはCIにないため明示的にスキップし、17系実機のOSサービスや背景時間予算の証明とはしない。
 
 [署名・アップロード](https://github.com/MochiLog/MochiLog/actions/runs/38035953865) と [Apple側の処理確認](https://github.com/MochiLog/MochiLog/actions/runs/38036809071) も成功し、4.0.0（1046）はVALID。検証・提出元は `78a4e1c`。以後の変更は開発メモのみ。
+
+17:46に [TestFlight配布](https://github.com/MochiLog/MochiLog/actions/runs/38039050738) が成功。日本語・英語のノートを保存し、既存の内部2グループと外部 `main` グループへ設定。外部の状態は `IN_BETA_TESTING`、自動通知は有効。[GitHub beta 1046](https://github.com/MochiLog/MochiLog/releases/tag/v4.0.0-beta.1046) も公開した。iPad実機は1046、iPhoneはTestFlight環境を維持して配布対象へ更新した。iPhone実機の同じ背景試験が済んだという扱いにはしない。
