@@ -32,4 +32,5 @@ Private device databases and original Analytics files stay in ignored Build dire
 - GitHub beta source tag v4.0.0-beta.1052 published with Japanese/English notes.
 - Mac v0.2.25 and Windows v0.1.23 prereleases published; both real PC installations verified.
 - Web guide deployed with Japanese/English compatibility and in-place repair guidance.
-- TestFlight notes/distribution job 38075149334 waits for Apple build processing and uses the existing internal and external groups. Upload success alone is not treated as distribution success.
+- TestFlight notes/distribution job 38075149334: success. Build 1052 is VALID and unexpired; both internal and external states are IN_BETA_TESTING. Japanese/English notes and existing tester groups were confirmed by the release job.
+- Final iPad activity logs confirm authenticated identity policy responses from both updated Mac and Windows without requesting a log body.
