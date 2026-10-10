@@ -152,23 +152,6 @@ final class MacTransferManager: ObservableObject {
     }
   }
 
-  private static func japanCalendar() -> Calendar {
-    var calendar = Calendar(identifier: .gregorian)
-    calendar.timeZone = TimeZone(identifier: "Asia/Tokyo")!
-    return calendar
-  }
-
-  private static func japanDay(_ date: Date = Date()) -> String {
-    let parts = japanCalendar().dateComponents([.year, .month, .day], from: date)
-    return String(format: "%04d-%02d-%02d", parts.year ?? 0,
-      parts.month ?? 0, parts.day ?? 0)
-  }
-
-  private static func nextCollectionWindow(_ date: Date = Date()) -> Date {
-    japanCalendar().nextDate(after: date, matching: DateComponents(hour: 9),
-      matchingPolicy: .nextTime) ?? date.addingTimeInterval(24 * 60 * 60)
-  }
-
   private static func localTime(_ date: Date) -> String {
     let formatter = ISO8601DateFormatter()
     formatter.timeZone = .autoupdatingCurrent
@@ -177,7 +160,7 @@ final class MacTransferManager: ObservableObject {
 
   private var dailyReceipt: DailyTransferReceipt {
     get {
-      let day = Self.japanDay()
+      let day = DailyLogCollectionPolicy.dayKey()
       guard let data = UserDefaults.standard.data(forKey: Self.dailyReceiptKey),
         let receipt = try? JSONDecoder().decode(DailyTransferReceipt.self, from: data),
         receipt.day == day else { return DailyTransferReceipt(day: day) }
@@ -192,7 +175,7 @@ final class MacTransferManager: ObservableObject {
 
   private var dailyImportFailures: DailyImportFailures {
     get {
-      let day = Self.japanDay()
+      let day = DailyLogCollectionPolicy.dayKey()
       guard let data = UserDefaults.standard.data(forKey: Self.dailyImportFailuresKey),
         let failures = try? JSONDecoder().decode(DailyImportFailures.self, from: data),
         failures.day == day else { return DailyImportFailures(day: day) }
@@ -205,45 +188,25 @@ final class MacTransferManager: ObservableObject {
     }
   }
 
-  func expectedWatchCount() -> Int? { Self.expectedDailyWatchCount() }
-
-  // Background on-device scheduling only needs this policy, not PC credentials
-  // or the PC/cloud subscription lifecycle owned by the shared instance.
-  static func expectedDailyWatchCount() -> Int? {
-    // OS pairing and MochiLog registration are different. An unregistered
-    // paired Watch may still produce a log that needs to reach the import flow.
-    // Wait for WatchConnectivity to finish activation before deciding that
-    // an iPhone has no Watch. iPad never expects a Watch log.
-    if UIDevice.current.userInterfaceIdiom == .pad {
-      return 0
-    }
-    guard let isPaired = WatchConnectivityManager.shared.isWatchPaired else { return nil }
-    return isPaired ? max(1, AppSettings.shared.registeredWatches.count) : 0
-  }
+  func expectedWatchCount() -> Int? { DailyLogCollectionPolicy.currentExpectedWatchCount() }
 
   private func dailyComplete(_ receipt: DailyTransferReceipt) -> Bool {
-    guard let expectedWatches = expectedWatchCount() else { return false }
     let failures = dailyImportFailures
-    return receipt.hostReceived && !failures.host &&
-      receipt.watchSources.subtracting(failures.watchSources).count >= expectedWatches
+    return DailyLogCollectionPolicy.isComplete(hostReceived: receipt.hostReceived && !failures.host,
+      watchSources: receipt.watchSources.subtracting(failures.watchSources),
+      expectedWatches: expectedWatchCount())
   }
 
   private func automaticWait() -> UInt64? {
     let now = Date()
-    if Self.japanCalendar().component(.hour, from: now) < 9 {
-      return UInt64(max(1, Self.nextCollectionWindow(now).timeIntervalSince(now).rounded(.up)))
-    }
     let receipt = dailyReceipt
-    if dailyComplete(receipt) && pairings.allSatisfy({
-      receipt.pausedHosts.contains($0.hostID.uuidString)
-    }) {
-      return UInt64(max(1, Self.nextCollectionWindow(now).timeIntervalSince(now).rounded(.up)))
-    }
-    return nil
+    let decision = DailyLogCollectionPolicy.decide(now: now, complete: dailyComplete(receipt),
+      pauseAcknowledged: pairings.allSatisfy { receipt.pausedHosts.contains($0.hostID.uuidString) })
+    return decision.shouldCollect ? nil : UInt64(max(1, decision.earliest.timeIntervalSince(now).rounded(.up)))
   }
 
   private func recordConfirmedFiles(for pairing: MacTransferPairing) {
-    let day = Self.japanDay()
+    let day = DailyLogCollectionPolicy.dayKey()
     let identifiers = Self.storedFileIDs(for: unconfirmedKey, pairing: pairing)
     var receipt = dailyReceipt
     let previous = receipt
@@ -283,9 +246,9 @@ final class MacTransferManager: ObservableObject {
     guard !dailyReceipt.hostReceived, let physicalID = pairing?.physicalDeviceID else {
       return
     }
-    let day = Self.japanDay()
+    let day = DailyLogCollectionPolicy.dayKey()
     guard records.contains(where: {
-      $0.physicalDeviceID == physicalID && Self.japanDay($0.logDate) == day &&
+      $0.physicalDeviceID == physicalID && DailyLogCollectionPolicy.dayKey($0.logDate) == day &&
         !($0.osVersion?.lowercased().contains("watch") ?? false)
     }) else { return }
     var receipt = dailyReceipt
@@ -715,11 +678,11 @@ final class MacTransferManager: ObservableObject {
     guard networkPermitsTransfer else { pauseForNetwork(); return }
     if !manualReceive {
       if let wait = automaticWait() {
-        let reason = Self.japanCalendar().component(.hour, from: Date()) < 9
+        let reason = Date() < DailyLogCollectionPolicy.generationTime(on: Date())
           ? "waiting for the daily collection window" : "all required logs received and computers acknowledged"
-        let key = "\(Self.japanDay())|\(reason)"
+        let key = "\(DailyLogCollectionPolicy.dayKey())|\(reason)"
         if lastAutomaticHold != key {
-          Self.appendDebugEvent("Automatic receive stopped: \(reason); resumes \(Self.localTime(Self.nextCollectionWindow()))")
+          Self.appendDebugEvent("Automatic receive stopped: \(reason); resumes \(Self.localTime(DailyLogCollectionPolicy.nextCollectionWindow()))")
           lastAutomaticHold = key
         }
         browser?.cancel(); browser = nil
@@ -730,7 +693,7 @@ final class MacTransferManager: ObservableObject {
       }
       if dailyComplete(dailyReceipt),
         dailyReceipt.pausedHosts.contains(pairing.hostID.uuidString) {
-        let key = "\(Self.japanDay())|\(pairing.hostID.uuidString)"
+        let key = "\(DailyLogCollectionPolicy.dayKey())|\(pairing.hostID.uuidString)"
         if skippedHostKeys.insert(key).inserted {
           Self.appendDebugEvent("Automatic receive skipped for computer \(pairing.hostID.uuidString): daily pause acknowledged")
         }
@@ -1226,7 +1189,7 @@ final class MacTransferManager: ObservableObject {
       dailyComplete(receipt) &&
       receipt.terminalHosts.contains(pairing.hostID.uuidString) &&
       !receipt.pausedHosts.contains(pairing.hostID.uuidString)
-      ? String(Int(Self.nextCollectionWindow().timeIntervalSince1970)) : nil
+      ? String(Int(DailyLogCollectionPolicy.nextCollectionWindow().timeIntervalSince1970)) : nil
     if let pauseUntil {
       Self.appendDebugEvent("Requesting daily pause from computer \(pairing.hostID.uuidString) until \(Self.localTime(Date(timeIntervalSince1970: TimeInterval(pauseUntil) ?? 0)))")
       request["dailyPauseUntil"] = pauseUntil
@@ -1974,7 +1937,7 @@ final class MacTransferManager: ObservableObject {
     let shared = CloudLogSharingState.sharedToken(in: sourceURL)
     let computer = pairings.first { Self.storedFileID(for: sourceURL, pairing: $0) != nil }
     Self.appendDebugEvent("Import trace: result=\(status), source=\((shared?.origin ?? computer?.physicalDeviceID)?.uuidString ?? "unknown"), computer=\(computer?.hostID.uuidString ?? "unknown"), crossDevice=\(shared != nil), file=\(filename)")
-    guard filename.hasPrefix("Analytics-\(Self.japanDay())-"),
+    guard filename.hasPrefix("Analytics-\(DailyLogCollectionPolicy.dayKey())-"),
       status == "error" || status == "success" || status == "duplicate" ||
         status == "needsReview",
       let identifier = pairings.compactMap({

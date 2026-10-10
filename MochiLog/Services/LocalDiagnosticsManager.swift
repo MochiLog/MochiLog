@@ -454,18 +454,15 @@ final class LocalDiagnosticsManager: ObservableObject {
       }
     }
   }
-  private static func japanDay(_ date: Date = Date()) -> String {
-    let f = DateFormatter(); f.locale = Locale(identifier: "en_US_POSIX"); f.timeZone = TimeZone(identifier: "Asia/Tokyo"); f.dateFormat = "yyyy-MM-dd"; return f.string(from: date)
-  }
   private func importedBases(_ id: UUID) -> Set<String> {
     Set(UserDefaults.standard.stringArray(forKey: "LocalDiagnosticsImported." + id.uuidString) ?? [])
   }
-  func backgroundSchedule(now: Date = Date()) -> LocalCollectionSchedule {
+  func backgroundSchedule(now: Date = Date()) -> DailyLogCollectionPolicy {
     var received = credential.map { importedBases($0.physicalDeviceID) } ?? []
     if UIApplication.shared.isProtectedDataAvailable, let credential {
       received.formUnion(stagedBases(stagingRoot(credential.physicalDeviceID)))
     }
-    return LocalCollectionSchedule.decide(now: now, received: received, expectedWatches: MacTransferManager.expectedDailyWatchCount())
+    return DailyLogCollectionPolicy.decide(now: now, received: received, expectedWatches: DailyLogCollectionPolicy.currentExpectedWatchCount())
   }
   private func stagingRoot(_ id: UUID) -> URL {
     FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -492,13 +489,13 @@ final class LocalDiagnosticsManager: ObservableObject {
       if scheduled != nil { MacTransferManager.appendDebugEvent("Local scheduler: deferred; disabled, unconfigured, pairing or collection already active") }
       return false
     }
-    let day = Self.japanDay()
+    let day = DailyLogCollectionPolicy.dayKey()
     let imported = importedBases(credential.physicalDeviceID)
     if !manual {
       let decision = backgroundSchedule()
       if !decision.shouldCollect {
         message = text("local_daily_wait")
-        MacTransferManager.appendDebugEvent("Local diagnostics: automatic collection deferred; reason=\(decision.reason.rawValue), earliest=\(LocalCollectionSchedule.timestamp(decision.earliest))")
+        MacTransferManager.appendDebugEvent("Local diagnostics: automatic collection deferred; reason=\(decision.reason.rawValue), earliest=\(DailyLogCollectionPolicy.timestamp(decision.earliest))")
         return true
       }
     }

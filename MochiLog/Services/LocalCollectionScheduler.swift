@@ -52,7 +52,7 @@ enum LocalCollectionScheduler {
         request.earliestBeginDate = decision.earliest
         do {
           try BGTaskScheduler.shared.submit(request)
-          MacTransferManager.appendDebugEvent("Local scheduler: requested; identifier=\(id), reason=\(decision.reason.rawValue), earliest=\(LocalCollectionSchedule.timestamp(decision.earliest)), unlocked+VPN required; OS selects execution time")
+          MacTransferManager.appendDebugEvent("Local scheduler: requested; identifier=\(id), reason=\(decision.reason.rawValue), earliest=\(DailyLogCollectionPolicy.timestamp(decision.earliest)), unlocked+VPN required; OS selects execution time")
         } catch {
           let error = error as NSError
           MacTransferManager.appendDebugEvent("Local scheduler: request rejected; identifier=\(id), domain=\(error.domain), code=\(error.code), refreshStatus=\(UIApplication.shared.backgroundRefreshStatus.rawValue)")

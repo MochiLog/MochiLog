@@ -5,5 +5,6 @@ Automatic on-device collection can now attempt to run while MochiLog is not disp
 - Foreground and scheduled collection cannot run simultaneously. Unnecessary collection stops once the day's required files are available, accounting for devices without an Apple Watch and for multiple Watches.
 - Credentials are reloaded after unlocking if a cold background launch could not access them. Collection pauses when protected data becomes unavailable. Turning collection off cancels pending requests. Existing key and file protection remain in place.
 - Debug logs include OS wakes, deferral reasons, requested earliest times, expiration, and completed-file staging. The settings explanation supports all eight app languages.
+- On-device collection and PC reception share daily stopping, next-day restart, and required Watch counts. Failed imports and pending PC acknowledgments do not prematurely stop reception. Live battery updates remain independent.
 
 This beta also includes the previous progress display, pause/resume, and layout fixes. On-device collection supports iOS/iPadOS 17 and later; initial pairing entirely on the device requires 27 or later. Existing PC collection remains available alongside it. Background execution depends on OS scheduling, the VPN route, and diagnostic-service availability.
