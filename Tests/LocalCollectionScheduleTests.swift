@@ -12,7 +12,7 @@ import Foundation
     let before = LocalCollectionSchedule.decide(now: morning, received: [], expectedWatches: 0)
     precondition(!before.shouldCollect && before.earliest == start)
     let empty = LocalCollectionSchedule.decide(now: start, received: [], expectedWatches: 0)
-    precondition(empty.shouldCollect && empty.earliest == start.addingTimeInterval(900))
+    precondition(empty.shouldCollect && empty.earliest == start.addingTimeInterval(300))
     let ipad = LocalCollectionSchedule.decide(now: start, received: [host], expectedWatches: 0)
     precondition(!ipad.shouldCollect && ipad.reason == .dailyComplete && ipad.earliest == tomorrow)
     precondition(LocalCollectionSchedule.decide(now: start, received: [host], expectedWatches: 1).shouldCollect)

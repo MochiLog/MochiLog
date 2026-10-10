@@ -23,7 +23,7 @@ struct LocalCollectionSchedule: Sendable {
     if host, let expectedWatches, watches.count >= expectedWatches {
       return Self(earliest: calendar.date(byAdding: .day, value: 1, to: generation)!, reason: .dailyComplete)
     }
-    return Self(earliest: now.addingTimeInterval(15 * 60), reason: .retry)
+    return Self(earliest: now.addingTimeInterval(5 * 60), reason: .retry)
   }
 }
 
