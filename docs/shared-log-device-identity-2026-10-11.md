@@ -25,3 +25,11 @@ An October 10 iPhone battery log appeared as an iPad record on the receiving iPa
 - iPhone final update installed, but its last launch was blocked by lock state. Its earlier 1052 database comparison passed; final policy run awaits unlock.
 
 Private device databases and original Analytics files stay in ignored Build directories and are not committed.
+
+## Distribution
+
+- Signed CI build/upload 38074518363: success, app / Watch app / share extension all 4.0.0 (1052), source 7ed7f59.
+- GitHub beta source tag v4.0.0-beta.1052 published with Japanese/English notes.
+- Mac v0.2.25 and Windows v0.1.23 prereleases published; both real PC installations verified.
+- Web guide deployed with Japanese/English compatibility and in-place repair guidance.
+- TestFlight notes/distribution job 38075149334 waits for Apple build processing and uses the existing internal and external groups. Upload success alone is not treated as distribution success.
