@@ -57,6 +57,32 @@ import Foundation
     let later = Copy(id: id, origin: origin, date: a.date, createdAt: Date(timeIntervalSince1970: 3))
     precondition(discarded([later, second]).map(\.createdAt) == [later.createdAt])
     precondition(discarded([later, second, first]).map(\.createdAt) == [later.createdAt, second.createdAt])
+    let phone = UUID(), pad = UUID(), receiver = "iPad16,6"
+    let knownModels = [phone: "iPhone18,3", pad: receiver]
+    precondition(LogSourceIdentity.resolve(detected: nil, source: phone, known: knownModels,
+      local: receiver, foreign: true) == "iPhone18,3")
+    precondition(LogSourceIdentity.resolve(detected: nil, source: pad, known: knownModels,
+      local: "iPhone18,3", foreign: true) == receiver)
+    precondition(LogSourceIdentity.resolve(detected: nil, source: UUID(), known: knownModels,
+      local: receiver, foreign: true) == nil) // unknown foreign source never becomes this iPad
+    precondition(LogSourceIdentity.resolve(detected: "iPhone18,3", source: UUID(), known: [:],
+      local: receiver, foreign: true) == "iPhone18,3")
+    precondition(LogSourceIdentity.resolve(detected: receiver, source: phone, known: knownModels,
+      local: receiver, foreign: true) == nil) // contradictory authenticated origin requires review
+    precondition(LogSourceIdentity.resolve(detected: nil, source: nil, known: [:],
+      local: receiver, foreign: false) == receiver) // ordinary direct import remains compatible
+    let mistaken = CloudSharedLogToken.recordID(origin: phone, digest: digest)
+    precondition(LogSourceIdentity.shouldRepair(recordID: mistaken, origin: phone, model: receiver,
+      known: knownModels) == "iPhone18,3")
+    precondition(LogSourceIdentity.shouldRepair(recordID: mistaken, origin: phone, model: "iPhone18,3",
+      known: knownModels) == nil) // idempotent on every cloud replica
+    precondition(LogSourceIdentity.shouldRepair(recordID: UUID(), origin: phone, model: receiver,
+      known: knownModels) == nil) // no automatic reassignment of manual/legacy records
+    precondition(LogSourceIdentity.shouldRepair(recordID: mistaken, origin: nil, model: receiver,
+      known: knownModels) == nil)
+    precondition(LogSourceIdentity.shouldRepair(recordID: mistaken, origin: watch, model: "Watch7,18",
+      known: knownModels) == nil)
+    print("PASS: authenticated source models, foreign fallback rejection and non-destructive identity repair")
     print("PASS: origin tokens, traversal rejection, Watch separation, stable record IDs and non-destructive four-device coalescence")
   }
 }

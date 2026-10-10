@@ -1,3 +1,5 @@
+Fixed a cross-device sharing issue where an iPhone Analytics log without hardware model metadata could be recorded as the receiving iPad. Authenticated encrypted offers now identify the originating model. Unknown sources require device selection. Existing records with a verified origin are corrected in place without changing their dates, measurements, or IDs. Older mobile clients continue own-device collection and transfer with existing pairings, while foreign-device sharing requires an updated client.
+
 Activity logs on iPhone and iPad are now grouped under Settings → Debug → Activity logs. Daily device logs, received PC logs, and retention settings are in the same place, even when collection is disabled. On iPad, they stay in the settings detail pane. Existing error logs remain in Debug. All eight languages are supported.
 
 Automatic on-device collection can now attempt to run while MochiLog is not displayed.

@@ -6,28 +6,15 @@ import SwiftUI
 // MARK: - 共通処理メソッド
 extension HomeView {
   /// デバイス名とモデルコードを解決する
-  private func resolveDeviceName(from result: LogParser.ParseResult) -> (
+  private func resolveDeviceName(from result: LogParser.ParseResult, sourceID: UUID? = nil,
+    foreignSource: Bool = false) -> (
     deviceName: String, modelCode: String?
   ) {
-    var deviceName = "Unknown"
-    var deviceModelCodeToUse: String? = result.detectedIdentifier ?? result.deviceModelCode
-
-    if let id = deviceModelCodeToUse,
-      let resolved = DeviceLibrary.getDeviceName(for: id)
-    {
-      deviceName = resolved
-    }
-
-    if deviceName == "Unknown" {
-      if let localId = DeviceLibrary.localModelIdentifier(),
-        let resolved = DeviceLibrary.getDeviceName(for: localId)
-      {
-        deviceName = resolved
-        deviceModelCodeToUse = localId
-      }
-    }
-
-    return (deviceName, deviceModelCodeToUse)
+    let id = LogSourceIdentity.resolve(detected: result.detectedIdentifier ?? result.deviceModelCode,
+      source: sourceID ?? pendingSourcePhysicalDeviceID, known: LogSourceIdentityStore.models(),
+      local: DeviceLibrary.localModelIdentifier(), foreign: foreignSource ||
+        pendingBatchReview.map { CloudLogSharingState.sharedToken(in: $0.sourceURL) != nil } == true)
+    return (id.flatMap { DeviceLibrary.getDeviceName(for: $0) } ?? "Unknown", id)
   }
 
   /// MagSafeバッテリーの条件に合致するか判定し、必要に応じてデバイス名とモデルコードを更新する
@@ -480,6 +467,12 @@ extension HomeView {
       silent: false
     )
 
+    if baseDeviceName == "Unknown" && !isWatchDevice(parseResult: result, deviceName: baseDeviceName) {
+      pendingParseResult = result
+      showingDeviceSelectionFullList = true
+      return nil
+    }
+
     if needsMagSafeSelection {
       pendingParseResult = result
       showingMagSafeSelection = true
@@ -708,7 +701,8 @@ extension HomeView {
     }
 
     // デバイス名解決
-    let (baseDeviceName, baseModelCode) = resolveDeviceName(from: parseResult)
+    let (baseDeviceName, baseModelCode) = resolveDeviceName(from: parseResult,
+      sourceID: physicalDeviceID, foreignSource: foreignSource)
     let (resolvedName, resolvedModelCode, needsMagSafeSelection) = checkAndApplyMagSafeBattery(
       from: parseResult,
       deviceName: baseDeviceName,
@@ -752,6 +746,12 @@ extension HomeView {
         actualModelCode = DeviceLibrary.getIdentifierForDeviceName(watch) ?? actualModelCode
       }
     } else {
+      if actualDeviceName == "Unknown" {
+        return FileImportResult(id: id, filename: filename, parsedDate: logDate,
+          deviceName: nil, rawText: rawText, status: .needsReview,
+          errorMessage: L10n.string("log_source_model_unknown", table: "Home"),
+          physicalDeviceID: physicalDeviceID)
+      }
       // iPhone/iPad など通常デバイスの処理
       let selectionMode = AppSettings.shared.deviceSelectionMode
       if selectionMode != .automatic {

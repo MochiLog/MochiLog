@@ -256,6 +256,9 @@ struct MochiLogRootView: View {
           // アプリ起動時にマイグレーションを実行
           dataStore.runMigrations()
         }
+        .onReceive(NotificationCenter.default.publisher(for: LogSourceIdentityStore.changed)) { _ in
+          dataStore.refreshRecords()
+        }
         .onReceive(dataStore.$recordsDescending) { records in
           if #available(iOS 17, *) {
             MacTransferManager.shared.observeSavedRecords(records)

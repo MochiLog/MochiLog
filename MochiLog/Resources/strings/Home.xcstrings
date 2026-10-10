@@ -1696,6 +1696,59 @@
           }
         }
       }
+    },
+    "log_source_model_unknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このログを生成した端末の機種を確認できません。機種を選択してください。"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The model of the device that generated this log could not be verified. Please select its model."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Modell des Geräts, das dieses Protokoll erstellt hat, konnte nicht bestätigt werden. Bitte wählen Sie das Modell aus."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo confirmar el modelo del dispositivo que generó este registro. Selecciona su modelo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le modèle de l’appareil ayant généré ce journal n’a pas pu être confirmé. Sélectionnez son modèle."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 로그를 생성한 기기의 모델을 확인할 수 없습니다. 모델을 선택해 주세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法确认生成此日志的设备型号。请选择该设备的型号。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法確認產生此日誌的裝置型號。請選擇該裝置的型號。"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

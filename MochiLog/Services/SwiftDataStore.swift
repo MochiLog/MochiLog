@@ -330,6 +330,29 @@ final class SwiftDataStore: DataStore {
       sortBy: [SortDescriptor(\.logDate, order: .reverse)]
     )
     let sdRecords = (try? modelContext.fetch(descriptor)) ?? []
+    // Repair only content-derived imported records with an authenticated origin.
+    // Preserve IDs, dates, measurements and cloud objects across all replicas.
+    var identityRepairEvents: [String] = []
+    if !ProcessInfo.processInfo.isiOSAppOnMac {
+      let known = LogSourceIdentityStore.models()
+      for record in sdRecords {
+        guard let id = record.recordID,
+          let model = LogSourceIdentity.shouldRepair(recordID: id, origin: record.physicalDeviceID,
+            model: record.deviceModelCode, known: known),
+          let name = DeviceLibrary.getDeviceName(for: model),
+          let capacity = DeviceProfileStore.shared.capacityVariant(for: name,
+            productSku: record.productSku)?.capacity ?? DeviceLibrary.getCapacity(for: name), capacity > 0
+        else { continue }
+        let previous = record.deviceModelCode ?? "unknown"
+        record.deviceModelCode = model
+        record.deviceName = name
+        record.designCapacity = capacity
+        let ratio = Double(record.rawCapacity) / Double(capacity) * 100
+        record.diagnosticResult = L10n.string(ratio < 80 ? "diag_replace_recommended" :
+          ratio < 90 ? "diag_slightly_degraded" : "diag_normal", table: "Records")
+        identityRepairEvents.append("Import identity repair: record=\(id.uuidString), source=\(record.physicalDeviceID!.uuidString), previousModel=\(previous), correctedModel=\(model); measured values and record ID unchanged")
+      }
+    }
     let redundant = ProcessInfo.processInfo.isiOSAppOnMac ? [] : CloudSharedLogToken.redundantCopies(sdRecords, id: { $0.recordID ?? UUID() },
       origin: { $0.physicalDeviceID }, date: { $0.logDate }, createdAt: { $0.createdAt })
     let redundantIDs = Set(redundant.map { ObjectIdentifier($0) })
@@ -349,6 +372,7 @@ final class SwiftDataStore: DataStore {
         return
       }
     }
+    for event in identityRepairEvents { MacTransferManager.appendDebugEvent(event) }
     updateCachedRecords(records)
   }
 

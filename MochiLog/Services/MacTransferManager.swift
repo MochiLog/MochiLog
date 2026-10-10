@@ -1168,6 +1168,7 @@ final class MacTransferManager: ObservableObject {
     ]
     if !usingLegacyTransfer {
       request["cloudSharingVersion"] = "1"
+      request["logSourceIdentityVersion"] = "1"
       request["cloudSharingScope"] = AppSettings.shared.iCloudSyncEnabled ? CloudLogSharingState.shared.scope ?? "" : ""
     }
     request["offerVersion"] = "1"
@@ -1376,6 +1377,12 @@ final class MacTransferManager: ObservableObject {
           if let shared {
             guard AppSettings.shared.iCloudSyncEnabled,
               CloudLogSharingState.shared.scope == shared.scope else { throw TransferError.invalidPayload }
+          }
+          if let shared, shared.base.hasPrefix("Host::"), !usingLegacyTransfer,
+            let model = offer["sourceModel"] {
+            guard LogSourceIdentityStore.remember(origin: shared.origin, model: model, scope: shared.scope)
+            else { throw TransferError.invalidPayload }
+            Self.appendDebugEvent("Import identity: authenticated source=\(shared.origin.uuidString), model=\(model), computer=\(pairing.hostID.uuidString)")
           }
           let forced = offer["force"] == "true"
           let existingSource = forced ? nil : receivedDigestSource(digest,
