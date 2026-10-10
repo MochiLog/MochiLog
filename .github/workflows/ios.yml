@@ -35,7 +35,9 @@ jobs:
           test "$(xcrun --sdk iphoneos --show-sdk-version | cut -d. -f1)" = 27
 
       - name: Verify cloud log sharing and safe convergence
-        run: bash scripts/test-cloud-sharing.sh
+        run: |
+          bash scripts/test-cloud-sharing.sh
+          bash scripts/test-log-source-identity-store.sh
 
       - name: Verify own-device pairing address boundary
         run: bash scripts/test-local-pairing.sh
