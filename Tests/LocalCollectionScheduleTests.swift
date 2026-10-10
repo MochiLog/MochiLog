@@ -6,6 +6,7 @@ import Foundation
     func date(_ value: String) -> Date { formatter.date(from: value)! }
     let morning = date("2026-10-10T08:59:59+09:00")
     let start = date("2026-10-10T09:00:00+09:00")
+    precondition(formatter.date(from: LocalCollectionSchedule.timestamp(start)) == start)
     let tomorrow = date("2026-10-11T09:00:00+09:00")
     let host = "Host::Analytics-2026-10-10-090000.ips.ca.synced"
     let watch = "Watch::watch-1::Analytics-2026-10-10-090000.ips.ca.synced"

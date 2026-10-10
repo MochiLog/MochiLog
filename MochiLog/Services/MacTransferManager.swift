@@ -205,7 +205,11 @@ final class MacTransferManager: ObservableObject {
     }
   }
 
-  func expectedWatchCount() -> Int? {
+  func expectedWatchCount() -> Int? { Self.expectedDailyWatchCount() }
+
+  // Background on-device scheduling only needs this policy, not PC credentials
+  // or the PC/cloud subscription lifecycle owned by the shared instance.
+  static func expectedDailyWatchCount() -> Int? {
     // OS pairing and MochiLog registration are different. An unregistered
     // paired Watch may still produce a log that needs to reach the import flow.
     // Wait for WatchConnectivity to finish activation before deciding that

@@ -465,7 +465,7 @@ final class LocalDiagnosticsManager: ObservableObject {
     if UIApplication.shared.isProtectedDataAvailable, let credential {
       received.formUnion(stagedBases(stagingRoot(credential.physicalDeviceID)))
     }
-    return LocalCollectionSchedule.decide(now: now, received: received, expectedWatches: MacTransferManager.shared.expectedWatchCount())
+    return LocalCollectionSchedule.decide(now: now, received: received, expectedWatches: MacTransferManager.expectedDailyWatchCount())
   }
   private func stagingRoot(_ id: UUID) -> URL {
     FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -498,7 +498,7 @@ final class LocalDiagnosticsManager: ObservableObject {
       let decision = backgroundSchedule()
       if !decision.shouldCollect {
         message = text("local_daily_wait")
-        MacTransferManager.appendDebugEvent("Local diagnostics: automatic collection deferred; reason=\(decision.reason.rawValue), earliest=\(decision.earliest.ISO8601Format())")
+        MacTransferManager.appendDebugEvent("Local diagnostics: automatic collection deferred; reason=\(decision.reason.rawValue), earliest=\(LocalCollectionSchedule.timestamp(decision.earliest))")
         return true
       }
     }

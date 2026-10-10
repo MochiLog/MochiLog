@@ -7,6 +7,12 @@ struct LocalCollectionSchedule: Sendable {
   let reason: Reason
   var shouldCollect: Bool { reason == .retry }
 
+  static func timestamp(_ date: Date) -> String {
+    let formatter = ISO8601DateFormatter()
+    formatter.timeZone = .current
+    return formatter.string(from: date)
+  }
+
   static func decide(now: Date, received: Set<String>, expectedWatches: Int?) -> Self {
     var calendar = Calendar(identifier: .gregorian)
     calendar.timeZone = TimeZone(identifier: "Asia/Tokyo")!
