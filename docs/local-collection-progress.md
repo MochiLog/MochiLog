@@ -26,3 +26,9 @@
 - 10月10日のiPad実機では設定変更・履歴追加を行わない読み取り専用試験で、電池情報6主要項目/363詳細項目、既存の本体電池ログ4件を取得。約38秒を要した。今日の生成は解析共有がオフだったため確認できていない。
 
 公式仕様: [長時間タスク](https://developer.apple.com/documentation/BackgroundTasks/performing-long-running-tasks-on-ios-and-ipados)、[要求](https://developer.apple.com/documentation/backgroundtasks/bgcontinuedprocessingtaskrequest)。
+
+## iPad実機での継続確認（1045）
+
+16:12:31に一意なIDを完全一致で登録した継続タスクをOSが受理。16:12:50にSafariへ切り替えてMochiLogを背景へ移し、16:13:04に本体電池ログ4件の読み取りが完了した。WatchはiPadにないため0件。試験はDEBUGの読み取り専用プローブで、完成ファイルは検証専用一時領域へ保存後に削除し、解析・記録は実行していない。主要な設定、PCペアリング、受領済み一覧の前後ダイジェストは一致。通常起動へ戻した。
+
+この結果はiPadOS 27.2の継続APIと短時間の背景通信の確認。iPhone実機および17系実機の同じ条件、長時間ロック中、強制終了後の自動継続まで成功したことを意味しない。
