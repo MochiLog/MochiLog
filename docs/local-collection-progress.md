@@ -50,3 +50,17 @@
 [署名・アップロード](https://github.com/MochiLog/MochiLog/actions/runs/38035953865) と [Apple側の処理確認](https://github.com/MochiLog/MochiLog/actions/runs/38036809071) も成功し、4.0.0（1046）はVALID。検証・提出元は `78a4e1c`。以後の変更は開発メモのみ。
 
 17:46に [TestFlight配布](https://github.com/MochiLog/MochiLog/actions/runs/38039050738) が成功。日本語・英語のノートを保存し、既存の内部2グループと外部 `main` グループへ設定。外部の状態は `IN_BETA_TESTING`、自動通知は有効。[GitHub beta 1046](https://github.com/MochiLog/MochiLog/releases/tag/v4.0.0-beta.1046) も公開した。iPad実機は1046、iPhoneはTestFlight環境を維持して配布対象へ更新した。iPhone実機の同じ背景試験が済んだという扱いにはしない。
+
+## アプリを表示していない時の定期取得の調査（2026-10-10）
+
+1046では、前面の5分ループと、前面で開始した収集の背景継続のみ実装済み。`updateActivity()` は前面のsceneを必要とし、背景移行後は現在の収集が終わればループが止まる。`BGAppRefreshTask`／`BGProcessingTask` でOSから起動して新たに収集する経路は未実装。前述のiPad実機試験は、OSによる定期起動を証明するものではない。
+
+OSに背景実行の機会を要求する方式は追加候補になる。ただし[earliestBeginDate](https://developer.apple.com/documentation/backgroundtasks/bgtaskrequest/earliestbegindate)は開始可能な最早時刻であり、時刻や間隔の保証ではない。[BGAppRefreshTask](https://developer.apple.com/documentation/backgroundtasks/choosing-background-strategies-for-your-app)は最大30秒の短い更新、[BGProcessingTask](https://developer.apple.com/documentation/backgroundtasks/bgprocessingtask)は端末がidleの時に行う処理。今回の実機取得は約38秒だったため、短い更新だけで全ファイルを取り切れるとは扱わない。完成ファイルごとのチェックポイントと次回再試行を使う必要がある。
+
+別アプリのVPNは診断サービスまでの通信経路を提供する。VPNが動いていることはMochiLogプロセスの常時実行権限を意味しない。MochiLogは自分のPacket Tunnel Providerを持っておらず、別アプリの拡張内で自分の収集コードを実行できない。[Packet Tunnel Providerの公式説明](https://developer.apple.com/documentation/networkextension/nepackettunnelprovider)を参照。継続タスクはユーザー操作から開始するAPIなので、これをタイマーで常時延長する方法にはしない。
+
+現状の資格情報は `kSecAttrAccessibleWhenUnlockedThisDeviceOnly`、完成ファイルは `completeFileProtection`。ロック中のコールド起動では資格情報の読み込みや保存にも制約があり、自動収集のために保護クラスを変更してはいない。さらに[別途のロック中研究](mac-wireless-log-probe.md)では、再起動後に一度解除済みでもAnalytics本文のAFC OPENがPERM_DENIEDになった。これはPC発の研究結果であり、同じ条件の端末内VPN経路での実測ではないが、VPNや背景APIでOSのファイル権限を回避できる根拠にはならない。現在の電池スナップショットの成功と日次ログ本文の成功を区別する。
+
+次の実証対象は「MochiLogを表示せず、端末がロック解除され、VPNが有効で、OSが背景実行を許可した時の取得」。起動・延期・VPN到達・資格情報利用可否・ファイル公開・期限切れ・日次完了による停止を記録し、前面収集と排他、途中ファイルの不採用、既存受領済み一覧を維持する。背景更新オフ・省電力・低頻度利用・強制終了を含めた自然なOS起動は実機の非デバッグ環境で測定する。シミュレーターやデバッガーによる強制起動は、その実行頻度の証明にしない。[Apple DTSの実行制限](https://developer.apple.com/forums/thread/685525)も参照。
+
+結論は「条件が整った時にアプリ非表示でも試行する仕組みには実装の余地がある。ただし5分ごと・9時ちょうど・ロックしたまま毎日取得の保証は現時点では不可」。今回の調査ではランタイムの変更や追加配布は行っていない。
