@@ -8,6 +8,10 @@ MochiLogは、iPhone・iPadの解析ログからバッテリーの容量や充�
 
 ## 4.0.0ベータの対応
 
+4.0.0ベータ（1050）では、端末内取得を有効にすると、MochiLogを表示していない間も取得を試みます。端末がロック解除され、対応するVPNが接続中で、OSが背景実行を許可した時に動作します。完成したファイルは次回アプリを開いた時に既存の重複チェックを通して解析・記録します。時間切れでも完成ファイルを保持します。実行時刻や間隔は保証されず、アプリの強制終了後は再び開くまで自動取得が止まります。
+
+Beta 4.0.0 (1050) can attempt on-device collection while MochiLog is not displayed, with the feature enabled, the device unlocked, a compatible VPN connected, and OS permission to run in the background. Complete files are analyzed and recorded through existing duplicate checks on the next foreground activation. They survive an expired task. Timing and intervals are not guaranteed; force-quitting stops automatic collection until the next launch.
+
 [idevice_pair](https://github.com/jkcoxson/idevice_pair)から、MochiLogを開かずにペアリングファイルを直接インストールする機能に、[TestFlight 4.0.0（1044）](https://testflight.apple.com/join/vnHYsRgN)で対応しました。MochiLog側のファイル選択は不要で、次回の起動・前面復帰で取り込みます。端末内取得はiOS/iPadOS 17以降、端末内の初回ペアリングは27以降が対象で、Developer Modeが必須です。アプリ内の開始前の案内で、設定経路・再起動・再起動後の承認を確認してください。
 
 idevice_pair公式版へのアプリ登録は[PR #84](https://github.com/jkcoxson/idevice_pair/pull/84)で提案中です。作者の採用・配布までは公式版のインストール先にMochiLogは表示されません。MochiLog対応版のツールが必要です。
