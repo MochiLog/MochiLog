@@ -23,3 +23,7 @@ Normal application launch logs the actual OS state and whether protected data is
 ## Regression checks
 
 The mobile pairing test script, Mac transfer test script and Windows protocol tests check feature separation and header version, legacy byte-prefix preservation, append-only chunk offsets, single compatibility headers and safe deletion. Shared Swift archive implementations in the mobile and Mac repos use the same source. Windows implements the same file/header contract in C#.
+
+## 一覧への入口
+
+iPhone・iPadとも「設定 → デバッグ → 動作ログ」に日付別の端末ログ・受信済みPCログ・保存設定を集約する。PC連携／端末内取得の設定から独立しており、どちらの収集をオフにしても保存済みログを読める。従来の解析エラーログは同じデバッグ欄の「エラーログ」で確認する。iPadでは設定の右側のナビゲーション内に表示する。

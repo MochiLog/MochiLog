@@ -657,6 +657,10 @@ struct SettingsView: View {
         L10n.string("show_popup_on_load", table: "Support"),
         isOn: $appSettings.showPopupOnLoad)
 
+      if #available(iOS 17, *), !ProcessInfo.processInfo.isiOSAppOnMac {
+        DiagnosticLogSettingsLink()
+      }
+
       NavigationLink(destination: DebugLogsView()) {
         Label(
           L10n.string("view_error_logs", table: "Support"),

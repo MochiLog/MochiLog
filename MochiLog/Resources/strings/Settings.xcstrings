@@ -1,6 +1,112 @@
 {
   "sourceLanguage" : "ja",
   "strings" : {
+    "diagnostic_logs_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktivitätsprotokolle"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activity logs"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registros de actividad"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Journaux d’activité"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "動作ログ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "활동 로그"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "运行日志"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "運作日誌"
+          }
+        }
+      }
+    },
+    "diagnostic_logs_description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prüfen Sie die Erfassung auf dem Gerät, PC-Verbindungen, Übertragungen und Hintergrundaktivitäten nach Datum. Hier finden Sie auch empfangene Computerprotokolle und Speichereinstellungen. Rohdaten der Analyse und Kopplungsschlüssel sind nicht enthalten."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View on-device collection, PC connections, transfers, and background activity by date. Logs received from your computers and storage settings are also here. Raw analytics logs and pairing keys are excluded."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consulta por fecha la recopilación en el dispositivo, las conexiones al PC, las transferencias y la actividad en segundo plano. Aquí también están los registros recibidos de tus ordenadores y los ajustes de almacenamiento. Se excluyen los registros de análisis originales y las claves de enlace."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consultez par date la collecte sur l’appareil, les connexions au PC, les transferts et l’activité en arrière-plan. Les journaux reçus des ordinateurs et les réglages de stockage sont également ici. Les journaux d’analyse bruts et les clés de jumelage sont exclus."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "端末内取得・PC接続・転送・バックグラウンド動作を日付ごとに確認できます。受信したPCのログと保存容量・期間の設定もここにまとめています。解析ログ本文やペアリング鍵は含みません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기기 내 수집, PC 연결, 전송 및 백그라운드 활동을 날짜별로 확인합니다. PC에서 받은 로그와 저장 설정도 여기에 있습니다. 원본 분석 로그와 페어링 키는 포함되지 않습니다."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按日期查看设备内采集、PC连接、传输和后台活动。收到的电脑日志和存储设置也集中在此处。不包含原始分析日志或配对密钥。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按日期查看裝置內擷取、PC連線、傳輸和背景活動。收到的電腦日誌和儲存設定也集中在此處。不包含原始分析日誌或配對金鑰。"
+          }
+        }
+      }
+    },
     "cloud_sharing_unavailable" : {
       "localizations" : {
         "de" : {

@@ -29,6 +29,13 @@ struct DebugSettingsView: View {
         .padding(.vertical, 8)
       }
 
+      if #available(iOS 17, *), !ProcessInfo.processInfo.isiOSAppOnMac {
+        GroupBox {
+          DiagnosticLogSettingsLink(expanded: true)
+            .buttonStyle(.plain)
+        }
+      }
+
       // エラーログ
       GroupBox {
         NavigationLink(destination: DebugLogsView()) {
@@ -59,5 +66,38 @@ struct DebugSettingsView: View {
       }
     }
     .padding(.horizontal)
+  }
+}
+
+
+// Both settings layouts open the same daily archives and storage controls.
+@available(iOS 17, *)
+struct DiagnosticLogSettingsLink: View {
+  var expanded = false
+
+  var body: some View {
+    NavigationLink {
+      MacTransferDebugLogView()
+    } label: {
+      if expanded {
+        HStack(spacing: 20) {
+          Image(systemName: "calendar.badge.clock")
+            .font(.system(size: 32))
+            .foregroundStyle(.blue)
+            .frame(width: 60)
+          VStack(alignment: .leading, spacing: 4) {
+            Text(L10n.text("diagnostic_logs_title", table: "Settings"))
+              .font(.headline).foregroundStyle(.primary)
+            Text(L10n.text("diagnostic_logs_description", table: "Settings"))
+              .font(.subheadline).foregroundStyle(.secondary)
+          }
+          Spacer()
+          Image(systemName: "chevron.right").foregroundStyle(.secondary)
+        }.padding(.vertical, 8)
+      } else {
+        Label(L10n.text("diagnostic_logs_title", table: "Settings"),
+          systemImage: "calendar.badge.clock")
+      }
+    }.accessibilityIdentifier("settings.diagnosticLogs")
   }
 }

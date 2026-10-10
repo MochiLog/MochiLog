@@ -60,6 +60,47 @@ final class LanguageAndLayoutTests: XCTestCase {
     }
   }
 
+  func testDiagnosticLogsInDebugSettingsInEightLanguages() {
+    let titles = ["en": "Activity logs", "ja": "動作ログ", "de": "Aktivitätsprotokolle",
+      "es": "Registros de actividad", "fr": "Journaux d’activité", "ko": "활동 로그",
+      "zh-Hans": "运行日志", "zh-Hant": "運作日誌"]
+    let settingsTitles = ["en": "Settings", "ja": "設定", "de": "Einstellungen", "es": "Ajustes",
+      "fr": "Réglages", "ko": "설정", "zh-Hans": "设置", "zh-Hant": "設定"]
+    for language in ["en", "ja", "de", "es", "fr", "ko", "zh-Hans", "zh-Hant"] {
+      app.launchArguments = ["-hasCompletedTutorial", "YES", "-showPopupOnLoad", "NO",
+        "-iCloudSyncEnabled", "NO", "-appLanguage", language, "-AppleLanguages", "(\(language))",
+        "-selectedTabIndex", "2", "-LastKnownAppVersion", "4.0.0",
+        "-pcAutomaticCollectionEnabled", "NO", "-localAutomaticCollectionEnabled", "NO"]
+      app.launch()
+      let settings = app.buttons[settingsTitles[language]!].firstMatch
+      XCTAssertTrue(settings.waitForExistence(timeout: 15)); settings.tap()
+      if UIDevice.current.userInterfaceIdiom == .pad {
+        let debug = app.buttons["settings.category.debug"]
+        for _ in 0..<8 { if debug.isHittable { break }; app.swipeUp() }
+        XCTAssertTrue(debug.waitForExistence(timeout: 5)); debug.tap()
+      }
+      let logs = app.buttons["settings.diagnosticLogs"]
+      for _ in 0..<8 { if logs.isHittable { break }; app.swipeUp() }
+      XCTAssertTrue(logs.exists && logs.isHittable, app.debugDescription)
+      XCTAssertEqual(logs.label.contains(titles[language]!), true)
+      logs.tap()
+      XCTAssertTrue(app.navigationBars[titles[language]!].waitForExistence(timeout: 10), app.debugDescription)
+      XCTAssertEqual(app.navigationBars.count, 1, "Logs must stay within the settings navigation")
+      if UIDevice.current.userInterfaceIdiom == .pad {
+        XCTAssertTrue(app.buttons["settings.category.general"].exists,
+          "The settings sidebar must remain visible beside the log list")
+      }
+      let storage = app.buttons["diagnosticLogs.storage"]
+      XCTAssertTrue(storage.waitForExistence(timeout: 5), app.debugDescription)
+      screenshot("Debug daily logs \(language)")
+      storage.tap()
+      XCTAssertEqual(app.navigationBars.count, 1)
+      app.navigationBars.buttons.firstMatch.tap()
+      XCTAssertTrue(storage.waitForExistence(timeout: 5))
+      app.terminate()
+    }
+  }
+
   func testAutomaticCollectionInEightLanguages() {
     verifyAutomaticCollectionLanguages([("en", "Automatic Log Collection"), ("ja", "自動ログ収集"), ("de", "Automatische Protokollerfassung"), ("es", "Recopilación automática de registros"), ("fr", "Collecte automatique des journaux"), ("ko", "자동 로그 수집"), ("zh-Hans", "自动日志收集"), ("zh-Hant", "自動日誌收集")])
   }

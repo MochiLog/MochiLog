@@ -14,7 +14,7 @@ struct MacTransferDebugLogView: View {
   var body: some View {
     List {
       Section {
-        Text(L10n.text("mt_087", table: "MacTransfer"))
+        Text(L10n.text("diagnostic_logs_description", table: "Settings"))
           .foregroundStyle(.secondary)
       }
 
@@ -65,12 +65,13 @@ struct MacTransferDebugLogView: View {
               manager.debugRetentionDays)
           )
           .padding(.vertical, 5)
-        }
+        }.accessibilityIdentifier("diagnosticLogs.storage")
       } footer: {
         Text(L10n.text("mt_log_retention_help", table: "MacTransfer"))
       }
     }
-    .navigationTitle(L10n.text("mt_026", table: "MacTransfer"))
+    .navigationTitle(L10n.text("diagnostic_logs_title", table: "Settings"))
+    .accessibilityIdentifier("diagnosticLogs.list")
     .onAppear {
       revision += 1
       if !manager.pairings.isEmpty { manager.receiveNow() }

@@ -249,12 +249,6 @@ struct MacTransferSettingsView: View {
       }
       Section(L10n.text("mt_022", table: "MacTransfer")) {
         NavigationLink {
-          MacTransferDebugLogView()
-        } label: {
-          Label(L10n.text("mt_068", table: "MacTransfer"),
-            systemImage: "list.bullet.rectangle")
-        }
-        NavigationLink {
           MacTransferSupportView()
         } label: {
           Label(L10n.text("mt_069", table: "MacTransfer"),

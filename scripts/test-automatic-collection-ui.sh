@@ -49,6 +49,7 @@ for kind in ipad iphone; do
     -parallel-testing-enabled NO -jobs 2 -collect-test-diagnostics never \
     -resultBundlePath "Build/automatic-ui-$kind.xcresult" \
     -only-testing:MochiLogUITests/LanguageAndLayoutTests/testAutomaticCollectionInEightLanguages \
+    -only-testing:MochiLogUITests/LanguageAndLayoutTests/testDiagnosticLogsInDebugSettingsInEightLanguages \
     -only-testing:MochiLogUITests/LanguageAndLayoutTests/testLiveBatteryTabChangesWithoutRelaunch \
     -only-testing:MochiLogUITests/LanguageAndLayoutTests/testCollectionProgressAndResumeInEightLanguages \
     > "Build/automatic-ui-$kind.log" 2>&1; then
@@ -62,6 +63,7 @@ for kind in ipad iphone; do
         -parallel-testing-enabled NO -jobs 2 -collect-test-diagnostics never \
         -resultBundlePath "Build/automatic-ui-$kind-retry.xcresult" \
         -only-testing:MochiLogUITests/LanguageAndLayoutTests/testAutomaticCollectionInEightLanguages \
+    -only-testing:MochiLogUITests/LanguageAndLayoutTests/testDiagnosticLogsInDebugSettingsInEightLanguages \
         -only-testing:MochiLogUITests/LanguageAndLayoutTests/testLiveBatteryTabChangesWithoutRelaunch \
     -only-testing:MochiLogUITests/LanguageAndLayoutTests/testCollectionProgressAndResumeInEightLanguages \
         > "Build/automatic-ui-$kind-retry.log" 2>&1; then failed=1; fi

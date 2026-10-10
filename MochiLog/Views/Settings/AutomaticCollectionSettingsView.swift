@@ -120,9 +120,6 @@ struct LocalDiagnosticsSettingsView: View {
         Text(text("local_limits")).font(.caption).foregroundStyle(.secondary)
         Button(text("local_forget"), role: .destructive) { forgetConfirmation = true }.disabled(!manager.configured || manager.pairingActive)
       }
-      Section {
-        NavigationLink { MacTransferDebugLogView() } label: { Label(text("mt_068"), systemImage: "ladybug") }
-      }
     }.accessibilityIdentifier("localDiagnostics.form")
       .navigationTitle(text("local_title"))
       .alert(text("local_forget"), isPresented: $forgetConfirmation) {
