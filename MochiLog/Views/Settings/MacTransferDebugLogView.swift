@@ -74,7 +74,7 @@ struct MacTransferDebugLogView: View {
     .accessibilityIdentifier("diagnosticLogs.list")
     .onAppear {
       revision += 1
-      if !manager.pairings.isEmpty { manager.receiveNow() }
+      // Viewing saved diagnostics must not bypass the daily hold or start a transfer.
     }
     .toolbar {
       ToolbarItem(placement: .topBarTrailing) {

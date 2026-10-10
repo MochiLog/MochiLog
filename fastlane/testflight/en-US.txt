@@ -1,3 +1,5 @@
+Activity logs on iPhone and iPad are now grouped under Settings → Debug → Activity logs. Daily device logs, received PC logs, and retention settings are in the same place, even when collection is disabled. On iPad, they stay in the settings detail pane. Existing error logs remain in Debug. All eight languages are supported.
+
 Automatic on-device collection can now attempt to run while MochiLog is not displayed.
 
 - With on-device collection enabled, the device unlocked, and a VPN route to its diagnostic service available, collection runs when iOS grants background execution. Neither a fixed schedule nor daily execution is guaranteed. Force-quitting stops automatic collection until you open the app again.
