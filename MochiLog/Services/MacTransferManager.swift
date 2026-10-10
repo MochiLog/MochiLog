@@ -1074,7 +1074,8 @@ final class MacTransferManager: ObservableObject {
           let request: [String: String] = ["version": "2", "hostID": host.hostID.uuidString,
             "physicalDeviceID": host.physicalDeviceID.uuidString, "nonce": nonce.uuidString,
             "ack": "", "mac": Self.authenticationCode("v2|\(host.hostID.uuidString)|\(host.physicalDeviceID.uuidString)|\(nonce.uuidString)|", secret: host.secret),
-            "cloudSharingVersion": "1", "cloudSharingScope": scope, "cloudSharingOnly": "1"]
+            "cloudSharingVersion": "1", "cloudSharingScope": scope, "cloudSharingOnly": "1",
+            "logSourceIdentityVersion": "1"]
           guard let payload = Self.sealedRequest(request, pairing: host, nonce: nonce) else { break }
           let encrypted = try await LiveBatteryTransport.exchange(route, payload: payload + Data([10]), timeoutSeconds: 5)
           let context = Data("v2|response|\(host.hostID.uuidString)|\(host.physicalDeviceID.uuidString)|\(nonce.uuidString)".utf8)
@@ -1088,6 +1089,11 @@ final class MacTransferManager: ObservableObject {
           }
           guard isRunning, scope == (AppSettings.shared.iCloudSyncEnabled ? CloudLogSharingState.shared.scope ?? "" : ""),
             pairings.contains(where: { $0.hostID == host.hostID && $0.physicalDeviceID == host.physicalDeviceID }) else { return }
+          if !scope.isEmpty, let json = report["sourceModels"], let data = json.data(using: .utf8),
+            let models = try? JSONDecoder().decode([String: String].self, from: data) {
+            guard LogSourceIdentityStore.remember(models: models, scope: scope) else { throw TransferError.invalidPayload }
+            Self.appendDebugEvent("Import identity policy: authenticatedModels=\(models.count), computer=\(host.hostID.uuidString); no log body requested")
+          }
           rememberCloudCapability(host.hostID)
           Self.appendDebugEvent("Cloud sharing: permission=\(scope.isEmpty ? "off/unavailable" : "confirmed"), computer=\(host.hostID.uuidString), pending=\(report["pending"] ?? "false")")
           if report["pending"] == "true", !isReceiving, connection == nil {

@@ -10,6 +10,7 @@ An October 10 iPhone battery log appeared as an iPad record on the receiving iPa
 - Updated recipients advertise logSourceIdentityVersion=1. Mac and Windows share foreign logs only with recipients that support that identity metadata. Own-device transfers remain compatible with older clients and retain existing pairings.
 - The mobile app caches authenticated source model mappings within the current iCloud sharing scope. An unknown or contradictory source requires explicit device selection, never receiver-model inference. Apple Watch logs retain their existing distinct origin and selection route.
 - Existing content-derived UUIDv5 records with a verified originating device are corrected in place. Their record ID, physical-device ID, dates, measured capacities and charge cycles are preserved. No delete/reinsert or model majority inference is used.
+- A consent-scoped encrypted policy response supplies source model metadata even when every log has already been delivered. This lets existing records be repaired without retransferring their bodies; one validated model batch causes at most one refresh.
 - Repair events are logged only after a successful durable save. The iOS app running on Mac remains free of repair writes.
 
 ## Validation
@@ -19,6 +20,6 @@ An October 10 iPhone battery log appeared as an iPad record on the receiving iPa
 - Windows protocol suite executed on Windows 11, including DPAPI persistence and the same source metadata/capability cases: PASS.
 - Eight-language audit: 1,428 strings, 15 catalogs, 932 literal lookups: PASS.
 - Debug 4.0.0 (1052) build/install: iPhone and iPad PASS. iPhone launch and read-only database comparison confirmed the affected record now says iPhone 17 / iPhone18,3, with design capacity 3,692 mAh. Its record/origin IDs, 135 charge cycles, 3,689 nominal and 3,726 raw capacity remained unchanged.
-- iPad update was installed, but its subsequent launch and read-only database fetch were blocked by its lock state. Do not treat the remaining iPad check as passed.
+- Initial iPad verification confirmed an already-delivered log was not offered again. The metadata policy repair is being verified separately; do not treat it as passed before the database comparison.
 
 Private device databases and original Analytics files stay in ignored Build directories and are not committed.

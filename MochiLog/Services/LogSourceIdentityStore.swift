@@ -6,12 +6,20 @@ import Foundation
   private static let key = "AuthenticatedLogSourceModelsV1"
 
   static func remember(origin: UUID, model: String, scope: String) -> Bool {
-    guard CloudSharedLogToken.validScope(scope), LogSourceIdentity.validHostModel(model) else { return false }
+    remember(models: [origin.uuidString: model], scope: scope)
+  }
+
+  static func remember(models: [String: String], scope: String) -> Bool {
+    guard CloudSharedLogToken.validScope(scope), models.count <= 64 else { return false }
     var accounts = UserDefaults.standard.dictionary(forKey: key) as? [String: [String: String]] ?? [:]
     var values = accounts[scope] ?? [:]
-    if let previous = values[origin.uuidString], previous != model { return false }
-    guard values[origin.uuidString] != model else { return true }
-    values[origin.uuidString] = model
+    let previous = values
+    for (rawID, model) in models {
+      guard let id = UUID(uuidString: rawID), LogSourceIdentity.validHostModel(model) else { return false }
+      if let existing = values[id.uuidString], existing != model { return false }
+      values[id.uuidString] = model
+    }
+    guard values != previous else { return true }
     accounts[scope] = values
     UserDefaults.standard.set(accounts, forKey: key)
     NotificationCenter.default.post(name: changed, object: nil)
