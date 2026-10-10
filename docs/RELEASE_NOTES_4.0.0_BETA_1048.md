@@ -1,4 +1,4 @@
-# MochiLog 4.0.0 beta — build 1047
+# MochiLog 4.0.0 beta — build 1048
 
 ## 日本語
 

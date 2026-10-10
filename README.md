@@ -26,7 +26,7 @@ iPhone・iPadの解析ログから容量と充放電回数を記録し、履歴�
 
 **設定 → 自動ログ収集 → 端末内取得**を有効にすると、対応するVPN経路で自分の端末からログを取得できます。iOS/iPadOS 17以降に対応し、27以降ではDeveloper Modeを有効にして端末内で初回ペアリングも行えます。
 
-1047では、端末がロック解除されVPNが接続中なら、MochiLogを表示していない間もOSが許可したタイミングで取得を試みます。完成したファイルは次にアプリを開いた時に解析・記録します。時間切れでも取得済みファイルを引き継ぎ、既存の重複チェックを使います。実行時刻・間隔は保証されず、アプリを強制終了すると次の起動まで自動取得は止まります。PC連携とは独立して切り替えられます。
+1048では、端末がロック解除されVPNが接続中なら、MochiLogを表示していない間もOSが許可したタイミングで取得を試みます。完成したファイルは次にアプリを開いた時に解析・記録します。時間切れでも取得済みファイルを引き継ぎ、既存の重複チェックを使います。実行時刻・間隔は保証されず、アプリを強制終了すると次の起動まで自動取得は止まります。PC連携とは独立して切り替えられます。
 
 ## 言語と対応環境
 
@@ -50,4 +50,4 @@ Devices paired with the same PC can also receive each other’s logs when both h
 
 idevice_pairからのペアリングファイル直接インストールは、次のベータで対応予定です。公式ツールへの登録は[PR #84](https://github.com/jkcoxson/idevice_pair/pull/84)で提案中で、採用・配布されるまでは公式版の一覧には表示されません。
 
-On-device collection supports iOS/iPadOS 17 and later. Initial pairing entirely on the device requires 27 or later and Developer Mode. From beta 1047, with this optional feature enabled, an unlocked device and a connected VPN can also collect while MochiLog is not displayed, whenever iOS allows execution. Complete files are analyzed and recorded on the next foreground activation through the existing duplicate checks. Timing and intervals are not guaranteed; force-quitting stops automatic collection until the next launch.
+On-device collection supports iOS/iPadOS 17 and later. Initial pairing entirely on the device requires 27 or later and Developer Mode. From beta 1048, with this optional feature enabled, an unlocked device and a connected VPN can also collect while MochiLog is not displayed, whenever iOS allows execution. Complete files are analyzed and recorded on the next foreground activation through the existing duplicate checks. Timing and intervals are not guaranteed; force-quitting stops automatic collection until the next launch.
