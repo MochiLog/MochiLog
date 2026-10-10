@@ -22,9 +22,15 @@ iPhone・iPadの解析ログから容量と充放電回数を記録し、履歴�
 
 [現在値の使い方と注意点](docs/LIVE_BATTERY.md) · [Macの利用ガイド](https://github.com/MochiLog/MochiLog-Mac/blob/main/docs/USER_GUIDE.md) · [Windowsの利用ガイド](https://github.com/MochiLog/MochiLog-Windows/blob/main/docs/USER_GUIDE.md)
 
+## 端末内での自動取得（ベータ）
+
+**設定 → 自動ログ収集 → 端末内取得**を有効にすると、対応するVPN経路で自分の端末からログを取得できます。iOS/iPadOS 17以降に対応し、27以降ではDeveloper Modeを有効にして端末内で初回ペアリングも行えます。
+
+1047では、端末がロック解除されVPNが接続中なら、MochiLogを表示していない間もOSが許可したタイミングで取得を試みます。完成したファイルは次にアプリを開いた時に解析・記録します。時間切れでも取得済みファイルを引き継ぎ、既存の重複チェックを使います。実行時刻・間隔は保証されず、アプリを強制終了すると次の起動まで自動取得は止まります。PC連携とは独立して切り替えられます。
+
 ## 言語と対応環境
 
-日本語、英語、簡体字中国語、繁体字中国語、韓国語、スペイン語、フランス語、ドイツ語に対応します。本体はiOS/iPadOS 16以降、iCloud同期は17以降、PC連携は27以降です。次のベータ更新では、端末内取得とその現在値表示は17以降、端末内の初回ペアリングは27以降に対応します（初回承認と旧OSの実機検証は進行中）。PC版を更新しても既存のペアリングを引き継ぎます。ベータ版とApp Store公開版では利用できる機能が異なります。
+日本語、英語、簡体字中国語、繁体字中国語、韓国語、スペイン語、フランス語、ドイツ語に対応します。本体はiOS/iPadOS 16以降、iCloud同期は17以降、PC連携は27以降です。端末内取得とその現在値表示は17以降、端末内の初回ペアリングは27以降に対応します（旧OSの実機検証は進行中）。PC版を更新しても既存のペアリングを引き継ぎます。ベータ版とApp Store公開版では利用できる機能が異なります。
 
 [プライバシーポリシー](https://mochilog.ryuya-dev.net/privacy?lang=ja) · [利用規約](https://mochilog.ryuya-dev.net/terms?lang=ja) · [サポート](https://mochilog.ryuya-dev.net/support?lang=ja)
 
@@ -43,3 +49,5 @@ See the [live-value guide](docs/LIVE_BATTERY.md) and desktop user guides linked 
 Devices paired with the same PC can also receive each other’s logs when both have confirmed iCloud sync enabled on the same Apple Account. Records keep the original device identity. Disabled sync, different accounts and unconfirmed permissions prevent sharing. If the source app has not been opened for a while, sharing waits for renewed confirmation.
 
 idevice_pairからのペアリングファイル直接インストールは、次のベータで対応予定です。公式ツールへの登録は[PR #84](https://github.com/jkcoxson/idevice_pair/pull/84)で提案中で、採用・配布されるまでは公式版の一覧には表示されません。
+
+On-device collection supports iOS/iPadOS 17 and later. Initial pairing entirely on the device requires 27 or later and Developer Mode. From beta 1047, with this optional feature enabled, an unlocked device and a connected VPN can also collect while MochiLog is not displayed, whenever iOS allows execution. Complete files are analyzed and recorded on the next foreground activation through the existing duplicate checks. Timing and intervals are not guaranteed; force-quitting stops automatic collection until the next launch.
