@@ -330,13 +330,46 @@ final class LocalDiagnosticsManager: ObservableObject {
         let count = (try? RawBatteryField.decode(value.detailsJSON ?? "[]", revision: value.detailsRevision ?? String(repeating: "0", count: 64)).count) ?? 0
         MacTransferManager.appendDebugEvent("Local diagnostics probe: native battery success; coreFields=\(value.values.count), detailedFields=\(count); values not logged")
       } catch { MacTransferManager.appendDebugEvent("Local diagnostics probe: native battery failure=\(error)") }
+      // Exercise the production progress/background lease without touching the
+      // real import ledger or records. Completed probe files are ephemeral.
+      for _ in 0..<600 {
+        if !busy { break }
+        try? await Task.sleep(for: .milliseconds(50))
+      }
+      guard !busy else {
+        MacTransferManager.appendDebugEvent("Local diagnostics probe: existing collection still stopping; no second reader started")
+        updateActivity(); return
+      }
+      let cancellation = LocalCollectionCancellation()
+      collectionCancellation = cancellation; busy = true; collectionPaused = false
+      collectionStartedAt = Date(); collectionProgress = LocalCollectionProgress()
+      await beginCollectionBackground(manual: true)
+      let root = FileManager.default.temporaryDirectory.appendingPathComponent("MochiLogReadOnlyProbe-" + UUID().uuidString)
+      var success = false
+      defer {
+        endCollectionBackground(success: success)
+        collectionCancellation = nil; busy = false; collectionPaused = false; collectionProgress = nil
+        try? FileManager.default.removeItem(at: root)
+        updateActivity()
+      }
       do {
-        let logs = try await Task.detached { try LocalDiagnosticsTransport.logs(credential, address: address, alreadyReceived: []) }.value
-        let host = logs.filter { $0.source == nil && MacTransferManager.looksLikeBatteryLog($0.bytes) }.count
-        let watch = logs.filter { $0.source != nil && MacTransferManager.looksLikeBatteryLog($0.bytes) }.count
-        MacTransferManager.appendDebugEvent("Local diagnostics probe: native file read success; hostBatteryFiles=\(host), watchBatteryFiles=\(watch); no records imported")
-      } catch { MacTransferManager.appendDebugEvent("Local diagnostics probe: native file read failure=\(error)") }
-      updateActivity()
+        let counts = try await Task.detached {
+          var host = 0; var watch = 0
+          _ = try LocalDiagnosticsTransport.logs(credential, address: address, alreadyReceived: [],
+            cancellation: cancellation, progress: { value in Task { @MainActor in
+              guard self.collectionCancellation === cancellation else { return }
+              self.publishCollectionProgress(value)
+            } }, onLog: { log in
+              guard MacTransferManager.looksLikeBatteryLog(log.bytes) else { return }
+              try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+              try log.bytes.write(to: root.appendingPathComponent(UUID().uuidString), options: [.atomic, .completeFileProtection])
+              if log.source == nil { host += 1 } else { watch += 1 }
+            })
+          return (host, watch)
+        }.value
+        success = true
+        MacTransferManager.appendDebugEvent("Local diagnostics probe: native file read success; hostBatteryFiles=\(counts.0), watchBatteryFiles=\(counts.1); completed probe checkpoints; no records imported")
+      } catch { MacTransferManager.appendDebugEvent("Local diagnostics probe: native file read failure=\(error); no records imported") }
     }
   }
   #endif
