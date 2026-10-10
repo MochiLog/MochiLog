@@ -1,8 +1,8 @@
-# MochiLog 4.0.0 Beta (1045)
+# MochiLog 4.0.0 Beta (1046)
 
 ## 日本語
 
-MochiLog 4.0.0 beta (1045)
+MochiLog 4.0.0 beta (1046)
 
 iPhone・iPadの端末内取得に進捗表示を追加しました。ホームを含む各画面で、接続・一覧確認・ファイル取得・取り込み準備の段階、件数、読み取り量、経過時間を確認できます。普段は1行の状態表示にまとめ、タップした時だけ詳細を同じ領域に展開します。追加ポップアップと重複カードを減らし、一時停止と再開にも対応します。8言語対応です。
 
@@ -18,7 +18,7 @@ PC経由と端末内取得は独立してオン・オフできます。Apple Wat
 
 ## English
 
-MochiLog 4.0.0 beta (1045)
+MochiLog 4.0.0 beta (1046)
 
 On-device acquisition now shows progress on both iPhone and iPad. A banner across the app, including Home, displays connection, listing, file download and import preparation, file counts, bytes and elapsed time. The status normally uses one compact row; tapping expands details in the same reserved area, without another popup or duplicate card. Pause and resume are available. All eight app languages are supported.
 

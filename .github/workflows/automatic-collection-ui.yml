@@ -70,3 +70,4 @@ jobs:
           path: |
             Build/automatic-ui-*.xcresult
             Build/automatic-ui-*-native.json
+            Build/automatic-ui-*.log

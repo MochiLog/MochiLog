@@ -146,6 +146,7 @@ struct LocalDiagnosticsSettingsView: View {
 @available(iOS 17, *)
 struct LocalCollectionStatusView: View {
   var compact = false
+  var showsTitle = true
   @ObservedObject private var manager = LocalDiagnosticsManager.shared
   @State private var showingDetails = false
   private func text(_ key: String) -> String { L10n.text(key, table: "MacTransfer") }
@@ -172,7 +173,7 @@ struct LocalCollectionStatusView: View {
           .buttonStyle(.plain)
           .accessibilityIdentifier("localCollection.showDetails")
           if showingDetails {
-            LocalCollectionStatusView().padding(.horizontal, 16).padding(.bottom, 8)
+            LocalCollectionStatusView(showsTitle: false).padding(.horizontal, 16).padding(.bottom, 8)
               .frame(maxWidth: 700)
           }
         }
@@ -181,9 +182,11 @@ struct LocalCollectionStatusView: View {
       } else {
       VStack(alignment: .leading, spacing: 8) {
         HStack {
-          Label(text(manager.collectionPaused ? "local_collection_paused" : "local_collecting"),
+          if showsTitle {
+            Label(text(manager.collectionPaused ? "local_collection_paused" : "local_collecting"),
             systemImage: manager.collectionPaused ? "pause.circle" : "arrow.down.doc.fill")
             .font(.subheadline.bold())
+          }
           Spacer()
           if manager.busy && !manager.collectionPaused, let start = manager.collectionStartedAt {
             Text(start, style: .timer).monospacedDigit().font(.caption)
@@ -197,8 +200,10 @@ struct LocalCollectionStatusView: View {
           }
         }
         if !manager.collectionPaused, let progress = manager.collectionProgress {
-          if let fraction = progress.fraction { ProgressView(value: fraction) }
-          else { ProgressView() }
+          Group {
+            if let fraction = progress.fraction { ProgressView(value: fraction) }
+            else { ProgressView() }
+          }.accessibilityIdentifier("localCollection.progress")
           HStack {
             Text(text("local_progress_" + progress.phase.rawValue))
             Spacer()
@@ -213,6 +218,7 @@ struct LocalCollectionStatusView: View {
             let bytes = ByteCountFormatter.string(fromByteCount: progress.bytes, countStyle: .file)
             Text(progress.fileBytes.map { bytes + " / " + ByteCountFormatter.string(fromByteCount: $0, countStyle: .file) } ?? bytes)
               .font(.caption).monospacedDigit()
+              .accessibilityIdentifier("localCollection.bytes")
           }
         } else {
           Text(text("local_collection_resume_note")).font(.caption).foregroundStyle(.secondary)
@@ -228,7 +234,6 @@ struct LocalCollectionStatusView: View {
       .background(compact ? Color.green.opacity(0.10) : Color.clear, in: RoundedRectangle(cornerRadius: 12))
       .padding(.horizontal, compact ? 12 : 0)
       .buttonStyle(.borderless)
-      .accessibilityIdentifier("localCollection.progress")
       }
     }
   }

@@ -22,19 +22,30 @@ final class LanguageAndLayoutTests: XCTestCase {
   func testCollectionProgressAndResumeInEightLanguages() {
     for language in ["en", "ja", "de", "es", "fr", "ko", "zh-Hans", "zh-Hant"] {
       app.launchEnvironment["MOCHI_COLLECTION_PROGRESS_UI"] = "1"
-      app.launchArguments += ["-appLanguage", language, "-localAutomaticCollectionEnabled", "YES",
+      app.launchArguments = ["-hasCompletedTutorial", "YES", "-iCloudSyncEnabled", "NO",
+        "-showPopupOnLoad", "NO", "-appLanguage", language, "-AppleLanguages", "(\(language))",
+        "-selectedTabIndex", "0", "-localAutomaticCollectionEnabled", "YES",
         "-LastKnownAppVersion", "4.0.0"]
       app.launch()
       let details = app.buttons["localCollection.showDetails"].firstMatch
       XCTAssertTrue(details.waitForExistence(timeout: 15), app.debugDescription)
       XCTAssertTrue(details.isHittable)
+      let navigation = app.navigationBars.firstMatch
+      XCTAssertTrue(navigation.exists)
+      XCTAssertLessThanOrEqual(details.frame.maxY, navigation.frame.minY + 1,
+        "The compact status must reserve space above navigation controls")
+      screenshot("Collection status collapsed \(language)")
       details.tap()
       let progress = app.descendants(matching: .any)["localCollection.progress"].firstMatch
       let pause = app.buttons["localCollection.pause"].firstMatch
       XCTAssertTrue(progress.waitForExistence(timeout: 15), app.debugDescription)
+      screenshot("Collection status expanded \(language)")
       XCTAssertTrue(pause.isHittable, app.debugDescription)
-      XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", "1 MB")).firstMatch.exists ||
-        app.progressIndicators.firstMatch.exists, "File progress is visible")
+      XCTAssertLessThanOrEqual(progress.frame.maxY, navigation.frame.minY + 1,
+        "Expanded progress must push navigation down instead of covering it")
+      XCTAssertFalse(pause.frame.intersects(navigation.frame), "Pause must not cover navigation controls")
+      let bytes = app.staticTexts["localCollection.bytes"].firstMatch
+      XCTAssertTrue(bytes.exists && bytes.label.contains("/"), "Received and total bytes are visible in the selected language")
       XCUIDevice.shared.press(.home)
       app.activate()
       XCTAssertTrue(pause.waitForExistence(timeout: 10), "Returning from background keeps the progress banner")

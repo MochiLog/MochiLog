@@ -63,24 +63,11 @@ struct MainTabView: View {
     let _ = print("[Performance] MainTabView.body構築開始")
     let startTime = CFAbsoluteTimeGetCurrent()
 
-    return Group {
-      if #available(iOS 18.0, *) {
-        // iOS 18+: sidebarAdaptable スタイル（サイドバーを閉じると上部にタブバー）
-        modernTabView
-      } else if horizontalSizeClass == .regular {
-        // iOS 17以下 + iPad: NavigationSplitView
-        legacySplitView
-      } else {
-        // iOS 17以下 + iPhone: 従来のTabView
-        legacyTabView
+    return VStack(spacing: 0) {
+      if #available(iOS 17, *), !ProcessInfo.processInfo.isiOSAppOnMac {
+        LocalCollectionStatusView(compact: true)
       }
-    }
-    .background(RecordsObserverView())
-    .safeAreaInset(edge: .top) {
       VStack(spacing: 0) {
-        if #available(iOS 17, *), !ProcessInfo.processInfo.isiOSAppOnMac {
-          LocalCollectionStatusView(compact: true)
-        }
         if !deviceProfiles.conflicts.isEmpty {
           Button { showingProfileConflicts = true } label: {
             Label(L10n.string("profile_conflict_banner", table: "Settings"), systemImage: "exclamationmark.triangle")
@@ -98,7 +85,21 @@ struct MainTabView: View {
           .accessibilityIdentifier("home.exactDuplicatesBanner")
         }
       }
+      Group {
+        if #available(iOS 18.0, *) {
+          // iOS 18+: sidebarAdaptable スタイル（サイドバーを閉じると上部にタブバー）
+          modernTabView
+        } else if horizontalSizeClass == .regular {
+          // iOS 17以下 + iPad: NavigationSplitView
+          legacySplitView
+        } else {
+          // iOS 17以下 + iPhone: 従来のTabView
+          legacyTabView
+        }
+      }
+      .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
+    .background(RecordsObserverView())
     .sheet(isPresented: $showingProfileConflicts) {
       NavigationStack {
         DeviceProfilesView().toolbar {
