@@ -19,6 +19,32 @@ final class LanguageAndLayoutTests: XCTestCase {
     app.terminate()
   }
 
+  func testCollectionProgressAndResumeInEightLanguages() {
+    for language in ["en", "ja", "de", "es", "fr", "ko", "zh-Hans", "zh-Hant"] {
+      app.launchEnvironment["MOCHI_COLLECTION_PROGRESS_UI"] = "1"
+      app.launchArguments += ["-appLanguage", language, "-localAutomaticCollectionEnabled", "YES",
+        "-LastKnownAppVersion", "4.0.0"]
+      app.launch()
+      let progress = app.descendants(matching: .any)["localCollection.progress"].firstMatch
+      let pause = app.buttons["localCollection.pause"].firstMatch
+      XCTAssertTrue(progress.waitForExistence(timeout: 15), app.debugDescription)
+      XCTAssertTrue(pause.isHittable, app.debugDescription)
+      XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", "1 MB")).firstMatch.exists ||
+        app.progressIndicators.firstMatch.exists, "File progress is visible")
+      XCUIDevice.shared.press(.home)
+      app.activate()
+      XCTAssertTrue(pause.waitForExistence(timeout: 10), "Returning from background keeps the progress banner")
+      pause.tap()
+      let resume = app.buttons["localCollection.resume"].firstMatch
+      XCTAssertTrue(resume.waitForExistence(timeout: 5), app.debugDescription)
+      XCTAssertTrue(resume.isEnabled)
+      resume.tap()
+      XCTAssertTrue(pause.waitForExistence(timeout: 5))
+      screenshot("Collection progress and resume \(language)")
+      app.terminate()
+    }
+  }
+
   func testAutomaticCollectionInEightLanguages() {
     verifyAutomaticCollectionLanguages([("en", "Automatic Log Collection"), ("ja", "自動ログ収集"), ("de", "Automatische Protokollerfassung"), ("es", "Recopilación automática de registros"), ("fr", "Collecte automatique des journaux"), ("ko", "자동 로그 수집"), ("zh-Hans", "自动日志收集"), ("zh-Hant", "自動日誌收集")])
   }

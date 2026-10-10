@@ -1815,7 +1815,7 @@ final class MacTransferManager: ObservableObject {
     return CloudSharedLogToken.measurementOrigin(base: base, origin: origin)
   }
 
-  static func looksLikeBatteryLog(_ bytes: Data) -> Bool {
+  nonisolated static func looksLikeBatteryLog(_ bytes: Data) -> Bool {
     var lines = 0
     for byte in bytes where byte == 10 {
       lines += 1

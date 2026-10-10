@@ -159,6 +159,11 @@ class Fixture:
                 path = data.rstrip(b'\0').decode()
                 response, header = 2, b''
                 payload = (NAME.encode() + b'\0') if path == '/' else b''
+            elif op == 10:
+                response, header = 2, b''
+                fields = {'st_size': str(len(BODY)), 'st_blocks': '40', 'st_ifmt': 'S_IFREG',
+                          'st_nlink': '1', 'st_birthtime': '0', 'st_mtime': '0'}
+                payload = b''.join(k.encode() + b'\0' + v.encode() + b'\0' for k, v in fields.items())
             elif op == 13:
                 offset = 0
                 response, header = 14, struct.pack('<Q', 1)

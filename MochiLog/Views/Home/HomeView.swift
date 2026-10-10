@@ -78,6 +78,9 @@ struct MainTabView: View {
     .background(RecordsObserverView())
     .safeAreaInset(edge: .top) {
       VStack(spacing: 0) {
+        if #available(iOS 17, *), !ProcessInfo.processInfo.isiOSAppOnMac {
+          LocalCollectionStatusView(compact: true)
+        }
         if !deviceProfiles.conflicts.isEmpty {
           Button { showingProfileConflicts = true } label: {
             Label(L10n.string("profile_conflict_banner", table: "Settings"), systemImage: "exclamationmark.triangle")

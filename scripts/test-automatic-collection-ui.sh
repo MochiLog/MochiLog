@@ -50,6 +50,7 @@ for kind in ipad iphone; do
     -resultBundlePath "Build/automatic-ui-$kind.xcresult" \
     -only-testing:MochiLogUITests/LanguageAndLayoutTests/testAutomaticCollectionInEightLanguages \
     -only-testing:MochiLogUITests/LanguageAndLayoutTests/testLiveBatteryTabChangesWithoutRelaunch \
+    -only-testing:MochiLogUITests/LanguageAndLayoutTests/testCollectionProgressAndResumeInEightLanguages \
     > "Build/automatic-ui-$kind.log" 2>&1; then
     if python3 -c 'import re,sys; sys.exit(0 if re.search(r"Simulator device failed to launch .*xctrunner", open(sys.argv[1]).read()) else 1)' "Build/automatic-ui-$kind.log"; then
       # Retry only a simulator runner launch failure, never an assertion failure.
@@ -62,6 +63,7 @@ for kind in ipad iphone; do
         -resultBundlePath "Build/automatic-ui-$kind-retry.xcresult" \
         -only-testing:MochiLogUITests/LanguageAndLayoutTests/testAutomaticCollectionInEightLanguages \
         -only-testing:MochiLogUITests/LanguageAndLayoutTests/testLiveBatteryTabChangesWithoutRelaunch \
+    -only-testing:MochiLogUITests/LanguageAndLayoutTests/testCollectionProgressAndResumeInEightLanguages \
         > "Build/automatic-ui-$kind-retry.log" 2>&1; then failed=1; fi
       tail -30 "Build/automatic-ui-$kind-retry.log"
     else

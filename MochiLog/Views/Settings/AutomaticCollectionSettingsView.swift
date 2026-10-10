@@ -61,6 +61,7 @@ struct LocalDiagnosticsSettingsView: View {
           systemImage: manager.configured ? "checkmark.shield.fill" : "key.fill")
           .foregroundStyle(manager.configured ? .green : .secondary)
         if manager.installingPairing { ProgressView(text("local_working")) }
+        LocalCollectionStatusView()
         if !manager.message.isEmpty { Text(manager.message).font(.callout).textSelection(.enabled) }
       }
       Section(text("local_pairing_step")) {
@@ -116,7 +117,7 @@ struct LocalDiagnosticsSettingsView: View {
         Button { Task { await manager.collectNow() } } label: {
           Label(text("local_collect_now"), systemImage: "arrow.down.doc")
         }.disabled(!manager.configured || manager.busy || manager.pairingActive || !AppSettings.shared.localAutomaticCollectionEnabled)
-        if manager.busy { ProgressView(text("local_working")) }
+        Text(text("local_background_note")).font(.caption).foregroundStyle(.secondary)
         Text(text("local_limits")).font(.caption).foregroundStyle(.secondary)
         Button(text("local_forget"), role: .destructive) { forgetConfirmation = true }.disabled(!manager.configured || manager.pairingActive)
       }
@@ -140,6 +141,67 @@ struct LocalDiagnosticsSettingsView: View {
           try manager.importPairing(Data(contentsOf: url), expectedUDID: expectedUDID)
         } catch { errorMessage = text("local_import_failed") }
       }
+  }
+}
+
+@available(iOS 17, *)
+struct LocalCollectionStatusView: View {
+  var compact = false
+  @ObservedObject private var manager = LocalDiagnosticsManager.shared
+  private func text(_ key: String) -> String { L10n.text(key, table: "MacTransfer") }
+  var body: some View {
+    if manager.collectionProgress != nil || manager.collectionPaused {
+      VStack(alignment: .leading, spacing: 8) {
+        HStack {
+          Label(text(manager.collectionPaused ? "local_collection_paused" : "local_collecting"),
+            systemImage: manager.collectionPaused ? "pause.circle" : "arrow.down.doc.fill")
+            .font(.subheadline.bold())
+          Spacer()
+          if manager.busy && !manager.collectionPaused, let start = manager.collectionStartedAt {
+            Text(start, style: .timer).monospacedDigit().font(.caption)
+          }
+          if manager.busy && !manager.collectionPaused {
+            Button(text("local_pause")) { manager.cancelCollection() }
+              .accessibilityIdentifier("localCollection.pause")
+          } else if !manager.busy {
+            Button { manager.dismissCollectionNotice() } label: { Image(systemName: "xmark") }
+              .accessibilityLabel(L10n.text("close", table: "Common"))
+          }
+        }
+        if !manager.collectionPaused, let progress = manager.collectionProgress {
+          if let fraction = progress.fraction { ProgressView(value: fraction) }
+          else { ProgressView() }
+          HStack {
+            Text(text("local_progress_" + progress.phase.rawValue))
+            Spacer()
+            if progress.total > 0 {
+              Text(String(format: text("local_progress_files"), progress.completed, progress.total)).monospacedDigit()
+            }
+          }.font(.caption).foregroundStyle(.secondary)
+          if !compact && !progress.file.isEmpty {
+            Text(progress.file).font(.caption2.monospaced()).lineLimit(1).truncationMode(.middle)
+          }
+          if progress.bytes > 0 {
+            let bytes = ByteCountFormatter.string(fromByteCount: progress.bytes, countStyle: .file)
+            Text(progress.fileBytes.map { bytes + " / " + ByteCountFormatter.string(fromByteCount: $0, countStyle: .file) } ?? bytes)
+              .font(.caption).monospacedDigit()
+          }
+        } else {
+          Text(text("local_collection_resume_note")).font(.caption).foregroundStyle(.secondary)
+          if !manager.busy {
+            Button(text("local_resume")) { Task { await manager.collectNow() } }
+              .disabled(!manager.configured || !AppSettings.shared.localAutomaticCollectionEnabled || manager.pairingActive)
+              .accessibilityIdentifier("localCollection.resume")
+          }
+        }
+      }
+      .padding(compact ? 12 : 4)
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .background(compact ? Color.green.opacity(0.10) : Color.clear, in: RoundedRectangle(cornerRadius: 12))
+      .padding(.horizontal, compact ? 12 : 0)
+      .buttonStyle(.borderless)
+      .accessibilityIdentifier("localCollection.progress")
+    }
   }
 }
 

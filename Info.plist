@@ -29,6 +29,7 @@
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>net.ryuya-dev.MochiLog.local-pairing</string>
+		<string>net.ryuya-dev.MochiLog.local-collection.*</string>
 	</array>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>

@@ -154,7 +154,7 @@ nonisolated enum LocalDiagnosticsTransport {
     return try work(.remote(adapter, handshake), udid)
   }
   static func battery(_ credential: LocalDiagnosticsCredential, address: String) throws -> LiveBatteryReading {
-    try session(credential, address: address) { connection in
+    return try session(credential, address: address) { connection in
       var client: OpaquePointer?
       try connection.batteryClient(&client)
       guard let client else { throw Failure.invalid }
@@ -167,8 +167,14 @@ nonisolated enum LocalDiagnosticsTransport {
     }
   }
   static func logs(_ credential: LocalDiagnosticsCredential, address: String,
-    alreadyReceived: Set<String>) throws -> [LocalDiagnosticLog] {
-    try session(credential, address: address) { connection in
+    alreadyReceived: Set<String>, cancellation: LocalCollectionCancellation? = nil,
+    progress: @Sendable (LocalCollectionProgress) -> Void = { _ in },
+    onLog: ((LocalDiagnosticLog) throws -> Void)? = nil) throws -> [LocalDiagnosticLog] {
+    try cancellation?.check()
+    progress(LocalCollectionProgress())
+    return try session(credential, address: address) { connection in
+      try cancellation?.check()
+      progress(LocalCollectionProgress(phase: .listing))
       var crash: OpaquePointer?
       try connection.crashClient(&crash)
       guard let crash else { throw Failure.invalid }
@@ -176,6 +182,7 @@ nonisolated enum LocalDiagnosticsTransport {
       var consumed = false
       defer { if !consumed { crash_report_client_free(crash) } }
       func listing(_ path: String) throws -> [String] {
+        try cancellation?.check()
         var list: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>?
         var count = 0
         try check(crash_report_client_ls(crash, path, &list, &count))
@@ -198,7 +205,9 @@ nonisolated enum LocalDiagnosticsTransport {
         for entry in entries {
           let name = (entry as NSString).lastPathComponent
           let base = ([source == nil ? "Host" : "Watch"] + (source.map { [$0] } ?? []) + [name]).joined(separator: "::")
-          guard CloudSharedLogToken.validBase(base), !alreadyReceived.contains(base), seen.insert(base).inserted else { continue }
+          guard CloudSharedLogToken.validBase(base),
+            name.range(of: #"^Analytics-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{6}[A-Za-z0-9._-]*\.ips\.ca\.synced$"#, options: .regularExpression) != nil,
+            !alreadyReceived.contains(base), seen.insert(base).inserted else { continue }
           candidates.append((directory == "/" ? "/" + name : directory + "/" + name, source, name))
         }
       }
@@ -209,30 +218,61 @@ nonisolated enum LocalDiagnosticsTransport {
       var results: [LocalDiagnosticLog] = []
       var totalBytes = 0
       var lastFailure: Error?
-      for (path, source, name) in candidates.sorted(by: { $0.2 > $1.2 }).prefix(16) {
+      var fetched = 0
+      var handled = 0
+      let selected = Array(candidates.sorted(by: { $0.2 > $1.2 }).prefix(16))
+      for (index, candidate) in selected.enumerated() {
+        let (path, source, name) = candidate
+        try cancellation?.check()
         // Bound retained memory as well as each file; reconnect uses staged digests.
         guard totalBytes < 96 * 1024 * 1024 else { break }
         do {
+          var info = AfcFileInfo()
+          var expectedBytes: Int64?
+          if let error = afc_get_file_info(afc, path, &info) { idevice_error_free(error) }
+          else {
+            let size = info.size; afc_file_info_free(&info)
+            guard size <= 64 * 1024 * 1024 else { throw Failure.oversized }
+            expectedBytes = Int64(size)
+          }
+          progress(LocalCollectionProgress(phase: .downloading, file: name,
+            completed: index, total: selected.count, fileBytes: expectedBytes))
           let data: Data = try {
             var file: OpaquePointer?
             try check(afc_file_open(afc, path, AfcRdOnly, &file))
             guard let file else { throw Failure.invalid }
             defer { if let error = afc_file_close(file) { idevice_error_free(error) } }
             var data = Data()
+            var lastProgress = ProcessInfo.processInfo.systemUptime
             while true {
+              try cancellation?.check()
               var chunk: UnsafeMutablePointer<UInt8>?; var count = 0
               try check(afc_file_read(file, &chunk, 65536, &count))
               if let chunk { data.append(chunk, count: count); afc_file_read_data_free(chunk, count) }
               guard data.count <= 64 * 1024 * 1024 else { throw Failure.oversized }
+              if count == 0 || ProcessInfo.processInfo.systemUptime - lastProgress >= 0.5 {
+                progress(LocalCollectionProgress(phase: .downloading, file: name,
+                  completed: index, total: selected.count, bytes: Int64(data.count), fileBytes: expectedBytes))
+                lastProgress = ProcessInfo.processInfo.systemUptime
+              }
               if count == 0 { break }
             }
             return data
           }()
+          if let expectedBytes, expectedBytes > 0, Int64(data.count) != expectedBytes { throw Failure.invalid }
           totalBytes += data.count
-          results.append(LocalDiagnosticLog(name: name, source: source, bytes: data))
-        } catch { lastFailure = error }
+          try cancellation?.check()
+          let log = LocalDiagnosticLog(name: name, source: source, bytes: data)
+          if let onLog { try onLog(log) } else { results.append(log) }
+          fetched += 1
+          try cancellation?.check()
+          progress(LocalCollectionProgress(phase: .downloading, completed: index + 1, total: selected.count))
+        } catch is CancellationError { throw CancellationError() }
+        catch { lastFailure = error }
+        handled = index + 1
       }
-      if results.isEmpty, let lastFailure { throw lastFailure }
+      if fetched == 0, let lastFailure { throw lastFailure }
+      progress(LocalCollectionProgress(phase: .finishing, completed: handled, total: selected.count))
       return results
     }
   }

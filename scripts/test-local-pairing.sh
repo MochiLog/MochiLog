@@ -7,3 +7,5 @@ xcrun swiftc -parse-as-library MochiLog/Services/LocalPairingAddressPolicy.swift
 "$folder/tests"
 xcrun swiftc -parse-as-library MochiLog/Services/LocalPairingFileFormat.swift Tests/LocalPairingFileFormatTests.swift -o "$folder/format-tests"
 "$folder/format-tests"
+xcrun swiftc -parse-as-library MochiLog/Services/LocalCollectionProgress.swift Tests/LocalCollectionProgressTests.swift -o "$folder/progress-tests"
+"$folder/progress-tests"

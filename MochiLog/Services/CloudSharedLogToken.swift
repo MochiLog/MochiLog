@@ -2,7 +2,7 @@ import CryptoKit
 import Foundation
 
 /// Versioned origin token. No component is ever used as an unchecked path.
-struct CloudSharedLogToken {
+nonisolated struct CloudSharedLogToken {
   let scope: String
   let origin: UUID
   let base: String

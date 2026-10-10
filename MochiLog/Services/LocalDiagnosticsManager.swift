@@ -1,3 +1,4 @@
+import BackgroundTasks
 import Combine
 import CryptoKit
 import Foundation
@@ -13,6 +14,112 @@ final class LocalDiagnosticsManager: ObservableObject {
   @Published private(set) var configured = false
   @Published private(set) var busy = false
   @Published private(set) var batteryBusy = false
+  @Published private(set) var collectionProgress: LocalCollectionProgress?
+  @Published private(set) var collectionPaused = false
+  @Published private(set) var collectionStartedAt: Date?
+  private var collectionCancellation: LocalCollectionCancellation?
+  private var backgroundTask = UIBackgroundTaskIdentifier.invalid
+  private var continuedProcessing: AnyObject?
+  private static let collectionTaskID = "net.ryuya-dev.MochiLog.local-collection.*"
+  private var activeCollectionTaskID: String?
+  private static var collectionRegistered = false
+  @available(iOS 26, *)
+  private var continuedTask: BGContinuedProcessingTask? {
+    get { continuedProcessing as? BGContinuedProcessingTask }
+    set { continuedProcessing = newValue }
+  }
+  @available(iOS 26, *)
+  static func registerCollectionTask() {
+    guard !collectionRegistered, !ProcessInfo.processInfo.isiOSAppOnMac else { return }
+    collectionRegistered = BGTaskScheduler.shared.register(forTaskWithIdentifier: collectionTaskID, using: .main) { task in
+      guard let task = task as? BGContinuedProcessingTask else { task.setTaskCompleted(success: false); return }
+      Task { @MainActor in
+        let owner = shared
+        guard owner.busy, task.identifier == owner.activeCollectionTaskID,
+          let cancellation = owner.collectionCancellation, !cancellation.isCancelled else {
+          task.setTaskCompleted(success: false); return
+        }
+        owner.continuedTask = task
+        task.progress.totalUnitCount = 1000
+        task.expirationHandler = { Task { @MainActor in
+          guard owner.continuedTask === task else { return }
+          owner.pauseCollection(reason: "system continued-task expiration/cancellation")
+        } }
+        owner.publishCollectionProgress(owner.collectionProgress ?? LocalCollectionProgress())
+        if owner.backgroundTask != .invalid {
+          UIApplication.shared.endBackgroundTask(owner.backgroundTask); owner.backgroundTask = .invalid
+        }
+        MacTransferManager.appendDebugEvent("Local diagnostics: continued background task accepted; progress reporting active")
+      }
+    }
+  }
+  private func beginCollectionBackground(manual: Bool) async {
+    backgroundTask = UIApplication.shared.beginBackgroundTask(withName: "MochiLog local collection") { [weak self] in
+      Task { @MainActor [weak self] in self?.pauseCollection(reason: "short background time expired") }
+    }
+    if #available(iOS 26, *), manual {
+      Self.registerCollectionTask()
+      guard Self.collectionRegistered else {
+        MacTransferManager.appendDebugEvent("Local diagnostics: continued-task registration unavailable; short background fallback")
+        return
+      }
+      let identifier = "net.ryuya-dev.MochiLog.local-collection." + UUID().uuidString
+      activeCollectionTaskID = identifier
+      let request = BGContinuedProcessingTaskRequest(identifier: identifier,
+        title: text("local_collecting"), subtitle: text("local_progress_connecting"))
+      request.strategy = .fail
+      do {
+        if #available(iOS 27, *) {
+          try await Task.detached { try await BGTaskScheduler.shared.submitTaskRequest(request) }.value
+        } else {
+          try BGTaskScheduler.shared.submit(request)
+        }
+      }
+      catch {
+        let error = error as NSError
+        MacTransferManager.appendDebugEvent("Local diagnostics: continued background task unavailable; domain=\(error.domain), code=\(error.code); short background fallback")
+      }
+    }
+  }
+  private func endCollectionBackground(success: Bool) {
+    if #available(iOS 26, *) {
+      if let identifier = activeCollectionTaskID { BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: identifier) }
+      activeCollectionTaskID = nil
+      if success { continuedTask?.progress.completedUnitCount = 1000 }
+      continuedTask?.setTaskCompleted(success: success); continuedTask = nil
+    }
+    if backgroundTask != .invalid { UIApplication.shared.endBackgroundTask(backgroundTask); backgroundTask = .invalid }
+  }
+  private func pauseCollection(reason: String) {
+    guard let cancellation = collectionCancellation, !cancellation.isCancelled else { return }
+    cancellation.cancel(); collectionPaused = true; message = text("local_collection_paused")
+    MacTransferManager.appendDebugEvent("Local diagnostics: collection paused; trigger=\(reason); completed file checkpoints retained, interrupted file retried")
+    endCollectionBackground(success: false)
+  }
+  func cancelCollection() {
+    pauseCollection(reason: "user pause")
+    #if DEBUG && targetEnvironment(simulator)
+    if ProcessInfo.processInfo.environment["MOCHI_COLLECTION_PROGRESS_UI"] == "1" { busy = false }
+    #endif
+  }
+  func dismissCollectionNotice() { collectionPaused = false; collectionProgress = nil }
+  func suspendForBackground() {
+    batteryLoop?.cancel(); batteryLoop = nil
+    if busy {
+      MacTransferManager.appendDebugEvent("Local diagnostics: app backgrounded; active collection continues within OS budget; completed files checkpointed")
+    } else { stop() }
+  }
+  private func publishCollectionProgress(_ value: LocalCollectionProgress) {
+    let previous = collectionProgress
+    collectionProgress = value
+    if previous?.phase != value.phase || previous?.file != value.file || previous?.completed != value.completed {
+      MacTransferManager.appendDebugEvent("Local diagnostics: progress; stage=\(value.phase.rawValue), processed=\(value.completed)/\(value.total), file=\(value.file), bytes=\(value.bytes)")
+    }
+    if #available(iOS 26, *), let task = continuedTask {
+      task.progress.completedUnitCount = max(task.progress.completedUnitCount, Int64((value.fraction ?? 0) * 990))
+      task.updateTitle(text("local_collecting"), subtitle: text("local_progress_" + value.phase.rawValue))
+    }
+  }
   @Published private(set) var reading: LiveBatteryReading?
   @Published private(set) var state = "waiting"
   @Published private(set) var message = ""
@@ -187,6 +294,16 @@ final class LocalDiagnosticsManager: ObservableObject {
   #if DEBUG
   var debugCredentialSnapshot: LocalDiagnosticsCredential? { credential }
   private var probeStarted = false
+  #if targetEnvironment(simulator)
+  private var collectionUITestStarted = false
+  private func showCollectionUIFixture() {
+    configured = true; busy = true; collectionPaused = false
+    collectionCancellation = LocalCollectionCancellation(); collectionStartedAt = Date()
+    collectionProgress = LocalCollectionProgress(phase: .downloading,
+      file: "Analytics-2026-10-10-090000.ips.ca.synced", completed: 1, total: 4,
+      bytes: 1048576, fileBytes: 4194304)
+  }
+  #endif
   /// Read-only real-device probe: never imports records or changes opt-in settings.
   func debugProbeIfRequested() {
     guard !probeStarted, ProcessInfo.processInfo.environment["MOCHI_LOCAL_DIAGNOSTICS_TEST"] == "1",
@@ -228,6 +345,12 @@ final class LocalDiagnosticsManager: ObservableObject {
     updateActivity()
   }
   func updateActivity() {
+    #if DEBUG && targetEnvironment(simulator)
+    if ProcessInfo.processInfo.environment["MOCHI_COLLECTION_PROGRESS_UI"] == "1" {
+      if !collectionUITestStarted { collectionUITestStarted = true; showCollectionUIFixture() }
+      return
+    }
+    #endif
     guard !pairingActive, AppSettings.shared.localAutomaticCollectionEnabled, !ProcessInfo.processInfo.isiOSAppOnMac,
       configured, UIApplication.shared.connectedScenes.contains(where: { $0.activationState == .foregroundActive }) else { stop(); return }
     if loop == nil {
@@ -236,6 +359,9 @@ final class LocalDiagnosticsManager: ObservableObject {
       loop = Task { [weak self] in
         while !Task.isCancelled, self?.generation == epoch {
           await self?.collectNow(manual: false)
+          guard UIApplication.shared.connectedScenes.contains(where: { $0.activationState == .foregroundActive }) else {
+            self?.loop = nil; return
+          }
           do { try await Task.sleep(for: .seconds(300)) } catch { return }
         }
       }
@@ -249,7 +375,7 @@ final class LocalDiagnosticsManager: ObservableObject {
       }
     } else if !AppSettings.shared.liveBatteryEnabled { batteryLoop?.cancel(); batteryLoop = nil; reading = nil }
   }
-  func stop() { generation += 1; loop?.cancel(); loop = nil; batteryLoop?.cancel(); batteryLoop = nil }
+  func stop() { pauseCollection(reason: "activity stopped/settings changed"); generation += 1; loop?.cancel(); loop = nil; batteryLoop?.cancel(); batteryLoop = nil }
   private var safeAddress: String? {
     let parts = address.split(separator: ".").compactMap { Int($0) }
     guard parts.count == 4, parts.allSatisfy({ (0...255).contains($0) }),
@@ -280,6 +406,11 @@ final class LocalDiagnosticsManager: ObservableObject {
     Set(UserDefaults.standard.stringArray(forKey: "LocalDiagnosticsImported." + id.uuidString) ?? [])
   }
   func collectNow(manual: Bool = true) async {
+    #if DEBUG && targetEnvironment(simulator)
+    if ProcessInfo.processInfo.environment["MOCHI_COLLECTION_PROGRESS_UI"] == "1" {
+      showCollectionUIFixture(); return
+    }
+    #endif
     guard !pairingActive, !busy, let credential, let address = safeAddress, AppSettings.shared.localAutomaticCollectionEnabled else { return }
     let day = Self.japanDay()
     let imported = importedBases(credential.physicalDeviceID)
@@ -293,42 +424,94 @@ final class LocalDiagnosticsManager: ObservableObject {
       }
     }
     let skippedBases = skipped()
-    busy = true; defer { busy = false }; let epoch = generation
+    busy = true; collectionPaused = false; collectionProgress = LocalCollectionProgress(); collectionStartedAt = Date()
+    let cancellation = LocalCollectionCancellation(); collectionCancellation = cancellation
+    let epoch = generation; let started = ProcessInfo.processInfo.systemUptime
+    var succeeded = false
+    defer {
+      endCollectionBackground(success: succeeded)
+      collectionCancellation = nil; busy = false
+      if !collectionPaused { collectionProgress = nil }
+      MacTransferManager.appendDebugEvent("Local diagnostics: collection ended; success=\(succeeded), paused=\(collectionPaused), elapsedMs=\(Int((ProcessInfo.processInfo.systemUptime - started) * 1000))")
+    }
     MacTransferManager.appendDebugEvent("Local diagnostics: collection started; trigger=\(manual ? "manual" : "automatic"), ownDevice=\(credential.physicalDeviceID), dailyDate=\(day)")
+    await beginCollectionBackground(manual: manual)
+    let root = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+      .appendingPathComponent("MacTransferInbox/LocalDevice/" + credential.physicalDeviceID.uuidString, isDirectory: true)
+    let existing = stagedBases(root)
     do {
-      let logs = try await Task.detached(priority: .utility) { try LocalDiagnosticsTransport.logs(credential, address: address, alreadyReceived: imported.union(skippedBases)) }.value
+      let owner = self
+      let excluded = try await Task.detached(priority: .utility) {
+        var excluded: [String] = []
+        _ = try LocalDiagnosticsTransport.logs(credential, address: address,
+          alreadyReceived: imported.union(skippedBases).union(existing), cancellation: cancellation,
+          progress: { value in Task { @MainActor [weak owner] in
+            guard let owner, owner.generation == epoch, owner.collectionCancellation === cancellation else { return }
+            owner.publishCollectionProgress(value)
+          } }, onLog: { log in
+            try cancellation.check()
+            guard MacTransferManager.looksLikeBatteryLog(log.bytes) else { excluded.append(log.base); return }
+            let header = (try? JSONSerialization.jsonObject(with: Data(log.bytes.prefix { $0 != 10 }))) as? [String: Any]
+            let os = (header?["os_version"] as? String ?? "").lowercased().filter { !$0.isWhitespace }
+            guard log.source == nil ? os.hasPrefix("iphoneos") : os.hasPrefix("watchos") else { excluded.append(log.base); return }
+            // Each complete, validated file is committed before the next read.
+            // A force-quit or expired OS budget loses only the unfinished file.
+            var url = root
+            for component in log.base.components(separatedBy: "::") { url.appendPathComponent(component) }
+            try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try log.bytes.write(to: url, options: [.atomic, .completeFileProtection])
+          })
+        return excluded
+      }.value
       guard generation == epoch, !Task.isCancelled, AppSettings.shared.localAutomaticCollectionEnabled else { return }
-      var batch: [(url: URL, physicalDeviceID: UUID?)] = []
-      let root = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        .appendingPathComponent("MacTransferInbox/LocalDevice/" + credential.physicalDeviceID.uuidString, isDirectory: true)
-      for log in logs {
-        guard MacTransferManager.looksLikeBatteryLog(log.bytes), let origin = CloudSharedLogToken.measurementOrigin(base: log.base, origin: credential.physicalDeviceID) else {
-          skip(log.base); continue
-        }
-        let firstLine = log.bytes.prefix { $0 != 10 }
-        let header = (try? JSONSerialization.jsonObject(with: Data(firstLine))) as? [String: Any]
-        let os = (header?["os_version"] as? String ?? "").lowercased().filter { !$0.isWhitespace }
-        guard log.source == nil ? os.hasPrefix("iphoneos") : os.hasPrefix("watchos") else { skip(log.base); continue }
-        let digest = SHA256.hash(data: log.bytes).map { String(format: "%02x", $0) }.joined()
-        if let existing = MacTransferManager.shared.receivedLocalDigestState(digest, parentID: credential.physicalDeviceID, recordOrigin: origin) {
-          if existing != "inbox" { markImported(log.base, parentID: credential.physicalDeviceID) }
-          MacTransferManager.appendDebugEvent("Local diagnostics: duplicate withheld; source=\(existing), SHA256=\(digest.prefix(12))")
-          continue
-        }
-        var url = root
-        for component in log.base.components(separatedBy: "::") { url.appendPathComponent(component) }
-        try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-        try log.bytes.write(to: url, options: [.atomic, .completeFileProtection])
-        batch.append((url, origin))
-        MacTransferManager.appendDebugEvent("Local diagnostics: staged \(log.source == nil ? "Host" : "Watch"), date=\(log.name.prefix(20)), bytes=\(log.bytes.count), SHA256=\(digest.prefix(12)); shared import queue")
-      }
-      SharedImportQueue.shared.enqueueBatch(batch)
-      message = String(format: text("local_received"), batch.count)
+      for base in excluded { skip(base) }
+      try cancellation.check()
+      let count = importStagedFiles(root, parentID: credential.physicalDeviceID)
+      message = String(format: text("local_received"), count)
+      succeeded = true
+    } catch is CancellationError {
+      collectionPaused = true; message = text("local_collection_paused")
     } catch {
-      message = text("local_connection_failed")
-      MacTransferManager.appendDebugEvent("Local diagnostics: collection failed; stage=authenticated own-device read, errorType=\(String(describing: error)); no credential logged")
+      if generation == epoch {
+        message = text("local_connection_failed")
+        MacTransferManager.appendDebugEvent("Local diagnostics: collection failed; stage=authenticated own-device read, errorType=\(String(describing: error)); complete file checkpoints retained")
+      }
     }
   }
+  private static func validCheckpoint(_ url: URL) -> Bool {
+    guard let metadata = try? url.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey, .fileSizeKey]),
+      metadata.isRegularFile == true, metadata.isSymbolicLink != true,
+      let size = metadata.fileSize, size > 0, size <= 64 * 1024 * 1024,
+      let bytes = try? Data(contentsOf: url, options: .mappedIfSafe),
+      MacTransferManager.looksLikeBatteryLog(bytes) else { return false }
+    return true
+  }
+  private func stagedBases(_ root: URL) -> Set<String> {
+    let files = FileManager.default.enumerator(at: root, includingPropertiesForKeys: [.isRegularFileKey, .isSymbolicLinkKey, .fileSizeKey])?.allObjects.compactMap { $0 as? URL } ?? []
+    return Set(files.compactMap { url in
+      guard Self.validCheckpoint(url) else { return nil }
+      let base = url.path.dropFirst(root.path.count + 1).components(separatedBy: "/").joined(separator: "::")
+      return CloudSharedLogToken.validBase(base) ? base : nil
+    })
+  }
+  private func importStagedFiles(_ root: URL, parentID: UUID) -> Int {
+    let files = FileManager.default.enumerator(at: root, includingPropertiesForKeys: [.isRegularFileKey, .isSymbolicLinkKey, .fileSizeKey])?.allObjects.compactMap { $0 as? URL } ?? []
+    var batch: [(url: URL, physicalDeviceID: UUID?)] = []
+    for url in files.sorted(by: { $0.path < $1.path }) {
+      guard Self.validCheckpoint(url) else { continue }
+      let base = url.path.dropFirst(root.path.count + 1).components(separatedBy: "/").joined(separator: "::")
+      guard let origin = CloudSharedLogToken.measurementOrigin(base: base, origin: parentID),
+        let bytes = try? Data(contentsOf: url, options: .mappedIfSafe), MacTransferManager.looksLikeBatteryLog(bytes) else { continue }
+      let digest = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
+      if let previous = MacTransferManager.shared.receivedLocalDigestState(digest, parentID: parentID, recordOrigin: origin), previous != "inbox" {
+        markImported(base, parentID: parentID); try? FileManager.default.removeItem(at: url)
+        MacTransferManager.appendDebugEvent("Local diagnostics: checkpoint duplicate withheld; source=\(previous), SHA256=\(digest.prefix(12))")
+      } else { batch.append((url, origin)) }
+    }
+    SharedImportQueue.shared.enqueueBatch(batch)
+    return batch.count
+  }
+
   private func skipped() -> Set<String> {
     let dates = UserDefaults.standard.dictionary(forKey: "LocalDiagnosticsExcluded") as? [String: Double] ?? [:]
     return Set(dates.filter { Date().timeIntervalSince1970 - $0.value < 1800 }.keys)
@@ -344,19 +527,10 @@ final class LocalDiagnosticsManager: ObservableObject {
     guard let credential else { return }
     let root = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
       .appendingPathComponent("MacTransferInbox/LocalDevice/" + credential.physicalDeviceID.uuidString)
-    let files = FileManager.default.enumerator(at: root, includingPropertiesForKeys: [.isRegularFileKey])?.allObjects.compactMap { $0 as? URL } ?? []
-    let imported = importedBases(credential.physicalDeviceID)
-    let batch = files.compactMap { url -> (url: URL, physicalDeviceID: UUID?)? in
-      let base = url.path.dropFirst(root.path.count + 1).components(separatedBy: "/").joined(separator: "::")
-      guard !imported.contains(base), CloudSharedLogToken.validBase(base),
-        let origin = CloudSharedLogToken.measurementOrigin(base: base, origin: credential.physicalDeviceID) else { return nil }
-      return (url, origin)
-    }
-    if !batch.isEmpty {
-      SharedImportQueue.shared.enqueueBatch(batch)
-      MacTransferManager.appendDebugEvent("Local diagnostics: recovered \(batch.count) staged file(s); shared import queue")
-    }
+    let count = importStagedFiles(root, parentID: credential.physicalDeviceID)
+    if count > 0 { MacTransferManager.appendDebugEvent("Local diagnostics: recovered \(count) completed file checkpoint(s); shared import queue") }
   }
+
   private func markImported(_ base: String, parentID: UUID) {
     var values = importedBases(parentID); values.insert(base)
     UserDefaults.standard.set(Array(values.sorted().suffix(10000)), forKey: "LocalDiagnosticsImported." + parentID.uuidString)
@@ -377,6 +551,14 @@ final class LocalDiagnosticsManager: ObservableObject {
 #if DEBUG && targetEnvironment(simulator)
 import Darwin
 
+// Recorder is confined to one native fixture worker; progress is called
+// synchronously on that same worker, never by the production UI.
+nonisolated private final class LocalCollectionFixtureRecorder: @unchecked Sendable {
+  var checkpoints: [LocalDiagnosticLog] = []
+  var stages: [LocalCollectionProgress.Phase] = []
+  func add(_ value: LocalCollectionProgress) { stages.append(value.phase) }
+}
+
 @available(iOS 17, *)
 extension LocalDiagnosticsManager {
   /// Uses the real native transport against a loopback protocol fixture. Never
@@ -394,7 +576,7 @@ extension LocalDiagnosticsManager {
       let originalMessage = message
       let osKey = "LocalDiagnosticsLastObservedOSVersion"
       let originalOS = UserDefaults.standard.object(forKey: osKey)
-      var expectedChecks = 18
+      var expectedChecks = 23
       var q = query; q[kSecReturnData as String] = true
       var stored: CFTypeRef?
       let originalStatus = SecItemCopyMatching(q as CFDictionary, &stored)
@@ -492,6 +674,46 @@ extension LocalDiagnosticsManager {
         let files = try await Task.detached { try LocalDiagnosticsTransport.logs(trusted, address: "127.0.0.1", alreadyReceived: []) }.value
         results["nativeLogBody"] = files.count == 1 && files[0].name == name &&
           SHA256.hash(data: files[0].bytes).map { String(format: "%02x", $0) }.joined() == hash
+        let streamed = try await Task.detached {
+          let recorder = LocalCollectionFixtureRecorder()
+          let returned = try LocalDiagnosticsTransport.logs(trusted, address: "127.0.0.1", alreadyReceived: [],
+            progress: { recorder.add($0) }, onLog: { recorder.checkpoints.append($0) })
+          return (returned.isEmpty, recorder.checkpoints, recorder.stages)
+        }.value
+        results["streamedCompleteCheckpoint"] = streamed.0 && streamed.1.count == 1 && streamed.1[0].bytes == files[0].bytes
+        results["nativeProgressPhases"] = streamed.2.contains(.connecting) && streamed.2.contains(.listing) &&
+          streamed.2.contains(.downloading) && streamed.2.last == .finishing
+        let beforeRead = LocalCollectionCancellation(); beforeRead.cancel()
+        do {
+          _ = try LocalDiagnosticsTransport.logs(trusted, address: "127.0.0.1", alreadyReceived: [], cancellation: beforeRead)
+          results["cancelBeforeConnection"] = false
+        } catch is CancellationError { results["cancelBeforeConnection"] = true }
+        let checkpointSurvives = try await Task.detached {
+          let cancellation = LocalCollectionCancellation()
+          let recorder = LocalCollectionFixtureRecorder()
+          do {
+            _ = try LocalDiagnosticsTransport.logs(trusted, address: "127.0.0.1", alreadyReceived: [],
+              cancellation: cancellation, progress: { value in
+                if value.phase == .downloading && value.bytes > 0 { cancellation.cancel() }
+              }, onLog: { recorder.checkpoints.append($0) })
+          } catch is CancellationError { return recorder.checkpoints.isEmpty }
+          return false
+        }.value
+        results["cancelledFileNotPublished"] = checkpointSurvives
+        let checkpoint = root.appendingPathComponent("completed-checkpoint.ips")
+        let retained = try await Task.detached {
+          let cancellation = LocalCollectionCancellation()
+          do {
+            _ = try LocalDiagnosticsTransport.logs(trusted, address: "127.0.0.1", alreadyReceived: [],
+              cancellation: cancellation, onLog: { file in
+                try file.bytes.write(to: checkpoint, options: .atomic)
+                cancellation.cancel()
+              })
+          } catch is CancellationError { return (try? Data(contentsOf: checkpoint)) == files[0].bytes }
+          return false
+        }.value
+        results["completeCheckpointSurvivesCancellation"] = retained
+        try? FileManager.default.removeItem(at: checkpoint)
         let withheld = try await Task.detached { try LocalDiagnosticsTransport.logs(trusted, address: "127.0.0.1", alreadyReceived: ["Host::" + name]) }.value
         results["alreadyReceivedWithheld"] = withheld.isEmpty
         UserDefaults.standard.set("16.6-fixture", forKey: osKey)

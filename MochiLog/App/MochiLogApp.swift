@@ -15,6 +15,7 @@ final class MochiLogApp: UIResponder, UIApplicationDelegate {
     prepareApplicationSupportDirectories()
     CrashDiagnostics.shared.start()
     if #available(iOS 27, *) { LocalDevicePairing.register() }
+    if #available(iOS 26, *) { LocalDiagnosticsManager.registerCollectionTask() }
     WatchConnectivityManager.shared.startSession()
     return true
   }
@@ -184,7 +185,7 @@ final class MochiLogSceneDelegate: UIResponder, UIWindowSceneDelegate {
     if #available(iOS 27, *) { MacTransferManager.shared.stopForBackground() }
     if #available(iOS 17, *) {
       LiveBatteryManager.shared.stop()
-      LocalDiagnosticsManager.shared.stop()
+      LocalDiagnosticsManager.shared.suspendForBackground()
     }
   }
 
