@@ -20,7 +20,7 @@ nonisolated enum LogSourceIdentity {
   static func shouldRepair(recordID: UUID, origin: UUID?, model: String?,
     known: [UUID: String]) -> String? {
     guard recordID.uuid.6 >> 4 == 5, let origin, let correct = known[origin],
-      validHostModel(correct), model != correct else { return nil }
+      validHostModel(correct), model.map(validHostModel) == true, model != correct else { return nil }
     return correct
   }
 }

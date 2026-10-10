@@ -82,6 +82,10 @@ import Foundation
       known: knownModels) == nil)
     precondition(LogSourceIdentity.shouldRepair(recordID: mistaken, origin: watch, model: "Watch7,18",
       known: knownModels) == nil)
+    precondition(LogSourceIdentity.shouldRepair(recordID: mistaken, origin: phone, model: "A3385",
+      known: knownModels) == nil) // phone-owned MagSafe battery must remain distinct
+    precondition(LogSourceIdentity.shouldRepair(recordID: mistaken, origin: phone, model: nil,
+      known: knownModels) == nil) // unclassified/legacy records require explicit review
     print("PASS: authenticated source models, foreign fallback rejection and non-destructive identity repair")
     print("PASS: origin tokens, traversal rejection, Watch separation, stable record IDs and non-destructive four-device coalescence")
   }
