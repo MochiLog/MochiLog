@@ -20,18 +20,18 @@ final class LocalDiagnosticsManager: ObservableObject {
   private var collectionCancellation: LocalCollectionCancellation?
   private var backgroundTask = UIBackgroundTaskIdentifier.invalid
   private var continuedProcessing: AnyObject?
-  private static let collectionTaskID = "net.ryuya-dev.MochiLog.local-collection.*"
   private var activeCollectionTaskID: String?
-  private static var collectionRegistered = false
   @available(iOS 26, *)
   private var continuedTask: BGContinuedProcessingTask? {
     get { continuedProcessing as? BGContinuedProcessingTask }
     set { continuedProcessing = newValue }
   }
   @available(iOS 26, *)
-  static func registerCollectionTask() {
-    guard !collectionRegistered, !ProcessInfo.processInfo.isiOSAppOnMac else { return }
-    collectionRegistered = BGTaskScheduler.shared.register(forTaskWithIdentifier: collectionTaskID, using: .main) { task in
+  private static func registerCollectionTask(identifier: String) -> Bool {
+    guard !ProcessInfo.processInfo.isiOSAppOnMac else { return false }
+    // Register the fully composed request ID, not the Info.plist wildcard.
+    // Continued-processing handlers may be registered after app launch.
+    return BGTaskScheduler.shared.register(forTaskWithIdentifier: identifier, using: .main) { task in
       guard let task = task as? BGContinuedProcessingTask else { task.setTaskCompleted(success: false); return }
       Task { @MainActor in
         let owner = shared
@@ -58,12 +58,11 @@ final class LocalDiagnosticsManager: ObservableObject {
       Task { @MainActor [weak self] in self?.pauseCollection(reason: "short background time expired") }
     }
     if #available(iOS 26, *), manual {
-      Self.registerCollectionTask()
-      guard Self.collectionRegistered else {
+      let identifier = "net.ryuya-dev.MochiLog.local-collection." + UUID().uuidString
+      guard Self.registerCollectionTask(identifier: identifier) else {
         MacTransferManager.appendDebugEvent("Local diagnostics: continued-task registration unavailable; short background fallback")
         return
       }
-      let identifier = "net.ryuya-dev.MochiLog.local-collection." + UUID().uuidString
       activeCollectionTaskID = identifier
       let request = BGContinuedProcessingTaskRequest(identifier: identifier,
         title: text("local_collecting"), subtitle: text("local_progress_connecting"))

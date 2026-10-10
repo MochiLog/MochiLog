@@ -25,6 +25,10 @@ final class LanguageAndLayoutTests: XCTestCase {
       app.launchArguments += ["-appLanguage", language, "-localAutomaticCollectionEnabled", "YES",
         "-LastKnownAppVersion", "4.0.0"]
       app.launch()
+      let details = app.buttons["localCollection.showDetails"].firstMatch
+      XCTAssertTrue(details.waitForExistence(timeout: 15), app.debugDescription)
+      XCTAssertTrue(details.isHittable)
+      details.tap()
       let progress = app.descendants(matching: .any)["localCollection.progress"].firstMatch
       let pause = app.buttons["localCollection.pause"].firstMatch
       XCTAssertTrue(progress.waitForExistence(timeout: 15), app.debugDescription)

@@ -61,7 +61,6 @@ struct LocalDiagnosticsSettingsView: View {
           systemImage: manager.configured ? "checkmark.shield.fill" : "key.fill")
           .foregroundStyle(manager.configured ? .green : .secondary)
         if manager.installingPairing { ProgressView(text("local_working")) }
-        LocalCollectionStatusView()
         if !manager.message.isEmpty { Text(manager.message).font(.callout).textSelection(.enabled) }
       }
       Section(text("local_pairing_step")) {
@@ -148,9 +147,38 @@ struct LocalDiagnosticsSettingsView: View {
 struct LocalCollectionStatusView: View {
   var compact = false
   @ObservedObject private var manager = LocalDiagnosticsManager.shared
+  @State private var showingDetails = false
   private func text(_ key: String) -> String { L10n.text(key, table: "MacTransfer") }
   var body: some View {
     if manager.collectionProgress != nil || manager.collectionPaused {
+      if compact {
+        VStack(spacing: 0) {
+          Button { withAnimation(.easeInOut(duration: 0.2)) { showingDetails.toggle() } } label: {
+            HStack(spacing: 10) {
+              if manager.collectionPaused { Image(systemName: "pause.circle") }
+              else { ProgressView().controlSize(.mini) }
+              Text(text(manager.collectionPaused ? "local_collection_paused" : "local_collecting"))
+                .font(.caption.weight(.semibold)).lineLimit(1)
+              Spacer(minLength: 4)
+              if let progress = manager.collectionProgress, progress.total > 0 {
+                Text("\(progress.completed)/\(progress.total)").font(.caption.monospacedDigit())
+              }
+              Image(systemName: showingDetails ? "chevron.up" : "chevron.down")
+                .font(.caption2.weight(.semibold))
+            }
+            .padding(.horizontal, 16).padding(.vertical, 8)
+            .contentShape(Rectangle())
+          }
+          .buttonStyle(.plain)
+          .accessibilityIdentifier("localCollection.showDetails")
+          if showingDetails {
+            LocalCollectionStatusView().padding(.horizontal, 16).padding(.bottom, 8)
+              .frame(maxWidth: 700)
+          }
+        }
+        .frame(maxWidth: .infinity)
+        .background(.regularMaterial)
+      } else {
       VStack(alignment: .leading, spacing: 8) {
         HStack {
           Label(text(manager.collectionPaused ? "local_collection_paused" : "local_collecting"),
@@ -201,6 +229,7 @@ struct LocalCollectionStatusView: View {
       .padding(.horizontal, compact ? 12 : 0)
       .buttonStyle(.borderless)
       .accessibilityIdentifier("localCollection.progress")
+      }
     }
   }
 }

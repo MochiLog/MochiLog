@@ -1,6 +1,6 @@
 MochiLog 4.0.0 beta (1045)
 
-On-device acquisition now shows progress on both iPhone and iPad. A banner across the app, including Home, displays connection, listing, file download and import preparation, file counts, bytes and elapsed time. Pause and resume are available. All eight app languages are supported.
+On-device acquisition now shows progress on both iPhone and iPad. A banner across the app, including Home, displays connection, listing, file download and import preparation, file counts, bytes and elapsed time. The status normally uses one compact row; tapping expands details in the same reserved area, without another popup or duplicate card. Pause and resume are available. All eight app languages are supported.
 
 Manual collection uses BGContinuedProcessingTask on iOS/iPadOS 26 or later, with system progress and cancellation. Automatic collection and older systems use a short background execution allowance. If continued processing cannot start, collection falls back to that short allowance. Force-quitting the app, loss of the VPN or diagnostic service, or OS time limits can interrupt collection.
 
