@@ -25,6 +25,23 @@ except subprocess.TimeoutExpired:
     sys.exit(124)
 PY
 }
+# Keep the new log hub independently runnable; the original three tests
+# already fill most of a 15-minute UI session on a hosted simulator.
+scope="${MOCHILOG_UI_SCOPE:-all}"
+ui_tests=(
+  -only-testing:MochiLogUITests/LanguageAndLayoutTests/testDiagnosticLogsInDebugSettingsInEightLanguages
+  -only-testing:MochiLogUITests/LanguageAndLayoutTests/testLiveBatteryTabChangesWithoutRelaunch
+)
+ui_timeout=600
+if [[ "$scope" == all ]]; then
+  ui_tests+=(
+    -only-testing:MochiLogUITests/LanguageAndLayoutTests/testAutomaticCollectionInEightLanguages
+    -only-testing:MochiLogUITests/LanguageAndLayoutTests/testCollectionProgressAndResumeInEightLanguages
+  )
+  ui_timeout=1200
+elif [[ "$scope" != diagnostic-logs ]]; then
+  echo "Unknown MOCHILOG_UI_SCOPE: $scope" >&2; exit 2
+fi
 device=""
 failed=0
 cleanup() { if [[ -n "$device" ]]; then xcrun simctl shutdown "$device" || true; xcrun simctl delete "$device"; fi; }
@@ -44,28 +61,22 @@ for kind in ipad iphone; do
     > "Build/automatic-ui-$kind-build.log" 2>&1; then
     tail -30 "Build/automatic-ui-$kind-build.log"; failed=1; cleanup; device=""; continue
   fi
-  if ! bounded 900 xcodebuild test-without-building -project MochiLog.xcodeproj -scheme MochiLogUITests \
+  if ! bounded "$ui_timeout" xcodebuild test-without-building -project MochiLog.xcodeproj -scheme MochiLogUITests \
     -destination "platform=iOS Simulator,id=$device" -derivedDataPath Build/automatic-ui-derived \
     -parallel-testing-enabled NO -jobs 2 -collect-test-diagnostics never \
     -resultBundlePath "Build/automatic-ui-$kind.xcresult" \
-    -only-testing:MochiLogUITests/LanguageAndLayoutTests/testAutomaticCollectionInEightLanguages \
-    -only-testing:MochiLogUITests/LanguageAndLayoutTests/testDiagnosticLogsInDebugSettingsInEightLanguages \
-    -only-testing:MochiLogUITests/LanguageAndLayoutTests/testLiveBatteryTabChangesWithoutRelaunch \
-    -only-testing:MochiLogUITests/LanguageAndLayoutTests/testCollectionProgressAndResumeInEightLanguages \
+    "${ui_tests[@]}" \
     > "Build/automatic-ui-$kind.log" 2>&1; then
     if python3 -c 'import re,sys; sys.exit(0 if re.search(r"Simulator device failed to launch .*xctrunner", open(sys.argv[1]).read()) else 1)' "Build/automatic-ui-$kind.log"; then
       # Retry only a simulator runner launch failure, never an assertion failure.
       xcrun simctl shutdown "$device"
       xcrun simctl boot "$device"
       bounded 300 xcrun simctl bootstatus "$device" -b > "Build/automatic-ui-$kind-retry-boot.log" 2>&1
-      if ! bounded 900 xcodebuild test-without-building -project MochiLog.xcodeproj -scheme MochiLogUITests \
+      if ! bounded "$ui_timeout" xcodebuild test-without-building -project MochiLog.xcodeproj -scheme MochiLogUITests \
         -destination "platform=iOS Simulator,id=$device" -derivedDataPath Build/automatic-ui-derived \
         -parallel-testing-enabled NO -jobs 2 -collect-test-diagnostics never \
         -resultBundlePath "Build/automatic-ui-$kind-retry.xcresult" \
-        -only-testing:MochiLogUITests/LanguageAndLayoutTests/testAutomaticCollectionInEightLanguages \
-    -only-testing:MochiLogUITests/LanguageAndLayoutTests/testDiagnosticLogsInDebugSettingsInEightLanguages \
-        -only-testing:MochiLogUITests/LanguageAndLayoutTests/testLiveBatteryTabChangesWithoutRelaunch \
-    -only-testing:MochiLogUITests/LanguageAndLayoutTests/testCollectionProgressAndResumeInEightLanguages \
+    "${ui_tests[@]}" \
         > "Build/automatic-ui-$kind-retry.log" 2>&1; then failed=1; fi
       tail -30 "Build/automatic-ui-$kind-retry.log"
     else

@@ -6,7 +6,7 @@ on:
         description: Checks to run
         type: choice
         default: all
-        options: [all, installer, ui]
+        options: [all, installer, ui, debug_logs]
 permissions:
   contents: read
 jobs:
@@ -41,7 +41,7 @@ jobs:
   ui:
     if: inputs.verification != 'installer'
     runs-on: xcode-27
-    timeout-minutes: 60
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
       - name: Verify on-device pairing boundary and localization
@@ -62,6 +62,8 @@ jobs:
           path: Build/LocalDiagnostics/idevice.xcframework
           retention-days: 2
       - name: Verify eight languages and tab changes on iPad and iPhone
+        env:
+          MOCHILOG_UI_SCOPE: ${{ inputs.verification == 'debug_logs' && 'diagnostic-logs' || 'all' }}
         run: bash scripts/test-automatic-collection-ui.sh
       - uses: actions/upload-artifact@v4
         if: always()
