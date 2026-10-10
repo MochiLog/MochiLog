@@ -62,6 +62,8 @@ enum LocalCollectionScheduler {
   }
 
   private static func run(_ task: BGTask) async {
+    let wakeID = UUID().uuidString
+    let started = ProcessInfo.processInfo.systemUptime
     let completion = LocalCollectionTaskCompletion()
     let cancellation = LocalCollectionCancellation()
     task.expirationHandler = {
@@ -70,14 +72,14 @@ enum LocalCollectionScheduler {
       if completion.claim() { task.setTaskCompleted(success: false) }
       Task { @MainActor in
         LocalDiagnosticsManager.shared.cancelScheduledCollection(cancellation)
-        MacTransferManager.appendDebugEvent("Local scheduler: OS budget expired; complete checkpoints retained")
+        MacTransferManager.appendDebugEvent("Local scheduler: OS budget expired; wakeID=\(wakeID); complete checkpoints retained")
         reschedule()
       }
     }
-    MacTransferManager.appendDebugEvent("Local scheduler: OS wake; identifier=\(task.identifier), protectedDataAvailable=\(UIApplication.shared.isProtectedDataAvailable), appState=\(UIApplication.shared.applicationState.rawValue)")
+    MacTransferManager.appendDebugEvent("Local scheduler: OS wake; wakeID=\(wakeID), identifier=\(task.identifier), protectedDataAvailable=\(UIApplication.shared.isProtectedDataAvailable), appState=\(UIApplication.shared.applicationState.rawValue)")
     let success = await LocalDiagnosticsManager.shared.collectNow(manual: false, scheduled: cancellation)
     if completion.claim() { task.setTaskCompleted(success: success && !cancellation.isCancelled) }
-    MacTransferManager.appendDebugEvent("Local scheduler: wake ended; success=\(success), cancelled=\(cancellation.isCancelled)")
+    MacTransferManager.appendDebugEvent("Local scheduler: wake ended; wakeID=\(wakeID), elapsedMs=\(Int((ProcessInfo.processInfo.systemUptime - started) * 1000)), success=\(success), cancelled=\(cancellation.isCancelled)")
     reschedule()
   }
 }

@@ -1802,6 +1802,7 @@ final class MacTransferManager: ObservableObject {
       "schema": 1,
       "generatedAt": ISO8601DateFormatter().string(from: Date()),
       "platform": "iOS",
+      "diagnosticLogFormatVersion": DiagnosticLogArchive.formatVersion,
       "osVersion": ProcessInfo.processInfo.operatingSystemVersionString,
       "appVersion": Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown",
       "build": Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unknown",
@@ -1970,7 +1971,8 @@ final class MacTransferManager: ObservableObject {
     if let files = try? FileManager.default.contentsOfDirectory(at: Self.debugArchiveDirectory,
       includingPropertiesForKeys: nil) {
       for file in files where Self.validArchiveDay(file.deletingPathExtension().lastPathComponent) {
-        try? FileManager.default.removeItem(at: file)
+        DiagnosticLogArchive.removeDay(file.deletingPathExtension().lastPathComponent,
+          root: Self.debugArchiveDirectory)
       }
     }
     UserDefaults.standard.removeObject(forKey: Self.debugEventsKey)
@@ -2124,30 +2126,16 @@ final class MacTransferManager: ObservableObject {
   }
 
   @discardableResult
-  private static func appendToArchive(_ event: String) -> Bool {
-    let day = String(event.prefix(10))
-    guard validArchiveDay(day) else { return false }
-    do {
-      try FileManager.default.createDirectory(at: debugArchiveDirectory,
-        withIntermediateDirectories: true)
-      let url = debugArchiveURL(for: day)
-      if !FileManager.default.fileExists(atPath: url.path) {
-        FileManager.default.createFile(atPath: url.path, contents: nil)
-      }
-      try FileManager.default.setAttributes([.posixPermissions: 0o600],
-        ofItemAtPath: url.path)
-      let handle = try FileHandle(forWritingTo: url)
-      defer { try? handle.close() }
-      try handle.seekToEnd()
-      try handle.write(contentsOf: Data((event + "\n").utf8))
-      return true
-    } catch { return false }
+  private static func appendToArchive(_ event: String, legacy: Bool = false) -> Bool {
+    DiagnosticLogArchive.append(event, root: debugArchiveDirectory,
+      appVersion: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown",
+      build: Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unknown", legacy: legacy)
   }
 
   private static func migrateDebugEvents() {
     guard !UserDefaults.standard.bool(forKey: debugMigratedKey) else { return }
     let events = debugEvents()
-    guard events.allSatisfy({ appendToArchive($0) }) else { return }
+    guard events.allSatisfy({ appendToArchive($0, legacy: true) }) else { return }
     UserDefaults.standard.set(true, forKey: debugMigratedKey)
     pruneDebugArchive()
   }
@@ -2163,7 +2151,7 @@ final class MacTransferManager: ObservableObject {
     let cutoff = formatter.string(from: Calendar.current.date(byAdding: .day,
       value: 1 - retention, to: Date()) ?? Date())
     for day in archiveDays() where day < cutoff {
-      try? FileManager.default.removeItem(at: debugArchiveURL(for: day))
+      DiagnosticLogArchive.removeDay(day, root: debugArchiveDirectory)
     }
   }
 
