@@ -1,3 +1,5 @@
+Fixed the iPad error-log card so its entire area is tappable. Page controls now appear above the log text, with direct access to the first and last pages.
+
 Redesigned the error-log viewer with message search and a list grouped by date. On wider iPad screens, the list and details appear side by side within Settings. Large logs load in the background and can be viewed page by page. Full-text copying and file sharing remain available.
 
 Activity logs from this device and paired computers can be browsed by date and feature. Opening the viewer does not start a transfer; Refresh reloads saved logs. Loading and failure states are shown, and large files are no longer reread on every screen update. New controls and text support all eight app languages.

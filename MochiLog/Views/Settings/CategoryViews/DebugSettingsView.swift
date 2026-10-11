@@ -61,7 +61,9 @@ struct DebugSettingsView: View {
               .foregroundStyle(.secondary)
           }
           .padding(.vertical, 8)
+          .contentShape(Rectangle())
         }
+        .accessibilityIdentifier("settings.errorLogs")
         .buttonStyle(.plain)
       }
     }

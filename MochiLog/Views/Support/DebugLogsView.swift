@@ -156,10 +156,10 @@ struct DebugLogDetailContentView: View {
         } else if pages.isEmpty {
           Text(L10n.string("empty_log_preview", table: "Records")).foregroundStyle(.secondary)
         } else {
+          DiagnosticLogPageControls(page: $page, count: pages.count)
           Text(pages[page]).font(.system(.caption, design: .monospaced))
             .textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
             .accessibilityIdentifier("errorLogs.detail.text")
-          DiagnosticLogPageControls(page: $page, count: pages.count)
         }
       } header: { Text(L10n.string("details_label", table: "Support")) }
       Section {
@@ -208,7 +208,10 @@ struct DiagnosticLogPageControls: View {
   @Binding var page: Int
   let count: Int
   var body: some View {
-    HStack {
+    HStack(spacing: 10) {
+      Button { page = 0 } label: { Image(systemName: "chevron.backward.2") }
+        .accessibilityLabel(L10n.text("mt_log_first", table: "MacTransfer"))
+        .disabled(page == 0)
       Button(L10n.text("mt_log_previous", table: "MacTransfer")) { page -= 1 }
         .disabled(page == 0)
       Spacer()
@@ -217,6 +220,10 @@ struct DiagnosticLogPageControls: View {
       Spacer()
       Button(L10n.text("mt_log_next", table: "MacTransfer")) { page += 1 }
         .disabled(page + 1 >= count)
-    }.buttonStyle(.borderless)
+      Button { page = max(0, count - 1) } label: { Image(systemName: "chevron.forward.2") }
+        .accessibilityLabel(L10n.text("mt_log_last", table: "MacTransfer"))
+        .accessibilityIdentifier("diagnosticLogs.lastPage")
+        .disabled(page + 1 >= count)
+    }.buttonStyle(.borderless).accessibilityIdentifier("diagnosticLogs.pagination")
   }
 }

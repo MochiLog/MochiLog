@@ -161,9 +161,9 @@ private struct MacTransferLogDayView: View {
         } else if pages.isEmpty {
           Text(L10n.text("mt_047", table: "MacTransfer")).foregroundStyle(.secondary)
         } else {
+          DiagnosticLogPageControls(page: $page, count: pages.count)
           Text(pages[page]).font(.system(.caption, design: .monospaced))
             .textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
-          DiagnosticLogPageControls(page: $page, count: pages.count)
         }
       }
     }
