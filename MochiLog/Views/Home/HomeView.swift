@@ -587,7 +587,7 @@ struct HomeView: View {
         Text(L10n.string("log_saved_message", table: "Home"))
       }
       .sheet(isPresented: $showingDebugLogsSheet) {
-        DebugLogsView()
+        NavigationStack { DebugLogsView() }
       }
       .sheet(isPresented: $showingTutorial) {
         TutorialView()

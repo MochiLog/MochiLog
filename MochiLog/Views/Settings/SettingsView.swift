@@ -665,7 +665,7 @@ struct SettingsView: View {
         Label(
           L10n.string("view_error_logs", table: "Support"),
           systemImage: "exclamationmark.triangle")
-      }
+      }.accessibilityIdentifier("settings.errorLogs")
     }
 
     if #available(iOS 17, *), !ProcessInfo.processInfo.isiOSAppOnMac {

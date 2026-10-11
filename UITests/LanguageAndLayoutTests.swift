@@ -101,6 +101,40 @@ final class LanguageAndLayoutTests: XCTestCase {
     }
   }
 
+  func testLargeErrorLogsInEightLanguages() {
+    let settingsTitles = ["en": "Settings", "ja": "設定", "de": "Einstellungen", "es": "Ajustes",
+      "fr": "Réglages", "ko": "설정", "zh-Hans": "设置", "zh-Hant": "設定"]
+    for language in ["en", "ja", "de", "es", "fr", "ko", "zh-Hans", "zh-Hant"] {
+      app.launchEnvironment["MOCHI_ERROR_LOG_UI"] = "1"
+      app.launchArguments = ["-hasCompletedTutorial", "YES", "-showPopupOnLoad", "NO",
+        "-iCloudSyncEnabled", "NO", "-appLanguage", language, "-AppleLanguages", "(\(language))",
+        "-selectedTabIndex", "2", "-LastKnownAppVersion", "4.0.0",
+        "-pcAutomaticCollectionEnabled", "NO", "-localAutomaticCollectionEnabled", "NO"]
+      app.launch()
+      let settings = app.buttons[settingsTitles[language]!].firstMatch
+      XCTAssertTrue(settings.waitForExistence(timeout: 15)); settings.tap()
+      if UIDevice.current.userInterfaceIdiom == .pad {
+        let debug = app.buttons["settings.category.debug"]
+        for _ in 0..<8 { if debug.isHittable { break }; app.swipeUp() }
+        XCTAssertTrue(debug.waitForExistence(timeout: 5)); debug.tap()
+      }
+      let link = app.buttons["settings.errorLogs"]
+      for _ in 0..<8 { if link.isHittable { break }; app.swipeUp() }
+      XCTAssertTrue(link.exists && link.isHittable, app.debugDescription); link.tap()
+      let fixture = app.staticTexts["Large log UI fixture"].firstMatch
+      XCTAssertTrue(fixture.waitForExistence(timeout: 15), app.debugDescription)
+      if !app.staticTexts["errorLogs.detail.text"].firstMatch.exists { fixture.tap() }
+      let text = app.staticTexts["errorLogs.detail.text"].firstMatch
+      XCTAssertTrue(text.waitForExistence(timeout: 15), app.debugDescription)
+      XCTAssertLessThan(text.label.utf8.count, 49_152, "Only one bounded page may be rendered")
+      XCTAssertTrue(text.label.contains("日本語🧪"))
+      XCTAssertEqual(app.navigationBars.count, 1)
+      screenshot("Large error log \(language)")
+      app.terminate()
+    }
+    app.launchEnvironment.removeValue(forKey: "MOCHI_ERROR_LOG_UI")
+  }
+
   func testAutomaticCollectionInEightLanguages() {
     verifyAutomaticCollectionLanguages([("en", "Automatic Log Collection"), ("ja", "自動ログ収集"), ("de", "Automatische Protokollerfassung"), ("es", "Recopilación automática de registros"), ("fr", "Collecte automatique des journaux"), ("ko", "자동 로그 수집"), ("zh-Hans", "自动日志收集"), ("zh-Hant", "自動日誌收集")])
   }

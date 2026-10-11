@@ -30,9 +30,10 @@ PY
 scope="${MOCHILOG_UI_SCOPE:-all}"
 ui_tests=(
   -only-testing:MochiLogUITests/LanguageAndLayoutTests/testDiagnosticLogsInDebugSettingsInEightLanguages
+  -only-testing:MochiLogUITests/LanguageAndLayoutTests/testLargeErrorLogsInEightLanguages
   -only-testing:MochiLogUITests/LanguageAndLayoutTests/testLiveBatteryTabChangesWithoutRelaunch
 )
-ui_timeout=600
+ui_timeout=900
 if [[ "$scope" == all ]]; then
   ui_tests+=(
     -only-testing:MochiLogUITests/LanguageAndLayoutTests/testAutomaticCollectionInEightLanguages

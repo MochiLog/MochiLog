@@ -2,504 +2,221 @@ import SwiftUI
 import UIKit
 
 struct DebugLogsView: View {
-  @State private var logs: [ErrorLogEntry] = []
+  @State private var days: [ErrorLogDay] = []
+  @State private var selectedID: String?
+  @State private var query = ""
+  @State private var revision = 0
+  @State private var loading = true
   @State private var showingDeleteAllConfirm = false
-  @State private var selectedLog: ErrorLogEntry?
-  @State private var isLoading = false
-  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
-  private func reload() {
-    Task {
-      await MainActor.run { isLoading = true }
-      let results = await Task.detached { await ErrorLogStore.shared.listLogs() }.value
-      await MainActor.run {
-        logs = results
-        isLoading = false
-        // iPad: 最初のログを自動選択
-        if horizontalSizeClass == .regular && selectedLog == nil && !logs.isEmpty {
-          selectedLog = logs.first
-        }
-      }
-    }
+  private struct Request: Hashable { let revision: Int; let query: String }
+  private var selected: ErrorLogEntry? {
+    days.lazy.flatMap(\.entries).first { $0.id == selectedID }
   }
 
   var body: some View {
-    NavigationStack {
-      Group {
-        if isLoading {
-          VStack(spacing: 20) {
-            ProgressView()
-              .scaleEffect(1.5)
-
-            Text(L10n.string("loading_logs", table: "Support"))
-              .font(.system(.subheadline, design: .rounded))
-              .foregroundStyle(.secondary)
-          }
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else if logs.isEmpty {
-          VStack(spacing: 24) {
-            ZStack {
-              Circle()
-                .fill(
-                  LinearGradient(
-                    colors: [Color.green.opacity(0.6), Color.blue.opacity(0.4)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                  )
-                )
-                .frame(width: 100, height: 100)
-                .mochiShadow(color: Color.green.opacity(0.3), radius: 20, x: 0, y: 10)
-
-              Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 50))
-                .foregroundStyle(.white)
-            }
-
-            VStack(spacing: 8) {
-              Text(L10n.string("no_error_logs_title", table: "Support"))
-                .font(.system(.title2, design: .rounded, weight: .bold))
-
-              Text(L10n.string("no_error_logs", table: "Support"))
-                .font(.system(.body, design: .rounded))
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-            }
-          }
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else {
-          if horizontalSizeClass == .regular {
-            // iPad: 2カラムレイアウト（左:ログ一覧、右:詳細）
-            HStack(spacing: 0) {
-              // 左側：ログ一覧
-              logListColumn
-                .frame(width: 400)
-
-              Divider()
-
-              // 右側：選択されたログの詳細
-              logDetailColumn
-            }
+    GeometryReader { geometry in
+      let wide = geometry.size.width >= 700
+      HStack(spacing: 0) {
+        logList(wide: wide)
+          .frame(maxWidth: wide ? min(340, geometry.size.width * 0.4) : .infinity)
+        if wide {
+          Divider()
+          if let selected {
+            DebugLogDetailContentView(entry: selected)
+              .frame(maxWidth: .infinity).id(selected.id)
           } else {
-            // iPhone: 通常のList
-            List {
-              ForEach(logs) { log in
-                Button(action: { selectedLog = log }) {
-                  logRowView(for: log)
-                }
-                .buttonStyle(.plain)
-                .swipeActions(edge: .trailing) {
-                  Button(role: .destructive) {
-                    ErrorLogStore.shared.deleteLog(id: log.id)
-                    reload()
-                  } label: {
-                    Label(L10n.string("delete", table: "Common"), systemImage: "trash")
-                  }
-                  .tint(.red)
-                }
+            VStack(spacing: 12) {
+              Image(systemName: "doc.text.magnifyingglass").font(.largeTitle).foregroundStyle(.secondary)
+              Text(L10n.string("select_log_message", table: "Support"))
+                .foregroundStyle(.secondary).multilineTextAlignment(.center)
+            }.padding().frame(maxWidth: .infinity, maxHeight: .infinity)
+          }
+        }
+      }
+    }
+    .background(Color(uiColor: .systemGroupedBackground))
+    .navigationTitle(L10n.string("view_error_logs", table: "Support"))
+    .navigationBarTitleDisplayMode(.inline)
+    .searchable(text: $query, prompt: L10n.string("error_log_search", table: "Support"))
+    .toolbar {
+      ToolbarItemGroup(placement: .navigationBarTrailing) {
+        Button { revision += 1 } label: { Image(systemName: "arrow.clockwise") }
+          .accessibilityLabel(L10n.text("mt_015", table: "MacTransfer"))
+        Button(role: .destructive) { showingDeleteAllConfirm = true } label: {
+          Image(systemName: "trash")
+        }.disabled(days.isEmpty || loading)
+          .accessibilityLabel(L10n.string("clear_all_logs", table: "Home"))
+      }
+    }
+    .task(id: Request(revision: revision, query: query)) {
+      loading = true
+      let query = query
+      let loaded = await Task.detached(priority: .userInitiated) {
+        #if DEBUG && targetEnvironment(simulator)
+        if ProcessInfo.processInfo.environment["MOCHI_ERROR_LOG_UI"] == "1",
+          ErrorLogStore.shared.listLogs().isEmpty {
+          ErrorLogStore.shared.saveLog(message: "Large log UI fixture", rawText:
+            String(repeating: "Connection: ready 日本語🧪\n", count: 108_672))
+        }
+        #endif
+        return ErrorLogPresentation.days(ErrorLogStore.shared.listLogs(), query: query)
+      }.value
+      guard !Task.isCancelled else { return }
+      days = loaded
+      if selected == nil { selectedID = days.first?.entries.first?.id }
+      loading = false
+    }
+    .confirmationDialog(L10n.string("delete_all_logs_confirm", table: "Home"),
+      isPresented: $showingDeleteAllConfirm, titleVisibility: .visible) {
+      Button(L10n.string("delete", table: "Common"), role: .destructive) {
+        Task {
+          await Task.detached { ErrorLogStore.shared.clearAll() }.value
+          selectedID = nil; revision += 1
+        }
+      }
+    }
+  }
+
+  private func logList(wide: Bool) -> some View {
+    List {
+      if loading {
+        ProgressView(L10n.string("loading_logs", table: "Support"))
+      }
+      if days.isEmpty && !loading {
+        Label(L10n.string(query.isEmpty ? "no_error_logs" : "error_log_no_results", table: "Support"),
+          systemImage: query.isEmpty ? "checkmark.circle" : "magnifyingglass")
+          .foregroundStyle(.secondary)
+      }
+      ForEach(days) { day in
+        Section {
+          ForEach(day.entries) { entry in
+            Group {
+              if wide {
+                Button { selectedID = entry.id } label: { row(entry) }
+                  .buttonStyle(.plain)
+              } else {
+                NavigationLink { DebugLogDetailContentView(entry: entry) } label: { row(entry) }
               }
             }
-          }
-        }
-      }
-      .navigationTitle(L10n.string("view_error_logs", table: "Support"))
-      .navigationBarTitleDisplayMode(.inline)
-      .toolbar {
-        ToolbarItem(placement: .navigationBarTrailing) {
-          if !logs.isEmpty {
-            Button(role: .destructive) {
-              showingDeleteAllConfirm = true
-            } label: {
-              Text(L10n.string("clear_all_logs", table: "Home"))
+            .listRowBackground(wide && selectedID == entry.id ? Color.accentColor.opacity(0.12) : nil)
+            .swipeActions {
+              Button(role: .destructive) {
+                Task {
+                  await Task.detached { ErrorLogStore.shared.deleteLog(id: entry.id) }.value
+                  if selectedID == entry.id { selectedID = nil }
+                  revision += 1
+                }
+              } label: { Label(L10n.string("delete", table: "Common"), systemImage: "trash") }
             }
           }
+        } header: {
+          HStack { Text(day.date, style: .date); Spacer(); Text("\(day.entries.count)") }
         }
-      }
-      .onAppear(perform: reload)
-      .confirmationDialog(
-        L10n.string("delete_all_logs_confirm", table: "Home"),
-        isPresented: $showingDeleteAllConfirm,
-        titleVisibility: .visible
-      ) {
-        Button(L10n.string("delete", table: "Common"), role: .destructive) {
-          ErrorLogStore.shared.clearAll()
-          reload()
-        }
-        Button(L10n.string("cancel", table: "Common"), role: .cancel) {}
-      }
-      .fullScreenCover(item: horizontalSizeClass == .regular ? .constant(nil) : $selectedLog) {
-        log in
-        DebugLogDetailView(entry: log)
       }
     }
+    .listStyle(.insetGrouped)
+    .accessibilityIdentifier("errorLogs.list")
   }
 
-  // MARK: - ログ一覧カラム（iPad）
-  private var logListColumn: some View {
-    List(logs, selection: $selectedLog) { log in
-      Button {
-        selectedLog = log
-      } label: {
-        logRowView(for: log, isSelected: selectedLog?.id == log.id)
+  private func row(_ entry: ErrorLogEntry) -> some View {
+    HStack(alignment: .top, spacing: 12) {
+      Image(systemName: "exclamationmark.triangle").foregroundStyle(.orange)
+      VStack(alignment: .leading, spacing: 5) {
+        Text(entry.message).lineLimit(3).foregroundStyle(.primary)
+        Text(entry.timestamp, style: .time).font(.caption).foregroundStyle(.secondary)
       }
-      .buttonStyle(.plain)
-      .swipeActions(edge: .trailing) {
-        Button(role: .destructive) {
-          ErrorLogStore.shared.deleteLog(id: log.id)
-          if selectedLog?.id == log.id {
-            selectedLog = nil
-          }
-          reload()
-        } label: {
-          Label(L10n.string("delete", table: "Common"), systemImage: "trash")
-        }
-        .tint(.red)
-      }
-    }
-    .listStyle(.sidebar)
-  }
-
-  // MARK: - ログ詳細カラム（iPad）
-  private var logDetailColumn: some View {
-    Group {
-      if let log = selectedLog {
-        DebugLogDetailContentView(entry: log)
-      } else {
-        VStack(spacing: 24) {
-          ZStack {
-            Circle()
-              .fill(
-                LinearGradient(
-                  colors: [Color.purple.opacity(0.6), Color.blue.opacity(0.4)],
-                  startPoint: .topLeading,
-                  endPoint: .bottomTrailing
-                )
-              )
-              .frame(width: 120, height: 120)
-              .mochiShadow(color: Color.purple.opacity(0.3), radius: 20, x: 0, y: 10)
-
-            Image(systemName: "doc.text.magnifyingglass")
-              .font(.system(size: 60))
-              .foregroundStyle(.white)
-          }
-
-          VStack(spacing: 8) {
-            Text(L10n.string("select_log_title", table: "Support"))
-              .font(.system(.title2, design: .rounded, weight: .bold))
-
-            Text(L10n.string("select_log_message", table: "Support"))
-              .font(.system(.body, design: .rounded))
-              .foregroundStyle(.secondary)
-              .multilineTextAlignment(.center)
-              .padding(.horizontal, 40)
-          }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-      }
-    }
-  }
-
-  // MARK: - ログ行ビュー
-  private func logRowView(for log: ErrorLogEntry, isSelected: Bool = false) -> some View {
-    HStack(spacing: 16) {
-      // 左側のアイコン（グラデーション付き）
-      ZStack {
-        Circle()
-          .fill(
-            LinearGradient(
-              colors: [Color.red.opacity(0.8), Color.orange.opacity(0.6)],
-              startPoint: .topLeading,
-              endPoint: .bottomTrailing
-            )
-          )
-          .frame(width: 50, height: 50)
-          .mochiShadow(color: Color.red.opacity(0.3), radius: 8, x: 0, y: 4)
-
-        Image(systemName: "exclamationmark.triangle.fill")
-          .font(.system(size: 22))
-          .foregroundStyle(.white)
-      }
-
-      // 中央のコンテンツ
-      VStack(alignment: .leading, spacing: 8) {
-        Text(log.message)
-          .font(.system(.body, design: .rounded, weight: .semibold))
-          .foregroundStyle(.primary)
-          .lineLimit(2)
-
-        HStack(spacing: 12) {
-          HStack(spacing: 4) {
-            Image(systemName: "calendar")
-              .font(.caption)
-              .foregroundStyle(.secondary)
-            Text(log.timestamp, style: .date)
-              .font(.system(.caption, design: .rounded))
-              .foregroundStyle(.secondary)
-          }
-
-          HStack(spacing: 4) {
-            Image(systemName: "clock")
-              .font(.caption)
-              .foregroundStyle(.secondary)
-            Text(log.timestamp, style: .time)
-              .font(.system(.caption, design: .rounded))
-              .foregroundStyle(.secondary)
-          }
-        }
-      }
-
-      Spacer()
-
-      // 右側のシェブロン
-      Image(systemName: "chevron.right")
-        .font(.system(size: 14, weight: .semibold))
-        .foregroundStyle(.tertiary)
-    }
-    .contentShape(Rectangle())
-    .padding(16)
-    .background(
-      RoundedRectangle(cornerRadius: 12)
-        .fill(isSelected ? Color.accentColor.opacity(0.15) : Color.clear)
-    )
-    .overlay(
-      RoundedRectangle(cornerRadius: 12)
-        .strokeBorder(isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
-    )
+    }.padding(.vertical, 5)
   }
 }
 
-// MARK: - ログ詳細コンテンツビュー（iPad用、埋め込み可能）
 struct DebugLogDetailContentView: View {
   let entry: ErrorLogEntry
-  @State private var rawText: String? = nil
-  @State private var loadingRaw = false
-  @State private var shareFileURL: URL? = nil
+  @State private var rawText = ""
+  @State private var pages: [String] = []
+  @State private var page = 0
+  @State private var loading = true
+  @State private var loadError: String?
+  @State private var shareFileURL: URL?
+  @State private var revision = 0
 
+  private struct Request: Hashable { let id: String; let revision: Int }
   var body: some View {
-    ScrollView {
-      VStack(alignment: .leading, spacing: 20) {
-        // ヘッダー（グラデーション付き）
-        VStack(alignment: .leading, spacing: 16) {
-          HStack(spacing: 16) {
-            ZStack {
-              Circle()
-                .fill(
-                  LinearGradient(
-                    colors: [Color.red.opacity(0.8), Color.orange.opacity(0.6)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                  )
-                )
-                .frame(width: 60, height: 60)
-                .mochiShadow(color: Color.red.opacity(0.3), radius: 12, x: 0, y: 6)
-
-              Image(systemName: "exclamationmark.triangle.fill")
-                .font(.system(size: 28))
-                .foregroundStyle(.white)
-            }
-
-            VStack(alignment: .leading, spacing: 6) {
-              Text(L10n.string("error_log_title", table: "Support"))
-                .font(.system(.title2, design: .rounded, weight: .bold))
-
-              HStack(spacing: 12) {
-                Label {
-                  Text(entry.timestamp, style: .date)
-                    .font(.system(.subheadline, design: .rounded))
-                } icon: {
-                  Image(systemName: "calendar")
-                }
-
-                Label {
-                  Text(entry.timestamp, style: .time)
-                    .font(.system(.subheadline, design: .rounded))
-                } icon: {
-                  Image(systemName: "clock")
-                }
-              }
-              .foregroundStyle(.secondary)
-            }
-
-            Spacer()
+    List {
+      Section {
+        Label(entry.timestamp.formatted(date: .abbreviated, time: .standard), systemImage: "clock")
+          .font(.subheadline).foregroundStyle(.secondary)
+        Text(entry.message).textSelection(.enabled)
+      } header: { Text(L10n.string("message", table: "Support")) }
+      Section {
+        if loading {
+          ProgressView(L10n.string("loading_logs", table: "Support"))
+        } else if let loadError {
+          Label(loadError, systemImage: "exclamationmark.triangle").foregroundStyle(.secondary)
+        } else if pages.isEmpty {
+          Text(L10n.string("empty_log_preview", table: "Records")).foregroundStyle(.secondary)
+        } else {
+          Text(pages[page]).font(.system(.caption, design: .monospaced))
+            .textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
+            .accessibilityIdentifier("errorLogs.detail.text")
+          DiagnosticLogPageControls(page: $page, count: pages.count)
+        }
+      } header: { Text(L10n.string("details_label", table: "Support")) }
+      Section {
+        Button { UIPasteboard.general.string = entry.message + "\n" + rawText } label: {
+          Label(L10n.text("mt_046", table: "MacTransfer"), systemImage: "doc.on.doc")
+        }.disabled(loading)
+        if let shareFileURL {
+          ShareLink(item: shareFileURL) {
+            Label(L10n.string("share_label", table: "Support"), systemImage: "square.and.arrow.up")
           }
         }
-        .padding(20)
-        .background(
-          RoundedRectangle(cornerRadius: 20)
-            .fill(
-              LinearGradient(
-                colors: [
-                  Color(.systemBackground),
-                  Color(.secondarySystemGroupedBackground),
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-              )
-            )
-            .mochiShadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 4)
-        )
-        .overlay(
-          RoundedRectangle(cornerRadius: 20)
-            .strokeBorder(
-              LinearGradient(
-                colors: [Color.red.opacity(0.3), Color.orange.opacity(0.2)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-              ),
-              lineWidth: 1.5
-            )
-        )
-
-        // メッセージ
-        VStack(alignment: .leading, spacing: 12) {
-          Label {
-            Text(L10n.string("message", table: "Support"))
-              .font(.system(.headline, design: .rounded, weight: .semibold))
-          } icon: {
-            Image(systemName: "text.bubble.fill")
-              .foregroundStyle(
-                LinearGradient(
-                  colors: [Color.blue, Color.cyan],
-                  startPoint: .topLeading,
-                  endPoint: .bottomTrailing
-                )
-              )
-          }
-
-          Text(entry.message)
-            .font(.system(.body, design: .rounded))
-            .textSelection(.enabled)
-            .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-              RoundedRectangle(cornerRadius: 12)
-                .fill(Color(.tertiarySystemGroupedBackground))
-            )
+        Button { revision += 1 } label: {
+          Label(L10n.text("mt_015", table: "MacTransfer"), systemImage: "arrow.clockwise")
         }
-        .padding(20)
-        .background(
-          RoundedRectangle(cornerRadius: 16)
-            .fill(Color(.secondarySystemGroupedBackground))
-            .mochiShadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
-        )
-
-        // 生テキスト
-        VStack(alignment: .leading, spacing: 12) {
-          HStack {
-            Label {
-              Text(L10n.string("details_label", table: "Support"))
-                .font(.system(.headline, design: .rounded, weight: .semibold))
-            } icon: {
-              Image(systemName: "doc.text.fill")
-                .foregroundStyle(
-                  LinearGradient(
-                    colors: [Color.purple, Color.pink],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                  )
-                )
-            }
-
-            Spacer()
-
-            if let url = shareFileURL {
-              ShareLink(item: url) {
-                HStack(spacing: 4) {
-                  Image(systemName: "square.and.arrow.up")
-                    .font(.system(.caption, design: .rounded, weight: .medium))
-                  Text(L10n.string("share_label", table: "Support"))
-                    .font(.system(.caption, design: .rounded, weight: .medium))
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(
-                  Capsule()
-                    .fill(Color.accentColor.opacity(0.15))
-                )
-                .contentShape(Capsule())
-              }
-            }
-          }
-
-          if loadingRaw {
-            ProgressView()
-              .frame(maxWidth: .infinity)
-              .padding(32)
-          } else if let txt = rawText {
-            ScrollView([.horizontal, .vertical], showsIndicators: true) {
-              Text(txt)
-                .font(.system(.caption, design: .monospaced))
-                .textSelection(.enabled)
-                .padding(16)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .background(
-              RoundedRectangle(cornerRadius: 12)
-                .fill(Color(.tertiarySystemGroupedBackground))
-            )
-          } else {
-            Text(L10n.string("empty_log_preview", table: "Records"))
-              .foregroundStyle(.secondary)
-              .font(.system(.body, design: .rounded))
-              .frame(maxWidth: .infinity)
-              .padding(32)
-              .background(
-                RoundedRectangle(cornerRadius: 12)
-                  .fill(Color(.tertiarySystemGroupedBackground))
-              )
-          }
-        }
-        .padding(20)
-        .background(
-          RoundedRectangle(cornerRadius: 16)
-            .fill(Color(.secondarySystemGroupedBackground))
-            .mochiShadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
-        )
       }
-      .padding(20)
     }
-    .background(Color(.systemGroupedBackground))
-    .task {
-      loadingRaw = true
-      rawText = await Task.detached {
-        await ErrorLogStore.shared.readRawText(id: entry.id)
+    .listStyle(.insetGrouped)
+    .navigationTitle(L10n.string("log_details", table: "Records"))
+    .navigationBarTitleDisplayMode(.inline)
+    .task(id: Request(id: entry.id, revision: revision)) {
+      loading = true
+      let entry = entry
+      let snapshot = await Task.detached(priority: .userInitiated) {
+        do {
+          let original = ErrorLogStore.shared.rawFileURL(id: entry.id)
+          let text = try original.map { try String(contentsOf: $0, encoding: .utf8) }
+            ?? entry.rawTextPreview ?? ""
+          let url: URL
+          if let original { url = original }
+          else {
+            url = FileManager.default.temporaryDirectory.appendingPathComponent(entry.id)
+            try JSONEncoder().encode(entry).write(to: url, options: .atomic)
+          }
+          return (text, DiagnosticLogViewer.pages(text), Optional(url), Optional<String>.none)
+        } catch { return ("", [String](), Optional<URL>.none, Optional(error.localizedDescription)) }
       }.value
-      loadingRaw = false
-      prepareShareFile()
-    }
-  }
-
-  private func prepareShareFile() {
-    // Prefer the raw .txt if available
-    if let url = ErrorLogStore.shared.rawFileURL(id: entry.id) {
-      shareFileURL = url
-    } else if let txt = rawText ?? ErrorLogStore.shared.readRawText(id: entry.id) {
-      // write a temporary .txt file to share
-      let tmp = FileManager.default.temporaryDirectory.appendingPathComponent("\(entry.id).txt")
-      try? txt.write(to: tmp, atomically: true, encoding: .utf8)
-      shareFileURL = tmp
-    } else if let data = try? JSONEncoder().encode(entry) {
-      // fallback to JSON representation
-      let tmp = FileManager.default.temporaryDirectory.appendingPathComponent("\(entry.id).json")
-      try? data.write(to: tmp)
-      shareFileURL = tmp
+      guard !Task.isCancelled else { return }
+      rawText = snapshot.0; pages = snapshot.1; shareFileURL = snapshot.2
+      loadError = snapshot.3; page = 0; loading = false
     }
   }
 }
 
-// MARK: - ログ詳細ビュー（iPhone用フルスクリーン）
-struct DebugLogDetailView: View {
-  let entry: ErrorLogEntry
-  @Environment(\.dismiss) private var dismiss
-
+/// One set of page controls for failed imports and connection diagnostics.
+struct DiagnosticLogPageControls: View {
+  @Binding var page: Int
+  let count: Int
   var body: some View {
-    NavigationStack {
-      DebugLogDetailContentView(entry: entry)
-        .navigationTitle(L10n.string("log_details", table: "Records"))
-        .toolbar {
-          ToolbarItem(placement: .navigationBarLeading) {
-            Button(L10n.string("close", table: "Common")) { dismiss() }
-          }
-        }
-    }
+    HStack {
+      Button(L10n.text("mt_log_previous", table: "MacTransfer")) { page -= 1 }
+        .disabled(page == 0)
+      Spacer()
+      Text(String(format: L10n.text("mt_log_page", table: "MacTransfer"),
+        count == 0 ? 0 : page + 1, count)).font(.caption).foregroundStyle(.secondary)
+      Spacer()
+      Button(L10n.text("mt_log_next", table: "MacTransfer")) { page += 1 }
+        .disabled(page + 1 >= count)
+    }.buttonStyle(.borderless)
   }
 }

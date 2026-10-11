@@ -1913,6 +1913,12 @@ final class MacTransferManager: ObservableObject {
     }
   }
 
+  /// Resolve paths on the main actor, then read immutable viewer snapshots off it.
+  /// Merely viewing logs does not start a network transfer or mutate an archive.
+  func debugLogDirectory(for hostID: UUID? = nil) -> URL {
+    hostID.map { Self.computerArchiveDirectory(for: $0) } ?? Self.debugArchiveDirectory
+  }
+
   func debugLogDays() -> [String] {
     Self.migrateDebugEvents()
     return Self.archiveDays()

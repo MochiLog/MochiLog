@@ -1,6 +1,8 @@
 {
   "sourceLanguage" : "ja",
   "strings" : {
+    "error_log_search": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Search error messages"}},"ja":{"stringUnit":{"state":"translated","value":"エラーメッセージを検索"}},"de":{"stringUnit":{"state":"translated","value":"Fehlermeldungen suchen"}},"es":{"stringUnit":{"state":"translated","value":"Buscar mensajes de error"}},"fr":{"stringUnit":{"state":"translated","value":"Rechercher des messages d’erreur"}},"ko":{"stringUnit":{"state":"translated","value":"오류 메시지 검색"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"搜索错误信息"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"搜尋錯誤訊息"}}}},
+    "error_log_no_results": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"No matching errors"}},"ja":{"stringUnit":{"state":"translated","value":"該当するエラーはありません"}},"de":{"stringUnit":{"state":"translated","value":"Keine passenden Fehler"}},"es":{"stringUnit":{"state":"translated","value":"No hay errores coincidentes"}},"fr":{"stringUnit":{"state":"translated","value":"Aucune erreur correspondante"}},"ko":{"stringUnit":{"state":"translated","value":"일치하는 오류가 없습니다"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"没有匹配的错误"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"沒有相符的錯誤"}}}},
     "attach_app_diagnostic" : {
       "localizations" : {
         "de" : { "stringUnit" : { "state" : "translated", "value" : "App-Diagnose anhängen" } },

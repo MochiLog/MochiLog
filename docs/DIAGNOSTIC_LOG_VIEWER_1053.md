@@ -1,0 +1,9 @@
+# Diagnostic viewer changes (1053)
+
+Error metadata and raw archives load off the main actor. Day catalogs and detail pages are stored snapshots; SwiftUI body evaluation performs no archive reads or per-line view construction. Rendered pages retain at most 120 newline delimiters and 48 KiB of UTF-8 text. Copy/export retains the full selected text. Cancellation prevents an older selection from overwriting a newer one. Date grouping uses the current timezone; transmitted log timestamps and archive formats remain unchanged.
+
+The Settings error-log view shares its parent navigation stack. Home presents the same view inside one NavigationStack. iPad widths of at least 700 points show a list and detail panel. The activity-log hub keeps its existing Settings navigation, and refreshing it only reloads stored files.
+
+Verification: Foundation tests cover 108,672 lines, long Unicode combining sequences, exact reassembly, safe date listings, format versions, feature filters, timezone grouping and search. CI runs the same tests before signing. The diagnostic UI workflow also checks a large error fixture in all eight languages on iPhone and iPad, without adding simulators to the resource-constrained development Mac.
+
+Desktop: Mac 0.2.26 and Windows 0.1.24 apply async viewer loading and avoid repeated filesystem reads during status updates. Mac app and DMG are signed and notarized. Windows state.bin was unchanged by the installed update. Native computer-use transport was unavailable during this session; desktop button-click verification is not claimed.

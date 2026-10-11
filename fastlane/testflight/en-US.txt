@@ -1,15 +1,5 @@
-Fixed a cross-device sharing issue where an iPhone Analytics log without hardware model metadata could be recorded as the receiving iPad. Authenticated encrypted offers now identify the originating model. Unknown sources require device selection. Existing records with a verified origin are corrected in place without changing their dates, measurements, or IDs. Older mobile clients continue own-device collection and transfer with existing pairings, while foreign-device sharing requires an updated client.
+Redesigned the error-log viewer with message search and a list grouped by date. On wider iPad screens, the list and details appear side by side within Settings. Large logs load in the background and can be viewed page by page. Full-text copying and file sharing remain available.
 
-Activity logs on iPhone and iPad are now grouped under Settings → Debug → Activity logs. Daily device logs, received PC logs, and retention settings are in the same place, even when collection is disabled. On iPad, they stay in the settings detail pane. Existing error logs remain in Debug. All eight languages are supported.
+Activity logs from this device and paired computers can be browsed by date and feature. Opening the viewer does not start a transfer; Refresh reloads saved logs. Loading and failure states are shown, and large files are no longer reread on every screen update. New controls and text support all eight app languages.
 
-Automatic on-device collection can now attempt to run while MochiLog is not displayed.
-
-- With on-device collection enabled, the device unlocked, and a VPN route to its diagnostic service available, collection runs when iOS grants background execution. Neither a fixed schedule nor daily execution is guaranteed. Force-quitting stops automatic collection until you open the app again.
-- Complete files are stored in a protected staging area. They are analyzed and recorded through the existing duplicate checks the next time you open MochiLog. If the OS budget expires, complete files remain available for the next attempt; interrupted files are retried.
-- Foreground and scheduled collection cannot run simultaneously. Unnecessary collection stops once the day's required files are available, accounting for devices without an Apple Watch and for multiple Watches.
-- Credentials are reloaded after unlocking if a cold background launch could not access them. Collection pauses when protected data becomes unavailable. Turning collection off cancels pending requests. Existing key and file protection remain in place.
-- Debug logs include OS wakes, deferral reasons, requested earliest times, expiration, and completed-file staging. The settings explanation supports all eight app languages.
-- On-device collection and PC reception share daily stopping, next-day restart, and required Watch counts. Failed imports and pending PC acknowledgments do not prematurely stop reception. Live battery updates remain independent.
-- Diagnostic files are split by date and feature. Headers identify the format and app/build version; background wakes include a run ID and outcome. Legacy logs and exchange with older PCs remain supported.
-
-This beta also includes the previous progress display, pause/resume, and layout fixes. On-device collection supports iOS/iPadOS 17 and later; initial pairing entirely on the device requires 27 or later. Existing PC collection remains available alongside it. Background execution depends on OS scheduling, the VPN route, and diagnostic-service availability.
+The same loading improvements are available in the Mac and Windows companions. This build also retains the earlier fixes for source-device identification, sharing and duplicate prevention.

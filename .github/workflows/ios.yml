@@ -39,6 +39,9 @@ jobs:
           bash scripts/test-cloud-sharing.sh
           bash scripts/test-log-source-identity-store.sh
 
+      - name: Verify diagnostic and error log viewer
+        run: bash scripts/test-diagnostic-log-viewer.sh
+
       - name: Verify own-device pairing address boundary
         run: bash scripts/test-local-pairing.sh
 

@@ -6,10 +6,9 @@ struct MacTransferDebugLogView: View {
   @StateObject private var manager = MacTransferManager.shared
   @State private var revision = 0
 
-  private var days: [String] {
-    _ = revision
-    return manager.debugLogDays()
-  }
+  @State private var days: [String] = []
+  @State private var computerDays: [UUID: [String]] = [:]
+  @State private var loading = true
 
   var body: some View {
     List {
@@ -19,7 +18,9 @@ struct MacTransferDebugLogView: View {
       }
 
       Section(L10n.text("mt_log_days_title", table: "MacTransfer")) {
-        if days.isEmpty {
+        if loading {
+          ProgressView(L10n.text("mt_log_loading", table: "MacTransfer"))
+        } else if days.isEmpty {
           Label(L10n.text("mt_log_no_days", table: "MacTransfer"),
             systemImage: "calendar.badge.exclamationmark")
             .foregroundStyle(.secondary)
@@ -37,7 +38,7 @@ struct MacTransferDebugLogView: View {
 
       ForEach(manager.pairings, id: \.hostID) { computer in
         Section(computerTitle(computer)) {
-          let computerDays = manager.computerDebugLogDays(for: computer.hostID)
+          let computerDays = computerDays[computer.hostID] ?? []
           if computerDays.isEmpty {
             Label(L10n.text("mt_log_no_days", table: "MacTransfer"),
               systemImage: "desktopcomputer")
@@ -72,15 +73,22 @@ struct MacTransferDebugLogView: View {
     }
     .navigationTitle(L10n.text("diagnostic_logs_title", table: "Settings"))
     .accessibilityIdentifier("diagnosticLogs.list")
-    .onAppear {
-      revision += 1
+    .task(id: revision) {
+      loading = true
+      let root = manager.debugLogDirectory()
+      let roots = manager.pairings.map { ($0.hostID, manager.debugLogDirectory(for: $0.hostID)) }
+      let catalog = await Task.detached(priority: .userInitiated) {
+        (DiagnosticLogViewer.days(in: root), Dictionary(uniqueKeysWithValues:
+          roots.map { ($0.0, DiagnosticLogViewer.days(in: $0.1)) }))
+      }.value
+      guard !Task.isCancelled else { return }
+      days = catalog.0; computerDays = catalog.1; loading = false
       // Viewing saved diagnostics must not bypass the daily hold or start a transfer.
     }
     .toolbar {
       ToolbarItem(placement: .topBarTrailing) {
         Button {
           revision += 1
-          manager.receiveNow()
         } label: {
           Image(systemName: "arrow.clockwise")
         }
@@ -110,59 +118,83 @@ struct MacTransferDebugLogView: View {
 @available(iOS 17, *)
 private struct MacTransferLogDayView: View {
   @StateObject private var manager = MacTransferManager.shared
-  @State private var logText = ""
+  @State private var fullText = ""
+  @State private var categories: [String] = []
+  @State private var category: String?
+  @State private var pages: [String] = []
+  @State private var page = 0
+  @State private var loading = true
+  @State private var loadError: String?
+  @State private var revision = 0
   let day: String?
   var hostID: UUID? = nil
+  private struct Request: Hashable { let day: String?; let host: UUID?; let category: String?; let revision: Int }
 
-  private var title: String {
-    if let day { return MacTransferDebugLogView.displayDate(day) }
-    return L10n.text("mt_log_remote_title", table: "MacTransfer")
+  private func categoryTitle(_ category: String) -> String {
+    switch category {
+    case "background": return L10n.text("mt_log_background", table: "MacTransfer")
+    case "local-collection": return L10n.text("mt_log_local_collection", table: "MacTransfer")
+    case "pc-transfer": return L10n.text("mt_log_pc_transfer", table: "MacTransfer")
+    case "live-battery": return L10n.text("mt_log_live_battery", table: "MacTransfer")
+    case "cloud-sync": return L10n.text("mt_log_cloud_sync", table: "MacTransfer")
+    case "pairing": return L10n.text("mt_log_pairing", table: "MacTransfer")
+    default: return L10n.text("mt_log_general", table: "MacTransfer")
+    }
   }
 
   var body: some View {
-    ScrollView {
-      LazyVStack(alignment: .leading, spacing: 6) {
-        if logText.isEmpty {
-          Text(L10n.text("mt_047", table: "MacTransfer"))
-            .foregroundStyle(.secondary)
-        } else {
-          ForEach(Array(logText.split(separator: "\n", omittingEmptySubsequences: false)
-            .enumerated()), id: \.offset) { _, line in
-            Text(String(line))
-              .font(.system(.caption, design: .monospaced))
-              .textSelection(.enabled)
-              .frame(maxWidth: .infinity, alignment: .leading)
+    List {
+      Section {
+        Picker(L10n.text("mt_log_category", table: "MacTransfer"), selection: $category) {
+          Text(L10n.text("mt_log_all", table: "MacTransfer")).tag(Optional<String>.none)
+          ForEach(categories, id: \.self) { value in
+            Text(categoryTitle(value))
+              .tag(Optional(value))
           }
         }
       }
-      .padding(16)
-      .frame(maxWidth: 1000, alignment: .leading)
-      .frame(maxWidth: .infinity)
-    }
-    .background(Color(uiColor: .systemGroupedBackground))
-    .navigationTitle(title)
-    .toolbar {
-      ToolbarItemGroup(placement: .topBarTrailing) {
-        Button {
-          reload()
-        } label: {
-          Image(systemName: "arrow.clockwise")
+      Section {
+        if loading {
+          ProgressView(L10n.text("mt_log_loading", table: "MacTransfer"))
+        } else if let loadError {
+          Label(loadError, systemImage: "exclamationmark.triangle").foregroundStyle(.secondary)
+        } else if pages.isEmpty {
+          Text(L10n.text("mt_047", table: "MacTransfer")).foregroundStyle(.secondary)
+        } else {
+          Text(pages[page]).font(.system(.caption, design: .monospaced))
+            .textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
+          DiagnosticLogPageControls(page: $page, count: pages.count)
         }
-        .accessibilityLabel(L10n.text("mt_015", table: "MacTransfer"))
-        Button(L10n.text("mt_046", table: "MacTransfer")) {
-          UIPasteboard.general.string = logText
-        }
-        .disabled(logText.isEmpty)
       }
     }
-    .onAppear(perform: reload)
-  }
-
-  private func reload() {
-    if let hostID, let day {
-      logText = manager.computerDebugLogText(for: hostID, day: day)
-    } else {
-      logText = day.map { manager.debugLogText(for: $0) } ?? ""
+    .navigationTitle(day.map(MacTransferDebugLogView.displayDate)
+      ?? L10n.text("mt_log_remote_title", table: "MacTransfer"))
+    .navigationBarTitleDisplayMode(.inline)
+    .toolbar {
+      ToolbarItemGroup(placement: .topBarTrailing) {
+        Button { revision += 1 } label: { Image(systemName: "arrow.clockwise") }
+          .accessibilityLabel(L10n.text("mt_015", table: "MacTransfer"))
+        Button(L10n.text("mt_046", table: "MacTransfer")) { UIPasteboard.general.string = fullText }
+          .disabled(loading || fullText.isEmpty)
+      }
+    }
+    .task(id: Request(day: day, host: hostID, category: category, revision: revision)) {
+      loading = true
+      let root = manager.debugLogDirectory(for: hostID)
+      let selectedDay = day; let selectedCategory = category
+      let snapshot = await Task.detached(priority: .userInitiated) {
+        do {
+          guard let selectedDay,
+            selectedDay.range(of: #"^[0-9]{4}-[0-9]{2}-[0-9]{2}$"#, options: .regularExpression) != nil
+          else { return ([String](), "", [String](), Optional<String>.none) }
+          let raw = try String(contentsOf: root.appendingPathComponent(selectedDay + ".log"), encoding: .utf8)
+          let text = DiagnosticLogViewer.text(raw, category: selectedCategory)
+          return (DiagnosticLogViewer.categories(in: raw), text, DiagnosticLogViewer.pages(text), Optional<String>.none)
+        } catch { return ([String](), "", [String](), Optional(error.localizedDescription)) }
+      }.value
+      guard !Task.isCancelled else { return }
+      categories = snapshot.0; fullText = snapshot.1; pages = snapshot.2
+      loadError = snapshot.3; page = 0; loading = false
     }
   }
 }
@@ -175,10 +207,7 @@ private struct MacTransferLogStorageView: View {
 
   private let choices = [7, 30, 90, 180, 365]
 
-  private var hasLogs: Bool {
-    _ = revision
-    return !manager.debugLogDays().isEmpty
-  }
+  @State private var hasLogs = false
 
   var body: some View {
     List {
@@ -219,6 +248,12 @@ private struct MacTransferLogStorageView: View {
       } footer: {
         Text(L10n.text("mt_log_delete_help", table: "MacTransfer"))
       }
+    }
+    .task(id: revision) {
+      let root = manager.debugLogDirectory()
+      let result = await Task.detached { !DiagnosticLogViewer.days(in: root).isEmpty }.value
+      guard !Task.isCancelled else { return }
+      hasLogs = result
     }
     .navigationTitle(L10n.text("mt_log_storage_title", table: "MacTransfer"))
     .confirmationDialog(
