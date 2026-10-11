@@ -93,11 +93,13 @@ for kind in "${device_kinds[@]}"; do
     fi
   fi
   tail -30 "Build/automatic-ui-$kind.log"
-  if ! bounded 180 python3 scripts/test-local-diagnostics-simulator.py "$device" \
+  # A targeted viewer retry does not need to repeat the already-passed native
+  # diagnostics protocol probes; default/all scopes still exercise them.
+  if [[ "$scope" != error-logs ]] && ! bounded 180 python3 scripts/test-local-diagnostics-simulator.py "$device" \
     --app Build/automatic-ui-derived/Build/Products/Debug-iphonesimulator/MochiLog.app \
     --output "Build/automatic-ui-$kind-native.json" \
     > "Build/automatic-ui-$kind-native.log" 2>&1; then failed=1; fi
-  cat "Build/automatic-ui-$kind-native.log"
+  if [[ "$scope" != error-logs ]]; then cat "Build/automatic-ui-$kind-native.log"; fi
   cleanup; device=""
 done
 

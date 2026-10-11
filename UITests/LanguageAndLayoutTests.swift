@@ -104,6 +104,9 @@ final class LanguageAndLayoutTests: XCTestCase {
   func testLargeErrorLogsInEightLanguages() {
     let settingsTitles = ["en": "Settings", "ja": "設定", "de": "Einstellungen", "es": "Ajustes",
       "fr": "Réglages", "ko": "설정", "zh-Hans": "设置", "zh-Hant": "設定"]
+    let lastPageTitles = ["en": "Last page", "ja": "最後のページ", "de": "Letzte Seite",
+      "es": "Última página", "fr": "Dernière page", "ko": "마지막 페이지",
+      "zh-Hans": "最后一页", "zh-Hant": "最後一頁"]
     for language in ["en", "ja", "de", "es", "fr", "ko", "zh-Hans", "zh-Hant"] {
       app.launchEnvironment["MOCHI_ERROR_LOG_UI"] = "1"
       app.launchArguments = ["-hasCompletedTutorial", "YES", "-showPopupOnLoad", "NO",
@@ -128,11 +131,16 @@ final class LanguageAndLayoutTests: XCTestCase {
       XCTAssertTrue(text.waitForExistence(timeout: 15), app.debugDescription)
       XCTAssertLessThan(text.label.utf8.count, 49_152, "Only one bounded page may be rendered")
       XCTAssertTrue(text.label.contains("日本語🧪"))
-      let last = app.buttons["diagnosticLogs.lastPage"]
-      XCTAssertTrue(last.exists && last.isHittable, "Page controls must be visible before the long text")
+      let firstPageBytes = text.label.utf8.count
+      // SwiftUI propagates the row identifier to its child buttons on these OS
+      // versions. Query the spoken, localized button label instead.
+      let last = app.buttons[lastPageTitles[language]!].firstMatch
+      XCTAssertTrue(last.exists && last.isHittable, app.debugDescription)
       last.tap()
       XCTAssertTrue(text.waitForExistence(timeout: 5))
       XCTAssertTrue(text.label.contains("日本語🧪"))
+      XCTAssertLessThan(text.label.utf8.count, firstPageBytes,
+        "The fixture's shorter last page must replace the first page after tapping")
       XCTAssertEqual(app.navigationBars.count, 1)
       screenshot("Large error log \(language)")
       app.terminate()
