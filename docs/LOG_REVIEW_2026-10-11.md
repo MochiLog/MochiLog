@@ -16,6 +16,7 @@ iPadのアプリコンテナを確認すると、該当ファイルは19,421,823
 - 8言語とプレースホルダーの監査成功（15カタログ・1,445文字列）。ライセンス検査成功。Xcode 27.1でDebug実機ビルド成功。
 - iPadを1055へ上書き更新し、20:26:08に `verified checkpoints queued for import; count=1` と `recovered 1 completed file checkpoint(s)` を確認。
 - 同時刻に `automatic collection deferred; reason=dailyComplete, earliest=2026-10-12T09:00:00+09:00` を確認。更新後の取得済み一覧に当日トークンが加わった。
+- 同じファイルの `parsed=true`、解析219ms、`result=success` と当日の日付を確認した。回復はキューに入れただけでなく、共通処理による解析・記録まで成功した。
 - この実機のroot正規化ログはaliasesResolved=falseだった。旧URLのどの表記差が起きていたかまでは保存されていないため、実機の原因を `/var` と `/private/var` の差だけに限定しない。
 - iPhoneへの1055の上書きインストールは成功。起動はOSからLockedで拒否されたため、今回のiPhoneの実機動作確認には数えない。
 
