@@ -12,5 +12,8 @@ xcrun swiftc -parse-as-library MochiLog/Services/LocalCollectionProgress.swift T
 xcrun swiftc -parse-as-library MochiLog/Services/DailyLogCollectionPolicy.swift MochiLog/Services/LocalCollectionTaskCompletion.swift Tests/DailyLogCollectionPolicyTests.swift -o "$folder/schedule-tests"
 "$folder/schedule-tests"
 
+xcrun swiftc -parse-as-library MochiLog/Services/CloudSharedLogToken.swift MochiLog/Services/LocalLogCheckpoint.swift Tests/LocalLogCheckpointTests.swift -o "$folder/checkpoint-tests"
+"$folder/checkpoint-tests"
+
 xcrun swiftc -parse-as-library MochiLog/Services/DiagnosticLogArchive.swift Tests/DiagnosticLogArchiveTests.swift -o "$folder/archive-tests"
 "$folder/archive-tests"

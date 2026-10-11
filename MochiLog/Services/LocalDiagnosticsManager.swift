@@ -538,6 +538,8 @@ final class LocalDiagnosticsManager: ObservableObject {
             try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
             try cancellation.check()
             try log.bytes.write(to: url, options: [.atomic, .completeFileProtection])
+            let event = "Local diagnostics: complete checkpoint saved; file=\(log.base); bytes=\(log.bytes.count)"
+            Task { @MainActor in MacTransferManager.appendDebugEvent(event) }
           })
         return excluded
       }.value
@@ -570,26 +572,30 @@ final class LocalDiagnosticsManager: ObservableObject {
     return true
   }
   private func stagedBases(_ root: URL) -> Set<String> {
-    let files = FileManager.default.enumerator(at: root, includingPropertiesForKeys: [.isRegularFileKey, .isSymbolicLinkKey, .fileSizeKey])?.allObjects.compactMap { $0 as? URL } ?? []
+    let canonicalRoot = root.resolvingSymlinksInPath().standardizedFileURL
+    let files = FileManager.default.enumerator(at: canonicalRoot, includingPropertiesForKeys: [.isRegularFileKey, .isSymbolicLinkKey, .fileSizeKey])?.allObjects.compactMap { $0 as? URL } ?? []
     return Set(files.compactMap { url in
       guard Self.validCheckpoint(url) else { return nil }
-      let base = url.path.dropFirst(root.path.count + 1).components(separatedBy: "/").joined(separator: "::")
-      return CloudSharedLogToken.validBase(base) ? base : nil
+      return LocalLogCheckpoint.base(for: url, root: root)
     })
   }
   private func importStagedFiles(_ root: URL, parentID: UUID) -> Int {
-    let files = FileManager.default.enumerator(at: root, includingPropertiesForKeys: [.isRegularFileKey, .isSymbolicLinkKey, .fileSizeKey])?.allObjects.compactMap { $0 as? URL } ?? []
+    let canonicalRoot = root.resolvingSymlinksInPath().standardizedFileURL
+    let files = FileManager.default.enumerator(at: canonicalRoot, includingPropertiesForKeys: [.isRegularFileKey, .isSymbolicLinkKey, .fileSizeKey])?.allObjects.compactMap { $0 as? URL } ?? []
     var batch: [(url: URL, physicalDeviceID: UUID?)] = []
     for url in files.sorted(by: { $0.path < $1.path }) {
       guard Self.validCheckpoint(url) else { continue }
-      let base = url.path.dropFirst(root.path.count + 1).components(separatedBy: "/").joined(separator: "::")
-      guard let origin = CloudSharedLogToken.measurementOrigin(base: base, origin: parentID),
+      guard let base = LocalLogCheckpoint.base(for: url, root: root),
+        let origin = CloudSharedLogToken.measurementOrigin(base: base, origin: parentID),
         let bytes = try? Data(contentsOf: url, options: .mappedIfSafe), MacTransferManager.looksLikeBatteryLog(bytes) else { continue }
       let digest = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
       if let previous = MacTransferManager.shared.receivedLocalDigestState(digest, parentID: parentID, recordOrigin: origin), previous != "inbox" {
         markImported(base, parentID: parentID); try? FileManager.default.removeItem(at: url)
         MacTransferManager.appendDebugEvent("Local diagnostics: checkpoint duplicate withheld; source=\(previous), SHA256=\(digest.prefix(12))")
       } else { batch.append((url, origin)) }
+    }
+    if !batch.isEmpty {
+      MacTransferManager.appendDebugEvent("Local diagnostics: verified checkpoints queued for import; count=\(batch.count); aliasesResolved=\(root.path != canonicalRoot.path)")
     }
     SharedImportQueue.shared.enqueueBatch(batch)
     return batch.count

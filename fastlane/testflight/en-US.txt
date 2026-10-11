@@ -1,7 +1,5 @@
-Fixed the iPad error-log card so its entire area is tappable. Page controls now appear above the log text, with direct access to the first and last pages.
+Fixed repeated downloads in on-device automatic collection when a fully saved report for the current day was not recognized. Saved file paths are normalized before complete reports are recovered through the shared import queue. Recognizing an already acquired daily report avoids unnecessary downloads and allows collection to wait until the next day's window.
 
-Redesigned the error-log viewer with message search and a list grouped by date. On wider iPad screens, the list and details appear side by side within Settings. Large logs load in the background and can be viewed page by page. Full-text copying and file sharing remain available.
+Recovery after interruption or restart preserves the original device identity, separates Apple Watch reports and retains existing duplicate prevention. Activity logs now record completed file checkpoints and recovery into the import queue, making acquisition-to-import problems easier to investigate.
 
-Activity logs from this device and paired computers can be browsed by date and feature. Opening the viewer does not start a transfer; Refresh reloads saved logs. Loading and failure states are shown, and large files are no longer reread on every screen update. New controls and text support all eight app languages.
-
-The same loading improvements are available in the Mac and Windows companions. This build also retains the earlier fixes for source-device identification, sharing and duplicate prevention.
+Mac 0.2.27 and Windows 0.1.25 prioritize newer reports and schedule retries for unreadable files. Windows also fixes a transient current-battery response error. Existing PC pairings remain valid; no re-pairing is required.
