@@ -6,7 +6,12 @@ on:
         description: Checks to run
         type: choice
         default: all
-        options: [all, installer, ui, debug_logs]
+        options: [all, installer, ui, debug_logs, error_logs]
+      devices:
+        description: 'UI device coverage'
+        type: choice
+        default: both
+        options: [both, ipad, iphone]
 permissions:
   contents: read
 jobs:
@@ -63,7 +68,8 @@ jobs:
           retention-days: 2
       - name: Verify eight languages and tab changes on iPad and iPhone
         env:
-          MOCHILOG_UI_SCOPE: ${{ inputs.verification == 'debug_logs' && 'diagnostic-logs' || 'all' }}
+          MOCHILOG_UI_SCOPE: ${{ inputs.verification == 'error_logs' && 'error-logs' || inputs.verification == 'debug_logs' && 'diagnostic-logs' || 'all' }}
+          MOCHILOG_UI_DEVICES: ${{ inputs.devices || 'both' }}
         run: bash scripts/test-automatic-collection-ui.sh
       - uses: actions/upload-artifact@v4
         if: always()

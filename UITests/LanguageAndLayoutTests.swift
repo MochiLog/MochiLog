@@ -102,6 +102,15 @@ final class LanguageAndLayoutTests: XCTestCase {
   }
 
   func testLargeErrorLogsInEightLanguages() {
+    let errorTitles = [
+      "en": "View Error Logs",
+      "ja": "エラーログを表示",
+      "de": "Fehlerprotokolle anzeigen",
+      "es": "Ver registros de errores",
+      "fr": "Voir les journaux d’erreurs",
+      "ko": "오류 로그 보기",
+      "zh-Hans": "查看错误日志",
+      "zh-Hant": "檢視錯誤日誌"]
     let settingsTitles = ["en": "Settings", "ja": "設定", "de": "Einstellungen", "es": "Ajustes",
       "fr": "Réglages", "ko": "설정", "zh-Hans": "设置", "zh-Hant": "設定"]
     for language in ["en", "ja", "de", "es", "fr", "ko", "zh-Hans", "zh-Hant"] {
@@ -118,12 +127,15 @@ final class LanguageAndLayoutTests: XCTestCase {
         for _ in 0..<8 { if debug.isHittable { break }; app.swipeUp() }
         XCTAssertTrue(debug.waitForExistence(timeout: 5)); debug.tap()
       }
-      let link = app.buttons["settings.errorLogs"]
+      // iPad uses a custom Settings card; iPhone uses the navigation list.
+      let link = UIDevice.current.userInterfaceIdiom == .pad
+        ? app.buttons.containing(.staticText, identifier: errorTitles[language]!).firstMatch
+        : app.buttons["settings.errorLogs"]
       for _ in 0..<8 { if link.isHittable { break }; app.swipeUp() }
       XCTAssertTrue(link.exists && link.isHittable, app.debugDescription); link.tap()
       let fixture = app.staticTexts["Large log UI fixture"].firstMatch
       XCTAssertTrue(fixture.waitForExistence(timeout: 15), app.debugDescription)
-      if !app.staticTexts["errorLogs.detail.text"].firstMatch.exists { fixture.tap() }
+      fixture.tap()
       let text = app.staticTexts["errorLogs.detail.text"].firstMatch
       XCTAssertTrue(text.waitForExistence(timeout: 15), app.debugDescription)
       XCTAssertLessThan(text.label.utf8.count, 49_152, "Only one bounded page may be rendered")

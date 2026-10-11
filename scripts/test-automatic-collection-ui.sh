@@ -40,6 +40,8 @@ if [[ "$scope" == all ]]; then
     -only-testing:MochiLogUITests/LanguageAndLayoutTests/testCollectionProgressAndResumeInEightLanguages
   )
   ui_timeout=1200
+elif [[ "$scope" == error-logs ]]; then
+  ui_tests=(-only-testing:MochiLogUITests/LanguageAndLayoutTests/testLargeErrorLogsInEightLanguages)
 elif [[ "$scope" != diagnostic-logs ]]; then
   echo "Unknown MOCHILOG_UI_SCOPE: $scope" >&2; exit 2
 fi
@@ -47,7 +49,13 @@ device=""
 failed=0
 cleanup() { if [[ -n "$device" ]]; then xcrun simctl shutdown "$device" || true; xcrun simctl delete "$device"; fi; }
 trap cleanup EXIT
-for kind in ipad iphone; do
+case "${MOCHILOG_UI_DEVICES:-both}" in
+  both) device_kinds=(ipad iphone) ;;
+  ipad) device_kinds=(ipad) ;;
+  iphone) device_kinds=(iphone) ;;
+  *) echo 'Unsupported UI device selection' >&2; exit 2 ;;
+esac
+for kind in "${device_kinds[@]}"; do
   if [[ "$kind" == ipad ]]; then type=iPad-Pro-13-inch-M5-12GB; else type=iPhone-17-Pro-Max; fi
   device=$(xcrun simctl create "MochiLog CI $kind" "com.apple.CoreSimulator.SimDeviceType.$type" "$runtime")
   xcrun simctl boot "$device"
