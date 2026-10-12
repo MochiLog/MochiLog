@@ -1,5 +1,6 @@
-Fixed repeated downloads in on-device automatic collection when a fully saved report for the current day was not recognized. Saved file paths are normalized before complete reports are recovered through the shared import queue. Recognizing an already acquired daily report avoids unnecessary downloads and allows collection to wait until the next day's window.
+MochiLog 4.0.0 beta (1056)
 
-Recovery after interruption or restart preserves the original device identity, separates Apple Watch reports and retains existing duplicate prevention. Activity logs now record completed file checkpoints and recovery into the import queue, making acquisition-to-import problems easier to investigate.
-
-Mac 0.2.27 and Windows 0.1.25 prioritize newer reports and schedule retries for unreadable files. Windows also fixes a transient current-battery response error. Existing PC pairings remain valid; no re-pairing is required.
+- When several computers are paired, a large diagnostic-history backlog on one computer no longer keeps the others waiting indefinitely. The app checks the next computer after a bounded exchange and later resumes history from saved offsets.
+- Daily diagnostic-history transfers respect the advertised snapshot boundary while remaining compatible with previous app and companion versions.
+- Import diagnostics identify on-device acquisition and its physical device identity. Battery measurements and existing record IDs are unchanged.
+- The previous iPad checkpoint fix was verified on a real device: today's file was downloaded once, parsed, and counted toward the daily collection pause.

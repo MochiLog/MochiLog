@@ -17,3 +17,5 @@ xcrun swiftc -parse-as-library MochiLog/Services/CloudSharedLogToken.swift Mochi
 
 xcrun swiftc -parse-as-library MochiLog/Services/DiagnosticLogArchive.swift Tests/DiagnosticLogArchiveTests.swift -o "$folder/archive-tests"
 "$folder/archive-tests"
+xcrun swiftc -parse-as-library MochiLog/Services/DiagnosticArchiveSyncPolicy.swift Tests/DiagnosticArchiveSyncPolicyTests.swift -o "$folder/archive-sync-tests"
+"$folder/archive-sync-tests"

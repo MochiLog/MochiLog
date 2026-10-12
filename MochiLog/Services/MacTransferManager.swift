@@ -389,6 +389,7 @@ final class MacTransferManager: ObservableObject {
     // Restarting the whole manager here used to recreate both every minute
     // when an iPad was paired with Mac and Windows.
     pairing = next
+    debugSyncBurst = 0
     usingLegacyTransfer = false
     legacyTransferConfirmed = false
     activeFileOffer = nil
@@ -1488,7 +1489,13 @@ final class MacTransferManager: ObservableObject {
           if debugSyncBurst == 1 || debugSyncBurst % 25 == 0 {
             Self.appendDebugEvent("Debug archive sync: continuing with computer \(pairing.hostID.uuidString), batch \(debugSyncBurst)")
           }
-          let delay: TimeInterval = debugSyncBurst % 25 == 0 ? 10 : 0.3
+          if DiagnosticArchiveSyncPolicy.shouldRotate(completedRounds: debugSyncBurst,
+            pairedComputers: pairings.count) {
+            Self.appendDebugEvent("Debug archive sync: yielding after \(debugSyncBurst) rounds; computer=\(pairing.hostID.uuidString), pairedComputers=\(pairings.count); saved offsets retained")
+            advancePairing()
+            return
+          }
+          let delay = DiagnosticArchiveSyncPolicy.continuationDelay(completedRounds: debugSyncBurst)
           DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
             guard let self, self.isRunning,
               self.pairing?.hostID == pairing.hostID else { return }
@@ -1845,7 +1852,7 @@ final class MacTransferManager: ObservableObject {
       }
       if let request = remote["archiveRequest"] as? [String: Any],
         let chunk = Self.archiveChunk(request: request,
-          directory: Self.debugArchiveDirectory, limit: 3_072) {
+          directory: Self.debugArchiveDirectory, limit: 4_096) {
         object["archiveChunk"] = chunk
       }
     }
@@ -1943,6 +1950,7 @@ final class MacTransferManager: ObservableObject {
 
   func recordImportOutcome(filename: String, status: String, logDate: Date?,
     detail: String?, sourceURL: URL) {
+    let queuedOrigin = SharedImportQueue.shared.physicalDeviceID(for: sourceURL)
     LocalDiagnosticsManager.shared.imported(sourceURL, success: status == "success" || status == "duplicate")
     if status == "success" || status == "duplicate",
       let host = pairings.first(where: {
@@ -1956,7 +1964,9 @@ final class MacTransferManager: ObservableObject {
     Self.appendDebugEvent(message)
     let shared = CloudLogSharingState.sharedToken(in: sourceURL)
     let computer = pairings.first { Self.storedFileID(for: sourceURL, pairing: $0) != nil }
-    Self.appendDebugEvent("Import trace: result=\(status), source=\((shared?.origin ?? computer?.physicalDeviceID)?.uuidString ?? "unknown"), computer=\(computer?.hostID.uuidString ?? "unknown"), crossDevice=\(shared != nil), file=\(filename)")
+    let origin = shared?.origin ?? queuedOrigin ?? computer?.physicalDeviceID
+    let transport = sourceURL.pathComponents.contains("LocalDevice") ? "on-device" : "computer"
+    Self.appendDebugEvent("Import trace: result=\(status), transport=\(transport), source=\(origin?.uuidString ?? "unknown"), computer=\(computer?.hostID.uuidString ?? "none"), crossDevice=\(shared != nil), file=\(filename)")
     guard filename.hasPrefix("Analytics-\(DailyLogCollectionPolicy.dayKey())-"),
       status == "error" || status == "success" || status == "duplicate" ||
         status == "needsReview",
@@ -2077,7 +2087,7 @@ final class MacTransferManager: ObservableObject {
         day >= cutoff, (0...64_000_000).contains(size) else { continue }
       let url = directory.appendingPathComponent("\(day).log")
       let current = (try? url.resourceValues(forKeys: [.fileSizeKey]))?.fileSize ?? 0
-      if current < size { return ["day": compact, "offset": current] }
+      if current < size { return ["day": compact, "offset": current, "end": size] }
     }
     return nil
   }
@@ -2088,10 +2098,15 @@ final class MacTransferManager: ObservableObject {
       let day = expandedDay(compact), let offset = request["offset"] as? Int,
       offset >= 0, offset <= 64_000_000 else { return nil }
     let url = directory.appendingPathComponent("\(day).log")
+    let count: Int
+    if let end = request["end"] as? Int {
+      guard end > offset, end <= 64_000_000 else { return nil }
+      count = min(limit, end - offset)
+    } else { count = limit } // Previous peers do not send a snapshot end.
     guard let handle = try? FileHandle(forReadingFrom: url) else { return nil }
     defer { try? handle.close() }
     guard (try? handle.seek(toOffset: UInt64(offset))) != nil,
-      let bytes = try? handle.read(upToCount: limit), !bytes.isEmpty else { return nil }
+      let bytes = try? handle.read(upToCount: count), !bytes.isEmpty else { return nil }
     return ["day": compact, "offset": offset,
       "data": bytes.base64EncodedString()]
   }
