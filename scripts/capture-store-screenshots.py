@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Capture real UI in dedicated, reusable simulators; never erase personal simulators."""
+"""Capture real UI in dedicated simulators and remove idle capture devices afterwards."""
 import argparse
 import atexit
 import datetime
@@ -16,19 +16,32 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--devices', nargs='+', choices=['iphone', 'ipad', 'duo', 'watch'], default=['iphone', 'ipad', 'duo', 'watch'])
 parser.add_argument("--duo-screen", choices=["inner", "outer"], default="outer",
                     help="Select Open/Closed in Xcode Device Hub before capture; screenshots are dimension-checked.")
+parser.add_argument('--keep-simulators', action='store_true',
+                    help='Retain dedicated capture devices for a follow-up capture. Default: remove them after use.')
 args = parser.parse_args()
 selected = set(args.devices)
 ROOT = Path(__file__).resolve().parents[1]
 os.chdir(ROOT)
 OUTPUT = ROOT / 'build' / 'store-screenshots' / datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
 DERIVED = ROOT / 'build' / 'store-derived'
-if shutil.disk_usage(ROOT).free < 12 * 1024**3:
-    raise RuntimeError("Store capture needs at least 12 GB free; remove old owned build outputs first.")
+if shutil.disk_usage(ROOT).free < 24 * 1024**3:
+    raise RuntimeError("Store capture needs at least 24 GiB free; remove old owned build outputs first.")
 OUTPUT.mkdir(parents=True)
 owned_boots = set()
-def cleanup_simulators():
-    for device in owned_boots:
+owned_simulators = set()
+
+def release_simulator(device):
+    if device in owned_boots:
         subprocess.run(['xcrun', 'simctl', 'shutdown', device], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        owned_boots.discard(device)
+    if device in owned_simulators and not args.keep_simulators:
+        result = subprocess.run(['xcrun', 'simctl', 'delete', device], stdout=subprocess.DEVNULL)
+        if result.returncode == 0:
+            owned_simulators.discard(device)
+
+def cleanup_simulators():
+    for device in owned_boots | owned_simulators:
+        release_simulator(device)
 atexit.register(cleanup_simulators)
 
 def run(*args, **kwargs):
@@ -38,21 +51,31 @@ def json_command(*args):
     return json.loads(subprocess.check_output(args, text=True))
 
 def simulator(name, device_type, runtime):
+    if not name.startswith('MochiLog Store '):
+        raise ValueError('Capture devices must use the dedicated MochiLog Store prefix.')
     devices = json_command('xcrun', 'simctl', 'list', 'devices', '-j')['devices'].get(runtime, [])
     matches = [d for d in devices if d['name'] == name and d.get('isAvailable')]
     if len(matches) > 1:
         raise RuntimeError(f'Duplicate screenshot simulators: {name}')
     if matches:
-        return matches[0]['udid']
-    return subprocess.check_output(['xcrun', 'simctl', 'create', name,
-                                   'com.apple.CoreSimulator.SimDeviceType.' + device_type, runtime], text=True).strip()
+        device = matches[0]
+        # A device already open before capture is borrowed, not ours to delete.
+        if device.get('state') == 'Shutdown':
+            owned_simulators.add(device['udid'])
+        return device['udid']
+    device = subprocess.check_output(['xcrun', 'simctl', 'create', name,
+                                     'com.apple.CoreSimulator.SimDeviceType.' + device_type, runtime], text=True).strip()
+    owned_simulators.add(device)
+    return device
 
 def boot(device, watch=False):
-    owned_boots.add(device)
     state = [d for ds in json_command('xcrun', 'simctl', 'list', 'devices', '-j')['devices'].values()
              for d in ds if d['udid'] == device][0]['state']
-    if state != 'Booted':
+    if state == 'Shutdown':
+        owned_boots.add(device)
         run('xcrun', 'simctl', 'boot', device)
+    elif state != 'Booted':
+        raise RuntimeError(f'Capture device is not ready: {device} ({state})')
     run('xcrun', 'simctl', 'bootstatus', device, '-b')
     if not watch:
         run('xcrun', 'simctl', 'ui', device, 'appearance', 'dark')
@@ -116,7 +139,14 @@ for label, device in [('iphone', phone), ('ipad', pad)]:
         'MochiLogUITests/LanguageAndLayoutTests/testStoreScreenshotsEnglish',
         'MochiLogUITests/LanguageAndLayoutTests/testStoreScreenshotsJapanese'])
     export(label)
-    run('xcrun', 'simctl', 'shutdown', device)
+    # Watch capture still needs the phone's fixture, but other devices can be
+    # removed now instead of keeping several multi-GiB images until exit.
+    if label == 'iphone' and 'watch' in selected:
+        if device in owned_boots:
+            run('xcrun', 'simctl', 'shutdown', device)
+            owned_boots.discard(device)
+    else:
+        release_simulator(device)
 if duo:
     boot(duo)
     # Device Hub owns the hinge posture. Powering displays off does not fold the
@@ -127,7 +157,7 @@ if duo:
         'MochiLogUITests/LanguageAndLayoutTests/testStoreScreenshotsEnglish',
         'MochiLogUITests/LanguageAndLayoutTests/testStoreScreenshotsJapanese'])
     export(label)
-    run('xcrun', 'simctl', 'shutdown', duo)
+    release_simulator(duo)
 if 'watch' in selected:
     # watchOS tests need their companion, so this final phase alone uses a pair.
     boot(phone)
@@ -146,8 +176,8 @@ if 'watch' in selected:
         'MochiLogWatchUITests/WatchLayoutTests/testStoreScreenshotsEnglish',
         'MochiLogWatchUITests/WatchLayoutTests/testStoreScreenshotsJapanese'])
     export('watch')
-    run('xcrun', 'simctl', 'shutdown', watch)
-    run('xcrun', 'simctl', 'shutdown', phone)
+    release_simulator(watch)
+    release_simulator(phone)
 (OUTPUT / 'capture.json').write_text(json.dumps({'gitCommit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
     'xcode': version.strip(), 'devices': {'iphone': phone, 'ipad': pad, 'watch': watch, 'duo': duo}, 'appearance': 'dark'}, indent=2))
 print(f'\n{len(list((OUTPUT / "screenshots").rglob("*.png")))} screenshots saved: {OUTPUT / "screenshots"}', flush=True)
