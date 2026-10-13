@@ -9,6 +9,8 @@ struct RecordListView<Header: View>: View {
   let onRecordTap: ((BatteryRecord) -> Void)?
   let onRecordDelete: ((BatteryRecord) -> Void)?
   let showContextMenu: Bool
+  let isSelecting: Bool
+  let selectedRecordIDs: Set<UUID>
   let header: Header
 
   @StateObject private var appSettings = AppSettings.shared
@@ -58,6 +60,8 @@ struct RecordListView<Header: View>: View {
     onRecordTap: ((BatteryRecord) -> Void)? = nil,
     onRecordDelete: ((BatteryRecord) -> Void)? = nil,
     showContextMenu: Bool = true,
+    isSelecting: Bool = false,
+    selectedRecordIDs: Set<UUID> = [],
     @ViewBuilder header: () -> Header = { EmptyView() }
   ) {
     self.records = records
@@ -65,6 +69,8 @@ struct RecordListView<Header: View>: View {
     self.onRecordTap = onRecordTap
     self.onRecordDelete = onRecordDelete
     self.showContextMenu = showContextMenu
+    self.isSelecting = isSelecting
+    self.selectedRecordIDs = selectedRecordIDs
     self.header = header()
   }
 
@@ -269,16 +275,18 @@ struct RecordListView<Header: View>: View {
               Button {
                 onRecordTap?(record)
               } label: {
-                RecordRowView(record: record)
+                selectableRecordRow(record)
                   .frame(maxWidth: .infinity, alignment: .leading)
                   .contentShape(Rectangle())
               }
               .buttonStyle(.plain)
               .accessibilityIdentifier("home.record.\(record.id)")
+              .accessibilityValue(selectionValue(record))
+              .deleteDisabled(isSelecting)
               .listRowInsets(EdgeInsets(top: 2, leading: 24, bottom: 2, trailing: 24))
             }
             .onDelete { offsets in
-              if let onDelete = onRecordDelete {
+              if !isSelecting, let onDelete = onRecordDelete {
                 offsets.map { sectionRecords[$0] }.forEach(onDelete)
               }
             }
@@ -343,11 +351,13 @@ struct RecordListView<Header: View>: View {
               Button {
                 onRecordTap?(record)
               } label: {
-                RecordRowView(record: record)
+                selectableRecordRow(record)
                   .contentShape(Rectangle())
               }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("home.record.\(record.id)")
+                .accessibilityValue(selectionValue(record))
+                .deleteDisabled(isSelecting)
                 .transition(
                   .asymmetric(
                     insertion: .move(edge: .top).combined(with: .opacity),
@@ -355,7 +365,7 @@ struct RecordListView<Header: View>: View {
                   ))
             }
             .onDelete { offsets in
-              if let onDelete = onRecordDelete {
+              if !isSelecting, let onDelete = onRecordDelete {
                 let items = offsets.map { sectionRecords[$0] }
                 items.forEach { onDelete($0) }
               }
@@ -448,7 +458,11 @@ struct RecordListView<Header: View>: View {
     Button {
       onRecordTap?(record)
     } label: {
-      ModerniPadRecordCard(record: record)
+      HStack(spacing: 12) {
+        if isSelecting { selectionIndicator(record) }
+        ModerniPadRecordCard(record: record)
+          .frame(maxWidth: .infinity, alignment: .leading)
+      }
         .padding(16)
         .background(
           Color(uiColor: .tertiarySystemGroupedBackground)
@@ -457,12 +471,15 @@ struct RecordListView<Header: View>: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .overlay(
           RoundedRectangle(cornerRadius: 16)
-            .stroke(Color(uiColor: .separator).opacity(0.1), lineWidth: 1)
+            .stroke(isSelecting && selectedRecordIDs.contains(record.id)
+              ? appSettings.accentColor.color : Color(uiColor: .separator).opacity(0.1),
+              lineWidth: isSelecting && selectedRecordIDs.contains(record.id) ? 2 : 1)
         )
         .frame(maxWidth: .infinity)
     }
     .buttonStyle(.plain)
     .accessibilityIdentifier("home.record.\(record.id)")
+    .accessibilityValue(selectionValue(record))
     .contextMenu {
       if showContextMenu, let onDelete = onRecordDelete {
         Button(role: .destructive) {
@@ -480,6 +497,28 @@ struct RecordListView<Header: View>: View {
       }
     }
     .animation(.snappy, value: collapsedSections)
+  }
+
+  private func selectableRecordRow(_ record: BatteryRecord) -> some View {
+    HStack(spacing: 12) {
+      if isSelecting { selectionIndicator(record) }
+      RecordRowView(record: record)
+    }
+  }
+
+  private func selectionIndicator(_ record: BatteryRecord) -> some View {
+    Image(systemName: selectedRecordIDs.contains(record.id) ? "checkmark.circle.fill" : "circle")
+      .font(.title3)
+      .foregroundStyle(selectedRecordIDs.contains(record.id)
+        ? appSettings.accentColor.color : .secondary)
+      .frame(width: 28)
+      .accessibilityHidden(true)
+  }
+
+  private func selectionValue(_ record: BatteryRecord) -> String {
+    guard isSelecting else { return "" }
+    return L10n.string(selectedRecordIDs.contains(record.id)
+      ? "records_selected" : "records_not_selected", table: "Home")
   }
 
   // MARK: - デバイス名表示ヘルパー（iPad用）

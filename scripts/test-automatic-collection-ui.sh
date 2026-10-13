@@ -42,6 +42,9 @@ if [[ "$scope" == all ]]; then
   ui_timeout=1200
 elif [[ "$scope" == error-logs ]]; then
   ui_tests=(-only-testing:MochiLogUITests/LanguageAndLayoutTests/testLargeErrorLogsInEightLanguages)
+elif [[ "$scope" == record-selection ]]; then
+  ui_tests=(-only-testing:MochiLogUITests/LanguageAndLayoutTests/testHomeRecordMultipleDeletionInEightLanguages)
+  ui_timeout=600
 elif [[ "$scope" != diagnostic-logs ]]; then
   echo "Unknown MOCHILOG_UI_SCOPE: $scope" >&2; exit 2
 fi
@@ -66,13 +69,13 @@ for kind in "${device_kinds[@]}"; do
   # Give compilation and actual UI execution separate bounded phases.
   if ! bounded 1200 xcodebuild build-for-testing -project MochiLog.xcodeproj -scheme MochiLogUITests \
     -destination "platform=iOS Simulator,id=$device" -derivedDataPath Build/automatic-ui-derived \
-    -parallel-testing-enabled NO -jobs 2 \
+    -parallel-testing-enabled NO -jobs 1 \
     > "Build/automatic-ui-$kind-build.log" 2>&1; then
     tail -30 "Build/automatic-ui-$kind-build.log"; failed=1; cleanup; device=""; continue
   fi
   if ! bounded "$ui_timeout" xcodebuild test-without-building -project MochiLog.xcodeproj -scheme MochiLogUITests \
     -destination "platform=iOS Simulator,id=$device" -derivedDataPath Build/automatic-ui-derived \
-    -parallel-testing-enabled NO -jobs 2 -collect-test-diagnostics never \
+    -parallel-testing-enabled NO -jobs 1 -collect-test-diagnostics never \
     -resultBundlePath "Build/automatic-ui-$kind.xcresult" \
     "${ui_tests[@]}" \
     > "Build/automatic-ui-$kind.log" 2>&1; then
@@ -83,7 +86,7 @@ for kind in "${device_kinds[@]}"; do
       bounded 300 xcrun simctl bootstatus "$device" -b > "Build/automatic-ui-$kind-retry-boot.log" 2>&1
       if ! bounded "$ui_timeout" xcodebuild test-without-building -project MochiLog.xcodeproj -scheme MochiLogUITests \
         -destination "platform=iOS Simulator,id=$device" -derivedDataPath Build/automatic-ui-derived \
-        -parallel-testing-enabled NO -jobs 2 -collect-test-diagnostics never \
+        -parallel-testing-enabled NO -jobs 1 -collect-test-diagnostics never \
         -resultBundlePath "Build/automatic-ui-$kind-retry.xcresult" \
     "${ui_tests[@]}" \
         > "Build/automatic-ui-$kind-retry.log" 2>&1; then failed=1; fi
@@ -95,25 +98,28 @@ for kind in "${device_kinds[@]}"; do
   tail -30 "Build/automatic-ui-$kind.log"
   # A targeted viewer retry does not need to repeat the already-passed native
   # diagnostics protocol probes; default/all scopes still exercise them.
-  if [[ "$scope" != error-logs ]] && ! bounded 180 python3 scripts/test-local-diagnostics-simulator.py "$device" \
+  if [[ "$scope" != error-logs && "$scope" != record-selection ]] && ! bounded 180 python3 scripts/test-local-diagnostics-simulator.py "$device" \
     --app Build/automatic-ui-derived/Build/Products/Debug-iphonesimulator/MochiLog.app \
     --output "Build/automatic-ui-$kind-native.json" \
     > "Build/automatic-ui-$kind-native.log" 2>&1; then failed=1; fi
-  if [[ "$scope" != error-logs ]]; then cat "Build/automatic-ui-$kind-native.log"; fi
+  if [[ "$scope" != error-logs && "$scope" != record-selection ]]; then cat "Build/automatic-ui-$kind-native.log"; fi
   cleanup; device=""
 done
 
 # Reuse an installed older runtime when present; never download one here.
-legacy_runtime=$(xcrun simctl list runtimes -j | python3 -c 'import json,sys; r=[x for x in json.load(sys.stdin)["runtimes"] if x.get("isAvailable") and x["name"] == "iOS 17.0"]; print(r[0]["identifier"] if r else "")')
+legacy_runtime=""
+if [[ "$scope" != record-selection ]]; then
+  legacy_runtime=$(xcrun simctl list runtimes -j | python3 -c 'import json,sys; r=[x for x in json.load(sys.stdin)["runtimes"] if x.get("isAvailable") and x["name"] == "iOS 17.0"]; print(r[0]["identifier"] if r else "")')
+fi
 if [[ -n "$legacy_runtime" ]]; then
   device=$(xcrun simctl create "MochiLog CI iOS 17 boundary" com.apple.CoreSimulator.SimDeviceType.iPhone-15-Pro "$legacy_runtime")
   xcrun simctl boot "$device"
   if bounded 300 xcrun simctl bootstatus "$device" -b > Build/automatic-ui-ios17-boot.log 2>&1 && \
      bounded 1200 xcodebuild build-for-testing -project MochiLog.xcodeproj -scheme MochiLogUITests \
-       -destination "platform=iOS Simulator,id=$device" -derivedDataPath Build/automatic-ui-derived -parallel-testing-enabled NO -jobs 2 \
+       -destination "platform=iOS Simulator,id=$device" -derivedDataPath Build/automatic-ui-derived -parallel-testing-enabled NO -jobs 1 \
        > Build/automatic-ui-ios17-build.log 2>&1; then
     if ! bounded 900 xcodebuild test-without-building -project MochiLog.xcodeproj -scheme MochiLogUITests \
-      -destination "platform=iOS Simulator,id=$device" -derivedDataPath Build/automatic-ui-derived -parallel-testing-enabled NO -jobs 2 \
+      -destination "platform=iOS Simulator,id=$device" -derivedDataPath Build/automatic-ui-derived -parallel-testing-enabled NO -jobs 1 \
       -collect-test-diagnostics never -resultBundlePath Build/automatic-ui-ios17.xcresult \
       -only-testing:MochiLogUITests/LanguageAndLayoutTests/testDeviceAcquisitionOnOlderOS \
       > Build/automatic-ui-ios17.log 2>&1; then failed=1; fi
@@ -128,6 +134,8 @@ if [[ -n "$legacy_runtime" ]]; then
     tail -30 Build/automatic-ui-ios17-build.log 2>/dev/null || true
   fi
   cleanup; device=""
+elif [[ "$scope" == record-selection ]]; then
+  echo "Targeted home record selection verification; separate native/older-OS probes were not repeated."
 else
   echo "iOS 17 runtime not installed; older-OS UI check skipped explicitly."
 fi

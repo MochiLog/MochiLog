@@ -6,7 +6,7 @@ on:
         description: Checks to run
         type: choice
         default: all
-        options: [all, installer, ui, debug_logs, error_logs]
+        options: [all, installer, ui, debug_logs, error_logs, record_selection]
       devices:
         description: 'UI device coverage'
         type: choice
@@ -52,10 +52,11 @@ jobs:
       - name: Verify on-device pairing boundary and localization
         run: |
           bash scripts/test-local-pairing.sh
+          bash scripts/test-selected-record-deletion.sh
           python3 scripts/audit-localizations.py
       - name: Build local diagnostics dependency
         env:
-          CARGO_BUILD_JOBS: '3'
+          CARGO_BUILD_JOBS: '1'
         run: |
           export PATH="$HOME/.cargo/bin:$PATH"
           if ! command -v rustup >/dev/null; then curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y; fi
@@ -68,7 +69,7 @@ jobs:
           retention-days: 2
       - name: Verify eight languages and tab changes on iPad and iPhone
         env:
-          MOCHILOG_UI_SCOPE: ${{ inputs.verification == 'error_logs' && 'error-logs' || inputs.verification == 'debug_logs' && 'diagnostic-logs' || 'all' }}
+          MOCHILOG_UI_SCOPE: ${{ inputs.verification == 'record_selection' && 'record-selection' || inputs.verification == 'error_logs' && 'error-logs' || inputs.verification == 'debug_logs' && 'diagnostic-logs' || 'all' }}
           MOCHILOG_UI_DEVICES: ${{ inputs.devices || 'both' }}
         run: bash scripts/test-automatic-collection-ui.sh
       - uses: actions/upload-artifact@v4

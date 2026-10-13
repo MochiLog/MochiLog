@@ -1,9 +1,7 @@
-MochiLog 4.0.0 beta (1057)
+MochiLog 4.0.0 beta (1058)
 
-PC pairing now sends current Wi-Fi/Ethernet LAN address hints inside the existing encrypted request. Updated companions can try the correct diagnostic endpoint when a VPN or translated connection makes the transfer peer address different from the Apple diagnostic address. Hints remain scoped to the authenticated physical device and protected by replay checks.
+Home now supports selecting and deleting multiple battery records. Tap Select, check the records, then use Delete at the bottom and confirm the count. Select all, deselect all and cancellation are supported on iPhone and iPad in all eight languages. Sample records cannot be deleted.
 
-Use MochiLog Mac 0.2.29 or MochiLog Windows 0.1.27. Existing pairings do not need to be recreated. Updating only one side preserves previous communication; both sides need the update to use the new address hints.
+Confirmation captures the selected record IDs and contents. They are checked again immediately before deletion, so a record changed or deleted on another device is never replaced with a different record as a deletion target. Failed saves are rolled back and reported. With iCloud sync enabled, deletion also applies to synced devices. Deletion cannot be undone, so check that records you want to keep are not selected.
 
-Companions no longer mark failed downloads, retry waiting or deferred classification as completed acquisition. Waiting counts are displayed, with endpoint provenance, changes, authentication and waiting recorded in activity logs. Current battery queries also use these endpoint candidates.
-
-Parsing and recording remain on mobile; no PC battery-log parser was added. Devices must be unlocked for log collection. This update does not remove missing-log, disabled Analytics sharing, OS access restrictions or connectivity limitations. For issues, select the occurrence date and attach diagnostics from both sides through support.
+This build includes the PC pairing improvements from 1057. Current LAN address hints are sent inside the existing encrypted request, allowing updated companions to try the right Apple diagnostic endpoint when it differs from the transfer peer address. Use Mac 0.2.29 or Windows 0.1.27. Existing pairings and older-version communication remain supported. Companions distinguish failed downloads and retry waiting from completed acquisition. Log collection still requires the device to be unlocked.

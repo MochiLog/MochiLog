@@ -19,6 +19,57 @@ final class LanguageAndLayoutTests: XCTestCase {
     app.terminate()
   }
 
+  func testHomeRecordMultipleDeletionInEightLanguages() {
+    let cancel = ["en": "Cancel", "ja": "キャンセル", "de": "Abbrechen", "es": "Cancelar",
+      "fr": "Annuler", "ko": "취소", "zh-Hans": "取消", "zh-Hant": "取消"]
+    let delete = ["en": "Delete", "ja": "削除", "de": "Löschen", "es": "Eliminar",
+      "fr": "Supprimer", "ko": "삭제", "zh-Hans": "删除", "zh-Hant": "刪除"]
+    let ids = ["10000000-0000-0000-0000-000000000001",
+      "20000000-0000-0000-0000-000000000002", "30000000-0000-0000-0000-000000000003"]
+    for language in ["en", "ja", "de", "es", "fr", "ko", "zh-Hans", "zh-Hant"] {
+      // The existing fixture creates a fresh in-memory store. User records and
+      // iCloud data are never deleted by this UI test.
+      app.launchEnvironment["MOCHI_DUPLICATE_REVIEW_TEST"] = "1"
+      app.launchArguments = ["-hasCompletedTutorial", "YES", "-showPopupOnLoad", "NO",
+        "-showingSampleData", "NO", "-allowDuplicateRecords", "YES", "-iCloudSyncEnabled", "NO",
+        "-appLanguage", language, "-AppleLanguages", "(\(language))", "-selectedTabIndex", "0",
+        "-LastKnownAppVersion", "4.0.0", "-pcAutomaticCollectionEnabled", "NO",
+        "-localAutomaticCollectionEnabled", "NO"]
+      app.launch()
+      let begin = app.buttons["home.selection.begin"]
+      XCTAssertTrue(begin.waitForExistence(timeout: 15), app.debugDescription); begin.tap()
+      let rows = ids.map { app.buttons["home.record.\($0)"] }
+      for row in rows { XCTAssertTrue(row.waitForExistence(timeout: 5), app.debugDescription) }
+      let deleteSelection = app.buttons["home.selection.delete"]
+      XCTAssertTrue(deleteSelection.exists && !deleteSelection.isEnabled)
+      rows[0].tap(); rows[2].tap()
+      XCTAssertTrue(deleteSelection.isEnabled)
+      XCTAssertTrue(app.staticTexts["home.selection.count"].label.contains("2"))
+      screenshot("Home selected records \(language)")
+      deleteSelection.tap()
+      let confirmation = app.alerts.firstMatch
+      XCTAssertTrue(confirmation.waitForExistence(timeout: 5), app.debugDescription)
+      XCTAssertTrue(confirmation.staticTexts.containing(NSPredicate(format: "label CONTAINS '2'")).firstMatch.exists)
+      confirmation.buttons[cancel[language]!].tap()
+      for row in rows { XCTAssertTrue(row.exists, "Cancelling must retain every record") }
+      app.buttons["home.selection.cancel"].tap()
+      XCTAssertTrue(begin.exists, app.debugDescription)
+      begin.tap(); rows[0].tap(); rows[2].tap(); deleteSelection.tap()
+      confirmation.buttons[delete[language]!].tap()
+      XCTAssertTrue(begin.waitForExistence(timeout: 10), app.debugDescription)
+      XCTAssertFalse(rows[0].exists); XCTAssertFalse(rows[2].exists)
+      XCTAssertTrue(rows[1].exists, "Unselected records with identical values are preserved")
+      begin.tap()
+      app.buttons["home.selection.selectAll"].tap()
+      XCTAssertTrue(deleteSelection.isEnabled)
+      XCTAssertTrue(app.staticTexts["home.selection.count"].label.contains("1"))
+      app.buttons["home.selection.selectAll"].tap()
+      XCTAssertFalse(deleteSelection.isEnabled)
+      app.buttons["home.selection.cancel"].tap()
+      app.terminate()
+    }
+  }
+
   func testCollectionProgressAndResumeInEightLanguages() {
     for language in ["en", "ja", "de", "es", "fr", "ko", "zh-Hans", "zh-Hant"] {
       app.launchEnvironment["MOCHI_COLLECTION_PROGRESS_UI"] = "1"

@@ -344,6 +344,8 @@ struct HomeView: View {
     dataStore.recordsDescending
   }
 
+  private var allRecordIDs: Set<UUID> { Set(records.map(\.id)) }
+
   @State private var showingFilePicker = false
   @State var showingErrorAlert = false
   @State var errorMessage = ""
@@ -374,6 +376,12 @@ struct HomeView: View {
   @State private var showingDebugLogsSheet = false
   @State private var showingReorderSheet = false
   @State private var showingTutorial = false
+  @State private var selectingRecords = false
+  @State private var selectedRecordIDs: Set<UUID> = []
+  @State private var pendingRecordDeletion: SelectedRecordDeletion.Plan?
+  @State private var showingRecordDeletionConfirmation = false
+  @State private var showingRecordDeletionResult = false
+  @State private var recordDeletionResult = ""
 
   // デバイス手動選択モード用
   @State var showingDeviceSelectionFromRegistered = false
@@ -412,20 +420,84 @@ struct HomeView: View {
       }
       .navigationTitle("MochiLog")
       .toolbar {
-        if !records.isEmpty || showingSampleData {
+        if selectingRecords {
+          ToolbarItem(placement: .navigationBarLeading) {
+            Button(L10n.string("cancel", table: "Common")) { endRecordSelection() }
+              .accessibilityIdentifier("home.selection.cancel")
+          }
           ToolbarItem(placement: .navigationBarTrailing) {
-            Button(action: { showingReorderSheet = true }) {
-              Image(systemName: "arrow.up.arrow.down")
+            Button(L10n.string(selectedRecordIDs == allRecordIDs
+              ? "records_deselect_all" : "records_select_all", table: "Home")) {
+              selectedRecordIDs = selectedRecordIDs == allRecordIDs ? [] : allRecordIDs
+            }
+            .accessibilityIdentifier("home.selection.selectAll")
+          }
+        } else {
+          if !records.isEmpty && !showingSampleData && !ProcessInfo.processInfo.isiOSAppOnMac {
+            ToolbarItem(placement: .navigationBarTrailing) {
+              Button(L10n.string("records_select", table: "Home")) {
+                selectingRecords = true
+              }
+              .disabled(isProcessing)
+              .accessibilityIdentifier("home.selection.begin")
             }
           }
-        }
-        ToolbarItem(placement: .navigationBarTrailing) {
-          Button(action: { showingFilePicker = true }) {
-            Image(systemName: "plus")
+          if !records.isEmpty || showingSampleData {
+            ToolbarItem(placement: .navigationBarTrailing) {
+              Button(action: { showingReorderSheet = true }) {
+                Image(systemName: "arrow.up.arrow.down")
+              }
+            }
           }
-          .disabled(isProcessing)
+          ToolbarItem(placement: .navigationBarTrailing) {
+            Button(action: { showingFilePicker = true }) {
+              Image(systemName: "plus")
+            }
+            .disabled(isProcessing)
+          }
         }
       }
+      .safeAreaInset(edge: .bottom) {
+        if selectingRecords {
+          HStack(spacing: 16) {
+            Text(String(format: L10n.string("records_selected_count", table: "Home"),
+              selectedRecordIDs.count))
+              .font(.subheadline.weight(.semibold))
+              .frame(maxWidth: .infinity, alignment: .leading)
+              .accessibilityIdentifier("home.selection.count")
+            Button(role: .destructive) {
+              pendingRecordDeletion = .init(ids: selectedRecordIDs, records: records)
+              showingRecordDeletionConfirmation = true
+            } label: {
+              Label(L10n.string("delete", table: "Common"), systemImage: "trash")
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.red)
+            .disabled(selectedRecordIDs.isEmpty)
+            .accessibilityIdentifier("home.selection.delete")
+          }
+          .padding()
+          .background(.bar)
+        }
+      }
+      .alert(L10n.string("records_delete_title", table: "Home"),
+        isPresented: $showingRecordDeletionConfirmation) {
+        Button(L10n.string("delete", table: "Common"), role: .destructive) {
+          confirmRecordDeletion()
+        }
+        Button(L10n.string("cancel", table: "Common"), role: .cancel) {
+          pendingRecordDeletion = nil
+        }
+      } message: {
+        Text(String(format: L10n.string("records_delete_message", table: "Home"),
+          pendingRecordDeletion?.ids.count ?? 0)
+          + (dataStore.isICloudEnabled
+            ? "\n" + L10n.string("records_delete_sync_notice", table: "Home") : ""))
+      }
+      .alert(L10n.string("records_delete_title", table: "Home"),
+        isPresented: $showingRecordDeletionResult) {
+        Button(L10n.string("ok", table: "Common"), role: .cancel) { }
+      } message: { Text(recordDeletionResult) }
       .sheet(isPresented: $showingReorderSheet) {
         DeviceReorderView(
           items: showingSampleData
@@ -609,9 +681,11 @@ struct HomeView: View {
         syncRecordsToWatch()
       }
       .onReceive(dataStore.$recordsDescending) { updatedRecords in
+        selectedRecordIDs.formIntersection(Set(updatedRecords.map(\.id)))
         finishBatchReviewIfSaved(in: updatedRecords)
       }
       .onChange(of: showingSampleData) { newValue in
+        if newValue { endRecordSelection() }
         // サンプルモードが変更されたらWatchに同期
         syncRecordsToWatch()
 
@@ -850,15 +924,49 @@ struct HomeView: View {
       RecordListView(
         records: records,
         onRecordTap: { record in
-          showRecordDetail(record)
+          if selectingRecords {
+            if !selectedRecordIDs.insert(record.id).inserted {
+              selectedRecordIDs.remove(record.id)
+            }
+          } else {
+            showRecordDetail(record)
+          }
         },
         onRecordDelete: { record in
           deleteRecords([record])
         },
-        showContextMenu: true
+        showContextMenu: !selectingRecords,
+        isSelecting: selectingRecords,
+        selectedRecordIDs: selectedRecordIDs
       )
     } else {
       noDataView
+    }
+  }
+
+  private func endRecordSelection() {
+    selectingRecords = false
+    selectedRecordIDs = []
+    pendingRecordDeletion = nil
+  }
+
+  private func confirmRecordDeletion() {
+    guard let plan = pendingRecordDeletion else { return }
+    do {
+      let result = try SelectedRecordDeletion.delete(plan, from: dataStore)
+      if let selectedRecord, plan.ids.contains(selectedRecord.id) { self.selectedRecord = nil }
+      if let navigatingRecord, plan.ids.contains(navigatingRecord.id) { self.navigatingRecord = nil }
+      endRecordSelection()
+      if result.skipped > 0 {
+        recordDeletionResult = String(format: L10n.string("records_delete_changed", table: "Home"),
+          result.deleted, result.skipped)
+        showingRecordDeletionResult = true
+      }
+    } catch {
+      pendingRecordDeletion = nil
+      errorMessage = L10n.string("records_delete_failed", table: "Home")
+        + "\n" + error.localizedDescription
+      showingErrorAlert = true
     }
   }
 
