@@ -128,6 +128,23 @@ def submit_external_review_if_needed(api, build_id)
   raise "External testing is blocked: #{state}" if %w[BETA_REJECTED MISSING_EXPORT_COMPLIANCE PROCESSING_EXCEPTION].include?(state)
 end
 
+def report_distribution(api, build)
+  build_id = build.fetch("id")
+  detail = api.get("/builds/#{build_id}/buildBetaDetail").fetch("data")
+  groups = api.get("/betaGroups", "filter[app]" => APP_ID, "limit" => "200").fetch("data", [])
+  status = {
+    build: build.fetch("attributes").slice("version", "processingState", "expired", "expirationDate", "usesNonExemptEncryption"),
+    testing: detail.fetch("attributes").slice("internalBuildState", "externalBuildState", "autoNotifyEnabled"),
+    groups: groups.map { |group|
+      assigned = api.get("/betaGroups/#{group.fetch('id')}/relationships/builds", "limit" => "200")
+        .fetch("data", []).any? { |item| item["id"] == build_id }
+      group.fetch("attributes").slice("name", "isInternalGroup", "hasAccessToAllBuilds")
+        .merge("assigned" => assigned)
+    }
+  }
+  puts JSON.pretty_generate(status)
+end
+
 mode, marketing_version, build_number = ARGV
 abort "Usage: ruby scripts/testflight-release.rb inspect|notes|publish VERSION BUILD" unless
   %w[inspect notes publish].include?(mode) && marketing_version && build_number&.match?(/\A\d+\z/)
@@ -138,6 +155,7 @@ raise "Unexpected bundle ID" unless app.dig("data", "attributes", "bundleId") ==
 build = build_for(api, marketing_version, build_number, wait: mode != "inspect")
 build_id = build.fetch("id")
 puts "Found #{marketing_version} (#{build_number}), processing #{build.dig('attributes', 'processingState')}."
+report_distribution(api, build) if mode == "inspect"
 if mode != "inspect"
   publish_localizations(api, build_id)
   publish_beta_test_information(api)
