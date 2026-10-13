@@ -18,3 +18,11 @@ Macの転送・保管庫・診断履歴のテスト、Windows実機のProtocolTe
 新しい通知にはスマホ1057と対応PC版が必要。片側が旧版でもペアリングを維持し、従来の経路と転送を継続する。両側未更新の診断経路問題を修正済みとは扱わない。実機更新・配信・今日の実ファイルの確認結果は以下へ追記する。
 
 - 1057の実機向けDebugビルドが成功。iPhoneへ上書きインストールが成功した。起動確認時は再ロックされてOSに拒否され、iPadの開発接続は利用不可のため、端末更新・通信の確認は継続している。
+
+## ベータ配布
+
+- [iOS Release署名ビルド・アップロード](https://github.com/MochiLog/MochiLog/actions/runs/38391685609) が成功。4.0.0 (1057) はApple側でVALIDとなった。
+- [TestFlight配布](https://github.com/MochiLog/MochiLog/actions/runs/38393526922) で日本語・英語のノートを保存し、既存の内部2グループと外部mainグループに割り当てた。外部状態はIN_BETA_TESTING。新しいテスターへの招待は行っていない。
+- [モバイルのソースベータ1057](https://github.com/MochiLog/MochiLog/releases/tag/v4.0.0-beta.1057)、[Mac 0.2.29](https://github.com/MochiLog/MochiLog-Mac/releases/tag/v0.2.29)、[Windows 0.1.27](https://github.com/MochiLog/MochiLog-Windows/releases/tag/v0.1.27) を公開した。PCの実機更新・起動と、公開パッケージのSHA-256一致を確認した。Macのapp・DMGは公証済み。
+- Webの公開ガイドも日本語・英語でHTTP 200と新しい対応版の表示を確認した。
+- 実機iPhoneの1057は開発用Debugビルド。iPadの1057更新と、両側更新後の新しいLAN候補通知・今日の実ファイル転送は端末の利用可能待ちで未確認。これをTestFlight版や新しい診断経路の実機合格とは記録しない。
