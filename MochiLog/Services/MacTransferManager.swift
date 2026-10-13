@@ -87,6 +87,27 @@ final class MacTransferManager: ObservableObject {
   private var activePauseUntil: String?
   private var activeResume = false
   private var manualReceive = false
+  #if DEBUG
+  private var debugReceiveRequested = false
+
+  /// A development-only, one-shot equivalent of Receive Now. Uses real saved
+  /// pairings and the normal authenticated protocol without changing settings.
+  func debugReceiveIfRequested() {
+    guard !debugReceiveRequested,
+      let platform = ProcessInfo.processInfo.environment["MOCHI_PC_RECEIVE_PROBE"],
+      ["mac", "windows", "any"].contains(platform), !isRunning else { return }
+    debugReceiveRequested = true
+    if platform != "any" {
+      guard let index = pairings.firstIndex(where: { $0.platform == platform }) else {
+        Self.appendDebugEvent("DEBUG receive probe: requested platform is not paired")
+        return
+      }
+      pairing = pairings[index]
+    }
+    Self.appendDebugEvent("DEBUG receive probe: one-shot manual receive; platform=\(platform); pairedComputers=\(pairings.count)")
+    receiveNow()
+  }
+  #endif
   private var debugSyncBurst = 0
   private var debugManifestSnapshot: [String: Int]?
   private var debugManifestCapturedAt: Date?

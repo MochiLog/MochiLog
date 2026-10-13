@@ -151,6 +151,9 @@ final class MochiLogSceneDelegate: UIResponder, UIWindowSceneDelegate {
     window.rootViewController = UIHostingController(rootView: MochiLogRootView())
     #endif
     self.window = window
+    #if DEBUG
+    if #available(iOS 27, *) { MacTransferManager.shared.debugReceiveIfRequested() }
+    #endif
     window.makeKeyAndVisible()
     open(connectionOptions.urlContexts)
   }
