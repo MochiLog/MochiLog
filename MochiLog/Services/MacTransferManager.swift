@@ -964,7 +964,8 @@ final class MacTransferManager: ObservableObject {
     pairing: MacTransferPairing, nonce: UUID) -> Data? {
     let issuedAt = Int64(Date().timeIntervalSince1970)
     let context = Data("v3|request|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)|\(issuedAt)".utf8)
-    guard let plain = try? JSONSerialization.data(withJSONObject: request),
+    let requestWithHints = LocalPairingAddressPolicy.addingDiagnosticRouteHints(to: request)
+    guard let plain = try? JSONSerialization.data(withJSONObject: requestWithHints),
       let combined = try? AES.GCM.seal(plain,
         using: SymmetricKey(data: pairing.secret), authenticating: context).combined
     else { return nil }

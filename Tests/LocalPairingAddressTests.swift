@@ -21,6 +21,17 @@ import Foundation
     return LocalPairingAddressPolicy.isOwnAddress(storage, length: length)
   }
   static func main() {
+    for address in ["10.0.0.2", "172.16.0.2", "172.31.255.2", "192.168.40.20"] {
+      precondition(LocalPairingAddressPolicy.privateDiagnosticAddress(address) == address)
+    }
+    for address in ["127.0.0.1", "100.64.0.2", "203.0.113.2", "172.32.0.2", "10.0.0.02", "10.0.0.2\n", "::1"] {
+      precondition(LocalPairingAddressPolicy.privateDiagnosticAddress(address) == nil)
+    }
+    let addresses = LocalPairingAddressPolicy.diagnosticLANAddresses()
+    precondition(addresses.count <= 4 && addresses.allSatisfy { LocalPairingAddressPolicy.privateDiagnosticAddress($0) != nil })
+    let hints = LocalPairingAddressPolicy.addingDiagnosticRouteHints(to: ["nonce": "synthetic"])
+    precondition(hints["nonce"] == "synthetic" && hints["diagnosticAddressVersion"] == "1")
+    precondition((try? JSONDecoder().decode([String].self, from: Data(hints["diagnosticAddresses"]!.utf8))) == addresses)
     precondition(accepted("127.0.0.1", family: AF_INET))
     precondition(accepted("::1", family: AF_INET6))
     precondition(accepted("::ffff:127.0.0.1", family: AF_INET6))

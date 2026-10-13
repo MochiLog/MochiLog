@@ -320,7 +320,8 @@ final class LiveBatteryManager: ObservableObject {
             "liveBatteryDetailsRevision": previous?.detailsRevision ?? ""]
           let issuedAt = Int64(Date().timeIntervalSince1970)
           let aad = Data("v3|request|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)|\(issuedAt)".utf8)
-          let inner = try JSONSerialization.data(withJSONObject: request)
+          let inner = try JSONSerialization.data(withJSONObject:
+            LocalPairingAddressPolicy.addingDiagnosticRouteHints(to: request))
           let box = try AES.GCM.seal(inner, using: SymmetricKey(data: pairing.secret), authenticating: aad)
           let payload = try JSONSerialization.data(withJSONObject: ["version": "3",
             "hostID": pairing.hostID.uuidString, "physicalDeviceID": pairing.physicalDeviceID.uuidString,
