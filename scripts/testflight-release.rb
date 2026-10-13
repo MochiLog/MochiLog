@@ -14,6 +14,7 @@ BASE_URL = "https://api.appstoreconnect.apple.com/v1"
 SUPPORT_EMAIL = "support@mochilog.ryuya-dev.net"
 
 require_relative "app-store-connect-client"
+require_relative "testflight-groups"
 
 def build_for(api, marketing_version, build_number, wait:)
   deadline = Time.now + (wait ? 1_800 : 0)
@@ -83,24 +84,7 @@ def publish_beta_test_information(api)
 end
 
 def assign_existing_groups(api, build_id, include_external: true)
-  groups = api.get("/betaGroups", "filter[app]" => APP_ID, "limit" => "200").fetch("data", [])
-  raise "No existing TestFlight groups found; refusing to create or invite testers" if groups.empty?
-  selected_groups = groups.select { |group|
-    group.dig("attributes", "isInternalGroup") || include_external
-  }
-  selected_groups.each do |group|
-    group_id = group.fetch("id")
-    name = group.dig("attributes", "name")
-    kind = group.dig("attributes", "isInternalGroup") ? "internal" : "external"
-    linked = api.get("/betaGroups/#{group_id}/relationships/builds", "limit" => "200")
-      .fetch("data", []).any? { |item| item["id"] == build_id }
-    unless linked
-      api.post("/betaGroups/#{group_id}/relationships/builds",
-        data: [{ type: "builds", id: build_id }])
-    end
-    puts "#{kind} group #{name}: build #{linked ? 'already assigned' : 'assigned'}."
-  end
-  selected_groups.count { |group| group.dig("attributes", "isInternalGroup") == false }
+  TestFlightGroups.assign(api, APP_ID, build_id, include_external: include_external)
 end
 
 def enable_auto_notify(api, build_id)
@@ -168,4 +152,5 @@ if mode != "inspect"
     assign_existing_groups(api, build_id, include_external: false)
     puts "External tester group assignment and beta review are left to App Store Connect."
   end
+  report_distribution(api, build)
 end

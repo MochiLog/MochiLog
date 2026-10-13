@@ -32,6 +32,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install JWT gem
         run: gem install jwt --no-document
+      - name: Verify existing tester group assignment
+        run: ruby scripts/test-testflight-groups.rb
       - name: Inspect or publish TestFlight build
         env:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
