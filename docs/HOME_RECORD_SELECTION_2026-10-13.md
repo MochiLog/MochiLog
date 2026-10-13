@@ -27,3 +27,18 @@ UI試験38400984754では、iPadの8言語が合格した（341.427秒）。iPho
 [修正後の両機種・8言語試験](https://github.com/MochiLog/MochiLog/actions/runs/38409727584) は成功した。iPadは319.699秒、iPhoneは322.812秒で、いずれも失敗0件。確認画面をキャンセルして選択モードへ入り直した後の件数・削除ボタン・確認画面を含め、実際に2件を削除し、未選択の同値記録を保持できた。assertionの失敗を再試行して合格扱いにはしていない。
 
 ローカルの実行は1並列のまま、GitHubのホスト上ではビルドを2並列にした。今回の実行でローカルMacにシミュレータを追加していない。修正後の1058を両実機に再インストールして起動し、実データは削除せず維持した。
+
+## ベータ配信と確認
+
+- [署名・アップロード](https://github.com/MochiLog/MochiLog/actions/runs/38415220354) は成功。提出元ソースはc97548862b12f9b30a394be811c34c173b898497。取得したIPAの本体・共有拡張・WatchアプリのInfo.plistを確認し、すべて4.0.0（1058）で一致した。
+- [TestFlightの最終配布](https://github.com/MochiLog/MochiLog/actions/runs/38418723674) は成功。AppleのprocessingStateはVALID、internalBuildStateとexternalBuildStateは両方IN_BETA_TESTING、expiredはfalse。既存内部2グループと外部mainのassignedはすべてtrue。日本語・英語のノートと自動通知も確認した。新しいグループ作成・テスター招待は行っていない。
+- [GitHubベータリリース](https://github.com/MochiLog/MochiLog/releases/tag/v4.0.0-beta.1058) を提出元と同じソースへ作成した。ストアの3.2.2は変更していない。
+- [Webガイド](https://mochilog.ryuya-dev.net/guide?lang=ja) を更新し、日本語・英語ともHTTP 200と1058の説明を確認した。Workerバージョンはc40a5a98-377f-4f56-b887-11b4f37a7e71。対応PC版Mac 0.2.29／Windows 0.1.27は別途公開・実機更新済み。
+
+### 内部グループの自動反映待ち
+
+初回の配布38417542968は、全ビルドへの自動アクセスが設定された内部グループへ、反映待ちの間に手動でビルドを追加しようとして422となった。ビルド自体とノートは有効だった。読み取り専用の[状態確認](https://github.com/MochiLog/MochiLog/actions/runs/38418079276)で両内部グループのhasAccessToAllBuilds=true、assigned=trueを確認した。
+
+配布スクリプトは、内部の自動アクセス設定がある場合にPOSTせず、実際のビルドへのアクセスを最大5分待って確認する。手動割り当てが必要な既存グループはPOST後に再確認する。未確認のまま成功扱いにしない。既存の設定・権限は変更しない。[Appleのグループ属性](https://developer.apple.com/documentation/appstoreconnectapi/betagroup/attributes-data.dictionary)と実応答を照合した。
+
+scripts/test-testflight-groups.rbの4ケース・10 assertionは、ローカルと最終配布CIの両方で合格。自動反映の遅延、未反映時の失敗、手動内部グループ、外部除外、グループ未登録時の処理を確認した。この修正は配布スクリプトだけで、1058のアプリ本体を差し替えていない。
