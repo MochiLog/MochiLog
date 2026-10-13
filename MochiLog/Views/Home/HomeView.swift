@@ -486,6 +486,7 @@ struct HomeView: View {
           confirmRecordDeletion()
         }
         Button(L10n.string("cancel", table: "Common"), role: .cancel) {
+          showingRecordDeletionConfirmation = false
           pendingRecordDeletion = nil
         }
       } message: {
@@ -924,20 +925,14 @@ struct HomeView: View {
       RecordListView(
         records: records,
         onRecordTap: { record in
-          if selectingRecords {
-            if !selectedRecordIDs.insert(record.id).inserted {
-              selectedRecordIDs.remove(record.id)
-            }
-          } else {
-            showRecordDetail(record)
-          }
+          showRecordDetail(record)
         },
         onRecordDelete: { record in
           deleteRecords([record])
         },
         showContextMenu: !selectingRecords,
         isSelecting: selectingRecords,
-        selectedRecordIDs: selectedRecordIDs
+        selectedRecordIDs: $selectedRecordIDs
       )
     } else {
       noDataView
@@ -946,6 +941,7 @@ struct HomeView: View {
 
   private func endRecordSelection() {
     selectingRecords = false
+    showingRecordDeletionConfirmation = false
     selectedRecordIDs = []
     pendingRecordDeletion = nil
   }

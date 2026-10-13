@@ -28,6 +28,7 @@ PY
 # Keep the new log hub independently runnable; the original three tests
 # already fill most of a 15-minute UI session on a hosted simulator.
 scope="${MOCHILOG_UI_SCOPE:-all}"
+ui_build_jobs="${MOCHILOG_UI_BUILD_JOBS:-1}"
 ui_tests=(
   -only-testing:MochiLogUITests/LanguageAndLayoutTests/testDiagnosticLogsInDebugSettingsInEightLanguages
   -only-testing:MochiLogUITests/LanguageAndLayoutTests/testLargeErrorLogsInEightLanguages
@@ -69,13 +70,13 @@ for kind in "${device_kinds[@]}"; do
   # Give compilation and actual UI execution separate bounded phases.
   if ! bounded 1200 xcodebuild build-for-testing -project MochiLog.xcodeproj -scheme MochiLogUITests \
     -destination "platform=iOS Simulator,id=$device" -derivedDataPath Build/automatic-ui-derived \
-    -parallel-testing-enabled NO -jobs 1 \
+    -parallel-testing-enabled NO -jobs "$ui_build_jobs" \
     > "Build/automatic-ui-$kind-build.log" 2>&1; then
     tail -30 "Build/automatic-ui-$kind-build.log"; failed=1; cleanup; device=""; continue
   fi
   if ! bounded "$ui_timeout" xcodebuild test-without-building -project MochiLog.xcodeproj -scheme MochiLogUITests \
     -destination "platform=iOS Simulator,id=$device" -derivedDataPath Build/automatic-ui-derived \
-    -parallel-testing-enabled NO -jobs 1 -collect-test-diagnostics never \
+    -parallel-testing-enabled NO -jobs "$ui_build_jobs" -collect-test-diagnostics never \
     -resultBundlePath "Build/automatic-ui-$kind.xcresult" \
     "${ui_tests[@]}" \
     > "Build/automatic-ui-$kind.log" 2>&1; then

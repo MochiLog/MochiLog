@@ -71,6 +71,8 @@ jobs:
         env:
           MOCHILOG_UI_SCOPE: ${{ inputs.verification == 'record_selection' && 'record-selection' || inputs.verification == 'error_logs' && 'error-logs' || inputs.verification == 'debug_logs' && 'diagnostic-logs' || 'all' }}
           MOCHILOG_UI_DEVICES: ${{ inputs.devices || 'both' }}
+          # Hosted CI can compile concurrently; local execution defaults to one.
+          MOCHILOG_UI_BUILD_JOBS: '2'
         run: bash scripts/test-automatic-collection-ui.sh
       - uses: actions/upload-artifact@v4
         if: always()

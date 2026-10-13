@@ -10,7 +10,7 @@ struct RecordListView<Header: View>: View {
   let onRecordDelete: ((BatteryRecord) -> Void)?
   let showContextMenu: Bool
   let isSelecting: Bool
-  let selectedRecordIDs: Set<UUID>
+  @Binding private var selectedRecordIDs: Set<UUID>
   let header: Header
 
   @StateObject private var appSettings = AppSettings.shared
@@ -61,7 +61,7 @@ struct RecordListView<Header: View>: View {
     onRecordDelete: ((BatteryRecord) -> Void)? = nil,
     showContextMenu: Bool = true,
     isSelecting: Bool = false,
-    selectedRecordIDs: Set<UUID> = [],
+    selectedRecordIDs: Binding<Set<UUID>> = .constant([]),
     @ViewBuilder header: () -> Header = { EmptyView() }
   ) {
     self.records = records
@@ -70,7 +70,7 @@ struct RecordListView<Header: View>: View {
     self.onRecordDelete = onRecordDelete
     self.showContextMenu = showContextMenu
     self.isSelecting = isSelecting
-    self.selectedRecordIDs = selectedRecordIDs
+    self._selectedRecordIDs = selectedRecordIDs
     self.header = header()
   }
 
@@ -273,7 +273,7 @@ struct RecordListView<Header: View>: View {
           if !collapsedSections.contains(section.id) {
             ForEach(sectionRecords, id: \.id) { record in
               Button {
-                onRecordTap?(record)
+                activateRecord(record)
               } label: {
                 selectableRecordRow(record)
                   .frame(maxWidth: .infinity, alignment: .leading)
@@ -283,6 +283,7 @@ struct RecordListView<Header: View>: View {
               .accessibilityIdentifier("home.record.\(record.id)")
               .accessibilityValue(selectionValue(record))
               .deleteDisabled(isSelecting)
+              .id(isSelecting)
               .listRowInsets(EdgeInsets(top: 2, leading: 24, bottom: 2, trailing: 24))
             }
             .onDelete { offsets in
@@ -349,7 +350,7 @@ struct RecordListView<Header: View>: View {
           ) {
             ForEach(sectionRecords, id: \.id) { record in
               Button {
-                onRecordTap?(record)
+                activateRecord(record)
               } label: {
                 selectableRecordRow(record)
                   .contentShape(Rectangle())
@@ -358,6 +359,7 @@ struct RecordListView<Header: View>: View {
                 .accessibilityIdentifier("home.record.\(record.id)")
                 .accessibilityValue(selectionValue(record))
                 .deleteDisabled(isSelecting)
+                .id(isSelecting)
                 .transition(
                   .asymmetric(
                     insertion: .move(edge: .top).combined(with: .opacity),
@@ -456,7 +458,7 @@ struct RecordListView<Header: View>: View {
   @ViewBuilder
   private func iPadRecordCard(record: BatteryRecord, section: DeviceSection) -> some View {
     Button {
-      onRecordTap?(record)
+      activateRecord(record)
     } label: {
       HStack(spacing: 12) {
         if isSelecting { selectionIndicator(record) }
@@ -504,6 +506,14 @@ struct RecordListView<Header: View>: View {
       if isSelecting { selectionIndicator(record) }
       RecordRowView(record: record)
     }
+  }
+
+  private func activateRecord(_ record: BatteryRecord) {
+    guard isSelecting else { onRecordTap?(record); return }
+    var updated = selectedRecordIDs
+    if updated.contains(record.id) { updated.remove(record.id) }
+    else { updated.insert(record.id) }
+    selectedRecordIDs = updated
   }
 
   private func selectionIndicator(_ record: BatteryRecord) -> some View {
