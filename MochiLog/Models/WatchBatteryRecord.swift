@@ -49,8 +49,12 @@ struct WatchBatteryRecord: Codable, Identifiable, Hashable {
     self.nominalHealthPercent = record.nominalHealthPercent
     self.healthPercent = record.healthPercent
     self.diagnosticResult = record.dynamicDiagnosticResult
-    let health = AppSettings.shared.analysisDataSource == .nominal ? record.nominalHealthPercent : record.healthPercent
-    self.diagnosticCode = health < 80 ? "diag_replace_recommended" : (health < 90 ? "diag_slightly_degraded" : "diag_normal")
+    let health =
+      AppSettings.shared.analysisDataSource == .nominal
+      ? record.nominalHealthPercent : record.healthPercent
+    self.diagnosticCode =
+      health < 80
+      ? "diag_replace_recommended" : (health < 90 ? "diag_slightly_degraded" : "diag_normal")
   }
 
   // MARK: - Codable用イニシャライザ

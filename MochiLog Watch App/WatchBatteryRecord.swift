@@ -42,7 +42,9 @@ struct WatchBatteryRecord: Codable, Identifiable, Hashable {
   /// ローカライズされた診断結果
   /// iPhone側から送信された日本語テキストを、Watch側の言語設定に応じて翻訳する
   var localizedDiagnosticResult: String {
-    if let diagnosticCode, ["diag_normal", "diag_slightly_degraded", "diag_replace_recommended"].contains(diagnosticCode) {
+    if let diagnosticCode,
+      ["diag_normal", "diag_slightly_degraded", "diag_replace_recommended"].contains(diagnosticCode)
+    {
       return L10n.text(diagnosticCode)
     }
     // 日本語テキストを対応する翻訳キーにマッピング

@@ -88,25 +88,28 @@ final class MacTransferManager: ObservableObject {
   private var activeResume = false
   private var manualReceive = false
   #if DEBUG
-  private var debugReceiveRequested = false
+    private var debugReceiveRequested = false
 
-  /// A development-only, one-shot equivalent of Receive Now. Uses real saved
-  /// pairings and the normal authenticated protocol without changing settings.
-  func debugReceiveIfRequested() {
-    guard !debugReceiveRequested,
-      let platform = ProcessInfo.processInfo.environment["MOCHI_PC_RECEIVE_PROBE"],
-      ["mac", "windows", "any"].contains(platform), !isRunning else { return }
-    debugReceiveRequested = true
-    if platform != "any" {
-      guard let index = pairings.firstIndex(where: { $0.platform == platform }) else {
-        Self.appendDebugEvent("DEBUG receive probe: requested platform is not paired")
-        return
+    /// A development-only, one-shot equivalent of Receive Now. Uses real saved
+    /// pairings and the normal authenticated protocol without changing settings.
+    func debugReceiveIfRequested() {
+      guard !debugReceiveRequested,
+        let platform = ProcessInfo.processInfo.environment["MOCHI_PC_RECEIVE_PROBE"],
+        ["mac", "windows", "any"].contains(platform), !isRunning
+      else { return }
+      debugReceiveRequested = true
+      if platform != "any" {
+        guard let index = pairings.firstIndex(where: { $0.platform == platform }) else {
+          Self.appendDebugEvent("DEBUG receive probe: requested platform is not paired")
+          return
+        }
+        pairing = pairings[index]
       }
-      pairing = pairings[index]
+      Self.appendDebugEvent(
+        "DEBUG receive probe: one-shot manual receive; platform=\(platform); pairedComputers=\(pairings.count)"
+      )
+      receiveNow()
     }
-    Self.appendDebugEvent("DEBUG receive probe: one-shot manual receive; platform=\(platform); pairedComputers=\(pairings.count)")
-    receiveNow()
-  }
   #endif
   private var debugSyncBurst = 0
   private var debugManifestSnapshot: [String: Int]?
@@ -127,8 +130,11 @@ final class MacTransferManager: ObservableObject {
   private var routeIndex = 0
   private var accumulated = Data()
   private var pendingAck: String?
-  private var activeFileOffer: (hostID: UUID, token: String, digest: String,
-    decision: String)?
+  private var activeFileOffer:
+    (
+      hostID: UUID, token: String, digest: String,
+      decision: String
+    )?
   private static let receivedDigestKey = "MacTransferReceivedSHA256"
   private var unconfirmedKey: String { scopedKey("MacTransferUnconfirmedFiles") }
   private var confirmedKey: String { scopedKey("MacTransferConfirmedFiles") }
@@ -151,15 +157,18 @@ final class MacTransferManager: ObservableObject {
     cloudSubscription = CloudLogSharingState.shared.$scope.dropFirst().sink { [weak self] _ in
       Task { @MainActor [weak self] in
         guard let self else { return }
-        Self.appendDebugEvent("Cloud sharing: account/sync permission changed; policy refresh requested")
+        Self.appendDebugEvent(
+          "Cloud sharing: account/sync permission changed; policy refresh requested")
         await self.refreshCloudPolicies()
         if self.isRunning { for host in self.pairings { self.requeueConfirmedFiles(for: host) } }
       }
     }
-    watchRegistration = AppSettings.shared.$registeredWatches.dropFirst().sink { [weak self] watches in
+    watchRegistration = AppSettings.shared.$registeredWatches.dropFirst().sink {
+      [weak self] watches in
       Task { @MainActor [weak self] in
         guard let self, self.isRunning else { return }
-        Self.appendDebugEvent("Watch registration changed: \(watches.count) model(s); daily collection reevaluated")
+        Self.appendDebugEvent(
+          "Watch registration changed: \(watches.count) model(s); daily collection reevaluated")
         self.beginDiscovery()
       }
     }
@@ -167,7 +176,9 @@ final class MacTransferManager: ObservableObject {
       [weak self] isPaired in
       Task { @MainActor [weak self] in
         guard let self, self.isRunning else { return }
-        Self.appendDebugEvent("OS Watch pairing changed: \(isPaired.map { String(describing: $0) } ?? "unknown"); daily collection reevaluated")
+        Self.appendDebugEvent(
+          "OS Watch pairing changed: \(isPaired.map { String(describing: $0) } ?? "unknown"); daily collection reevaluated"
+        )
         self.beginDiscovery()
       }
     }
@@ -184,7 +195,8 @@ final class MacTransferManager: ObservableObject {
       let day = DailyLogCollectionPolicy.dayKey()
       guard let data = UserDefaults.standard.data(forKey: Self.dailyReceiptKey),
         let receipt = try? JSONDecoder().decode(DailyTransferReceipt.self, from: data),
-        receipt.day == day else { return DailyTransferReceipt(day: day) }
+        receipt.day == day
+      else { return DailyTransferReceipt(day: day) }
       return receipt
     }
     set {
@@ -199,7 +211,8 @@ final class MacTransferManager: ObservableObject {
       let day = DailyLogCollectionPolicy.dayKey()
       guard let data = UserDefaults.standard.data(forKey: Self.dailyImportFailuresKey),
         let failures = try? JSONDecoder().decode(DailyImportFailures.self, from: data),
-        failures.day == day else { return DailyImportFailures(day: day) }
+        failures.day == day
+      else { return DailyImportFailures(day: day) }
       return failures
     }
     set {
@@ -213,7 +226,8 @@ final class MacTransferManager: ObservableObject {
 
   private func dailyComplete(_ receipt: DailyTransferReceipt) -> Bool {
     let failures = dailyImportFailures
-    return DailyLogCollectionPolicy.isComplete(hostReceived: receipt.hostReceived && !failures.host,
+    return DailyLogCollectionPolicy.isComplete(
+      hostReceived: receipt.hostReceived && !failures.host,
       watchSources: receipt.watchSources.subtracting(failures.watchSources),
       expectedWatches: expectedWatchCount())
   }
@@ -221,9 +235,11 @@ final class MacTransferManager: ObservableObject {
   private func automaticWait() -> UInt64? {
     let now = Date()
     let receipt = dailyReceipt
-    let decision = DailyLogCollectionPolicy.decide(now: now, complete: dailyComplete(receipt),
+    let decision = DailyLogCollectionPolicy.decide(
+      now: now, complete: dailyComplete(receipt),
       pauseAcknowledged: pairings.allSatisfy { receipt.pausedHosts.contains($0.hostID.uuidString) })
-    return decision.shouldCollect ? nil : UInt64(max(1, decision.earliest.timeIntervalSince(now).rounded(.up)))
+    return decision.shouldCollect
+      ? nil : UInt64(max(1, decision.earliest.timeIntervalSince(now).rounded(.up)))
   }
 
   private func recordConfirmedFiles(for pairing: MacTransferPairing) {
@@ -251,14 +267,20 @@ final class MacTransferManager: ObservableObject {
       Self.appendDebugEvent("Daily receipt: Watch sources \(receipt.watchSources.count) for \(day)")
     }
     if !previous.terminalHosts.contains(pairing.hostID.uuidString) {
-      Self.appendDebugEvent("Transfer queue drained and confirmed by computer \(pairing.hostID.uuidString)")
+      Self.appendDebugEvent(
+        "Transfer queue drained and confirmed by computer \(pairing.hostID.uuidString)")
     }
     if !dailyComplete(previous) && dailyComplete(receipt) {
-      Self.appendDebugEvent("Daily collection condition met for \(day): own-device log and \(receipt.watchSources.count) Watch source(s)")
+      Self.appendDebugEvent(
+        "Daily collection condition met for \(day): own-device log and \(receipt.watchSources.count) Watch source(s)"
+      )
     } else if receipt.hostReceived,
-      (!previous.hostReceived || receipt.watchSources.count > previous.watchSources.count) {
+      (!previous.hostReceived || receipt.watchSources.count > previous.watchSources.count)
+    {
       let expected = expectedWatchCount().map(String.init) ?? "unknown"
-      Self.appendDebugEvent("Daily collection continues for \(day): Watch sources \(receipt.watchSources.count)/\(expected)")
+      Self.appendDebugEvent(
+        "Daily collection continues for \(day): Watch sources \(receipt.watchSources.count)/\(expected)"
+      )
     }
   }
 
@@ -268,10 +290,12 @@ final class MacTransferManager: ObservableObject {
       return
     }
     let day = DailyLogCollectionPolicy.dayKey()
-    guard records.contains(where: {
-      $0.physicalDeviceID == physicalID && DailyLogCollectionPolicy.dayKey($0.logDate) == day &&
-        !($0.osVersion?.lowercased().contains("watch") ?? false)
-    }) else { return }
+    guard
+      records.contains(where: {
+        $0.physicalDeviceID == physicalID && DailyLogCollectionPolicy.dayKey($0.logDate) == day
+          && !($0.osVersion?.lowercased().contains("watch") ?? false)
+      })
+    else { return }
     var receipt = dailyReceipt
     receipt.hostReceived = true
     dailyReceipt = receipt
@@ -282,7 +306,8 @@ final class MacTransferManager: ObservableObject {
   private func scopedKey(_ base: String) -> String {
     guard let pairing else { return base }
     // Keep the original Mac beta's saved inbox and acknowledgements intact.
-    if UserDefaults.standard.string(forKey: "MacTransferLegacyHostID") == pairing.hostID.uuidString {
+    if UserDefaults.standard.string(forKey: "MacTransferLegacyHostID") == pairing.hostID.uuidString
+    {
       return base
     }
     return "\(base).\(pairing.hostID.uuidString)"
@@ -290,7 +315,8 @@ final class MacTransferManager: ObservableObject {
 
   func selectPairing(_ hostID: UUID) {
     guard let selected = pairings.first(where: { $0.hostID == hostID }),
-      pairing?.hostID != hostID else { return }
+      pairing?.hostID != hostID
+    else { return }
     stop()
     activeFileOffer = nil
     pairing = selected
@@ -306,8 +332,7 @@ final class MacTransferManager: ObservableObject {
     let pending = oldPending.filter { $0.hostID != hostID } + [removed]
     try Self.saveStoredPairings(pending, account: "revoked-hosts")
     let remaining = pairings.filter { $0.hostID != hostID }
-    do { try Self.savePairings(remaining) }
-    catch {
+    do { try Self.savePairings(remaining) } catch {
       try? Self.saveStoredPairings(oldPending, account: "revoked-hosts")
       throw error
     }
@@ -320,8 +345,7 @@ final class MacTransferManager: ObservableObject {
       pendingAck = UserDefaults.standard.string(forKey: pendingAckKey)
       lastAuthenticatedContactAt = nil
       status = MacTransferStatus.text(pairing == nil ? "mt_s_00" : "mt_s_01")
-      if pairing != nil { start() }
-      else { connectionPhase = .needsPairing }
+      if pairing != nil { start() } else { connectionPhase = .needsPairing }
     }
     Self.appendDebugEvent("MochiLog pairing removed locally; notifying computer when reachable")
     Task { await retryPendingRevocations() }
@@ -344,11 +368,12 @@ final class MacTransferManager: ObservableObject {
       // A new QR pairing has a different key; an old tombstone may never
       // revoke it. Only notify the computer for the original secret.
       guard !pairings.contains(where: { $0.hostID == removed.hostID }) else { continue }
-      let port = NWEndpoint.Port(rawValue: removed.lanPort ??
-        (removed.platform == "windows" ? 54556 : 54555))
+      let port = NWEndpoint.Port(
+        rawValue: removed.lanPort ?? (removed.platform == "windows" ? 54556 : 54555))
       var routes: [NWEndpoint] = []
       if let address = removed.manualHostAddress,
-        let ip = IPv4Address(address), let port {
+        let ip = IPv4Address(address), let port
+      {
         routes.append(.hostPort(host: .ipv4(ip), port: port))
       }
       if let port {
@@ -358,29 +383,40 @@ final class MacTransferManager: ObservableObject {
           }
         }
       }
-      if let route = Self.tailnetRoute(address: removed.tailnetAddress,
-        port: removed.tailnetPort) { routes.append(route) }
+      if let route = Self.tailnetRoute(
+        address: removed.tailnetAddress,
+        port: removed.tailnetPort)
+      {
+        routes.append(route)
+      }
       // Resolve the current LAN address even when the last pairing was
       // removed and there is no active transfer browser anymore.
-      routes.append(.service(name: removed.hostID.uuidString,
-        type: "_mochilog._tcp", domain: "local.", interface: nil))
+      routes.append(
+        .service(
+          name: removed.hostID.uuidString,
+          type: "_mochilog._tcp", domain: "local.", interface: nil))
       guard !routes.isEmpty else { continue }
       let nonce = UUID()
-      let identity = "\(removed.hostID.uuidString)|\(removed.physicalDeviceID.uuidString)|\(nonce.uuidString)"
+      let identity =
+        "\(removed.hostID.uuidString)|\(removed.physicalDeviceID.uuidString)|\(nonce.uuidString)"
       let proof = Self.authenticationCode("unpair|v1|\(identity)", secret: removed.secret)
       let request: [String: String] = [
         "type": "unpair", "version": "1", "hostID": removed.hostID.uuidString,
         "physicalDeviceID": removed.physicalDeviceID.uuidString,
-        "nonce": nonce.uuidString, "proof": proof
+        "nonce": nonce.uuidString, "proof": proof,
       ]
       guard let payload = try? JSONSerialization.data(withJSONObject: request),
-        let response = try? await PairingTransport.exchange(routes: routes,
+        let response = try? await PairingTransport.exchange(
+          routes: routes,
           payload: payload, allowCellular: allowsCellularTransfer,
           continueOnInvalidResponse: true),
         let answer = try? JSONSerialization.jsonObject(with: response) as? [String: String],
         answer["type"] == "unpair-ack", answer["nonce"] == nonce.uuidString,
-        answer["proof"] == Self.authenticationCode("unpair-ack|v1|\(identity)",
-          secret: removed.secret) else { continue }
+        answer["proof"]
+          == Self.authenticationCode(
+            "unpair-ack|v1|\(identity)",
+            secret: removed.secret)
+      else { continue }
       let updated = pendingRevocations.filter { $0.hostID != removed.hostID }
       guard (try? Self.saveStoredPairings(updated, account: "revoked-hosts")) != nil
       else { continue }
@@ -396,7 +432,8 @@ final class MacTransferManager: ObservableObject {
   private func advancePairing() {
     guard let current = pairing,
       let index = pairings.firstIndex(where: { $0.hostID == current.hostID }),
-      pairings.count > 1 else {
+      pairings.count > 1
+    else {
       scheduleReconnect(after: 60)
       return
     }
@@ -428,7 +465,7 @@ final class MacTransferManager: ObservableObject {
     guard isRunning, hasNetworkPath else { return }
     if networkPermitsTransfer {
       retryDelay = 5
-      beginDiscovery() // Recreate connections with the new interface policy.
+      beginDiscovery()  // Recreate connections with the new interface policy.
     } else {
       pauseForNetwork()
     }
@@ -436,11 +473,13 @@ final class MacTransferManager: ObservableObject {
 
   func setManualHostAddress(_ address: String?) throws {
     guard var current = pairing,
-      let index = pairings.firstIndex(where: { $0.hostID == current.hostID }) else { return }
+      let index = pairings.firstIndex(where: { $0.hostID == current.hostID })
+    else { return }
     let value = address?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
     if !value.isEmpty {
       guard IPv4Address(value) != nil, value != "0.0.0.0",
-        !value.hasPrefix("127.") else { throw TransferError.invalidPairing }
+        !value.hasPrefix("127.")
+      else { throw TransferError.invalidPairing }
     }
     current.manualHostAddress = value.isEmpty ? nil : value
     var updated = pairings
@@ -448,14 +487,14 @@ final class MacTransferManager: ObservableObject {
     try Self.savePairings(updated)
     pairings = updated
     pairing = current
-    Self.appendDebugEvent(current.manualHostAddress == nil
-      ? "Manual computer address cleared" : "Manual computer address set")
+    Self.appendDebugEvent(
+      current.manualHostAddress == nil
+        ? "Manual computer address cleared" : "Manual computer address set")
     if isRunning, networkPermitsTransfer { beginDiscovery() }
   }
 
   private var networkPermitsTransfer: Bool {
-    hasNetworkPath && networkIsAvailable &&
-      (allowsCellularTransfer || networkUsesWiFiOrEthernet)
+    hasNetworkPath && networkIsAvailable && (allowsCellularTransfer || networkUsesWiFiOrEthernet)
   }
 
   private func pauseForNetwork() {
@@ -476,11 +515,14 @@ final class MacTransferManager: ObservableObject {
     status = MacTransferStatus.text(networkIsAvailable ? "mt_s_18" : "mt_s_19")
   }
 
-  func prepareSecurePairing(from text: String, dataStore: DataStore,
-    relinkLocalRecords: Bool = false) async throws -> SecureMacPairingCandidate {
+  func prepareSecurePairing(
+    from text: String, dataStore: DataStore,
+    relinkLocalRecords: Bool = false
+  ) async throws -> SecureMacPairingCandidate {
     guard !ProcessInfo.processInfo.isiOSAppOnMac else { throw TransferError.invalidPairing }
     guard let components = URLComponents(string: text),
-      components.scheme == "mochilog-mac", components.host == "pair" else {
+      components.scheme == "mochilog-mac", components.host == "pair"
+    else {
       throw TransferError.invalidPairing
     }
     var values: [String: String] = [:]
@@ -512,20 +554,27 @@ final class MacTransferManager: ObservableObject {
       if let invited, storedID != nil, invited != previousID && !relinkLocalRecords {
         throw TransferError.identityConflict
       }
-      device = storedID == nil ? (invited ?? previousID) :
-        (relinkLocalRecords ? (invited ?? previousID) : previousID)
-    }
-    else if let invited = values["device"].flatMap(UUID.init(uuidString:)) {
+      device =
+        storedID == nil
+        ? (invited ?? previousID) : (relinkLocalRecords ? (invited ?? previousID) : previousID)
+    } else if let invited = values["device"].flatMap(UUID.init(uuidString:)) {
       device = invited
-    } else { throw TransferError.invalidPairing }
-    if version == "2", previousID != device && !relinkLocalRecords &&
-      dataStore.recordsDescending.contains(where: {
-        $0.physicalDeviceID == previousID && $0.deviceModelCode == model
-      }) { throw TransferError.identityConflict }
+    } else {
+      throw TransferError.invalidPairing
+    }
+    if version == "2",
+      previousID != device && !relinkLocalRecords
+        && dataStore.recordsDescending.contains(where: {
+          $0.physicalDeviceID == previousID && $0.deviceModelCode == model
+        })
+    {
+      throw TransferError.identityConflict
+    }
     var routes: [NWEndpoint] = (values["ipv4"] ?? "").split(separator: ",")
       .prefix(4).compactMap { text in
         guard let address = IPv4Address(String(text)),
-          Self.isPrivateLANAddress(String(text)) else { return nil }
+          Self.isPrivateLANAddress(String(text))
+        else { return nil }
         return .hostPort(host: .ipv4(address), port: endpointPort)
       }
     let tailnetPort = values["tailnetPort"].flatMap(UInt16.init)
@@ -536,7 +585,8 @@ final class MacTransferManager: ObservableObject {
     let clientPrivate = Curve25519.KeyAgreement.PrivateKey()
     let clientPublic = clientPrivate.publicKey.rawRepresentation
     let shared = try clientPrivate.sharedSecretFromKeyAgreement(with: macPublic)
-    let derived = shared.hkdfDerivedSymmetricKey(using: SHA256.self,
+    let derived = shared.hkdfDerivedSymmetricKey(
+      using: SHA256.self,
       salt: Data(session.uuidString.utf8),
       sharedInfo: Data("MochiLog pair v\(version)|\(host.uuidString)|\(device.uuidString)".utf8),
       outputByteCount: 32)
@@ -545,18 +595,22 @@ final class MacTransferManager: ObservableObject {
       "type": "pair-init", "sessionID": session.uuidString,
       "version": version,
       "clientPublicKey": clientPublic.base64EncodedString(),
-      "physicalDeviceID": device.uuidString
+      "physicalDeviceID": device.uuidString,
     ])
-    let reply = try await PairingTransport.exchange(routes: routes,
+    let reply = try await PairingTransport.exchange(
+      routes: routes,
       payload: initiation, allowCellular: allowsCellularTransfer)
     guard let object = try JSONSerialization.jsonObject(with: reply) as? [String: String],
       object["type"] == "pair-challenge", object["sessionID"] == session.uuidString,
-      let supplied = object["proof"] else { throw TransferError.invalidPairing }
-    let expected = Self.authenticationCode("pair-challenge|\(session.uuidString)",
+      let supplied = object["proof"]
+    else { throw TransferError.invalidPairing }
+    let expected = Self.authenticationCode(
+      "pair-challenge|\(session.uuidString)",
       secret: secret)
     guard supplied == expected
     else { throw TransferError.invalidPairing }
-    var pair = MacTransferPairing(hostID: host, physicalDeviceID: device,
+    var pair = MacTransferPairing(
+      hostID: host, physicalDeviceID: device,
       model: model, secret: secret,
       tailnetAddress: values["tailnet"], tailnetPort: tailnetPort)
     pair.requiresSecureTransfer = values["transfer"] == "3"
@@ -564,13 +618,16 @@ final class MacTransferManager: ObservableObject {
     pair.lanAddresses = (values["ipv4"] ?? "").split(separator: ",")
       .map(String.init).filter(Self.isPrivateLANAddress)
     pair.lanPort = port
-    return SecureMacPairingCandidate(pairing: pair, sessionID: session,
+    return SecureMacPairingCandidate(
+      pairing: pair, sessionID: session,
       clientPublicKey: clientPublic, routes: routes,
       relinkLocalRecords: relinkLocalRecords, protocolVersion: version)
   }
 
-  func confirmSecurePairing(_ candidate: SecureMacPairingCandidate,
-    enteredCode: String, dataStore: DataStore) async throws {
+  func confirmSecurePairing(
+    _ candidate: SecureMacPairingCandidate,
+    enteredCode: String, dataStore: DataStore
+  ) async throws {
     let code = enteredCode.trimmingCharacters(in: .whitespacesAndNewlines)
     guard code.count == 6, code.allSatisfy({ $0 >= "0" && $0 <= "9" }) else {
       throw TransferError.invalidPairingCode
@@ -578,28 +635,33 @@ final class MacTransferManager: ObservableObject {
     let key = SymmetricKey(data: candidate.pairing.secret)
     let confirmationMAC = HMAC<SHA256>.authenticationCode(
       for: Data("pair-confirm|\(candidate.sessionID.uuidString)|\(code)".utf8),
-      using: key).map { String(format: "%02x", $0) }.joined()
+      using: key
+    ).map { String(format: "%02x", $0) }.joined()
     let request = try JSONSerialization.data(withJSONObject: [
       "type": "pair-confirm", "sessionID": candidate.sessionID.uuidString,
       "version": candidate.protocolVersion,
       "clientPublicKey": candidate.clientPublicKey.base64EncodedString(),
       "physicalDeviceID": candidate.pairing.physicalDeviceID.uuidString,
-      "confirmationMAC": confirmationMAC
+      "confirmationMAC": confirmationMAC,
     ])
-    let reply = try await PairingTransport.exchange(routes: candidate.routes,
+    let reply = try await PairingTransport.exchange(
+      routes: candidate.routes,
       payload: request, allowCellular: allowsCellularTransfer)
     guard let object = try JSONSerialization.jsonObject(with: reply) as? [String: String],
       object["type"] == "pair-complete",
       object["sessionID"] == candidate.sessionID.uuidString,
-      let supplied = object["proof"] else { throw TransferError.invalidPairing }
+      let supplied = object["proof"]
+    else { throw TransferError.invalidPairing }
     let expected = HMAC<SHA256>.authenticationCode(
       for: Data("pair-complete|\(candidate.sessionID.uuidString)".utf8),
-      using: key).map { String(format: "%02x", $0) }.joined()
+      using: key
+    ).map { String(format: "%02x", $0) }.joined()
     guard supplied == expected else { throw TransferError.invalidPairing }
     let pair = candidate.pairing
     let previousID = PhysicalDeviceIdentityStore.current()
     if previousID != pair.physicalDeviceID && candidate.relinkLocalRecords {
-      _ = try dataStore.reassignPhysicalDeviceID(from: previousID,
+      _ = try dataStore.reassignPhysicalDeviceID(
+        from: previousID,
         to: pair.physicalDeviceID, matchingModelCode: pair.model)
     }
     if pairings.isEmpty {
@@ -623,8 +685,8 @@ final class MacTransferManager: ObservableObject {
   private static func isPrivateLANAddress(_ address: String) -> Bool {
     let parts = address.split(separator: ".").compactMap { Int($0) }
     guard parts.count == 4 else { return false }
-    return parts[0] == 10 || (parts[0] == 172 && (16...31).contains(parts[1])) ||
-      (parts[0] == 192 && parts[1] == 168)
+    return parts[0] == 10 || (parts[0] == 172 && (16...31).contains(parts[1]))
+      || (parts[0] == 192 && parts[1] == 168)
   }
 
   func start() {
@@ -654,21 +716,24 @@ final class MacTransferManager: ObservableObject {
     let monitor = NWPathMonitor()
     pathMonitor = monitor
     monitor.pathUpdateHandler = { [weak self, weak monitor] path in
-      let signature = "\(path.status)|\(path.usesInterfaceType(.wifi))|\(path.usesInterfaceType(.cellular))|\(path.usesInterfaceType(.wiredEthernet))|\(path.availableInterfaces.map(\.name).sorted())"
+      let signature =
+        "\(path.status)|\(path.usesInterfaceType(.wifi))|\(path.usesInterfaceType(.cellular))|\(path.usesInterfaceType(.wiredEthernet))|\(path.availableInterfaces.map(\.name).sorted())"
       Task { @MainActor in
         guard let self, self.pathMonitor === monitor, self.isRunning else { return }
         let previous = self.pathSignature
         self.pathSignature = signature
         self.hasNetworkPath = true
         self.networkIsAvailable = path.status == .satisfied
-        self.networkUsesWiFiOrEthernet = path.usesInterfaceType(.wifi) ||
-          path.usesInterfaceType(.wiredEthernet)
+        self.networkUsesWiFiOrEthernet =
+          path.usesInterfaceType(.wifi) || path.usesInterfaceType(.wiredEthernet)
         guard self.networkPermitsTransfer else {
           self.pauseForNetwork()
           return
         }
         guard previous != signature else { return }
-        Self.appendDebugEvent("Network path changed: Wi-Fi \(self.networkUsesWiFiOrEthernet), cellular \(path.usesInterfaceType(.cellular)); automatic reconnect triggered")
+        Self.appendDebugEvent(
+          "Network path changed: Wi-Fi \(self.networkUsesWiFiOrEthernet), cellular \(path.usesInterfaceType(.cellular)); automatic reconnect triggered"
+        )
         self.retryDelay = 5
         self.beginDiscovery()
         Task { await self.refreshCloudPolicies() }
@@ -700,11 +765,15 @@ final class MacTransferManager: ObservableObject {
     guard networkPermitsTransfer else { pauseForNetwork(); return }
     if !manualReceive {
       if let wait = automaticWait() {
-        let reason = Date() < DailyLogCollectionPolicy.generationTime(on: Date())
-          ? "waiting for the daily collection window" : "all required logs received and computers acknowledged"
+        let reason =
+          Date() < DailyLogCollectionPolicy.generationTime(on: Date())
+          ? "waiting for the daily collection window"
+          : "all required logs received and computers acknowledged"
         let key = "\(DailyLogCollectionPolicy.dayKey())|\(reason)"
         if lastAutomaticHold != key {
-          Self.appendDebugEvent("Automatic receive stopped: \(reason); resumes \(Self.localTime(DailyLogCollectionPolicy.nextCollectionWindow()))")
+          Self.appendDebugEvent(
+            "Automatic receive stopped: \(reason); resumes \(Self.localTime(DailyLogCollectionPolicy.nextCollectionWindow()))"
+          )
           lastAutomaticHold = key
         }
         browser?.cancel(); browser = nil
@@ -714,10 +783,13 @@ final class MacTransferManager: ObservableObject {
         return
       }
       if dailyComplete(dailyReceipt),
-        dailyReceipt.pausedHosts.contains(pairing.hostID.uuidString) {
+        dailyReceipt.pausedHosts.contains(pairing.hostID.uuidString)
+      {
         let key = "\(DailyLogCollectionPolicy.dayKey())|\(pairing.hostID.uuidString)"
         if skippedHostKeys.insert(key).inserted {
-          Self.appendDebugEvent("Automatic receive skipped for computer \(pairing.hostID.uuidString): daily pause acknowledged")
+          Self.appendDebugEvent(
+            "Automatic receive skipped for computer \(pairing.hostID.uuidString): daily pause acknowledged"
+          )
         }
         advancePairing()
         return
@@ -745,12 +817,14 @@ final class MacTransferManager: ObservableObject {
     requeueConfirmedFiles(for: pairing)
     if let address = pairing.manualHostAddress,
       let ipv4 = IPv4Address(address),
-      let port = NWEndpoint.Port(rawValue: pairing.lanPort ??
-        (pairing.platform == "windows" ? 54556 : 54555)) {
+      let port = NWEndpoint.Port(
+        rawValue: pairing.lanPort ?? (pairing.platform == "windows" ? 54556 : 54555))
+    {
       directRoutes.append(.hostPort(host: .ipv4(ipv4), port: port))
     }
     if let lanPort = pairing.lanPort,
-      let endpointPort = NWEndpoint.Port(rawValue: lanPort) {
+      let endpointPort = NWEndpoint.Port(rawValue: lanPort)
+    {
       directRoutes += (pairing.lanAddresses ?? []).compactMap { address in
         guard let ipv4 = IPv4Address(address), Self.isPrivateLANAddress(address) else {
           return nil
@@ -758,12 +832,15 @@ final class MacTransferManager: ObservableObject {
         return .hostPort(host: .ipv4(ipv4), port: endpointPort)
       }
     }
-    if let route = Self.tailnetRoute(address: pairing.tailnetAddress,
-      port: pairing.tailnetPort) {
+    if let route = Self.tailnetRoute(
+      address: pairing.tailnetAddress,
+      port: pairing.tailnetPort)
+    {
       directRoutes.append(route)
     }
     routeIndex = 0
-    let browser = NWBrowser(for: .bonjourWithTXTRecord(type: "_mochilog._tcp", domain: nil), using: .tcp)
+    let browser = NWBrowser(
+      for: .bonjourWithTXTRecord(type: "_mochilog._tcp", domain: nil), using: .tcp)
     self.browser = browser
     browser.browseResultsChangedHandler = { [weak self, weak browser] results, _ in
       guard let self else { return }
@@ -775,23 +852,29 @@ final class MacTransferManager: ObservableObject {
       })
       Task { @MainActor in
         guard self.isRunning, self.browser === browser else { return }
-        Self.appendDebugEvent("Bonjour: \(results.count) service(s), paired Mac \(result == nil ? "not found" : "found")")
+        Self.appendDebugEvent(
+          "Bonjour: \(results.count) service(s), paired Mac \(result == nil ? "not found" : "found")"
+        )
         guard let result else { return }
-        Self.appendDebugEvent("Bonjour interfaces: \(result.interfaces.map(\.name).joined(separator: ", "))")
+        Self.appendDebugEvent(
+          "Bonjour interfaces: \(result.interfaces.map(\.name).joined(separator: ", "))")
         self.endpoint = result.endpoint
         self.connectionPhase = .connecting
         if case .bonjour(let record) = result.metadata,
-          var updated = self.pairing {
+          var updated = self.pairing
+        {
           var changed = false
           if let port = record["port"].flatMap(UInt16.init), port > 0,
-            updated.lanPort != port {
+            updated.lanPort != port
+          {
             updated.lanPort = port
             changed = true
           }
           if let tailnet = record["tailnet"],
             let port = (record["tailnetPort"] ?? record["port"]).flatMap(UInt16.init),
             Self.tailnetRoute(address: tailnet, port: port) != nil,
-            (updated.tailnetAddress != tailnet || updated.tailnetPort != port) {
+            (updated.tailnetAddress != tailnet || updated.tailnetPort != port)
+          {
             updated.tailnetAddress = tailnet
             updated.tailnetPort = port
             changed = true
@@ -811,8 +894,10 @@ final class MacTransferManager: ObservableObject {
         var newRoutes = Self.routes(from: result.metadata)
         if let address = self.pairing?.manualHostAddress,
           let ipv4 = IPv4Address(address),
-          let port = NWEndpoint.Port(rawValue: self.pairing?.lanPort ??
-            (self.pairing?.platform == "windows" ? 54556 : 54555)) {
+          let port = NWEndpoint.Port(
+            rawValue: self.pairing?.lanPort ?? (self.pairing?.platform == "windows" ? 54556 : 54555)
+          )
+        {
           newRoutes.insert(.hostPort(host: .ipv4(ipv4), port: port), at: 0)
         }
         if newRoutes != self.directRoutes {
@@ -848,7 +933,8 @@ final class MacTransferManager: ObservableObject {
     if !directRoutes.isEmpty {
       DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
         guard let self, self.isRunning, self.browser === browser,
-          self.endpoint == nil else { return }
+          self.endpoint == nil
+        else { return }
         self.pull()
       }
     }
@@ -859,11 +945,12 @@ final class MacTransferManager: ObservableObject {
     guard AppSettings.shared.pcAutomaticCollectionEnabled || manualReceive else { stop(); return }
     reconnectTask?.cancel()
     if seconds > 300 {
-      Self.appendDebugEvent("Automatic reconnect scheduled for \(Self.localTime(Date().addingTimeInterval(TimeInterval(seconds))))")
+      Self.appendDebugEvent(
+        "Automatic reconnect scheduled for \(Self.localTime(Date().addingTimeInterval(TimeInterval(seconds))))"
+      )
     }
     reconnectTask = Task { [weak self] in
-      do { try await Task.sleep(nanoseconds: seconds * 1_000_000_000) }
-      catch { return }
+      do { try await Task.sleep(nanoseconds: seconds * 1_000_000_000) } catch { return }
       guard let self, self.isRunning else { return }
       // A discovery failure must not interrupt a transfer already using a
       // saved direct route. Only an actual path change invalidates that route.
@@ -878,12 +965,13 @@ final class MacTransferManager: ObservableObject {
       reconnectTask?.cancel()
       let delay = retryDelay
       reconnectTask = Task { [weak self] in
-        do { try await Task.sleep(nanoseconds: delay * 1_000_000_000) }
-        catch { return }
+        do { try await Task.sleep(nanoseconds: delay * 1_000_000_000) } catch { return }
         guard let self, self.isRunning, self.connection == nil else { return }
         self.advancePairing()
       }
-    } else { scheduleReconnect(after: retryDelay) }
+    } else {
+      scheduleReconnect(after: retryDelay)
+    }
     retryDelay = min(retryDelay * 2, 60)
   }
 
@@ -913,12 +1001,16 @@ final class MacTransferManager: ObservableObject {
   }
 
   func stopForBackground() {
-    Self.appendDebugEvent("Automatic receive stopped: app entered background; collection state rechecked when active")
+    Self.appendDebugEvent(
+      "Automatic receive stopped: app entered background; collection state rechecked when active")
     let shouldSendPresence = automaticWait() == nil
     let pairing = pairing
-    let route = routeIndex < directRoutes.count ? directRoutes[routeIndex]
-      : (endpoint ?? Self.tailnetRoute(
-        address: pairing?.tailnetAddress, port: pairing?.tailnetPort))
+    let route =
+      routeIndex < directRoutes.count
+      ? directRoutes[routeIndex]
+      : (endpoint
+        ?? Self.tailnetRoute(
+          address: pairing?.tailnetAddress, port: pairing?.tailnetPort))
     let mayUseCellular = allowsCellularTransfer
     let legacyTransfer = usingLegacyTransfer
     let wasRunning = isRunning
@@ -926,7 +1018,8 @@ final class MacTransferManager: ObservableObject {
     guard shouldSendPresence, wasRunning, let pairing, let route else { return }
     let nonce = UUID()
     let presence = "background"
-    let message = "v2|background|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)"
+    let message =
+      "v2|background|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)"
     let request: [String: String] = [
       "hostID": pairing.hostID.uuidString,
       "physicalDeviceID": pairing.physicalDeviceID.uuidString,
@@ -934,9 +1027,10 @@ final class MacTransferManager: ObservableObject {
       "ack": "",
       "mac": Self.authenticationCode(message, secret: pairing.secret),
       "version": "2",
-      "presence": presence
+      "presence": presence,
     ]
-    let payload = legacyTransfer
+    let payload =
+      legacyTransfer
       ? try? JSONSerialization.data(withJSONObject: request)
       : Self.sealedRequest(request, pairing: pairing, nonce: nonce)
     guard let payload else { return }
@@ -961,12 +1055,14 @@ final class MacTransferManager: ObservableObject {
     connection.stateUpdateHandler = { state in
       switch state {
       case .ready:
-        connection.send(content: payload + Data([10]), completion: .contentProcessed { error in
-          if error != nil { finish(); return }
-          connection.receive(minimumIncompleteLength: 1, maximumLength: 1) { _, _, _, _ in
-            finish()
-          }
-        })
+        connection.send(
+          content: payload + Data([10]),
+          completion: .contentProcessed { error in
+            if error != nil { finish(); return }
+            connection.receive(minimumIncompleteLength: 1, maximumLength: 1) { _, _, _, _ in
+              finish()
+            }
+          })
       case .failed, .cancelled: finish()
       default: break
       }
@@ -976,43 +1072,55 @@ final class MacTransferManager: ObservableObject {
   }
 
   private static func authenticationCode(_ message: String, secret: Data) -> String {
-    HMAC<SHA256>.authenticationCode(for: Data(message.utf8),
-      using: SymmetricKey(data: secret))
-      .map { String(format: "%02x", $0) }.joined()
+    HMAC<SHA256>.authenticationCode(
+      for: Data(message.utf8),
+      using: SymmetricKey(data: secret)
+    )
+    .map { String(format: "%02x", $0) }.joined()
   }
 
-  private static func sealedRequest(_ request: [String: String],
-    pairing: MacTransferPairing, nonce: UUID) -> Data? {
+  private static func sealedRequest(
+    _ request: [String: String],
+    pairing: MacTransferPairing, nonce: UUID
+  ) -> Data? {
     let issuedAt = Int64(Date().timeIntervalSince1970)
-    let context = Data("v3|request|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)|\(issuedAt)".utf8)
+    let context = Data(
+      "v3|request|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)|\(issuedAt)"
+        .utf8)
     let requestWithHints = LocalPairingAddressPolicy.addingDiagnosticRouteHints(to: request)
     guard let plain = try? JSONSerialization.data(withJSONObject: requestWithHints),
-      let combined = try? AES.GCM.seal(plain,
-        using: SymmetricKey(data: pairing.secret), authenticating: context).combined
+      let combined = try? AES.GCM.seal(
+        plain,
+        using: SymmetricKey(data: pairing.secret), authenticating: context
+      ).combined
     else { return nil }
-    return try? JSONSerialization.data(withJSONObject: [
-      "version": "3", "hostID": pairing.hostID.uuidString,
-      "physicalDeviceID": pairing.physicalDeviceID.uuidString,
-      "nonce": nonce.uuidString, "issuedAt": issuedAt,
-      "box": combined.base64EncodedString()
-    ] as [String: Any])
+    return try? JSONSerialization.data(
+      withJSONObject: [
+        "version": "3", "hostID": pairing.hostID.uuidString,
+        "physicalDeviceID": pairing.physicalDeviceID.uuidString,
+        "nonce": nonce.uuidString, "issuedAt": issuedAt,
+        "box": combined.base64EncodedString(),
+      ] as [String: Any])
   }
 
   private static func routes(from metadata: NWBrowser.Result.Metadata) -> [NWEndpoint] {
     guard case .bonjour(let record) = metadata,
       let portText = record["port"], let portValue = UInt16(portText),
-      let port = NWEndpoint.Port(rawValue: portValue), portValue != 0 else { return [] }
-    var routes: [NWEndpoint] = Array((record["ipv4"] ?? "")
-      .split(separator: ",").prefix(4)).compactMap { text in
+      let port = NWEndpoint.Port(rawValue: portValue), portValue != 0
+    else { return [] }
+    var routes: [NWEndpoint] = Array(
+      (record["ipv4"] ?? "")
+        .split(separator: ",").prefix(4)
+    ).compactMap { text in
       guard let address = IPv4Address(String(text)) else { return nil }
       return .hostPort(host: .ipv4(address), port: port)
     }
     let tailnetPort = (record["tailnetPort"] ?? record["port"]).flatMap(UInt16.init)
     if let tailnet = tailnetRoute(address: record["tailnet"], port: tailnetPort) {
       #if DEBUG
-      if ProcessInfo.processInfo.environment["MOCHILOG_FORCE_TAILNET"] == "1" {
-        return [tailnet]
-      }
+        if ProcessInfo.processInfo.environment["MOCHILOG_FORCE_TAILNET"] == "1" {
+          return [tailnet]
+        }
       #endif
       routes.append(tailnet)
     }
@@ -1021,12 +1129,14 @@ final class MacTransferManager: ObservableObject {
 
   private static func tailnetRoute(address: String?, port: UInt16?) -> NWEndpoint? {
     guard let address, let port, port != 0,
-      let ipv4 = IPv4Address(address) else { return nil }
+      let ipv4 = IPv4Address(address)
+    else { return nil }
     let parts = address.split(separator: ".").compactMap { Int($0) }
     guard
       parts.count == 4, parts[0] == 100,
       (64...127).contains(parts[1]),
-      let endpointPort = NWEndpoint.Port(rawValue: port) else { return nil }
+      let endpointPort = NWEndpoint.Port(rawValue: port)
+    else { return nil }
     return .hostPort(host: .ipv4(ipv4), port: endpointPort)
   }
 
@@ -1036,8 +1146,7 @@ final class MacTransferManager: ObservableObject {
     connection = nil
     activeRequestNonce = nil
     isReceiving = false
-    if routeIndex < directRoutes.count &&
-      (routeIndex + 1 < directRoutes.count || endpoint != nil) {
+    if routeIndex < directRoutes.count && (routeIndex + 1 < directRoutes.count || endpoint != nil) {
       routeIndex += 1
       Self.appendDebugEvent("Connection: trying next route (\(routeIndex + 1))")
       pull()
@@ -1076,14 +1185,18 @@ final class MacTransferManager: ObservableObject {
       }
     }
     let scope = AppSettings.shared.iCloudSyncEnabled ? CloudLogSharingState.shared.scope ?? "" : ""
-    for host in pairings where CloudSharingCapability.shouldProbe(
+    for host in pairings
+    where CloudSharingCapability.shouldProbe(
       advertised: cloudCapableHosts.contains(host.hostID),
       secureRequired: host.requiresSecureTransfer,
-      unsupported: cloudUnsupportedHosts.contains(host.hostID)) {
+      unsupported: cloudUnsupportedHosts.contains(host.hostID))
+    {
       guard isRunning, !Task.isCancelled else { return }
       var routes: [NWEndpoint] = []
       func add(_ address: String?, _ port: UInt16?) {
-        guard let address, let ip = IPv4Address(address), let port, let p = NWEndpoint.Port(rawValue: port), port != 0 else { return }
+        guard let address, let ip = IPv4Address(address), let port,
+          let p = NWEndpoint.Port(rawValue: port), port != 0
+        else { return }
         if !networkUsesWiFiOrEthernet && !LiveBatteryManager.isTailnet(address) { return }
         let route: NWEndpoint = .hostPort(host: .ipv4(ip), port: p)
         if !routes.contains(route) { routes.append(route) }
@@ -1094,42 +1207,74 @@ final class MacTransferManager: ObservableObject {
       for route in routes.prefix(4) {
         do {
           let nonce = UUID()
-          let request: [String: String] = ["version": "2", "hostID": host.hostID.uuidString,
+          let request: [String: String] = [
+            "version": "2", "hostID": host.hostID.uuidString,
             "physicalDeviceID": host.physicalDeviceID.uuidString, "nonce": nonce.uuidString,
-            "ack": "", "mac": Self.authenticationCode("v2|\(host.hostID.uuidString)|\(host.physicalDeviceID.uuidString)|\(nonce.uuidString)|", secret: host.secret),
+            "ack": "",
+            "mac": Self.authenticationCode(
+              "v2|\(host.hostID.uuidString)|\(host.physicalDeviceID.uuidString)|\(nonce.uuidString)|",
+              secret: host.secret),
             "cloudSharingVersion": "1", "cloudSharingScope": scope, "cloudSharingOnly": "1",
-            "logSourceIdentityVersion": "1"]
-          guard let payload = Self.sealedRequest(request, pairing: host, nonce: nonce) else { break }
-          let encrypted = try await LiveBatteryTransport.exchange(route, payload: payload + Data([10]), timeoutSeconds: 5)
-          let context = Data("v2|response|\(host.hostID.uuidString)|\(host.physicalDeviceID.uuidString)|\(nonce.uuidString)".utf8)
-          let plain = try AES.GCM.open(AES.GCM.SealedBox(combined: encrypted), using: SymmetricKey(data: host.secret), authenticating: context)
-          guard plain.count >= 2, plain[0] == 0, plain[1] == 0,
-            let report = (try? JSONSerialization.jsonObject(with: plain.dropFirst(2))) as? [String: String],
-            report["type"] == "cloud-sharing-policy", report["cloudSharingVersion"] == "1" else {
-            cloudUnsupportedHosts.insert(host.hostID)
-            Self.appendDebugEvent("Cloud sharing: computer does not advertise support; bootstrap deferred until next foreground session")
+            "logSourceIdentityVersion": "1",
+          ]
+          guard let payload = Self.sealedRequest(request, pairing: host, nonce: nonce) else {
             break
           }
-          guard isRunning, scope == (AppSettings.shared.iCloudSyncEnabled ? CloudLogSharingState.shared.scope ?? "" : ""),
-            pairings.contains(where: { $0.hostID == host.hostID && $0.physicalDeviceID == host.physicalDeviceID }) else { return }
+          let encrypted = try await LiveBatteryTransport.exchange(
+            route, payload: payload + Data([10]), timeoutSeconds: 5)
+          let context = Data(
+            "v2|response|\(host.hostID.uuidString)|\(host.physicalDeviceID.uuidString)|\(nonce.uuidString)"
+              .utf8)
+          let plain = try AES.GCM.open(
+            AES.GCM.SealedBox(combined: encrypted), using: SymmetricKey(data: host.secret),
+            authenticating: context)
+          guard plain.count >= 2, plain[0] == 0, plain[1] == 0,
+            let report = (try? JSONSerialization.jsonObject(with: plain.dropFirst(2)))
+              as? [String: String],
+            report["type"] == "cloud-sharing-policy", report["cloudSharingVersion"] == "1"
+          else {
+            cloudUnsupportedHosts.insert(host.hostID)
+            Self.appendDebugEvent(
+              "Cloud sharing: computer does not advertise support; bootstrap deferred until next foreground session"
+            )
+            break
+          }
+          guard isRunning,
+            scope
+              == (AppSettings.shared.iCloudSyncEnabled
+                ? CloudLogSharingState.shared.scope ?? "" : ""),
+            pairings.contains(where: {
+              $0.hostID == host.hostID && $0.physicalDeviceID == host.physicalDeviceID
+            })
+          else { return }
           if !scope.isEmpty, let json = report["sourceModels"], let data = json.data(using: .utf8),
-            let models = try? JSONDecoder().decode([String: String].self, from: data) {
-            guard LogSourceIdentityStore.remember(models: models, scope: scope) else { throw TransferError.invalidPayload }
-            Self.appendDebugEvent("Import identity policy: authenticatedModels=\(models.count), computer=\(host.hostID.uuidString); no log body requested")
+            let models = try? JSONDecoder().decode([String: String].self, from: data)
+          {
+            guard LogSourceIdentityStore.remember(models: models, scope: scope) else {
+              throw TransferError.invalidPayload
+            }
+            Self.appendDebugEvent(
+              "Import identity policy: authenticatedModels=\(models.count), computer=\(host.hostID.uuidString); no log body requested"
+            )
           }
           rememberCloudCapability(host.hostID)
-          Self.appendDebugEvent("Cloud sharing: permission=\(scope.isEmpty ? "off/unavailable" : "confirmed"), computer=\(host.hostID.uuidString), pending=\(report["pending"] ?? "false")")
+          Self.appendDebugEvent(
+            "Cloud sharing: permission=\(scope.isEmpty ? "off/unavailable" : "confirmed"), computer=\(host.hostID.uuidString), pending=\(report["pending"] ?? "false")"
+          )
           if report["pending"] == "true", !isReceiving, connection == nil {
-            manualReceive = true // foreign pending work may bypass this device's completed-day pause
-            Self.appendDebugEvent("Cloud sharing: pending work found; automatically selecting computer=\(host.hostID.uuidString)")
-            if pairing?.hostID != host.hostID { activatePairing(host) }
-            else { beginDiscovery() }
+            // Foreign pending work may bypass this device's completed-day pause.
+            manualReceive = true
+            Self.appendDebugEvent(
+              "Cloud sharing: pending work found; automatically selecting computer=\(host.hostID.uuidString)"
+            )
+            if pairing?.hostID != host.hostID { activatePairing(host) } else { beginDiscovery() }
           }
           break
         } catch {
           if let failure = error as? LiveBatteryTransport.Failure, case .unsupported = failure {
             cloudUnsupportedHosts.insert(host.hostID)
-            Self.appendDebugEvent("Cloud sharing: bounded bootstrap response unsupported; no log ACK sent")
+            Self.appendDebugEvent(
+              "Cloud sharing: bounded bootstrap response unsupported; no log ACK sent")
             break
           }
           Self.appendDebugEvent("Cloud sharing: consent check deferred; computer unavailable")
@@ -1140,7 +1285,8 @@ final class MacTransferManager: ObservableObject {
 
   private func rememberCloudCapability(_ hostID: UUID) {
     guard cloudCapableHosts.insert(hostID).inserted,
-      let index = pairings.firstIndex(where: { $0.hostID == hostID }) else { return }
+      let index = pairings.firstIndex(where: { $0.hostID == hostID })
+    else { return }
     var updated = pairings
     updated[index].cloudSharingVersion = "1"
     updated[index].requiresSecureTransfer = true
@@ -1148,7 +1294,9 @@ final class MacTransferManager: ObservableObject {
       pairings = updated
       if pairing?.hostID == hostID { pairing = updated[index] }
     }
-    Self.appendDebugEvent("Cloud sharing: computer capability confirmed independently of daily receive; computer=\(hostID.uuidString)")
+    Self.appendDebugEvent(
+      "Cloud sharing: computer capability confirmed independently of daily receive; computer=\(hostID.uuidString)"
+    )
   }
 
   private var requestStartedUptime: TimeInterval = 0
@@ -1157,7 +1305,8 @@ final class MacTransferManager: ObservableObject {
 
   private func pull() {
     guard isRunning, let pairing, networkPermitsTransfer,
-      endpoint != nil || routeIndex < directRoutes.count else {
+      endpoint != nil || routeIndex < directRoutes.count
+    else {
       Self.appendDebugEvent("Connection: waiting for pairing or Mac endpoint")
       return
     }
@@ -1172,17 +1321,26 @@ final class MacTransferManager: ObservableObject {
     requestStartedUptime = ProcessInfo.processInfo.systemUptime
     requestSentUptime = 0
     firstByteUptime = 0
-    Self.appendDebugEvent("Transfer trace: start request=\(nonce.uuidString), computer=\(pairing.hostID.uuidString), recipient=\(pairing.physicalDeviceID.uuidString), pairedComputers=\(pairings.count), permission=\(CloudLogSharingState.shared.scope == nil ? "off/unavailable" : "confirmed")")
+    Self.appendDebugEvent(
+      "Transfer trace: start request=\(nonce.uuidString), computer=\(pairing.hostID.uuidString), recipient=\(pairing.physicalDeviceID.uuidString), pairedComputers=\(pairings.count), permission=\(CloudLogSharingState.shared.scope == nil ? "off/unavailable" : "confirmed")"
+    )
     let ack = pendingAck ?? ""
-    let message = "v2|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)|\(ack)"
+    let message =
+      "v2|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)|\(ack)"
     let mac = Self.authenticationCode(message, secret: pairing.secret)
     let presence = "foreground"
-    let presenceMAC = Self.authenticationCode("presence|\(nonce.uuidString)|\(presence)",
+    let presenceMAC = Self.authenticationCode(
+      "presence|\(nonce.uuidString)|\(presence)",
       secret: pairing.secret)
     let diagnostics = supportDiagnosticsData()
-    let diagnosticsContext = Data("v2|diagnostics|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)".utf8)
-    guard let diagnosticsBox = try? AES.GCM.seal(diagnostics,
-      using: SymmetricKey(data: pairing.secret), authenticating: diagnosticsContext).combined
+    let diagnosticsContext = Data(
+      "v2|diagnostics|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)"
+        .utf8)
+    guard
+      let diagnosticsBox = try? AES.GCM.seal(
+        diagnostics,
+        using: SymmetricKey(data: pairing.secret), authenticating: diagnosticsContext
+      ).combined
     else { return }
     var request: [String: String] = [
       "hostID": pairing.hostID.uuidString,
@@ -1193,19 +1351,22 @@ final class MacTransferManager: ObservableObject {
       "version": "2",
       "presence": presence,
       "presenceMAC": presenceMAC,
-      "clientDiagnosticsBox": diagnosticsBox.base64EncodedString()
+      "clientDiagnosticsBox": diagnosticsBox.base64EncodedString(),
     ]
     if !usingLegacyTransfer {
       request["cloudSharingVersion"] = "1"
       request["logSourceIdentityVersion"] = "1"
-      request["cloudSharingScope"] = AppSettings.shared.iCloudSyncEnabled ? CloudLogSharingState.shared.scope ?? "" : ""
+      request["cloudSharingScope"] =
+        AppSettings.shared.iCloudSyncEnabled ? CloudLogSharingState.shared.scope ?? "" : ""
     }
     request["offerVersion"] = "1"
     request["offerMAC"] = Self.authenticationCode(
       "file-offer|v1|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)",
       secret: pairing.secret)
     if let offer = activeFileOffer, offer.hostID == pairing.hostID {
-      Self.appendDebugEvent("Preflight: sending signed decision=\(offer.decision) for \(CloudSharedLogToken.debugLabel(offer.token)); SHA-256 \(offer.digest.prefix(12)); computer=\(pairing.hostID.uuidString)")
+      Self.appendDebugEvent(
+        "Preflight: sending signed decision=\(offer.decision) for \(CloudSharedLogToken.debugLabel(offer.token)); SHA-256 \(offer.digest.prefix(12)); computer=\(pairing.hostID.uuidString)"
+      )
       request["offerToken"] = offer.token
       request["offerDigest"] = offer.digest
       request["offerDecision"] = offer.decision
@@ -1214,33 +1375,38 @@ final class MacTransferManager: ObservableObject {
         secret: pairing.secret)
     }
     let receipt = dailyReceipt
-    let pauseUntil: String? = !manualReceive && pendingAck == nil &&
-      !debugArchiveNeedsSync() &&
-      dailyComplete(receipt) &&
-      receipt.terminalHosts.contains(pairing.hostID.uuidString) &&
-      !receipt.pausedHosts.contains(pairing.hostID.uuidString)
+    let pauseUntil: String? =
+      !manualReceive && pendingAck == nil && !debugArchiveNeedsSync() && dailyComplete(receipt)
+        && receipt.terminalHosts.contains(pairing.hostID.uuidString)
+        && !receipt.pausedHosts.contains(pairing.hostID.uuidString)
       ? String(Int(DailyLogCollectionPolicy.nextCollectionWindow().timeIntervalSince1970)) : nil
     if let pauseUntil {
-      Self.appendDebugEvent("Requesting daily pause from computer \(pairing.hostID.uuidString) until \(Self.localTime(Date(timeIntervalSince1970: TimeInterval(pauseUntil) ?? 0)))")
+      Self.appendDebugEvent(
+        "Requesting daily pause from computer \(pairing.hostID.uuidString) until \(Self.localTime(Date(timeIntervalSince1970: TimeInterval(pauseUntil) ?? 0)))"
+      )
       request["dailyPauseUntil"] = pauseUntil
       request["dailyPauseMAC"] = Self.authenticationCode(
         "daily-pause|v1|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)|\(pauseUntil)",
         secret: pairing.secret)
     }
-    let resume = !dailyComplete(receipt) &&
-      receipt.pausedHosts.contains(pairing.hostID.uuidString)
+    let resume = !dailyComplete(receipt) && receipt.pausedHosts.contains(pairing.hostID.uuidString)
     if resume {
-      Self.appendDebugEvent("Requesting daily collection resume from computer \(pairing.hostID.uuidString): required logs changed")
+      Self.appendDebugEvent(
+        "Requesting daily collection resume from computer \(pairing.hostID.uuidString): required logs changed"
+      )
       request["dailyResumeMAC"] = Self.authenticationCode(
         "daily-resume|v1|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)",
         secret: pairing.secret)
     }
-    let payload = usingLegacyTransfer
+    let payload =
+      usingLegacyTransfer
       ? try? JSONSerialization.data(withJSONObject: request)
       : Self.sealedRequest(request, pairing: pairing, nonce: nonce)
     guard let payload else { return }
-    guard let route = routeIndex < directRoutes.count
-      ? directRoutes[routeIndex] : endpoint else { return }
+    guard
+      let route = routeIndex < directRoutes.count
+        ? directRoutes[routeIndex] : endpoint
+    else { return }
     let parameters = NWParameters.tcp
     if !allowsCellularTransfer {
       parameters.prohibitedInterfaceTypes = [.cellular]
@@ -1253,10 +1419,13 @@ final class MacTransferManager: ObservableObject {
     accumulated = Data()
     connection.pathUpdateHandler = { [weak self, weak connection] path in
       Task { @MainActor in
-        Self.appendDebugEvent("Path: \(path.status), Wi-Fi \(path.usesInterfaceType(.wifi)), reason \(String(describing: path.unsatisfiedReason))")
+        Self.appendDebugEvent(
+          "Path: \(path.status), Wi-Fi \(path.usesInterfaceType(.wifi)), reason \(String(describing: path.unsatisfiedReason))"
+        )
         guard let self, let connection, self.connection === connection,
           !self.allowsCellularTransfer,
-          !path.usesInterfaceType(.wifi), !path.usesInterfaceType(.wiredEthernet) else { return }
+          !path.usesInterfaceType(.wifi), !path.usesInterfaceType(.wiredEthernet)
+        else { return }
         self.pauseForNetwork()
       }
     }
@@ -1267,20 +1436,26 @@ final class MacTransferManager: ObservableObject {
         Task { @MainActor in Self.appendDebugEvent("Connection: preparing") }
       case .ready:
         Task { @MainActor in Self.appendDebugEvent("Connection: ready") }
-        connection.send(content: payload + Data([10]), completion: .contentProcessed { error in
-          Task { @MainActor in
-            guard self.isRunning, self.connection === connection else { return }
-            if let error {
-              self.routeFailed(connection, error: error.localizedDescription)
-            } else {
-              self.requestSentUptime = ProcessInfo.processInfo.systemUptime
-              Self.appendDebugEvent("Connection: request sent; request=\(nonce.uuidString), connectMs=\(Int((self.requestSentUptime - self.requestStartedUptime) * 1000))")
-              self.receive(on: connection)
+        connection.send(
+          content: payload + Data([10]),
+          completion: .contentProcessed { error in
+            Task { @MainActor in
+              guard self.isRunning, self.connection === connection else { return }
+              if let error {
+                self.routeFailed(connection, error: error.localizedDescription)
+              } else {
+                self.requestSentUptime = ProcessInfo.processInfo.systemUptime
+                Self.appendDebugEvent(
+                  "Connection: request sent; request=\(nonce.uuidString), connectMs=\(Int((self.requestSentUptime - self.requestStartedUptime) * 1000))"
+                )
+                self.receive(on: connection)
+              }
             }
-          }
-        })
+          })
       case .waiting(let error):
-        Task { @MainActor in Self.appendDebugEvent("Connection: waiting (\(error.localizedDescription))") }
+        Task { @MainActor in
+          Self.appendDebugEvent("Connection: waiting (\(error.localizedDescription))")
+        }
       case .failed(let error):
         Task { @MainActor in
           Self.appendDebugEvent("Connection: failed (\(error.localizedDescription))")
@@ -1304,13 +1479,16 @@ final class MacTransferManager: ObservableObject {
   }
 
   private func receive(on connection: NWConnection) {
-    connection.receive(minimumIncompleteLength: 1, maximumLength: 65_536) { [weak self] data, _, complete, error in
+    connection.receive(minimumIncompleteLength: 1, maximumLength: 65_536) {
+      [weak self] data, _, complete, error in
       guard let self else { return }
       Task { @MainActor in
         guard self.isRunning, self.connection === connection else { return }
         if let data, !data.isEmpty, self.firstByteUptime == 0 {
           self.firstByteUptime = ProcessInfo.processInfo.systemUptime
-          Self.appendDebugEvent("Transfer trace: first byte request=\(self.activeRequestNonce?.uuidString ?? "none"), waitMs=\(Int((self.firstByteUptime - self.requestSentUptime) * 1000))")
+          Self.appendDebugEvent(
+            "Transfer trace: first byte request=\(self.activeRequestNonce?.uuidString ?? "none"), waitMs=\(Int((self.firstByteUptime - self.requestSentUptime) * 1000))"
+          )
         }
         if let data { self.accumulated.append(data) }
         if let data, !data.isEmpty { self.connectionPhase = .receiving }
@@ -1357,13 +1535,20 @@ final class MacTransferManager: ObservableObject {
     }
     do {
       let box = try AES.GCM.SealedBox(combined: bytes.dropFirst(4))
-      let responseContext = Data("v2|response|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(requestNonce.uuidString)".utf8)
-      let plain = try AES.GCM.open(box, using: SymmetricKey(data: pairing.secret),
+      let responseContext = Data(
+        "v2|response|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(requestNonce.uuidString)"
+          .utf8)
+      let plain = try AES.GCM.open(
+        box, using: SymmetricKey(data: pairing.secret),
         authenticating: responseContext)
-      if usingLegacyTransfer { legacyTransferConfirmed = true }
-      else { legacyTransferConfirmed = false }
+      if usingLegacyTransfer {
+        legacyTransferConfirmed = true
+      } else {
+        legacyTransferConfirmed = false
+      }
       if !usingLegacyTransfer, pairing.requiresSecureTransfer != true,
-        let index = pairings.firstIndex(where: { $0.hostID == pairing.hostID }) {
+        let index = pairings.firstIndex(where: { $0.hostID == pairing.hostID })
+      {
         var updated = pairings
         updated[index].requiresSecureTransfer = true
         do {
@@ -1388,7 +1573,8 @@ final class MacTransferManager: ObservableObject {
         if !usingLegacyTransfer,
           let json = (try? JSONSerialization.jsonObject(with: report)) as? [String: Any],
           json["cloudSharingVersion"] as? String == "1",
-          !cloudCapableHosts.contains(pairing.hostID) {
+          !cloudCapableHosts.contains(pairing.hostID)
+        {
           rememberCloudCapability(pairing.hostID)
           Task { await self.refreshCloudPolicies() }
         }
@@ -1397,79 +1583,109 @@ final class MacTransferManager: ObservableObject {
           let digest = offer["sha256"], digest.count == 64,
           digest.allSatisfy({ $0.isHexDigit }),
           token.count <= 1024,
-          (token.hasPrefix("Host::") || token.hasPrefix("Watch::") ||
-            token.hasPrefix("Analytics-") || CloudSharedLogToken.parse(token) != nil) {
+          (token.hasPrefix("Host::") || token.hasPrefix("Watch::") || token.hasPrefix("Analytics-")
+            || CloudSharedLogToken.parse(token) != nil)
+        {
           if let previous = activeFileOffer, previous.hostID == pairing.hostID {
-            Self.appendDebugEvent("Preflight: computer replied with another offer after decision=\(previous.decision) for \(CloudSharedLogToken.debugLabel(previous.token))")
+            Self.appendDebugEvent(
+              "Preflight: computer replied with another offer after decision=\(previous.decision) for \(CloudSharedLogToken.debugLabel(previous.token))"
+            )
           }
           let shared = CloudSharedLogToken.parse(token)
           if let shared {
             guard AppSettings.shared.iCloudSyncEnabled,
-              CloudLogSharingState.shared.scope == shared.scope else { throw TransferError.invalidPayload }
+              CloudLogSharingState.shared.scope == shared.scope
+            else { throw TransferError.invalidPayload }
           }
           if let shared, shared.base.hasPrefix("Host::"), !usingLegacyTransfer,
-            let model = offer["sourceModel"] {
-            guard LogSourceIdentityStore.remember(origin: shared.origin, model: model, scope: shared.scope)
+            let model = offer["sourceModel"]
+          {
+            guard
+              LogSourceIdentityStore.remember(
+                origin: shared.origin, model: model, scope: shared.scope)
             else { throw TransferError.invalidPayload }
-            Self.appendDebugEvent("Import identity: authenticated source=\(shared.origin.uuidString), model=\(model), computer=\(pairing.hostID.uuidString)")
+            Self.appendDebugEvent(
+              "Import identity: authenticated source=\(shared.origin.uuidString), model=\(model), computer=\(pairing.hostID.uuidString)"
+            )
           }
           let forced = offer["force"] == "true"
-          let existingSource = forced ? nil : receivedDigestSource(digest,
-            physicalDeviceID: shared?.origin ?? pairing.physicalDeviceID,
-            recordOrigin: CloudSharedLogToken.measurementOrigin(base: shared?.base ?? token,
-              origin: shared?.origin ?? pairing.physicalDeviceID))
+          let existingSource =
+            forced
+            ? nil
+            : receivedDigestSource(
+              digest,
+              physicalDeviceID: shared?.origin ?? pairing.physicalDeviceID,
+              recordOrigin: CloudSharedLogToken.measurementOrigin(
+                base: shared?.base ?? token,
+                origin: shared?.origin ?? pairing.physicalDeviceID))
           let alreadyReceived = !forced && existingSource != nil
           let decision = alreadyReceived ? "have" : "send"
           activeFileOffer = (pairing.hostID, token, digest, decision)
-          Self.appendDebugEvent("Preflight: offer \(CloudSharedLogToken.debugLabel(token)); SHA-256 \(digest.prefix(12)); local=\(forced ? "not checked (manual resend)" : existingSource ?? "absent"); forced=\(forced); decision=\(decision)")
+          Self.appendDebugEvent(
+            "Preflight: offer \(CloudSharedLogToken.debugLabel(token)); SHA-256 \(digest.prefix(12)); local=\(forced ? "not checked (manual resend)" : existingSource ?? "absent"); forced=\(forced); decision=\(decision)"
+          )
           DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
             guard let self, self.isRunning,
-              self.pairing?.hostID == pairing.hostID else { return }
+              self.pairing?.hostID == pairing.hostID
+            else { return }
             self.pull()
           }
           return
         }
         if let control = try? JSONSerialization.jsonObject(with: report) as? [String: String],
-          control["type"] == "file-offer" {
-          Self.appendDebugEvent("Preflight: rejected malformed file offer from computer \(pairing.hostID.uuidString)")
+          control["type"] == "file-offer"
+        {
+          Self.appendDebugEvent(
+            "Preflight: rejected malformed file offer from computer \(pairing.hostID.uuidString)")
           throw TransferError.invalidPayload
         }
         if let previous = activeFileOffer, previous.hostID == pairing.hostID {
-          Self.appendDebugEvent("Preflight: computer completed decision=\(previous.decision) for \(CloudSharedLogToken.debugLabel(previous.token)); no file body returned")
+          Self.appendDebugEvent(
+            "Preflight: computer completed decision=\(previous.decision) for \(CloudSharedLogToken.debugLabel(previous.token)); no file body returned"
+          )
         }
         activeFileOffer = nil
         if let control = try? JSONSerialization.jsonObject(with: report) as? [String: String],
-          control["type"] == "unpair" {
-          do { try unpair(pairing.hostID) }
-          catch { Self.appendDebugEvent("Pairing removal could not be saved: \(error.localizedDescription)") }
+          control["type"] == "unpair"
+        {
+          do { try unpair(pairing.hostID) } catch {
+            Self.appendDebugEvent(
+              "Pairing removal could not be saved: \(error.localizedDescription)")
+          }
           isReceiving = false
           return
         }
         if let control = try? JSONSerialization.jsonObject(with: report) as? [String: String],
           control["type"] == "daily-pause-ack",
-          control["until"] == activePauseUntil {
+          control["until"] == activePauseUntil
+        {
           var receipt = dailyReceipt
           receipt.pausedHosts.insert(pairing.hostID.uuidString)
           dailyReceipt = receipt
           manualReceive = false
           isReceiving = false
           connectionPhase = .available
-          Self.appendDebugEvent("Automatic collection paused by computer \(pairing.hostID.uuidString) until \(Self.localTime(Date(timeIntervalSince1970: TimeInterval(control["until"] ?? "") ?? 0))); receipt confirmed")
+          Self.appendDebugEvent(
+            "Automatic collection paused by computer \(pairing.hostID.uuidString) until \(Self.localTime(Date(timeIntervalSince1970: TimeInterval(control["until"] ?? "") ?? 0))); receipt confirmed"
+          )
           if !AppSettings.shared.pcAutomaticCollectionEnabled { stop(); return }
-          if let wait = automaticWait() { scheduleReconnect(after: wait) }
-          else { advancePairing() }
+          if let wait = automaticWait() { scheduleReconnect(after: wait) } else { advancePairing() }
           return
         }
         if let control = try? JSONSerialization.jsonObject(with: report) as? [String: String],
-          control["type"] == "daily-resume-ack", activeResume {
+          control["type"] == "daily-resume-ack", activeResume
+        {
           var receipt = dailyReceipt
           receipt.pausedHosts.remove(pairing.hostID.uuidString)
           dailyReceipt = receipt
           isReceiving = false
-          Self.appendDebugEvent("Automatic collection resumed by computer \(pairing.hostID.uuidString): required logs changed")
+          Self.appendDebugEvent(
+            "Automatic collection resumed by computer \(pairing.hostID.uuidString): required logs changed"
+          )
           DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
             guard let self, self.isRunning,
-              self.pairing?.hostID == pairing.hostID else { return }
+              self.pairing?.hostID == pairing.hostID
+            else { return }
             self.pull()
           }
           return
@@ -1477,7 +1693,8 @@ final class MacTransferManager: ObservableObject {
         if !report.isEmpty, report.count <= 16_384,
           let object = try? JSONSerialization.jsonObject(with: report) as? [String: Any],
           object["schema"] as? Int == 1,
-          ["macOS", "Windows"].contains(object["platform"] as? String ?? "") {
+          ["macOS", "Windows"].contains(object["platform"] as? String ?? "")
+        {
           if let chunk = object["archiveChunk"] as? [String: Any] {
             Self.receiveArchiveChunk(chunk, from: pairing.hostID)
           }
@@ -1491,7 +1708,9 @@ final class MacTransferManager: ObservableObject {
         let confirmedCount = confirmReceivedFiles(for: pairing)
         let archiveSyncPending = debugArchiveNeedsSync()
         if confirmedCount > 0 {
-          Self.appendDebugEvent("Transfer: confirmed \(confirmedCount) received file(s); computer=\(pairing.hostID.uuidString), recipient=\(pairing.physicalDeviceID.uuidString), request=\(activeRequestNonce?.uuidString ?? "none")")
+          Self.appendDebugEvent(
+            "Transfer: confirmed \(confirmedCount) received file(s); computer=\(pairing.hostID.uuidString), recipient=\(pairing.physicalDeviceID.uuidString), request=\(activeRequestNonce?.uuidString ?? "none")"
+          )
         }
         if pendingAck != nil {
           pendingAck = nil
@@ -1509,18 +1728,25 @@ final class MacTransferManager: ObservableObject {
         if archiveSyncPending {
           debugSyncBurst += 1
           if debugSyncBurst == 1 || debugSyncBurst % 25 == 0 {
-            Self.appendDebugEvent("Debug archive sync: continuing with computer \(pairing.hostID.uuidString), batch \(debugSyncBurst)")
+            Self.appendDebugEvent(
+              "Debug archive sync: continuing with computer \(pairing.hostID.uuidString), batch \(debugSyncBurst)"
+            )
           }
-          if DiagnosticArchiveSyncPolicy.shouldRotate(completedRounds: debugSyncBurst,
-            pairedComputers: pairings.count) {
-            Self.appendDebugEvent("Debug archive sync: yielding after \(debugSyncBurst) rounds; computer=\(pairing.hostID.uuidString), pairedComputers=\(pairings.count); saved offsets retained")
+          if DiagnosticArchiveSyncPolicy.shouldRotate(
+            completedRounds: debugSyncBurst,
+            pairedComputers: pairings.count)
+          {
+            Self.appendDebugEvent(
+              "Debug archive sync: yielding after \(debugSyncBurst) rounds; computer=\(pairing.hostID.uuidString), pairedComputers=\(pairings.count); saved offsets retained"
+            )
             advancePairing()
             return
           }
           let delay = DiagnosticArchiveSyncPolicy.continuationDelay(completedRounds: debugSyncBurst)
           DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
             guard let self, self.isRunning,
-              self.pairing?.hostID == pairing.hostID else { return }
+              self.pairing?.hostID == pairing.hostID
+            else { return }
             self.pull()
           }
           return
@@ -1530,10 +1756,12 @@ final class MacTransferManager: ObservableObject {
         if activePauseUntil != nil {
           Self.appendDebugEvent("Computer did not acknowledge automatic pause")
         } else if dailyComplete(dailyReceipt),
-          !dailyReceipt.pausedHosts.contains(pairing.hostID.uuidString) {
+          !dailyReceipt.pausedHosts.contains(pairing.hostID.uuidString)
+        {
           DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
             guard let self, self.isRunning,
-              self.pairing?.hostID == pairing.hostID else { return }
+              self.pairing?.hostID == pairing.hostID
+            else { return }
             self.pull()
           }
           return
@@ -1548,34 +1776,41 @@ final class MacTransferManager: ObservableObject {
           let idleDelay: TimeInterval = dailyComplete(dailyReceipt) ? 300 : 60
           DispatchQueue.main.asyncAfter(deadline: .now() + idleDelay) { [weak self] in
             guard let self, self.isRunning,
-              self.pairing?.hostID == pairing.hostID else { return }
+              self.pairing?.hostID == pairing.hostID
+            else { return }
             self.advancePairing()
           }
-        } else { scheduleReconnect(after: 60) }
+        } else {
+          scheduleReconnect(after: 60)
+        }
         return
       }
       let shared = CloudSharedLogToken.parse(name)
       if let shared {
         guard !usingLegacyTransfer, AppSettings.shared.iCloudSyncEnabled,
-          CloudLogSharingState.shared.scope == shared.scope else { throw TransferError.invalidPayload }
+          CloudLogSharingState.shared.scope == shared.scope
+        else { throw TransferError.invalidPayload }
       }
       if shared != nil {
         guard let offer = activeFileOffer, offer.hostID == pairing.hostID,
           offer.token == name, offer.decision == "send",
-          Self.hashDigest(Data(plain.dropFirst(2 + nameLength))) == offer.digest else {
+          Self.hashDigest(Data(plain.dropFirst(2 + nameLength))) == offer.digest
+        else {
           throw TransferError.invalidPayload
         }
       }
       let token = (shared?.base ?? name).components(separatedBy: "::")
       if let offer = activeFileOffer, offer.hostID == pairing.hostID {
-        Self.appendDebugEvent("Preflight: received file body \(CloudSharedLogToken.debugLabel(name)), \(plain.count - 2 - nameLength) bytes after decision=\(offer.decision)")
+        Self.appendDebugEvent(
+          "Preflight: received file body \(CloudSharedLogToken.debugLabel(name)), \(plain.count - 2 - nameLength) bytes after decision=\(offer.decision)"
+        )
       }
       activeFileOffer = nil
       let kind: String
       let filename: String
       let source: String?
       if token.count == 1 {
-        kind = "Host" // flat queue from the first beta
+        kind = "Host"  // flat queue from the first beta
         filename = token[0]
         source = nil
       } else if token.count == 2, ["Host", "Watch"].contains(token[0]) {
@@ -1583,19 +1818,26 @@ final class MacTransferManager: ObservableObject {
         filename = token[1]
         source = nil
       } else if token.count == 3, ["Host", "Watch"].contains(token[0]),
-        token[1].range(of: #"^ProxiedDevice-[a-fA-F0-9]+$"#,
-          options: .regularExpression) != nil {
+        token[1].range(
+          of: #"^ProxiedDevice-[a-fA-F0-9]+$"#,
+          options: .regularExpression) != nil
+      {
         kind = token[0]
         source = token[1]
         filename = token[2]
-      } else { throw TransferError.invalidPayload }
-      guard filename == URL(fileURLWithPath: filename).lastPathComponent,
-        filename.hasPrefix("Analytics-"), filename.hasSuffix(".ips.ca.synced") else {
+      } else {
         throw TransferError.invalidPayload
       }
-      if filename.localizedCaseInsensitiveContains("session") ||
-        !Self.looksLikeBatteryLog(plain.dropFirst(2 + nameLength)) {
-        Self.appendDebugEvent("Transfer: ignored \(filename), \(plain.count - 2 - nameLength) bytes")
+      guard filename == URL(fileURLWithPath: filename).lastPathComponent,
+        filename.hasPrefix("Analytics-"), filename.hasSuffix(".ips.ca.synced")
+      else {
+        throw TransferError.invalidPayload
+      }
+      if filename.localizedCaseInsensitiveContains("session")
+        || !Self.looksLikeBatteryLog(plain.dropFirst(2 + nameLength))
+      {
+        Self.appendDebugEvent(
+          "Transfer: ignored \(filename), \(plain.count - 2 - nameLength) bytes")
         pendingAck = name
         UserDefaults.standard.set(name, forKey: pendingAckKey)
         status = MacTransferStatus.text("mt_s_10")
@@ -1612,14 +1854,17 @@ final class MacTransferManager: ObservableObject {
       }
       folder.appendPathComponent(kind, isDirectory: true)
       if let source { folder.appendPathComponent(source, isDirectory: true) }
-      try FileManager.default.createDirectory(at: folder,
+      try FileManager.default.createDirectory(
+        at: folder,
         withIntermediateDirectories: true)
       let destination = folder.appendingPathComponent(filename)
       if !FileManager.default.fileExists(atPath: destination.path) {
         try Data(content).write(to: destination, options: .atomic)
       }
       Self.appendDebugEvent("Transfer: saved \(filename), \(content.count) bytes")
-      Self.appendDebugEvent("Transfer trace: persisted request=\(activeRequestNonce?.uuidString ?? "none"), computer=\(pairing.hostID.uuidString), source=\((shared?.origin ?? pairing.physicalDeviceID).uuidString), recipient=\(pairing.physicalDeviceID.uuidString), file=\(CloudSharedLogToken.debugLabel(name)), bytes=\(content.count), totalMs=\(Int((ProcessInfo.processInfo.systemUptime - requestStartedUptime) * 1000)), bodyMs=\(Int((ProcessInfo.processInfo.systemUptime - firstByteUptime) * 1000)); awaiting authenticated ACK")
+      Self.appendDebugEvent(
+        "Transfer trace: persisted request=\(activeRequestNonce?.uuidString ?? "none"), computer=\(pairing.hostID.uuidString), source=\((shared?.origin ?? pairing.physicalDeviceID).uuidString), recipient=\(pairing.physicalDeviceID.uuidString), file=\(CloudSharedLogToken.debugLabel(name)), bytes=\(content.count), totalMs=\(Int((ProcessInfo.processInfo.systemUptime - requestStartedUptime) * 1000)), bodyMs=\(Int((ProcessInfo.processInfo.systemUptime - firstByteUptime) * 1000)); awaiting authenticated ACK"
+      )
       var unconfirmed = Self.storedFileIDs(for: unconfirmedKey, pairing: pairing)
       guard let identifier = Self.storedFileID(for: destination, pairing: pairing) else {
         throw TransferError.invalidPayload
@@ -1643,9 +1888,10 @@ final class MacTransferManager: ObservableObject {
     var unconfirmed = Self.storedFileIDs(for: unconfirmedKey, pairing: pairing)
     // Files received by the previous beta were already offered for import.
     if UserDefaults.standard.object(forKey: confirmedKey) == nil {
-      confirmed.formUnion(allInboxFiles(for: pairing).compactMap {
-        Self.storedFileID(for: $0, pairing: pairing)
-      }.filter { !unconfirmed.contains($0) })
+      confirmed.formUnion(
+        allInboxFiles(for: pairing).compactMap {
+          Self.storedFileID(for: $0, pairing: pairing)
+        }.filter { !unconfirmed.contains($0) })
     }
     // A previous app run can save a file just before its acknowledgement state
     // is persisted. Keep it behind the authenticated terminal reply instead of
@@ -1655,52 +1901,59 @@ final class MacTransferManager: ObservableObject {
       return !confirmed.contains(identifier) && !unconfirmed.contains(identifier)
     }
     if !orphaned.isEmpty {
-      unconfirmed.formUnion(orphaned.compactMap {
-        Self.storedFileID(for: $0, pairing: pairing)
-      })
-      Self.appendDebugEvent("Transfer: recovered \(orphaned.count) saved file(s) awaiting confirmation")
+      unconfirmed.formUnion(
+        orphaned.compactMap {
+          Self.storedFileID(for: $0, pairing: pairing)
+        })
+      Self.appendDebugEvent(
+        "Transfer: recovered \(orphaned.count) saved file(s) awaiting confirmation")
     }
     UserDefaults.standard.set(confirmed.sorted(), forKey: confirmedKey)
     UserDefaults.standard.set(unconfirmed.sorted(), forKey: unconfirmedKey)
     if pendingAck == nil,
       let token = unconfirmed.sorted()
         .compactMap({ Self.fileURL(for: $0, pairing: pairing) })
-        .compactMap({ Self.queueToken(for: $0, pairing: pairing) }).first {
+        .compactMap({ Self.queueToken(for: $0, pairing: pairing) }).first
+    {
       pendingAck = token
       UserDefaults.standard.set(token, forKey: pendingAckKey)
     }
-    enqueueFiles(confirmed.compactMap { Self.fileURL(for: $0, pairing: pairing) },
+    enqueueFiles(
+      confirmed.compactMap { Self.fileURL(for: $0, pairing: pairing) },
       for: pairing)
   }
 
   private static func storedFileIDs(for key: String, pairing: MacTransferPairing) -> Set<String> {
     // Older builds stored absolute sandbox paths. The container UUID may change
     // when the app is updated, so retain only paths found in the current inbox.
-    Set((UserDefaults.standard.stringArray(forKey: key) ?? []).compactMap { value in
-      let marker = "/MacTransferInbox/\(pairing.physicalDeviceID.uuidString)/"
-      let relative: String
-      if value.hasPrefix("/") {
-        guard let range = value.range(of: marker, options: .caseInsensitive) else { return nil }
-        relative = String(value[range.upperBound...])
-      } else {
-        relative = value
-      }
-      guard let file = fileURL(for: relative, pairing: pairing) else { return nil }
-      return storedFileID(for: file, pairing: pairing)
-    })
+    Set(
+      (UserDefaults.standard.stringArray(forKey: key) ?? []).compactMap { value in
+        let marker = "/MacTransferInbox/\(pairing.physicalDeviceID.uuidString)/"
+        let relative: String
+        if value.hasPrefix("/") {
+          guard let range = value.range(of: marker, options: .caseInsensitive) else { return nil }
+          relative = String(value[range.upperBound...])
+        } else {
+          relative = value
+        }
+        guard let file = fileURL(for: relative, pairing: pairing) else { return nil }
+        return storedFileID(for: file, pairing: pairing)
+      })
   }
 
   private static func fileURL(for identifier: String, pairing: MacTransferPairing) -> URL? {
     guard let folder = try? inbox(for: pairing), !identifier.hasPrefix("/") else { return nil }
     let file = folder.appendingPathComponent(identifier).standardizedFileURL
     guard queueToken(for: file, pairing: pairing) != nil,
-      FileManager.default.fileExists(atPath: file.path) else { return nil }
+      FileManager.default.fileExists(atPath: file.path)
+    else { return nil }
     return file
   }
 
   private static func storedFileID(for file: URL, pairing: MacTransferPairing) -> String? {
     guard queueToken(for: file, pairing: pairing) != nil,
-      let folder = try? inbox(for: pairing) else { return nil }
+      let folder = try? inbox(for: pairing)
+    else { return nil }
     let prefix = folder.standardizedFileURL.path + "/"
     return String(file.standardizedFileURL.path.dropFirst(prefix.count))
   }
@@ -1715,14 +1968,17 @@ final class MacTransferManager: ObservableObject {
       return CloudSharedLogToken.parse(token)?.value
     }
     guard let filename = parts.last.map(String.init),
-      filename.hasPrefix("Analytics-"), filename.hasSuffix(".ips.ca.synced") else { return nil }
+      filename.hasPrefix("Analytics-"), filename.hasSuffix(".ips.ca.synced")
+    else { return nil }
     if parts.count == 1 { return filename }
     if parts.count == 2, ["Host", "Watch"].contains(String(parts[0])) {
       return "\(parts[0])::\(filename)"
     }
     if parts.count == 3, ["Host", "Watch"].contains(String(parts[0])),
-      String(parts[1]).range(of: #"^ProxiedDevice-[a-fA-F0-9]+$"#,
-        options: .regularExpression) != nil {
+      String(parts[1]).range(
+        of: #"^ProxiedDevice-[a-fA-F0-9]+$"#,
+        options: .regularExpression) != nil
+    {
       return "\(parts[0])::\(parts[1])::\(filename)"
     }
     return nil
@@ -1742,8 +1998,10 @@ final class MacTransferManager: ObservableObject {
 
   private func allInboxFiles(for pairing: MacTransferPairing) -> [URL] {
     guard let folder = try? Self.inbox(for: pairing),
-      let enumerator = FileManager.default.enumerator(at: folder,
-        includingPropertiesForKeys: [.isRegularFileKey]) else { return [] }
+      let enumerator = FileManager.default.enumerator(
+        at: folder,
+        includingPropertiesForKeys: [.isRegularFileKey])
+    else { return [] }
     return enumerator.compactMap { $0 as? URL }.filter {
       $0.lastPathComponent.hasPrefix("Analytics-")
     }
@@ -1760,40 +2018,56 @@ final class MacTransferManager: ObservableObject {
     return SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
   }
 
-  private func receivedDigestSource(_ digest: String, physicalDeviceID: UUID, recordOrigin: UUID?) -> String? {
-    let ledger = UserDefaults.standard.dictionary(forKey: Self.receivedDigestKey)
+  private func receivedDigestSource(_ digest: String, physicalDeviceID: UUID, recordOrigin: UUID?)
+    -> String?
+  {
+    let ledger =
+      UserDefaults.standard.dictionary(forKey: Self.receivedDigestKey)
       as? [String: [String: Double]] ?? [:]
     if ledger[physicalDeviceID.uuidString]?[digest] != nil { return "imported" }
     // A different computer can offer the same file before the first import finishes.
     let inInbox = pairings.contains { host in
       allInboxFiles(for: host).contains {
-        (CloudLogSharingState.sharedToken(in: $0)?.origin ?? host.physicalDeviceID) == physicalDeviceID && Self.digest(of: $0) == digest
+        (CloudLogSharingState.sharedToken(in: $0)?.origin ?? host.physicalDeviceID)
+          == physicalDeviceID && Self.digest(of: $0) == digest
       }
     }
-    if let recordOrigin, savedRecordIDs.contains(CloudSharedLogToken.recordID(origin: recordOrigin, digest: digest)) {
+    if let recordOrigin,
+      savedRecordIDs.contains(CloudSharedLogToken.recordID(origin: recordOrigin, digest: digest))
+    {
       return "iCloud record"
     }
     let localRoot = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
       .appendingPathComponent("MacTransferInbox/LocalDevice/" + physicalDeviceID.uuidString)
-    let localFiles = FileManager.default.enumerator(at: localRoot, includingPropertiesForKeys: [.isRegularFileKey])?.allObjects.compactMap { $0 as? URL } ?? []
-    let inLocal = localFiles.contains { $0.lastPathComponent.hasPrefix("Analytics-") && Self.digest(of: $0) == digest }
+    let localFiles =
+      FileManager.default.enumerator(
+        at: localRoot, includingPropertiesForKeys: [.isRegularFileKey])?.allObjects.compactMap {
+        $0 as? URL
+      } ?? []
+    let inLocal = localFiles.contains {
+      $0.lastPathComponent.hasPrefix("Analytics-") && Self.digest(of: $0) == digest
+    }
     return (inInbox || inLocal) ? "inbox" : nil
   }
 
   func receivedLocalDigestState(_ digest: String, parentID: UUID, recordOrigin: UUID?) -> String? {
     receivedDigestSource(digest, physicalDeviceID: parentID, recordOrigin: recordOrigin)
   }
-  func rememberLocalDigest(_ file: URL, parentID: UUID) { rememberReceivedDigest(of: file, physicalDeviceID: parentID) }
+  func rememberLocalDigest(_ file: URL, parentID: UUID) {
+    rememberReceivedDigest(of: file, physicalDeviceID: parentID)
+  }
 
   private func rememberReceivedDigest(of file: URL, physicalDeviceID: UUID) {
     guard let digest = Self.digest(of: file) else { return }
-    var ledger = UserDefaults.standard.dictionary(forKey: Self.receivedDigestKey)
+    var ledger =
+      UserDefaults.standard.dictionary(forKey: Self.receivedDigestKey)
       as? [String: [String: Double]] ?? [:]
     var values = ledger[physicalDeviceID.uuidString] ?? [:]
     values[digest] = Date().timeIntervalSince1970
     if values.count > 10_000 {
       for key in values.sorted(by: { $0.value < $1.value })
-        .prefix(values.count - 10_000).map(\.key) { values.removeValue(forKey: key) }
+        .prefix(values.count - 10_000).map(\.key)
+      { values.removeValue(forKey: key) }
     }
     ledger[physicalDeviceID.uuidString] = values
     UserDefaults.standard.set(ledger, forKey: Self.receivedDigestKey)
@@ -1803,11 +2077,16 @@ final class MacTransferManager: ObservableObject {
     var batch: [(url: URL, physicalDeviceID: UUID?)] = []
     for file in files where file.lastPathComponent.hasPrefix("Analytics-") {
       guard CloudLogSharingState.allowsImport(file) else {
-        Self.appendDebugEvent("Cloud sharing: staged source log withheld because sync/account permission is unavailable")
+        Self.appendDebugEvent(
+          "Cloud sharing: staged source log withheld because sync/account permission is unavailable"
+        )
         continue
       }
-      if file.lastPathComponent.localizedCaseInsensitiveContains("session") ||
-        (try? Data(contentsOf: file, options: .mappedIfSafe)).map({ !Self.looksLikeBatteryLog($0) }) == true {
+      if file.lastPathComponent.localizedCaseInsensitiveContains("session")
+        || (try? Data(contentsOf: file, options: .mappedIfSafe)).map({
+          !Self.looksLikeBatteryLog($0)
+        }) == true
+      {
         try? FileManager.default.removeItem(at: file)
         continue
       }
@@ -1820,7 +2099,7 @@ final class MacTransferManager: ObservableObject {
     let origin = CloudLogSharingState.sharedToken(in: file)?.origin ?? pairing.physicalDeviceID
     guard let token = queueToken(for: file, pairing: pairing) else { return nil }
     let base = CloudSharedLogToken.parse(token)?.base ?? token
-    if !base.contains("::") { return origin } // first beta's flat Host queue
+    if !base.contains("::") { return origin }  // first beta's flat Host queue
     return CloudSharedLogToken.measurementOrigin(base: base, origin: origin)
   }
 
@@ -1831,10 +2110,12 @@ final class MacTransferManager: ObservableObject {
       if lines >= 100 { break }
     }
     guard lines >= 100 else { return false }
-    return ["last_value_CycleCount", "last_value_NominalChargeCapacity",
-      "last_value_AppleRawMaxCapacity"].allSatisfy {
-        bytes.range(of: Data($0.utf8)) != nil
-      }
+    return [
+      "last_value_CycleCount", "last_value_NominalChargeCapacity",
+      "last_value_AppleRawMaxCapacity",
+    ].allSatisfy {
+      bytes.range(of: Data($0.utf8)) != nil
+    }
   }
 
   func supportDiagnosticsData() -> Data {
@@ -1846,7 +2127,8 @@ final class MacTransferManager: ObservableObject {
       "platform": "iOS",
       "diagnosticLogFormatVersion": DiagnosticLogArchive.formatVersion,
       "osVersion": ProcessInfo.processInfo.operatingSystemVersionString,
-      "appVersion": Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown",
+      "appVersion": Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+        ?? "unknown",
       "build": Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unknown",
       "deviceModel": DeviceLibrary.localModelIdentifier() ?? "unknown",
       "paired": pairing != nil,
@@ -1854,11 +2136,12 @@ final class MacTransferManager: ObservableObject {
       "unconfirmedFiles": defaults.stringArray(forKey: unconfirmedKey)?.count ?? 0,
       "confirmedFiles": defaults.stringArray(forKey: confirmedKey)?.count ?? 0,
       "pendingAcknowledgement": pendingAck != nil,
-      "recentEvents": recentEvents
+      "recentEvents": recentEvents,
     ]
     object["lastAppDiagnostic"] = CrashDiagnostics.shared.summary()
-    if debugManifestSnapshot == nil ||
-      Date().timeIntervalSince(debugManifestCapturedAt ?? .distantPast) > 600 {
+    if debugManifestSnapshot == nil
+      || Date().timeIntervalSince(debugManifestCapturedAt ?? .distantPast) > 600
+    {
       debugManifestSnapshot = Self.archiveManifest(in: Self.debugArchiveDirectory)
       debugManifestCapturedAt = Date()
     }
@@ -1866,36 +2149,46 @@ final class MacTransferManager: ObservableObject {
     if manualReceive && debugSyncBurst == 0 { object["archiveRefresh"] = true }
     if let pairing,
       let report = latestMacDiagnosticsData(),
-      let remote = try? JSONSerialization.jsonObject(with: report) as? [String: Any] {
+      let remote = try? JSONSerialization.jsonObject(with: report) as? [String: Any]
+    {
       if let manifest = remote["archiveManifest"] as? [String: Int],
-        let request = Self.archiveRequest(manifest: manifest,
-          directory: Self.computerArchiveDirectory(for: pairing.hostID)) {
+        let request = Self.archiveRequest(
+          manifest: manifest,
+          directory: Self.computerArchiveDirectory(for: pairing.hostID))
+      {
         object["archiveRequest"] = request
       }
       if let request = remote["archiveRequest"] as? [String: Any],
-        let chunk = Self.archiveChunk(request: request,
-          directory: Self.debugArchiveDirectory, limit: 4_096) {
+        let chunk = Self.archiveChunk(
+          request: request,
+          directory: Self.debugArchiveDirectory, limit: 4_096)
+      {
         object["archiveChunk"] = chunk
       }
     }
     while true {
-      let data = (try? JSONSerialization.data(withJSONObject: object,
-        options: [.sortedKeys])) ?? Data("{}".utf8)
+      let data =
+        (try? JSONSerialization.data(
+          withJSONObject: object,
+          options: [.sortedKeys])) ?? Data("{}".utf8)
       if data.count <= 8_192 { return data }
       if !recentEvents.isEmpty {
         recentEvents.removeFirst()
         object["recentEvents"] = recentEvents
       } else if var chunk = object["archiveChunk"] as? [String: Any],
         let encoded = chunk["data"] as? String,
-        let bytes = Data(base64Encoded: encoded), bytes.count > 128 {
+        let bytes = Data(base64Encoded: encoded), bytes.count > 128
+      {
         chunk["data"] = Data(bytes.prefix(bytes.count / 2)).base64EncodedString()
         object["archiveChunk"] = chunk
       } else {
         object.removeValue(forKey: "archiveChunk")
         object.removeValue(forKey: "lastAppDiagnostic")
         // Keep the complete day manifest so older retained days can catch up.
-        return (try? JSONSerialization.data(withJSONObject: object,
-          options: [.sortedKeys])) ?? Data("{}".utf8)
+        return
+          (try? JSONSerialization.data(
+            withJSONObject: object,
+            options: [.sortedKeys])) ?? Data("{}".utf8)
       }
     }
   }
@@ -1906,12 +2199,15 @@ final class MacTransferManager: ObservableObject {
       let remote = try? JSONSerialization.jsonObject(with: report) as? [String: Any]
     else { return false }
     if let manifest = remote["archiveManifest"] as? [String: Int],
-      Self.archiveRequest(manifest: manifest,
-        directory: Self.computerArchiveDirectory(for: pairing.hostID)) != nil {
+      Self.archiveRequest(
+        manifest: manifest,
+        directory: Self.computerArchiveDirectory(for: pairing.hostID)) != nil
+    {
       return true
     }
     if let request = remote["archiveRequest"] as? [String: Any] {
-      return Self.archiveChunk(request: request,
+      return Self.archiveChunk(
+        request: request,
         directory: Self.debugArchiveDirectory, limit: 1) != nil
     }
     return false
@@ -1970,48 +2266,64 @@ final class MacTransferManager: ObservableObject {
     return (try? String(contentsOf: url, encoding: .utf8)) ?? ""
   }
 
-  func recordImportOutcome(filename: String, status: String, logDate: Date?,
-    detail: String?, sourceURL: URL) {
+  func recordImportOutcome(
+    filename: String, status: String, logDate: Date?,
+    detail: String?, sourceURL: URL
+  ) {
     let queuedOrigin = SharedImportQueue.shared.physicalDeviceID(for: sourceURL)
-    LocalDiagnosticsManager.shared.imported(sourceURL, success: status == "success" || status == "duplicate")
+    LocalDiagnosticsManager.shared.imported(
+      sourceURL, success: status == "success" || status == "duplicate")
     if status == "success" || status == "duplicate",
       let host = pairings.first(where: {
         Self.storedFileID(for: sourceURL, pairing: $0) != nil
-      }) {
-      rememberReceivedDigest(of: sourceURL, physicalDeviceID: CloudLogSharingState.sharedToken(in: sourceURL)?.origin ?? host.physicalDeviceID)
+      })
+    {
+      rememberReceivedDigest(
+        of: sourceURL,
+        physicalDeviceID: CloudLogSharingState.sharedToken(in: sourceURL)?.origin
+          ?? host.physicalDeviceID)
     }
     let date = logDate.map(Self.localTime) ?? "unknown"
-    let message = "Import: \(filename); result=\(status); logDate=\(date)" +
-      (detail.map { "; detail=\($0)" } ?? "")
+    let message =
+      "Import: \(filename); result=\(status); logDate=\(date)"
+      + (detail.map { "; detail=\($0)" } ?? "")
     Self.appendDebugEvent(message)
     let shared = CloudLogSharingState.sharedToken(in: sourceURL)
     let computer = pairings.first { Self.storedFileID(for: sourceURL, pairing: $0) != nil }
     let origin = shared?.origin ?? queuedOrigin ?? computer?.physicalDeviceID
     let transport = sourceURL.pathComponents.contains("LocalDevice") ? "on-device" : "computer"
-    Self.appendDebugEvent("Import trace: result=\(status), transport=\(transport), source=\(origin?.uuidString ?? "unknown"), computer=\(computer?.hostID.uuidString ?? "none"), crossDevice=\(shared != nil), file=\(filename)")
+    Self.appendDebugEvent(
+      "Import trace: result=\(status), transport=\(transport), source=\(origin?.uuidString ?? "unknown"), computer=\(computer?.hostID.uuidString ?? "none"), crossDevice=\(shared != nil), file=\(filename)"
+    )
     guard filename.hasPrefix("Analytics-\(DailyLogCollectionPolicy.dayKey())-"),
-      status == "error" || status == "success" || status == "duplicate" ||
-        status == "needsReview",
+      status == "error" || status == "success" || status == "duplicate" || status == "needsReview",
       let identifier = pairings.compactMap({
         Self.storedFileID(for: sourceURL, pairing: $0)
-      }).first else { return }
+      }).first
+    else { return }
     let parts = identifier.split(separator: "/").map(String.init)
     guard let kind = parts.first else { return }
     let wasComplete = dailyComplete(dailyReceipt)
     var failures = dailyImportFailures
     if kind == "Watch" {
       let source = parts.count == 3 ? parts[1] : "legacy-watch"
-      if status == "error" { failures.watchSources.insert(source) }
-      else { failures.watchSources.remove(source) }
+      if status == "error" {
+        failures.watchSources.insert(source)
+      } else {
+        failures.watchSources.remove(source)
+      }
     } else if kind == "Host" || parts.count == 1 {
       failures.host = status == "error"
-    } else { return }
+    } else {
+      return
+    }
     dailyImportFailures = failures
     let isComplete = dailyComplete(dailyReceipt)
     if wasComplete != isComplete {
-      Self.appendDebugEvent(isComplete
-        ? "Daily import recovered; all required transferred logs can be paused"
-        : "Daily import failed; automatic computer collection will resume")
+      Self.appendDebugEvent(
+        isComplete
+          ? "Daily import recovered; all required transferred logs can be paused"
+          : "Daily import failed; automatic computer collection will resume")
       if isRunning, connection == nil, networkPermitsTransfer { beginDiscovery() }
     }
   }
@@ -2019,10 +2331,13 @@ final class MacTransferManager: ObservableObject {
   func clearDebugLogs() {
     debugManifestSnapshot = nil
     debugManifestCapturedAt = nil
-    if let files = try? FileManager.default.contentsOfDirectory(at: Self.debugArchiveDirectory,
-      includingPropertiesForKeys: nil) {
+    if let files = try? FileManager.default.contentsOfDirectory(
+      at: Self.debugArchiveDirectory,
+      includingPropertiesForKeys: nil)
+    {
       for file in files where Self.validArchiveDay(file.deletingPathExtension().lastPathComponent) {
-        DiagnosticLogArchive.removeDay(file.deletingPathExtension().lastPathComponent,
+        DiagnosticLogArchive.removeDay(
+          file.deletingPathExtension().lastPathComponent,
           root: Self.debugArchiveDirectory)
       }
     }
@@ -2033,7 +2348,8 @@ final class MacTransferManager: ObservableObject {
   func macDebugLogText() -> String {
     guard let report = latestMacDiagnosticsData(),
       let object = try? JSONSerialization.jsonObject(with: report) as? [String: Any],
-      let events = object["recentEvents"] as? [String] else { return "" }
+      let events = object["recentEvents"] as? [String]
+    else { return "" }
     return events.joined(separator: "\n")
   }
 
@@ -2042,20 +2358,23 @@ final class MacTransferManager: ObservableObject {
   }
 
   private static var debugArchiveDirectory: URL {
-    let root = FileManager.default.urls(for: .applicationSupportDirectory,
+    let root = FileManager.default.urls(
+      for: .applicationSupportDirectory,
       in: .userDomainMask)[0]
     return root.appendingPathComponent("MochiLog/MacTransferDebugLogs", isDirectory: true)
   }
 
   private static func computerArchiveDirectory(for hostID: UUID) -> URL {
-    let root = FileManager.default.urls(for: .applicationSupportDirectory,
+    let root = FileManager.default.urls(
+      for: .applicationSupportDirectory,
       in: .userDomainMask)[0]
     return root.appendingPathComponent("MochiLog/ComputerDebugLogs", isDirectory: true)
       .appendingPathComponent(hostID.uuidString, isDirectory: true)
   }
 
   private static func validArchiveDay(_ day: String) -> Bool {
-    day.range(of: #"^[0-9]{4}-[0-9]{2}-[0-9]{2}$"#,
+    day.range(
+      of: #"^[0-9]{4}-[0-9]{2}-[0-9]{2}$"#,
       options: .regularExpression) != nil
   }
 
@@ -2068,8 +2387,10 @@ final class MacTransferManager: ObservableObject {
   }
 
   private static func archiveDays(in directory: URL) -> [String] {
-    let files = (try? FileManager.default.contentsOfDirectory(at: directory,
-      includingPropertiesForKeys: nil)) ?? []
+    let files =
+      (try? FileManager.default.contentsOfDirectory(
+        at: directory,
+        includingPropertiesForKeys: nil)) ?? []
     return files.compactMap { file in
       guard file.pathExtension == "log" else { return nil }
       let day = file.deletingPathExtension().lastPathComponent
@@ -2082,31 +2403,41 @@ final class MacTransferManager: ObservableObject {
   }
 
   private static func expandedDay(_ compact: String) -> String? {
-    guard compact.range(of: #"^[0-9]{8}$"#,
-      options: .regularExpression) != nil else { return nil }
-    let day = String(compact.prefix(4)) + "-" +
-      String(compact.dropFirst(4).prefix(2)) + "-" + String(compact.suffix(2))
+    guard
+      compact.range(
+        of: #"^[0-9]{8}$"#,
+        options: .regularExpression) != nil
+    else { return nil }
+    let day =
+      String(compact.prefix(4)) + "-" + String(compact.dropFirst(4).prefix(2)) + "-"
+      + String(compact.suffix(2))
     return validArchiveDay(day) ? day : nil
   }
 
   private static func archiveManifest(in directory: URL) -> [String: Int] {
-    Dictionary(uniqueKeysWithValues: archiveDays(in: directory).compactMap { day in
-      let url = directory.appendingPathComponent("\(day).log")
-      guard let size = (try? url.resourceValues(forKeys: [.fileSizeKey]))?.fileSize,
-        (0...64_000_000).contains(size) else { return nil }
-      return (compactDay(day), size)
-    })
+    Dictionary(
+      uniqueKeysWithValues: archiveDays(in: directory).compactMap { day in
+        let url = directory.appendingPathComponent("\(day).log")
+        guard let size = (try? url.resourceValues(forKeys: [.fileSizeKey]))?.fileSize,
+          (0...64_000_000).contains(size)
+        else { return nil }
+        return (compactDay(day), size)
+      })
   }
 
   private static func archiveRequest(manifest: [String: Int], directory: URL)
-    -> [String: Any]? {
+    -> [String: Any]?
+  {
     let days = UserDefaults.standard.integer(forKey: debugRetentionKey)
     let retention = days == 0 ? 30 : min(365, max(7, days))
-    let cutoff = archiveDayString(Calendar.current.date(byAdding: .day,
-      value: 1 - retention, to: Date()) ?? Date())
+    let cutoff = archiveDayString(
+      Calendar.current.date(
+        byAdding: .day,
+        value: 1 - retention, to: Date()) ?? Date())
     for compact in manifest.keys.sorted(by: >) {
       guard let day = expandedDay(compact), let size = manifest[compact],
-        day >= cutoff, (0...64_000_000).contains(size) else { continue }
+        day >= cutoff, (0...64_000_000).contains(size)
+      else { continue }
       let url = directory.appendingPathComponent("\(day).log")
       let current = (try? url.resourceValues(forKeys: [.fileSizeKey]))?.fileSize ?? 0
       if current < size { return ["day": compact, "offset": current, "end": size] }
@@ -2114,23 +2445,31 @@ final class MacTransferManager: ObservableObject {
     return nil
   }
 
-  private static func archiveChunk(request: [String: Any], directory: URL,
-    limit: Int) -> [String: Any]? {
+  private static func archiveChunk(
+    request: [String: Any], directory: URL,
+    limit: Int
+  ) -> [String: Any]? {
     guard let compact = request["day"] as? String,
       let day = expandedDay(compact), let offset = request["offset"] as? Int,
-      offset >= 0, offset <= 64_000_000 else { return nil }
+      offset >= 0, offset <= 64_000_000
+    else { return nil }
     let url = directory.appendingPathComponent("\(day).log")
     let count: Int
     if let end = request["end"] as? Int {
       guard end > offset, end <= 64_000_000 else { return nil }
       count = min(limit, end - offset)
-    } else { count = limit } // Previous peers do not send a snapshot end.
+    } else {
+      count = limit
+    }  // Previous peers do not send a snapshot end.
     guard let handle = try? FileHandle(forReadingFrom: url) else { return nil }
     defer { try? handle.close() }
     guard (try? handle.seek(toOffset: UInt64(offset))) != nil,
-      let bytes = try? handle.read(upToCount: count), !bytes.isEmpty else { return nil }
-    return ["day": compact, "offset": offset,
-      "data": bytes.base64EncodedString()]
+      let bytes = try? handle.read(upToCount: count), !bytes.isEmpty
+    else { return nil }
+    return [
+      "day": compact, "offset": offset,
+      "data": bytes.base64EncodedString(),
+    ]
   }
 
   private static func receiveArchiveChunk(_ chunk: [String: Any], from hostID: UUID) {
@@ -2139,10 +2478,12 @@ final class MacTransferManager: ObservableObject {
       let encoded = chunk["data"] as? String,
       let bytes = Data(base64Encoded: encoded), !bytes.isEmpty,
       bytes.count <= 8_192, offset >= 0,
-      offset + bytes.count <= 64_000_000 else { return }
+      offset + bytes.count <= 64_000_000
+    else { return }
     let directory = computerArchiveDirectory(for: hostID)
     do {
-      try FileManager.default.createDirectory(at: directory,
+      try FileManager.default.createDirectory(
+        at: directory,
         withIntermediateDirectories: true)
       let url = directory.appendingPathComponent("\(day).log")
       if !FileManager.default.fileExists(atPath: url.path) {
@@ -2153,9 +2494,12 @@ final class MacTransferManager: ObservableObject {
       let size = try handle.seekToEnd()
       guard size == UInt64(offset) else { return }
       try handle.write(contentsOf: bytes)
-      try FileManager.default.setAttributes([.posixPermissions: 0o600],
+      try FileManager.default.setAttributes(
+        [.posixPermissions: 0o600],
         ofItemAtPath: url.path)
-      appendDebugEvent("Debug archive sync: received \(day) from computer \(hostID.uuidString), offset \(offset), \(bytes.count) bytes")
+      appendDebugEvent(
+        "Debug archive sync: received \(day) from computer \(hostID.uuidString), offset \(offset), \(bytes.count) bytes"
+      )
       pruneComputerArchive(for: hostID)
     } catch { return }
   }
@@ -2164,11 +2508,14 @@ final class MacTransferManager: ObservableObject {
     let directory = computerArchiveDirectory(for: hostID)
     let days = UserDefaults.standard.integer(forKey: debugRetentionKey)
     let retention = days == 0 ? 30 : min(365, max(7, days))
-    let cutoff = archiveDayString(Calendar.current.date(byAdding: .day,
-      value: 1 - retention, to: Date()) ?? Date())
+    let cutoff = archiveDayString(
+      Calendar.current.date(
+        byAdding: .day,
+        value: 1 - retention, to: Date()) ?? Date())
     for old in archiveDays(in: directory) where old < cutoff {
-      try? FileManager.default.removeItem(at:
-        directory.appendingPathComponent("\(old).log"))
+      try? FileManager.default.removeItem(
+        at:
+          directory.appendingPathComponent("\(old).log"))
     }
   }
 
@@ -2183,7 +2530,8 @@ final class MacTransferManager: ObservableObject {
 
   @discardableResult
   private static func appendToArchive(_ event: String, legacy: Bool = false) -> Bool {
-    DiagnosticLogArchive.append(event, root: debugArchiveDirectory,
+    DiagnosticLogArchive.append(
+      event, root: debugArchiveDirectory,
       appVersion: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown",
       build: Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unknown", legacy: legacy)
   }
@@ -2204,8 +2552,10 @@ final class MacTransferManager: ObservableObject {
     formatter.calendar = Calendar(identifier: .gregorian)
     formatter.timeZone = .autoupdatingCurrent
     formatter.dateFormat = "yyyy-MM-dd"
-    let cutoff = formatter.string(from: Calendar.current.date(byAdding: .day,
-      value: 1 - retention, to: Date()) ?? Date())
+    let cutoff = formatter.string(
+      from: Calendar.current.date(
+        byAdding: .day,
+        value: 1 - retention, to: Date()) ?? Date())
     for day in archiveDays() where day < cutoff {
       DiagnosticLogArchive.removeDay(day, root: debugArchiveDirectory)
     }
@@ -2229,7 +2579,8 @@ final class MacTransferManager: ObservableObject {
     var base = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
       .appendingPathComponent("MacTransferInbox", isDirectory: true)
       .appendingPathComponent(pairing.physicalDeviceID.uuidString, isDirectory: true)
-    if UserDefaults.standard.string(forKey: "MacTransferLegacyHostID") != pairing.hostID.uuidString {
+    if UserDefaults.standard.string(forKey: "MacTransferLegacyHostID") != pairing.hostID.uuidString
+    {
       base.appendPathComponent(pairing.hostID.uuidString, isDirectory: true)
     }
     try FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
@@ -2237,14 +2588,17 @@ final class MacTransferManager: ObservableObject {
   }
 
   private static func loadPairings() -> [MacTransferPairing] {
-    let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
+    let query: [String: Any] = [
+      kSecClass as String: kSecClassGenericPassword,
       kSecAttrService as String: "net.ryuya-dev.MochiLog.mac-pairing",
       kSecAttrAccount as String: "hosts", kSecReturnData as String: true,
-      kSecMatchLimit as String: kSecMatchLimitOne]
+      kSecMatchLimit as String: kSecMatchLimitOne,
+    ]
     var item: CFTypeRef?
     if SecItemCopyMatching(query as CFDictionary, &item) == errSecSuccess,
       let data = item as? Data,
-      let saved = try? JSONDecoder().decode([MacTransferPairing].self, from: data) {
+      let saved = try? JSONDecoder().decode([MacTransferPairing].self, from: data)
+    {
       return saved
     }
     var old = query
@@ -2252,20 +2606,24 @@ final class MacTransferManager: ObservableObject {
     item = nil
     guard SecItemCopyMatching(old as CFDictionary, &item) == errSecSuccess,
       let data = item as? Data,
-      let legacy = try? JSONDecoder().decode(MacTransferPairing.self, from: data) else { return [] }
+      let legacy = try? JSONDecoder().decode(MacTransferPairing.self, from: data)
+    else { return [] }
     UserDefaults.standard.set(legacy.hostID.uuidString, forKey: "MacTransferLegacyHostID")
     try? savePairings([legacy])
     return [legacy]
   }
 
   private static func loadStoredPairings(account: String) -> [MacTransferPairing] {
-    let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
+    let query: [String: Any] = [
+      kSecClass as String: kSecClassGenericPassword,
       kSecAttrService as String: "net.ryuya-dev.MochiLog.mac-pairing",
       kSecAttrAccount as String: account, kSecReturnData as String: true,
-      kSecMatchLimit as String: kSecMatchLimitOne]
+      kSecMatchLimit as String: kSecMatchLimitOne,
+    ]
     var item: CFTypeRef?
     guard SecItemCopyMatching(query as CFDictionary, &item) == errSecSuccess,
-      let data = item as? Data else { return [] }
+      let data = item as? Data
+    else { return [] }
     return (try? JSONDecoder().decode([MacTransferPairing].self, from: data)) ?? []
   }
 
@@ -2273,12 +2631,16 @@ final class MacTransferManager: ObservableObject {
     try saveStoredPairings(pairings, account: "hosts")
   }
 
-  private static func saveStoredPairings(_ pairings: [MacTransferPairing],
-    account: String) throws {
+  private static func saveStoredPairings(
+    _ pairings: [MacTransferPairing],
+    account: String
+  ) throws {
     let data = try JSONEncoder().encode(pairings)
-    let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
+    let query: [String: Any] = [
+      kSecClass as String: kSecClassGenericPassword,
       kSecAttrService as String: "net.ryuya-dev.MochiLog.mac-pairing",
-      kSecAttrAccount as String: account]
+      kSecAttrAccount as String: account,
+    ]
     let update: [String: Any] = [kSecValueData as String: data]
     let status = SecItemUpdate(query as CFDictionary, update as CFDictionary)
     if status == errSecItemNotFound {
@@ -2296,24 +2658,28 @@ final class MacTransferManager: ObservableObject {
 
 @available(iOS 17, *)
 private enum PairingTransport {
-  nonisolated static func exchange(routes: [NWEndpoint], payload: Data,
-    allowCellular: Bool, continueOnInvalidResponse: Bool = false) async throws -> Data {
+  nonisolated static func exchange(
+    routes: [NWEndpoint], payload: Data,
+    allowCellular: Bool, continueOnInvalidResponse: Bool = false
+  ) async throws -> Data {
     try await Task.detached(priority: .userInitiated) {
       var lastError: Error = TransferError.invalidPairing
       for route in routes {
-        do { return try exchange(on: route, payload: payload, allowCellular: allowCellular) }
-        catch TransferError.invalidPairing {
+        do {
+          return try exchange(on: route, payload: payload, allowCellular: allowCellular)
+        } catch TransferError.invalidPairing {
           if !continueOnInvalidResponse { throw TransferError.invalidPairing }
           lastError = TransferError.invalidPairing
-        }
-        catch { lastError = error }
+        } catch { lastError = error }
       }
       throw lastError
     }.value
   }
 
-  nonisolated private static func exchange(on route: NWEndpoint, payload: Data,
-    allowCellular: Bool) throws -> Data {
+  nonisolated private static func exchange(
+    on route: NWEndpoint, payload: Data,
+    allowCellular: Bool
+  ) throws -> Data {
     let parameters = NWParameters.tcp
     if !allowCellular { parameters.prohibitedInterfaceTypes = [.cellular] }
     let connection = NWConnection(to: route, using: parameters)
@@ -2333,15 +2699,14 @@ private enum PairingTransport {
         data, _, complete, error in
         if let data { response.append(data) }
         if response.count > 16_384 { finish(TransferError.invalidPayload); return }
-        if let error { finish(error) }
-        else if complete { finish() }
-        else { receive() }
+        if let error { finish(error) } else if complete { finish() } else { receive() }
       }
     }
     connection.stateUpdateHandler = { state in
       switch state {
       case .ready:
-        connection.send(content: payload + Data([10]),
+        connection.send(
+          content: payload + Data([10]),
           completion: .contentProcessed { error in
             if let error { finish(error) } else { receive() }
           })

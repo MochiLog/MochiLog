@@ -14,12 +14,13 @@ enum PhysicalDeviceIdentityStore {
       kSecAttrService as String: service,
       kSecAttrAccount as String: account,
       kSecReturnData as String: true,
-      kSecMatchLimit as String: kSecMatchLimitOne
+      kSecMatchLimit as String: kSecMatchLimitOne,
     ]
     var item: CFTypeRef?
     if SecItemCopyMatching(query as CFDictionary, &item) == errSecSuccess,
       let data = item as? Data, let text = String(data: data, encoding: .utf8),
-      let id = UUID(uuidString: text) {
+      let id = UUID(uuidString: text)
+    {
       return id
     }
     return nil
@@ -36,7 +37,7 @@ enum PhysicalDeviceIdentityStore {
     let query: [String: Any] = [
       kSecClass as String: kSecClassGenericPassword,
       kSecAttrService as String: service,
-      kSecAttrAccount as String: account
+      kSecAttrAccount as String: account,
     ]
     let update: [String: Any] = [kSecValueData as String: Data(id.uuidString.utf8)]
     if SecItemUpdate(query as CFDictionary, update as CFDictionary) == errSecItemNotFound {

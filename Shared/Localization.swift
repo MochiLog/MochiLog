@@ -28,41 +28,54 @@ final class LanguageSettings: ObservableObject {
     didSet { UserDefaults.standard.set(selection.rawValue, forKey: L10n.preferenceKey) }
   }
   init() {
-    selection = AppLanguage(rawValue: UserDefaults.standard.string(forKey: L10n.preferenceKey) ?? "system") ?? .system
+    selection =
+      AppLanguage(rawValue: UserDefaults.standard.string(forKey: L10n.preferenceKey) ?? "system")
+      ?? .system
   }
 }
 
 enum L10n {
   nonisolated static let preferenceKey = "appLanguage"
-  nonisolated static let supportedLanguages = ["en", "ja", "zh-Hans", "zh-Hant", "ko", "es", "fr", "de"]
+  nonisolated static let supportedLanguages = [
+    "en", "ja", "zh-Hans", "zh-Hant", "ko", "es", "fr", "de",
+  ]
 
   nonisolated static var language: String {
-    resolve(selection: UserDefaults.standard.string(forKey: preferenceKey), preferredLanguages: Locale.preferredLanguages)
+    resolve(
+      selection: UserDefaults.standard.string(forKey: preferenceKey),
+      preferredLanguages: Locale.preferredLanguages)
   }
 
   nonisolated static func resolve(selection: String?, preferredLanguages: [String]) -> String {
     if let selection, supportedLanguages.contains(selection) { return selection }
-    return Bundle.preferredLocalizations(from: supportedLanguages, forPreferences: preferredLanguages).first ?? "en"
+    return Bundle.preferredLocalizations(
+      from: supportedLanguages, forPreferences: preferredLanguages
+    ).first ?? "en"
   }
 
   nonisolated static var locale: Locale { Locale(identifier: language) }
 
   nonisolated static var bundle: Bundle {
     guard let path = Bundle.main.path(forResource: language, ofType: "lproj"),
-      let localizedBundle = Bundle(path: path) else { return .main }
+      let localizedBundle = Bundle(path: path)
+    else { return .main }
     return localizedBundle
   }
 
-  nonisolated static func string(_ key: String.LocalizationValue, table: String? = nil,
+  nonisolated static func string(
+    _ key: String.LocalizationValue, table: String? = nil,
     comment: StaticString? = nil
   ) -> String {
     String(localized: key, table: table, bundle: bundle, locale: locale, comment: comment)
   }
 
-  nonisolated static func string(_ key: StaticString, defaultValue: String.LocalizationValue,
+  nonisolated static func string(
+    _ key: StaticString, defaultValue: String.LocalizationValue,
     table: String? = nil, comment: StaticString? = nil
   ) -> String {
-    String(localized: key, defaultValue: defaultValue, table: table, bundle: bundle, locale: locale, comment: comment)
+    String(
+      localized: key, defaultValue: defaultValue, table: table, bundle: bundle, locale: locale,
+      comment: comment)
   }
 
   nonisolated static func text(_ key: String, table: String? = nil) -> String {

@@ -90,7 +90,9 @@ enum ExactDuplicateRecords {
   /// Re-fetch immediately before deletion. The same smallest UUID is kept on
   /// every device, even when CloudKit deliveries arrive in different orders.
   @discardableResult
-  static func removeSelected(_ selected: Set<ExactRecordPayload>, from store: DataStore) throws -> Int {
+  static func removeSelected(_ selected: Set<ExactRecordPayload>, from store: DataStore) throws
+    -> Int
+  {
     guard !selected.isEmpty else { return 0 }
     store.refreshRecords()
     let candidates = groups(in: store.recordsDescending).filter { selected.contains($0.id) }

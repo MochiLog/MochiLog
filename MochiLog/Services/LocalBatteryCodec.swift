@@ -37,14 +37,20 @@ nonisolated enum LocalBatteryCodec {
     }
     try visit(registry, path: [])
     let battery = registry["BatteryData"] as? [String: Any] ?? [:]
-    let limits = ["CycleCount": 0...100000, "DesignCapacity": 1...200000,
+    let limits = [
+      "CycleCount": 0...100000, "DesignCapacity": 1...200000,
       "FullChargeCapacity": 1...200000, "NominalChargeCapacity": 1...200000,
-      "AppleRawMaxCapacity": 1...200000, "CurrentCapacity": 0...100]
+      "AppleRawMaxCapacity": 1...200000, "CurrentCapacity": 0...100,
+    ]
     var values: [String: Int] = [:]
     for (key, range) in limits {
-      let raw = ["CycleCount", "CurrentCapacity"].contains(key) ? registry[key] : (battery[key] ?? registry[key])
+      let raw =
+        ["CycleCount", "CurrentCapacity"].contains(key)
+        ? registry[key] : (battery[key] ?? registry[key])
       if let number = raw as? NSNumber, CFGetTypeID(number) != CFBooleanGetTypeID(),
-        number.doubleValue.isFinite, number.doubleValue == Double(number.intValue), range.contains(number.intValue) {
+        number.doubleValue.isFinite, number.doubleValue == Double(number.intValue),
+        range.contains(number.intValue)
+      {
         values[key] = number.intValue
       }
     }
@@ -53,12 +59,16 @@ nonisolated enum LocalBatteryCodec {
     }
     var core: [String: Any] = values
     if let charging { core["IsCharging"] = charging }
-    let coreData = try JSONSerialization.data(withJSONObject: core, options: [.sortedKeys, .withoutEscapingSlashes])
+    let coreData = try JSONSerialization.data(
+      withJSONObject: core, options: [.sortedKeys, .withoutEscapingSlashes])
     let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
     let details = try encoder.encode(fields)
     guard details.count <= 262144 else { throw RawBatteryField.Failure.invalid }
-    let hash: (Data) -> String = { SHA256.hash(data: $0).map { String(format: "%02x", $0) }.joined() }
-    return LiveBatteryReading(values: values, charging: charging, revision: hash(coreData), acquiredAt: Date(),
+    let hash: (Data) -> String = {
+      SHA256.hash(data: $0).map { String(format: "%02x", $0) }.joined()
+    }
+    return LiveBatteryReading(
+      values: values, charging: charging, revision: hash(coreData), acquiredAt: Date(),
       detailsJSON: String(decoding: details, as: UTF8.self), detailsRevision: hash(details))
   }
 }

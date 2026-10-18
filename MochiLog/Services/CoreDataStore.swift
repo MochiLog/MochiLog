@@ -280,9 +280,13 @@ final class CoreDataStore: DataStore {
     return cdRecords.map { $0.toBatteryRecord() }
   }
 
-  override func applyDeviceProfile(_ profile: DeviceProfile, names: Set<String>, identifiers: Set<String>) throws -> Int {
+  override func applyDeviceProfile(
+    _ profile: DeviceProfile, names: Set<String>, identifiers: Set<String>
+  ) throws -> Int {
     let all = try viewContext.fetch(NSFetchRequest<CDBatteryRecord>(entityName: "CDBatteryRecord"))
-    let matches = all.filter { names.contains($0.deviceName) || identifiers.contains($0.deviceModelCode ?? "") }
+    let matches = all.filter {
+      names.contains($0.deviceName) || identifiers.contains($0.deviceModelCode ?? "")
+    }
     for record in matches {
       record.deviceName = profile.name
       record.designCapacity = Int64(profile.capacity)
@@ -323,7 +327,9 @@ final class CoreDataStore: DataStore {
 struct CoreDataMigrationRunner {
   private static let migrationKeyPrefix = "CoreDataMigration_Completed_"
 
-  static func runPendingMigrations(viewContext: NSManagedObjectContext, onComplete: @escaping () -> Void = {}) {
+  static func runPendingMigrations(
+    viewContext: NSManagedObjectContext, onComplete: @escaping () -> Void = {}
+  ) {
     Task.detached(priority: .utility) {
       await runAsync(viewContext: viewContext)
       onComplete()
@@ -350,7 +356,8 @@ struct CoreDataMigrationRunner {
 
       var modifiedCount = 0
       for record in airRecords {
-        let isMagSafe = record.firstUseDate == nil
+        let isMagSafe =
+          record.firstUseDate == nil
           && record.deflator == nil
           && (record.lowRateCapacity == nil || record.lowRateCapacity?.intValue == 0)
           && record.rawCapacity == 0
@@ -365,7 +372,9 @@ struct CoreDataMigrationRunner {
       if modifiedCount > 0 {
         do {
           try viewContext.save()
-          print("[CoreDataMigration] \(version): Migrated \(modifiedCount) records to MagSafe Battery Pack.")
+          print(
+            "[CoreDataMigration] \(version): Migrated \(modifiedCount) records to MagSafe Battery Pack."
+          )
         } catch {
           print("[CoreDataMigration] Save failed in \(version): \(error)")
           let e = error

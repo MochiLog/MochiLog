@@ -13,11 +13,15 @@ enum LocalCollectionScheduler {
   static func register() {
     guard !ProcessInfo.processInfo.isiOSAppOnMac else { return }
     for id in identifiers {
-      let registered = BGTaskScheduler.shared.register(forTaskWithIdentifier: id, using: .main) { task in
-        guard task is BGProcessingTask || task is BGAppRefreshTask else { task.setTaskCompleted(success: false); return }
+      let registered = BGTaskScheduler.shared.register(forTaskWithIdentifier: id, using: .main) {
+        task in
+        guard task is BGProcessingTask || task is BGAppRefreshTask else {
+          task.setTaskCompleted(success: false); return
+        }
         Task { @MainActor in await run(task) }
       }
-      MacTransferManager.appendDebugEvent("Local scheduler: launch registration; identifier=\(id), accepted=\(registered)")
+      MacTransferManager.appendDebugEvent(
+        "Local scheduler: launch registration; identifier=\(id), accepted=\(registered)")
     }
   }
 
@@ -26,7 +30,8 @@ enum LocalCollectionScheduler {
     let currentRevision = revision
     guard !ProcessInfo.processInfo.isiOSAppOnMac,
       AppSettings.shared.localAutomaticCollectionEnabled,
-      LocalDiagnosticsManager.shared.hasStoredCredential else {
+      LocalDiagnosticsManager.shared.hasStoredCredential
+    else {
       for id in identifiers { BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: id) }
       MacTransferManager.appendDebugEvent("Local scheduler: cancelled; disabled or no pairing")
       return
@@ -38,8 +43,10 @@ enum LocalCollectionScheduler {
       for id in identifiers {
         if let existing = pending.first(where: { $0.identifier == id }),
           let date = existing.earliestBeginDate,
-          (abs(date.timeIntervalSince(decision.earliest)) < 60 || (decision.reason == .retry && date <= decision.earliest)) {
-          continue // Opening settings must not keep postponing a pending wake.
+          (abs(date.timeIntervalSince(decision.earliest)) < 60
+            || (decision.reason == .retry && date <= decision.earliest))
+        {
+          continue  // Opening settings must not keep postponing a pending wake.
         }
         BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: id)
         let request: BGTaskRequest
@@ -48,14 +55,20 @@ enum LocalCollectionScheduler {
           processing.requiresNetworkConnectivity = true
           processing.requiresExternalPower = false
           request = processing
-        } else { request = BGAppRefreshTaskRequest(identifier: id) }
+        } else {
+          request = BGAppRefreshTaskRequest(identifier: id)
+        }
         request.earliestBeginDate = decision.earliest
         do {
           try BGTaskScheduler.shared.submit(request)
-          MacTransferManager.appendDebugEvent("Local scheduler: requested; identifier=\(id), reason=\(decision.reason.rawValue), earliest=\(DailyLogCollectionPolicy.timestamp(decision.earliest)), unlocked+VPN required; OS selects execution time")
+          MacTransferManager.appendDebugEvent(
+            "Local scheduler: requested; identifier=\(id), reason=\(decision.reason.rawValue), earliest=\(DailyLogCollectionPolicy.timestamp(decision.earliest)), unlocked+VPN required; OS selects execution time"
+          )
         } catch {
           let error = error as NSError
-          MacTransferManager.appendDebugEvent("Local scheduler: request rejected; identifier=\(id), domain=\(error.domain), code=\(error.code), refreshStatus=\(UIApplication.shared.backgroundRefreshStatus.rawValue)")
+          MacTransferManager.appendDebugEvent(
+            "Local scheduler: request rejected; identifier=\(id), domain=\(error.domain), code=\(error.code), refreshStatus=\(UIApplication.shared.backgroundRefreshStatus.rawValue)"
+          )
         }
       }
     }
@@ -72,14 +85,20 @@ enum LocalCollectionScheduler {
       if completion.claim() { task.setTaskCompleted(success: false) }
       Task { @MainActor in
         LocalDiagnosticsManager.shared.cancelScheduledCollection(cancellation)
-        MacTransferManager.appendDebugEvent("Local scheduler: OS budget expired; wakeID=\(wakeID); complete checkpoints retained")
+        MacTransferManager.appendDebugEvent(
+          "Local scheduler: OS budget expired; wakeID=\(wakeID); complete checkpoints retained")
         reschedule()
       }
     }
-    MacTransferManager.appendDebugEvent("Local scheduler: OS wake; wakeID=\(wakeID), identifier=\(task.identifier), protectedDataAvailable=\(UIApplication.shared.isProtectedDataAvailable), appState=\(UIApplication.shared.applicationState.rawValue)")
-    let success = await LocalDiagnosticsManager.shared.collectNow(manual: false, scheduled: cancellation)
+    MacTransferManager.appendDebugEvent(
+      "Local scheduler: OS wake; wakeID=\(wakeID), identifier=\(task.identifier), protectedDataAvailable=\(UIApplication.shared.isProtectedDataAvailable), appState=\(UIApplication.shared.applicationState.rawValue)"
+    )
+    let success = await LocalDiagnosticsManager.shared.collectNow(
+      manual: false, scheduled: cancellation)
     if completion.claim() { task.setTaskCompleted(success: success && !cancellation.isCancelled) }
-    MacTransferManager.appendDebugEvent("Local scheduler: wake ended; wakeID=\(wakeID), elapsedMs=\(Int((ProcessInfo.processInfo.systemUptime - started) * 1000)), success=\(success), cancelled=\(cancellation.isCancelled)")
+    MacTransferManager.appendDebugEvent(
+      "Local scheduler: wake ended; wakeID=\(wakeID), elapsedMs=\(Int((ProcessInfo.processInfo.systemUptime - started) * 1000)), success=\(success), cancelled=\(cancellation.isCancelled)"
+    )
     reschedule()
   }
 }

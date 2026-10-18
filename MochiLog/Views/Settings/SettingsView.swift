@@ -259,22 +259,27 @@ struct SettingsView: View {
           Divider()  // ヘッダーとの境界線
           ScrollView {
             VStack(spacing: 16) {
-              ForEach(SettingsCategory.allCases.filter { category in
-                if category == .iCloud { return false }
-                if category == .automaticCollection {
-                  if #available(iOS 17, *) { return !ProcessInfo.processInfo.isiOSAppOnMac }
-                  return false
+              ForEach(
+                SettingsCategory.allCases.filter { category in
+                  if category == .iCloud { return false }
+                  if category == .automaticCollection {
+                    if #available(iOS 17, *) { return !ProcessInfo.processInfo.isiOSAppOnMac }
+                    return false
+                  }
+                  return true
                 }
-                return true
-              }) { category in
+              ) { category in
                 Button {
                   selectedCategory.wrappedValue = category
                 } label: {
-                  CategoryCardView(category: category,
+                  CategoryCardView(
+                    category: category,
                     isSelected: selectedCategory.wrappedValue == category)
                 }
                 .buttonStyle(.plain)
-                .accessibilityIdentifier(category == .language ? "settings.language" : "settings.category.\(category.rawValue)")
+                .accessibilityIdentifier(
+                  category == .language
+                    ? "settings.language" : "settings.category.\(category.rawValue)")
               }
 
             }
@@ -307,7 +312,9 @@ struct SettingsView: View {
               LanguageSettingsView(isEmbedded: true)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if selectedCategory.wrappedValue == .automaticCollection {
-              if #available(iOS 17, *) { AutomaticCollectionSettingsView().frame(maxWidth: .infinity, maxHeight: .infinity) }
+              if #available(iOS 17, *) {
+                AutomaticCollectionSettingsView().frame(maxWidth: .infinity, maxHeight: .infinity)
+              }
             } else if selectedCategory.wrappedValue == .advanced {
               AdvancedSettingsView(appSettings: appSettings)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -399,8 +406,10 @@ struct SettingsView: View {
             HStack(spacing: 12) {
               Image(systemName: "icloud.fill")
                 .foregroundColor(appSettings.accentColor.color)
-              Text(L10n.string("icloud_sync_settings", defaultValue: "iCloud同期設定", table: "Settings"))
-                .foregroundColor(.primary)
+              Text(
+                L10n.string("icloud_sync_settings", defaultValue: "iCloud同期設定", table: "Settings")
+              )
+              .foregroundColor(.primary)
             }
 
             Spacer()
@@ -635,19 +644,19 @@ struct SettingsView: View {
       .buttonStyle(.plain)
 
       if donationManager.purchasesAvailable {
-      Button(action: { showingDonation = true }) {
-        Label {
-          Text(L10n.string("donation_title", table: "Settings"))
-            .accessibilityIdentifier("settings.donation")
-            .foregroundStyle(.primary)
-        } icon: {
-          Image(systemName: "heart.fill")
-            .foregroundStyle(.red)
+        Button(action: { showingDonation = true }) {
+          Label {
+            Text(L10n.string("donation_title", table: "Settings"))
+              .accessibilityIdentifier("settings.donation")
+              .foregroundStyle(.primary)
+          } icon: {
+            Image(systemName: "heart.fill")
+              .foregroundStyle(.red)
+          }
+          .frame(maxWidth: .infinity, alignment: .leading)
+          .contentShape(Rectangle())
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .contentShape(Rectangle())
-      }
-      .buttonStyle(.plain)
+        .buttonStyle(.plain)
       }
     }
 
@@ -670,8 +679,12 @@ struct SettingsView: View {
 
     if #available(iOS 17, *), !ProcessInfo.processInfo.isiOSAppOnMac {
       Section {
-        NavigationLink { AutomaticCollectionSettingsView() } label: {
-          Label(L10n.text("auto_collection_title", table: "MacTransfer"), systemImage: "arrow.down.document.fill")
+        NavigationLink {
+          AutomaticCollectionSettingsView()
+        } label: {
+          Label(
+            L10n.text("auto_collection_title", table: "MacTransfer"),
+            systemImage: "arrow.down.document.fill")
         }.accessibilityIdentifier("settings.automaticCollection")
       }
     }
@@ -774,7 +787,8 @@ struct SettingsView: View {
         guard url.startAccessingSecurityScopedResource() else {
           await MainActor.run {
             importResultMessage =
-              L10n.string("import_error",
+              L10n.string(
+                "import_error",
                 table: "Settings"
               ) + ": ファイルへのアクセス権限がありません"
             showingImportAlert = true
@@ -807,18 +821,21 @@ struct SettingsView: View {
           await MainActor.run {
             isImporting = false
             if importResult.hasErrors {
-              importResultMessage = L10n.string("import_partial_success",
+              importResultMessage = L10n.string(
+                "import_partial_success",
                 table: "Settings"
               ).replacingOccurrences(of: "{imported}", with: "\(importResult.importedRecords)")
                 .replacingOccurrences(of: "{skipped}", with: "\(importResult.skippedDuplicates)")
                 .replacingOccurrences(of: "{errors}", with: "\(importResult.errors.count)")
             } else if importResult.skippedDuplicates > 0 {
-              importResultMessage = L10n.string("import_success_with_duplicates",
+              importResultMessage = L10n.string(
+                "import_success_with_duplicates",
                 table: "Settings"
               ).replacingOccurrences(of: "{imported}", with: "\(importResult.importedRecords)")
                 .replacingOccurrences(of: "{skipped}", with: "\(importResult.skippedDuplicates)")
             } else {
-              importResultMessage = L10n.string("import_success",
+              importResultMessage = L10n.string(
+                "import_success",
                 table: "Settings"
               ).replacingOccurrences(of: "{count}", with: "\(importResult.importedRecords)")
             }
@@ -828,7 +845,8 @@ struct SettingsView: View {
           await MainActor.run {
             isImporting = false
             importResultMessage =
-              L10n.string("import_error",
+              L10n.string(
+                "import_error",
                 table: "Settings"
               ) + ": \(error.localizedDescription)"
             showingImportAlert = true
@@ -838,7 +856,8 @@ struct SettingsView: View {
 
     case .failure(let error):
       importResultMessage =
-        L10n.string("import_error",
+        L10n.string(
+          "import_error",
           table: "Settings"
         ) + ": \(error.localizedDescription)"
       showingImportAlert = true

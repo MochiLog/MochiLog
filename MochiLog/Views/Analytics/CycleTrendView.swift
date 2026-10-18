@@ -47,7 +47,8 @@ struct CycleTrendView: View {
   }
 
   private var chartWindow: (startDay: Date, endDay: Date, unit: AppSettings.ChartUnit) {
-    ChartWindowNavigator.computeChartWindow(recordDates: allRecords.map(\.logDate),
+    ChartWindowNavigator.computeChartWindow(
+      recordDates: allRecords.map(\.logDate),
       windowEnd: windowEnd, range: selectedRange)
   }
 
@@ -65,15 +66,17 @@ struct CycleTrendView: View {
   }
 
   private var canMoveNext: Bool {
-    selectedRange != .auto && (sharedCanMoveNext
-      ?? ChartWindowNavigator.canMoveNext(
-        currentEnd: effectiveLocalWindowEnd, range: effectiveLocalRange, records: allRecords))
+    selectedRange != .auto
+      && (sharedCanMoveNext
+        ?? ChartWindowNavigator.canMoveNext(
+          currentEnd: effectiveLocalWindowEnd, range: effectiveLocalRange, records: allRecords))
   }
 
   private var canMovePrevious: Bool {
-    selectedRange != .auto && (sharedCanMovePrevious
-      ?? ChartWindowNavigator.canMovePrevious(
-        currentEnd: effectiveLocalWindowEnd, range: effectiveLocalRange, records: allRecords))
+    selectedRange != .auto
+      && (sharedCanMovePrevious
+        ?? ChartWindowNavigator.canMovePrevious(
+          currentEnd: effectiveLocalWindowEnd, range: effectiveLocalRange, records: allRecords))
   }
 
   private var effectiveLocalRange: RangePreset {
@@ -81,7 +84,8 @@ struct CycleTrendView: View {
   }
 
   private var effectiveLocalWindowEnd: Date {
-    ChartWindowNavigator.effectiveEndDate(for: allRecords.map(\.logDate),
+    ChartWindowNavigator.effectiveEndDate(
+      for: allRecords.map(\.logDate),
       windowEnd: windowEnd, range: selectedRange)
   }
 
@@ -97,8 +101,11 @@ struct CycleTrendView: View {
         range: effectiveLocalRange,
         records: allRecords
       )
-      if let sharedWindowEnd { sharedWindowEnd.wrappedValue = newEnd }
-      else { localWindowEnd = newEnd }
+      if let sharedWindowEnd {
+        sharedWindowEnd.wrappedValue = newEnd
+      } else {
+        localWindowEnd = newEnd
+      }
     }
   }
 
@@ -111,7 +118,6 @@ struct CycleTrendView: View {
       HStack(alignment: .firstTextBaseline) {
         Text(L10n.string("cycle_trend", table: "Analytics"))
           .font(.headline)
-
 
       }
 
@@ -131,8 +137,9 @@ struct CycleTrendView: View {
                 if let sharedSelectedRange {
                   sharedSelectedRange.wrappedValue = $0
                   if sharedShiftWindow == nil, let sharedWindowEnd {
-                    sharedWindowEnd.wrappedValue = ChartWindowNavigator.adjustedWindowEndForRangeChange(
-                      range: $0, currentEnd: windowEnd, records: allRecords)
+                    sharedWindowEnd.wrappedValue =
+                      ChartWindowNavigator.adjustedWindowEndForRangeChange(
+                        range: $0, currentEnd: windowEnd, records: allRecords)
                   }
                 } else {
                   localSelectedRange = $0
@@ -167,7 +174,9 @@ struct CycleTrendView: View {
             print(
               "[Warning] Device '\(deviceName)' not found in sortedAllDeviceNames, using fallback color"
             )
-            let fallbackIndex = Int(UInt(bitPattern: deviceName.hashValue) % UInt(ChartAxisHelper.deviceColorPalette.count))
+            let fallbackIndex = Int(
+              UInt(bitPattern: deviceName.hashValue)
+                % UInt(ChartAxisHelper.deviceColorPalette.count))
             return ChartAxisHelper.deviceColorPalette[fallbackIndex]
           }
 
@@ -210,8 +219,11 @@ struct CycleTrendView: View {
       guard sharedShiftWindow == nil else { return }
       let newEnd = ChartWindowNavigator.adjustedWindowEndForRangeChange(
         range: selectedRange, currentEnd: windowEnd, records: allRecords)
-      if let sharedWindowEnd { sharedWindowEnd.wrappedValue = newEnd }
-      else { localWindowEnd = newEnd }
+      if let sharedWindowEnd {
+        sharedWindowEnd.wrappedValue = newEnd
+      } else {
+        localWindowEnd = newEnd
+      }
     }
     .onChange(of: selectedRange) { _ in
       // レンジ変更時のみアニメーション実行
@@ -325,7 +337,9 @@ struct CycleTrendView: View {
     .chartYScale(
       domain: 0...max(10, Double(visibleRecords.map { $0.cycleCount }.max() ?? 0) * 1.15)
     )
-    .chartXScale(domain: startDay...(Calendar.current.date(byAdding: .day, value: 1, to: endDay) ?? endDay))
+    .chartXScale(
+      domain: startDay...(Calendar.current.date(byAdding: .day, value: 1, to: endDay) ?? endDay)
+    )
     .chartPlotStyle { plotArea in
       plotArea
         .clipped()

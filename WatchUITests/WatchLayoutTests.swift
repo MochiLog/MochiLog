@@ -5,7 +5,9 @@ final class WatchLayoutTests: XCTestCase {
   func testSyncedRecordsAndGermanDetails() {
     continueAfterFailure = false
     let app = XCUIApplication()
-    app.launchArguments = ["-appLanguage", "system", "-AppleLanguages", "(de)", "-AppleLocale", "de_DE"]
+    app.launchArguments = [
+      "-appLanguage", "system", "-AppleLanguages", "(de)", "-AppleLocale", "de_DE",
+    ]
     app.launch()
     let device = app.buttons["watch.device.iPhone 15 Pro"]
     XCTAssertTrue(device.waitForExistence(timeout: 30), app.debugDescription)
@@ -40,10 +42,14 @@ final class WatchLayoutTests: XCTestCase {
     continueAfterFailure = false
     let app = XCUIApplication()
     app.launchEnvironment["MOCHI_STORE_SCREENSHOTS"] = "1"
-    app.launchArguments = ["-appLanguage", language, "-AppleLanguages", "(\(language))", "-AppleLocale", locale]
+    app.launchArguments = [
+      "-appLanguage", language, "-AppleLanguages", "(\(language))", "-AppleLocale", locale,
+    ]
     app.launch()
     let device = app.buttons["watch.device.iPhone 15 Pro"]
-    let firstDevice = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "watch.device.")).firstMatch
+    let firstDevice = app.buttons.matching(
+      NSPredicate(format: "identifier BEGINSWITH %@", "watch.device.")
+    ).firstMatch
     XCTAssertTrue(firstDevice.waitForExistence(timeout: 15), app.debugDescription)
     Thread.sleep(forTimeInterval: 2)
     attach(app, "store_\(locale)_01_devices")
@@ -75,8 +81,10 @@ final class WatchLayoutTests: XCTestCase {
       if isVisible(element, in: app) { break }
       let down = element.frame.midY < app.frame.midY
       app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: down ? 0.45 : 0.65))
-        .press(forDuration: 0.1,
-          thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: down ? 0.65 : 0.45)),
+        .press(
+          forDuration: 0.1,
+          thenDragTo: app.coordinate(
+            withNormalizedOffset: CGVector(dx: 0.5, dy: down ? 0.65 : 0.45)),
           withVelocity: .slow, thenHoldForDuration: 0.2)
       Thread.sleep(forTimeInterval: 0.3)
     }

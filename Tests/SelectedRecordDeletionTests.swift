@@ -32,7 +32,8 @@ final class DataStore {
 @main
 struct SelectedRecordDeletionTests {
   static func record(id: UUID = UUID(), cycles: Int = 100) -> BatteryRecord {
-    BatteryRecord(id: id, logDate: Date(timeIntervalSince1970: 1_700_000_000),
+    BatteryRecord(
+      id: id, logDate: Date(timeIntervalSince1970: 1_700_000_000),
       deviceName: "iPhone Test", cycleCount: cycles, designCapacity: 4000,
       nominalCapacity: 3800, rawCapacity: 3800)
   }
@@ -50,31 +51,36 @@ struct SelectedRecordDeletionTests {
     assert(Set(store.persisted.map(\.id)) == [replacement.id, b.id])
     assert(store.saveCount == 1, "Bulk deletion saves once")
     let repeated = try SelectedRecordDeletion.delete(plan, from: store)
-    assert(repeated.deleted == 0 && store.saveCount == 1,
+    assert(
+      repeated.deleted == 0 && store.saveCount == 1,
       "Repeating a confirmation must not delete a replacement or a remaining record")
 
     let edited = record(), unchanged = record()
     let editStore = DataStore([edited, unchanged])
-    let editPlan = SelectedRecordDeletion.Plan(ids: [edited.id, unchanged.id], records: editStore.recordsDescending)
+    let editPlan = SelectedRecordDeletion.Plan(
+      ids: [edited.id, unchanged.id], records: editStore.recordsDescending)
     edited.rawCapacity += 1
     let changed = try SelectedRecordDeletion.delete(editPlan, from: editStore)
-    assert(changed.deleted == 1 && changed.skipped == 1 && editStore.persisted[0].id == edited.id,
+    assert(
+      changed.deleted == 1 && changed.skipped == 1 && editStore.persisted[0].id == edited.id,
       "Synced changes during confirmation are preserved")
 
     let duplicate = record(id: b.id)
     let ambiguousStore = DataStore([b, duplicate])
-    let ambiguous = SelectedRecordDeletion.Plan(ids: [b.id], records: ambiguousStore.recordsDescending)
+    let ambiguous = SelectedRecordDeletion.Plan(
+      ids: [b.id], records: ambiguousStore.recordsDescending)
     let ambiguousResult = try SelectedRecordDeletion.delete(ambiguous, from: ambiguousStore)
     assert(ambiguousResult.deleted == 0)
     assert(ambiguousStore.persisted.count == 2 && ambiguousStore.saveCount == 0)
 
     let failedStore = DataStore([a, b])
-    let failedPlan = SelectedRecordDeletion.Plan(ids: [a.id], records: failedStore.recordsDescending)
+    let failedPlan = SelectedRecordDeletion.Plan(
+      ids: [a.id], records: failedStore.recordsDescending)
     failedStore.failSave = true
     do {
       _ = try SelectedRecordDeletion.delete(failedPlan, from: failedStore)
       fatalError("A rolled-back save must not report successful deletion")
-    } catch DataStore.Failure.diskFull { }
+    } catch DataStore.Failure.diskFull {}
     assert(failedStore.persisted.count == 2 && failedStore.recordsDescending.count == 2)
 
     let many = (0..<1000).map { _ in record() }
@@ -85,6 +91,8 @@ struct SelectedRecordDeletionTests {
     assert(manyResult.deleted == 750 && manyStore.persisted.count == 251)
     assert(manyStore.persisted.contains { $0.id == later.id })
     assert(manyStore.saveCount == 1)
-    print("PASS: stable IDs, concurrent deletion/insertion, changed values, ambiguous IDs, save rollback, and 750-record batch")
+    print(
+      "PASS: stable IDs, concurrent deletion/insertion, changed values, ambiguous IDs, save rollback, and 750-record batch"
+    )
   }
 }

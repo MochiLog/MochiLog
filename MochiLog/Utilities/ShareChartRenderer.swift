@@ -31,8 +31,10 @@ enum ShareChartRenderer {
     let renderer = UIGraphicsImageRenderer(size: size, format: format)
     let background = isDark ? UIColor.black : UIColor.white
     let labelColor = isDark ? UIColor.white : UIColor.black
-    let gridColor = isDark ? UIColor.white.withAlphaComponent(0.25)
-                           : UIColor.black.withAlphaComponent(0.18)
+    let gridColor =
+      isDark
+      ? UIColor.white.withAlphaComponent(0.25)
+      : UIColor.black.withAlphaComponent(0.18)
     let dateFormatter = DateFormatter()
     dateFormatter.locale = locale
     dateFormatter.dateStyle = .short
@@ -56,8 +58,10 @@ enum ShareChartRenderer {
         paragraph.alignment = .right
         ("\(value)mAh" as NSString).draw(
           in: CGRect(x: 4, y: y - 10, width: 78, height: 20),
-          withAttributes: [.font: UIFont.systemFont(ofSize: 14, weight: .medium),
-                           .foregroundColor: labelColor, .paragraphStyle: paragraph])
+          withAttributes: [
+            .font: UIFont.systemFont(ofSize: 14, weight: .medium),
+            .foregroundColor: labelColor, .paragraphStyle: paragraph,
+          ])
       }
 
       for index in 0...2 {
@@ -66,14 +70,18 @@ enum ShareChartRenderer {
         let text = dateFormatter.string(from: date) as NSString
         let textSize = text.size(withAttributes: [.font: UIFont.systemFont(ofSize: 14)])
         let x = plot.minX + plot.width * CGFloat(fraction) - textSize.width / 2
-        text.draw(at: CGPoint(x: x, y: plot.maxY + 16),
-                  withAttributes: [.font: UIFont.systemFont(ofSize: 14),
-                                   .foregroundColor: labelColor])
+        text.draw(
+          at: CGPoint(x: x, y: plot.maxY + 16),
+          withAttributes: [
+            .font: UIFont.systemFont(ofSize: 14),
+            .foregroundColor: labelColor,
+          ])
       }
 
       let chartPoints = sorted.map { point in
         CGPoint(
-          x: plot.minX + plot.width * CGFloat((point.date.timeIntervalSince1970 - start) / (end - start)),
+          x: plot.minX + plot.width
+            * CGFloat((point.date.timeIntervalSince1970 - start) / (end - start)),
           y: plot.maxY - plot.height * CGFloat((Double(point.capacity) - lower) / (upper - lower)))
       }
       context.setStrokeColor(tint.cgColor)

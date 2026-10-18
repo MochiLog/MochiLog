@@ -17,19 +17,23 @@ struct AutomaticCollectionSettingsView: View {
         Text(text("auto_collection_intro")).foregroundStyle(.secondary)
       }
       if #available(iOS 27, *) {
-      Section {
-        Toggle(text("auto_pc_enable"), isOn: $settings.pcAutomaticCollectionEnabled)
-          .accessibilityIdentifier("autoCollection.pcToggle")
-        NavigationLink { MacTransferSettingsView() } label: {
-          Label(text("mt_071"), systemImage: "laptopcomputer.and.iphone")
-        }.accessibilityIdentifier("settings.macTransfer")
-        Text(text("auto_pc_note")).font(.caption).foregroundStyle(.secondary)
-      }
+        Section {
+          Toggle(text("auto_pc_enable"), isOn: $settings.pcAutomaticCollectionEnabled)
+            .accessibilityIdentifier("autoCollection.pcToggle")
+          NavigationLink {
+            MacTransferSettingsView()
+          } label: {
+            Label(text("mt_071"), systemImage: "laptopcomputer.and.iphone")
+          }.accessibilityIdentifier("settings.macTransfer")
+          Text(text("auto_pc_note")).font(.caption).foregroundStyle(.secondary)
+        }
       }
       Section {
         Toggle(text("auto_local_enable"), isOn: $settings.localAutomaticCollectionEnabled)
           .accessibilityIdentifier("autoCollection.localToggle")
-        NavigationLink { LocalDiagnosticsSettingsView() } label: {
+        NavigationLink {
+          LocalDiagnosticsSettingsView()
+        } label: {
           Label(text("local_title"), systemImage: "iphone.radiowaves.left.and.right")
         }.accessibilityIdentifier("autoCollection.localSettings")
         Text(text("auto_local_note")).font(.caption).foregroundStyle(.secondary)
@@ -52,14 +56,17 @@ struct LocalDiagnosticsSettingsView: View {
     Form {
       Section {
         HStack(spacing: 20) {
-          Image(systemName: "iphone.radiowaves.left.and.right").font(.largeTitle).foregroundStyle(.green)
+          Image(systemName: "iphone.radiowaves.left.and.right").font(.largeTitle).foregroundStyle(
+            .green)
           Image(systemName: "arrow.triangle.2.circlepath").font(.title).foregroundStyle(.green)
           Image(systemName: "doc.text.magnifyingglass").font(.largeTitle).foregroundStyle(.green)
         }.frame(maxWidth: .infinity).padding(.vertical, 12).accessibilityHidden(true)
         Text(text("local_intro"))
-        Label(text(manager.configured ? "local_configured" : "local_setup_needed"),
-          systemImage: manager.configured ? "checkmark.shield.fill" : "key.fill")
-          .foregroundStyle(manager.configured ? .green : .secondary)
+        Label(
+          text(manager.configured ? "local_configured" : "local_setup_needed"),
+          systemImage: manager.configured ? "checkmark.shield.fill" : "key.fill"
+        )
+        .foregroundStyle(manager.configured ? .green : .secondary)
         if manager.installingPairing { ProgressView(text("local_working")) }
         if !manager.message.isEmpty { Text(manager.message).font(.callout).textSelection(.enabled) }
       }
@@ -71,69 +78,108 @@ struct LocalDiagnosticsSettingsView: View {
         if #available(iOS 27, *) {
           LocalDevicePairingControls()
         } else {
-          Label(text("local_pair_import_required"), systemImage: "doc.badge.arrow.up").font(.callout)
-            .accessibilityIdentifier("localPairing.importRequired")
+          Label(text("local_pair_import_required"), systemImage: "doc.badge.arrow.up").font(
+            .callout
+          )
+          .accessibilityIdentifier("localPairing.importRequired")
         }
         if #available(iOS 27, *) {
-        ForEach(transfer.pairings, id: \.hostID) { pair in
-          Button { Task { await manager.reuse(pair) } } label: {
-            Label(text("local_reuse") + " · " + (pair.platform == "windows" ? "Windows" : "Mac"), systemImage: "key.horizontal")
-          }.disabled(manager.busy || manager.pairingActive)
-        }
+          ForEach(transfer.pairings, id: \.hostID) { pair in
+            Button {
+              Task { await manager.reuse(pair) }
+            } label: {
+              Label(
+                text("local_reuse") + " · " + (pair.platform == "windows" ? "Windows" : "Mac"),
+                systemImage: "key.horizontal")
+            }.disabled(manager.busy || manager.pairingActive)
+          }
         }
         DisclosureGroup(text("local_import_title")) {
           Text(text("local_direct_import_note")).font(.caption).foregroundStyle(.secondary)
           Text(text("local_import_note")).font(.caption).foregroundStyle(.secondary)
-          TextField(text("local_udid"), text: $expectedUDID).textInputAutocapitalization(.never).autocorrectionDisabled()
-          Button(text("local_import_button")) { importing = true }.disabled(expectedUDID.isEmpty || manager.busy || manager.pairingActive)
-          Link("idevice_pair", destination: URL(string: "https://github.com/jkcoxson/idevice_pair/releases")!)
+          TextField(text("local_udid"), text: $expectedUDID).textInputAutocapitalization(.never)
+            .autocorrectionDisabled()
+          Button(text("local_import_button")) { importing = true }.disabled(
+            expectedUDID.isEmpty || manager.busy || manager.pairingActive)
+          Link(
+            "idevice_pair",
+            destination: URL(string: "https://github.com/jkcoxson/idevice_pair/releases")!)
         }
       }
       Section(text("local_vpn_step")) {
         Text(text("local_vpn_note"))
-        Link(text("local_get_vpn"), destination: URL(string: "https://apps.apple.com/app/id6755608044")!)
+        Link(
+          text("local_get_vpn"),
+          destination: URL(string: "https://apps.apple.com/app/id6755608044")!)
         Link(text("local_open_vpn"), destination: URL(string: "localdevvpn://")!)
-        TextField(text("local_address"), text: $manager.address).keyboardType(.numbersAndPunctuation)
-          .textInputAutocapitalization(.never).autocorrectionDisabled()
+        TextField(text("local_address"), text: $manager.address).keyboardType(
+          .numbersAndPunctuation
+        )
+        .textInputAutocapitalization(.never).autocorrectionDisabled()
         Text(text("local_vpn_caution")).font(.caption).foregroundStyle(.secondary)
       }
       Section(text("live_title")) {
         Toggle(text("local_live_enable"), isOn: $settings.liveBatteryEnabled)
           .accessibilityIdentifier("localBattery.enable")
         Text(text("local_live_note")).font(.caption).foregroundStyle(.secondary)
-        Button { Task { await manager.receiveBatteryNow() } } label: {
+        Button {
+          Task { await manager.receiveBatteryNow() }
+        } label: {
           Label(text("live_receive"), systemImage: "battery.100percent")
-        }.disabled(!manager.configured || manager.batteryBusy || manager.pairingActive || !settings.liveBatteryEnabled || !settings.localAutomaticCollectionEnabled)
-          .accessibilityIdentifier("localBattery.receive")
+        }.disabled(
+          !manager.configured || manager.batteryBusy || manager.pairingActive
+            || !settings.liveBatteryEnabled || !settings.localAutomaticCollectionEnabled
+        )
+        .accessibilityIdentifier("localBattery.receive")
         if manager.batteryBusy { ProgressView() }
         if let reading = manager.reading {
-          LabeledContent(text("live_last")) { Text(reading.acquiredAt, format: .dateTime.month().day().hour().minute().second()) }
+          LabeledContent(text("live_last")) {
+            Text(reading.acquiredAt, format: .dateTime.month().day().hour().minute().second())
+          }
         }
-        NavigationLink { LiveBatteryView(embeddedInSettings: true) } label: { Label(text("live_title"), systemImage: "chart.bar") }
-          .disabled(!settings.liveBatteryEnabled).accessibilityIdentifier("localBattery.values")
+        NavigationLink {
+          LiveBatteryView(embeddedInSettings: true)
+        } label: {
+          Label(text("live_title"), systemImage: "chart.bar")
+        }
+        .disabled(!settings.liveBatteryEnabled).accessibilityIdentifier("localBattery.values")
       }
       Section {
-        Button { Task { await manager.collectNow() } } label: {
+        Button {
+          Task { await manager.collectNow() }
+        } label: {
           Label(text("local_collect_now"), systemImage: "arrow.down.doc")
-        }.disabled(!manager.configured || manager.busy || manager.pairingActive || !AppSettings.shared.localAutomaticCollectionEnabled)
+        }.disabled(
+          !manager.configured || manager.busy || manager.pairingActive
+            || !AppSettings.shared.localAutomaticCollectionEnabled)
         Text(text("local_background_note")).font(.caption).foregroundStyle(.secondary)
         Text(text("local_limits")).font(.caption).foregroundStyle(.secondary)
-        Button(text("local_forget"), role: .destructive) { forgetConfirmation = true }.disabled(!manager.configured || manager.pairingActive)
+        Button(text("local_forget"), role: .destructive) { forgetConfirmation = true }.disabled(
+          !manager.configured || manager.pairingActive)
       }
     }.accessibilityIdentifier("localDiagnostics.form")
       .navigationTitle(text("local_title"))
       .alert(text("local_forget"), isPresented: $forgetConfirmation) {
         Button(text("local_forget"), role: .destructive) { manager.forget() }
         Button(L10n.text("cancel", table: "Common"), role: .cancel) {}
-      } message: { Text(text("local_forget_note")) }
-      .alert(text("local_setup_needed"), isPresented: Binding(get: { errorMessage != nil }, set: { if !$0 { errorMessage = nil } })) {
+      } message: {
+        Text(text("local_forget_note"))
+      }
+      .alert(
+        text("local_setup_needed"),
+        isPresented: Binding(get: { errorMessage != nil }, set: { if !$0 { errorMessage = nil } })
+      ) {
         Button(L10n.text("ok", table: "Common")) { errorMessage = nil }
-      } message: { Text(errorMessage ?? "") }
-      .fileImporter(isPresented: $importing, allowedContentTypes: [.propertyList, .data]) { result in
+      } message: {
+        Text(errorMessage ?? "")
+      }
+      .fileImporter(isPresented: $importing, allowedContentTypes: [.propertyList, .data]) {
+        result in
         do {
           let url = try result.get(); let access = url.startAccessingSecurityScopedResource()
           defer { if access { url.stopAccessingSecurityScopedResource() } }
-          guard let size = try url.resourceValues(forKeys: [.fileSizeKey]).fileSize, size <= 65536 else { throw LocalDiagnosticsTransport.Failure.invalid }
+          guard let size = try url.resourceValues(forKeys: [.fileSizeKey]).fileSize, size <= 65536
+          else { throw LocalDiagnosticsTransport.Failure.invalid }
           try manager.importPairing(Data(contentsOf: url), expectedUDID: expectedUDID)
         } catch { errorMessage = text("local_import_failed") }
       }
@@ -151,10 +197,15 @@ struct LocalCollectionStatusView: View {
     if manager.collectionProgress != nil || manager.collectionPaused {
       if compact {
         VStack(spacing: 0) {
-          Button { withAnimation(.easeInOut(duration: 0.2)) { showingDetails.toggle() } } label: {
+          Button {
+            withAnimation(.easeInOut(duration: 0.2)) { showingDetails.toggle() }
+          } label: {
             HStack(spacing: 10) {
-              if manager.collectionPaused { Image(systemName: "pause.circle") }
-              else { ProgressView().controlSize(.mini) }
+              if manager.collectionPaused {
+                Image(systemName: "pause.circle")
+              } else {
+                ProgressView().controlSize(.mini)
+              }
               Text(text(manager.collectionPaused ? "local_collection_paused" : "local_collecting"))
                 .font(.caption.weight(.semibold)).lineLimit(1)
               Spacer(minLength: 4)
@@ -170,67 +221,90 @@ struct LocalCollectionStatusView: View {
           .buttonStyle(.plain)
           .accessibilityIdentifier("localCollection.showDetails")
           if showingDetails {
-            LocalCollectionStatusView(showsTitle: false).padding(.horizontal, 16).padding(.bottom, 8)
-              .frame(maxWidth: 700)
+            LocalCollectionStatusView(showsTitle: false).padding(.horizontal, 16).padding(
+              .bottom, 8
+            )
+            .frame(maxWidth: 700)
           }
         }
         .frame(maxWidth: .infinity)
         .background(.regularMaterial)
       } else {
-      VStack(alignment: .leading, spacing: 8) {
-        HStack {
-          if showsTitle {
-            Label(text(manager.collectionPaused ? "local_collection_paused" : "local_collecting"),
-            systemImage: manager.collectionPaused ? "pause.circle" : "arrow.down.doc.fill")
-            .font(.subheadline.bold())
-          }
-          Spacer()
-          if manager.busy && !manager.collectionPaused, let start = manager.collectionStartedAt {
-            Text(start, style: .timer).monospacedDigit().font(.caption)
-          }
-          if manager.busy && !manager.collectionPaused {
-            Button(text("local_pause")) { manager.cancelCollection() }
-              .accessibilityIdentifier("localCollection.pause")
-          } else if !manager.busy {
-            Button { manager.dismissCollectionNotice() } label: { Image(systemName: "xmark") }
-              .accessibilityLabel(L10n.text("close", table: "Common"))
-          }
-        }
-        if !manager.collectionPaused, let progress = manager.collectionProgress {
-          Group {
-            if let fraction = progress.fraction { ProgressView(value: fraction) }
-            else { ProgressView() }
-          }.accessibilityIdentifier("localCollection.progress")
+        VStack(alignment: .leading, spacing: 8) {
           HStack {
-            Text(text("local_progress_" + progress.phase.rawValue))
-            Spacer()
-            if progress.total > 0 {
-              Text(String(format: text("local_progress_files"), progress.completed, progress.total)).monospacedDigit()
+            if showsTitle {
+              Label(
+                text(manager.collectionPaused ? "local_collection_paused" : "local_collecting"),
+                systemImage: manager.collectionPaused ? "pause.circle" : "arrow.down.doc.fill"
+              )
+              .font(.subheadline.bold())
             }
-          }.font(.caption).foregroundStyle(.secondary)
-          if !compact && !progress.file.isEmpty {
-            Text(progress.file).font(.caption2.monospaced()).lineLimit(1).truncationMode(.middle)
+            Spacer()
+            if manager.busy && !manager.collectionPaused, let start = manager.collectionStartedAt {
+              Text(start, style: .timer).monospacedDigit().font(.caption)
+            }
+            if manager.busy && !manager.collectionPaused {
+              Button(text("local_pause")) { manager.cancelCollection() }
+                .accessibilityIdentifier("localCollection.pause")
+            } else if !manager.busy {
+              Button {
+                manager.dismissCollectionNotice()
+              } label: {
+                Image(systemName: "xmark")
+              }
+              .accessibilityLabel(L10n.text("close", table: "Common"))
+            }
           }
-          if progress.bytes > 0 {
-            let bytes = ByteCountFormatter.string(fromByteCount: progress.bytes, countStyle: .file)
-            Text(progress.fileBytes.map { bytes + " / " + ByteCountFormatter.string(fromByteCount: $0, countStyle: .file) } ?? bytes)
+          if !manager.collectionPaused, let progress = manager.collectionProgress {
+            Group {
+              if let fraction = progress.fraction {
+                ProgressView(value: fraction)
+              } else {
+                ProgressView()
+              }
+            }.accessibilityIdentifier("localCollection.progress")
+            HStack {
+              Text(text("local_progress_" + progress.phase.rawValue))
+              Spacer()
+              if progress.total > 0 {
+                Text(
+                  String(format: text("local_progress_files"), progress.completed, progress.total)
+                ).monospacedDigit()
+              }
+            }.font(.caption).foregroundStyle(.secondary)
+            if !compact && !progress.file.isEmpty {
+              Text(progress.file).font(.caption2.monospaced()).lineLimit(1).truncationMode(.middle)
+            }
+            if progress.bytes > 0 {
+              let bytes = ByteCountFormatter.string(
+                fromByteCount: progress.bytes, countStyle: .file)
+              Text(
+                progress.fileBytes.map {
+                  bytes + " / " + ByteCountFormatter.string(fromByteCount: $0, countStyle: .file)
+                } ?? bytes
+              )
               .font(.caption).monospacedDigit()
               .accessibilityIdentifier("localCollection.bytes")
-          }
-        } else {
-          Text(text("local_collection_resume_note")).font(.caption).foregroundStyle(.secondary)
-          if !manager.busy {
-            Button(text("local_resume")) { Task { await manager.collectNow() } }
-              .disabled(!manager.configured || !AppSettings.shared.localAutomaticCollectionEnabled || manager.pairingActive)
-              .accessibilityIdentifier("localCollection.resume")
+            }
+          } else {
+            Text(text("local_collection_resume_note")).font(.caption).foregroundStyle(.secondary)
+            if !manager.busy {
+              Button(text("local_resume")) { Task { await manager.collectNow() } }
+                .disabled(
+                  !manager.configured || !AppSettings.shared.localAutomaticCollectionEnabled
+                    || manager.pairingActive
+                )
+                .accessibilityIdentifier("localCollection.resume")
+            }
           }
         }
-      }
-      .padding(compact ? 12 : 4)
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .background(compact ? Color.green.opacity(0.10) : Color.clear, in: RoundedRectangle(cornerRadius: 12))
-      .padding(.horizontal, compact ? 12 : 0)
-      .buttonStyle(.borderless)
+        .padding(compact ? 12 : 4)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+          compact ? Color.green.opacity(0.10) : Color.clear, in: RoundedRectangle(cornerRadius: 12)
+        )
+        .padding(.horizontal, compact ? 12 : 0)
+        .buttonStyle(.borderless)
       }
     }
   }
@@ -244,48 +318,58 @@ private struct LocalDevicePairingControls: View {
   @State private var pairConfirmation = false
   private func text(_ key: String) -> String { L10n.text(key, table: "MacTransfer") }
   var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-          Label(text("local_pair_title"), systemImage: "iphone.and.arrow.forward").font(.headline)
-          VStack(alignment: .leading, spacing: 8) {
-            Label(text("local_pair_developer_required"), systemImage: "exclamationmark.shield.fill")
-              .font(.headline).foregroundStyle(.orange)
-              .accessibilityIdentifier("localPairing.developerRequired")
-            Text(text("local_pair_developer_steps")).font(.callout)
-            Link(text("local_pair_developer_guide"), destination: URL(string:
-              "https://developer.apple.com/documentation/xcode/enabling-developer-mode-on-a-device")!)
-          }.padding(12).frame(maxWidth: .infinity, alignment: .leading)
-            .background(.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
-          Text(text("local_pair_instructions")).font(.callout)
-          if !pairing.hostName.isEmpty {
-            Text(pairing.hostName).font(.caption.monospaced()).textSelection(.enabled)
-              .accessibilityIdentifier("localPairing.hostName")
-          }
-          if pairing.active {
-            ProgressView(text(pairing.statusKey))
-            if !pairing.pin.isEmpty {
-              Text(text("local_pair_code")).font(.caption)
-              Text(pairing.pin).font(.system(.largeTitle, design: .monospaced).bold()).textSelection(.enabled)
-            }
-            if pairing.shortBackground { Text(text("local_pair_short_background")).font(.caption).foregroundStyle(.orange) }
-            Button(L10n.text("cancel", table: "Common"), role: .cancel) { pairing.cancel() }
-              .accessibilityIdentifier("localPairing.cancel")
-          } else {
-            Button {
-              pairConfirmation = true
-            } label: { Label(text("local_pair_start"), systemImage: "key.horizontal.fill") }
-              .disabled(manager.busy).accessibilityIdentifier("localPairing.start")
-            if pairing.statusKey != "local_pair_ready" { Text(text(pairing.statusKey)).font(.callout) }
-          }
-        }.padding(.vertical, 8)
-          // Form rows must not activate the guide Link and pairing Button together.
-          .buttonStyle(.borderless)
+    VStack(alignment: .leading, spacing: 12) {
+      Label(text("local_pair_title"), systemImage: "iphone.and.arrow.forward").font(.headline)
+      VStack(alignment: .leading, spacing: 8) {
+        Label(text("local_pair_developer_required"), systemImage: "exclamationmark.shield.fill")
+          .font(.headline).foregroundStyle(.orange)
+          .accessibilityIdentifier("localPairing.developerRequired")
+        Text(text("local_pair_developer_steps")).font(.callout)
+        Link(
+          text("local_pair_developer_guide"),
+          destination: URL(
+            string:
+              "https://developer.apple.com/documentation/xcode/enabling-developer-mode-on-a-device")!
+        )
+      }.padding(12).frame(maxWidth: .infinity, alignment: .leading)
+        .background(.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
+      Text(text("local_pair_instructions")).font(.callout)
+      if !pairing.hostName.isEmpty {
+        Text(pairing.hostName).font(.caption.monospaced()).textSelection(.enabled)
+          .accessibilityIdentifier("localPairing.hostName")
+      }
+      if pairing.active {
+        ProgressView(text(pairing.statusKey))
+        if !pairing.pin.isEmpty {
+          Text(text("local_pair_code")).font(.caption)
+          Text(pairing.pin).font(.system(.largeTitle, design: .monospaced).bold()).textSelection(
+            .enabled)
+        }
+        if pairing.shortBackground {
+          Text(text("local_pair_short_background")).font(.caption).foregroundStyle(.orange)
+        }
+        Button(L10n.text("cancel", table: "Common"), role: .cancel) { pairing.cancel() }
+          .accessibilityIdentifier("localPairing.cancel")
+      } else {
+        Button {
+          pairConfirmation = true
+        } label: {
+          Label(text("local_pair_start"), systemImage: "key.horizontal.fill")
+        }
+        .disabled(manager.busy).accessibilityIdentifier("localPairing.start")
+        if pairing.statusKey != "local_pair_ready" { Text(text(pairing.statusKey)).font(.callout) }
+      }
+    }.padding(.vertical, 8)
+      // Form rows must not activate the guide Link and pairing Button together.
+      .buttonStyle(.borderless)
 
       .alert(text("local_pair_developer_required"), isPresented: $pairConfirmation) {
         Button(text("local_pair_developer_confirm")) { pairing.start() }
         Button(L10n.text("cancel", table: "Common"), role: .cancel) {}
       } message: {
-        Text(text("local_pair_developer_steps") +
-          (manager.configured ? "\n\n" + text("local_pair_replace_note") : ""))
+        Text(
+          text("local_pair_developer_steps")
+            + (manager.configured ? "\n\n" + text("local_pair_replace_note") : ""))
       }
   }
 }

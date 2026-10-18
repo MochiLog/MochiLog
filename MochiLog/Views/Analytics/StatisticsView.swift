@@ -32,9 +32,11 @@ struct StatisticsView: View {
           .font(.subheadline).foregroundStyle(.secondary)
           .padding(.vertical, 16)
       } else {
-        LazyVGrid(columns: dynamicTypeSize.isAccessibilitySize
-          ? [GridItem(.flexible())]
-          : [GridItem(.adaptive(minimum: 280), spacing: 16)], alignment: .leading, spacing: 16) {
+        LazyVGrid(
+          columns: dynamicTypeSize.isAccessibilitySize
+            ? [GridItem(.flexible())]
+            : [GridItem(.adaptive(minimum: 280), spacing: 16)], alignment: .leading, spacing: 16
+        ) {
           ForEach(deviceNames, id: \.self) { name in
             deviceStatistics(name)
           }
@@ -56,12 +58,14 @@ struct StatisticsView: View {
       return $0.id.uuidString < $1.id.uuidString
     }
     if let latest {
-      let first = records.filter { $0.logDate < latest.logDate && health($0).isFinite && health($0) > 0 }
-        .min {
-          if $0.logDate != $1.logDate { return $0.logDate < $1.logDate }
-          if $0.createdAt != $1.createdAt { return $0.createdAt < $1.createdAt }
-          return $0.id.uuidString < $1.id.uuidString
-        }
+      let first = records.filter {
+        $0.logDate < latest.logDate && health($0).isFinite && health($0) > 0
+      }
+      .min {
+        if $0.logDate != $1.logDate { return $0.logDate < $1.logDate }
+        if $0.createdAt != $1.createdAt { return $0.createdAt < $1.createdAt }
+        return $0.id.uuidString < $1.id.uuidString
+      }
       VStack(alignment: .leading, spacing: 18) {
         VStack(alignment: .leading, spacing: 5) {
           Text(DeviceLibrary.localizedName(for: name)).font(.headline)
@@ -69,30 +73,41 @@ struct StatisticsView: View {
             .font(.caption).foregroundStyle(.secondary)
         }
         VStack(alignment: .leading, spacing: 6) {
-          Text(L10n.string(appSettings.analysisDataSource == .nominal
-            ? "stat_latest_nominal" : "stat_latest_actual", table: "Analytics"))
-            .font(.caption).foregroundStyle(.secondary)
+          Text(
+            L10n.string(
+              appSettings.analysisDataSource == .nominal
+                ? "stat_latest_nominal" : "stat_latest_actual", table: "Analytics")
+          )
+          .font(.caption).foregroundStyle(.secondary)
           Text(percent(health(latest)))
             .font(.system(.largeTitle, design: .rounded, weight: .semibold))
             .monospacedDigit()
             .foregroundStyle(healthColor(health(latest)))
         }
         Divider()
-        let layout = dynamicTypeSize.isAccessibilitySize
+        let layout =
+          dynamicTypeSize.isAccessibilitySize
           ? AnyLayout(VStackLayout(alignment: .leading, spacing: 16))
           : AnyLayout(HStackLayout(alignment: .top, spacing: 12))
         layout {
-          metric(L10n.string("record_count", table: "Analytics"), value: records.count.formatted(), icon: "doc.text")
-          metric(L10n.string("cycle_count", table: "Analytics"), value: latest.cycleCount.formatted(), icon: "arrow.triangle.2.circlepath")
+          metric(
+            L10n.string("record_count", table: "Analytics"), value: records.count.formatted(),
+            icon: "doc.text")
+          metric(
+            L10n.string("cycle_count", table: "Analytics"), value: latest.cycleCount.formatted(),
+            icon: "arrow.triangle.2.circlepath")
         }
         VStack(alignment: .leading, spacing: 6) {
           let canCompare = first != nil && health(latest).isFinite && health(latest) > 0
-          metric(L10n.string("stat_health_change", table: "Analytics"),
+          metric(
+            L10n.string("stat_health_change", table: "Analytics"),
             value: canCompare ? capacityChange(health(latest) - health(first!)) : "—",
             icon: "arrow.left.arrow.right")
           if canCompare, let first {
-            Text("\(first.logDate.formatted(date: .abbreviated, time: .omitted)) – \(latest.logDate.formatted(date: .abbreviated, time: .omitted))")
-              .font(.caption).foregroundStyle(.secondary)
+            Text(
+              "\(first.logDate.formatted(date: .abbreviated, time: .omitted)) – \(latest.logDate.formatted(date: .abbreviated, time: .omitted))"
+            )
+            .font(.caption).foregroundStyle(.secondary)
             Text(L10n.string("stat_health_change_note", table: "Analytics"))
               .font(.caption).foregroundStyle(.secondary)
           } else {
@@ -103,8 +118,10 @@ struct StatisticsView: View {
       }
       .padding(20)
       .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-      .background(Color(uiColor: .tertiarySystemGroupedBackground),
-        in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+      .background(
+        Color(uiColor: .tertiarySystemGroupedBackground),
+        in: RoundedRectangle(cornerRadius: 20, style: .continuous)
+      )
       .accessibilityElement(children: .contain)
       .accessibilityIdentifier("statistics.device.\(name)")
     }
@@ -123,7 +140,8 @@ struct StatisticsView: View {
     let rounded = (value * 10).rounded() / 10
     guard rounded != 0 else { return L10n.string("stat_health_unchanged", table: "Analytics") }
     let amount = (abs(rounded) / 100).formatted(.percent.precision(.fractionLength(1)))
-    let format = L10n.string(rounded < 0 ? "stat_health_decreased" : "stat_health_increased", table: "Analytics")
+    let format = L10n.string(
+      rounded < 0 ? "stat_health_decreased" : "stat_health_increased", table: "Analytics")
     return String(format: format, amount)
   }
 

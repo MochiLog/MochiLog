@@ -21,11 +21,15 @@ enum SharedLogInbox {
     do {
       var coordinationError: NSError?
       var copyResult: Result<Void, Error> = .failure(CocoaError(.fileReadUnknown))
-      NSFileCoordinator().coordinate(readingItemAt: source, options: [], error: &coordinationError) { readable in
+      NSFileCoordinator().coordinate(readingItemAt: source, options: [], error: &coordinationError)
+      { readable in
         copyResult = Result {
           let values = try readable.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey])
-          guard values.isRegularFile == true, values.isSymbolicLink != true else { throw CocoaError(.fileReadUnsupportedScheme) }
-          try FileManager.default.copyItem(at: readable, to: folder.appendingPathComponent(source.lastPathComponent))
+          guard values.isRegularFile == true, values.isSymbolicLink != true else {
+            throw CocoaError(.fileReadUnsupportedScheme)
+          }
+          try FileManager.default.copyItem(
+            at: readable, to: folder.appendingPathComponent(source.lastPathComponent))
         }
       }
       if let coordinationError { throw coordinationError }
@@ -37,18 +41,26 @@ enum SharedLogInbox {
   }
 
   static func publish(_ batch: URL) throws {
-    let name = String(batch.lastPathComponent.dropFirst()).replacingOccurrences(of: ".pending", with: ".ready")
-    try FileManager.default.moveItem(at: batch, to: batch.deletingLastPathComponent().appendingPathComponent(name))
+    let name = String(batch.lastPathComponent.dropFirst()).replacingOccurrences(
+      of: ".pending", with: ".ready")
+    try FileManager.default.moveItem(
+      at: batch, to: batch.deletingLastPathComponent().appendingPathComponent(name))
   }
 
   static func pendingFiles(at root: URL) throws -> [URL] {
     guard FileManager.default.fileExists(atPath: root.path) else { return [] }
-    let batches = try FileManager.default.contentsOfDirectory(at: root, includingPropertiesForKeys: nil)
-      .filter { $0.pathExtension == "ready" }.sorted { $0.path < $1.path }
+    let batches = try FileManager.default.contentsOfDirectory(
+      at: root, includingPropertiesForKeys: nil
+    )
+    .filter { $0.pathExtension == "ready" }.sorted { $0.path < $1.path }
     var files: [URL] = []
     for batch in batches {
-      guard let enumerator = FileManager.default.enumerator(at: batch,
-        includingPropertiesForKeys: [.isRegularFileKey, .isSymbolicLinkKey], options: [.skipsHiddenFiles]) else { continue }
+      guard
+        let enumerator = FileManager.default.enumerator(
+          at: batch,
+          includingPropertiesForKeys: [.isRegularFileKey, .isSymbolicLinkKey],
+          options: [.skipsHiddenFiles])
+      else { continue }
       for case let file as URL in enumerator {
         let values = try file.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey])
         if values.isRegularFile == true && values.isSymbolicLink != true { files.append(file) }
@@ -60,14 +72,20 @@ enum SharedLogInbox {
   static func acknowledge(_ file: URL, saved: Bool, at root: URL) throws {
     let itemFolder = file.deletingLastPathComponent()
     let batch = itemFolder.deletingLastPathComponent()
-    guard batch.deletingLastPathComponent().standardizedFileURL.path == root.standardizedFileURL.path,
-      batch.pathExtension == "ready" else { return }
-    if saved { try FileManager.default.removeItem(at: file) }
-    else {
-      let review = root.appendingPathComponent("Review").appendingPathComponent(batch.lastPathComponent)
-        .appendingPathComponent(itemFolder.lastPathComponent)
+    guard
+      batch.deletingLastPathComponent().standardizedFileURL.path == root.standardizedFileURL.path,
+      batch.pathExtension == "ready"
+    else { return }
+    if saved {
+      try FileManager.default.removeItem(at: file)
+    } else {
+      let review = root.appendingPathComponent("Review").appendingPathComponent(
+        batch.lastPathComponent
+      )
+      .appendingPathComponent(itemFolder.lastPathComponent)
       try FileManager.default.createDirectory(at: review, withIntermediateDirectories: true)
-      try FileManager.default.moveItem(at: file, to: review.appendingPathComponent(file.lastPathComponent))
+      try FileManager.default.moveItem(
+        at: file, to: review.appendingPathComponent(file.lastPathComponent))
     }
     if (try FileManager.default.contentsOfDirectory(atPath: itemFolder.path)).isEmpty {
       try FileManager.default.removeItem(at: itemFolder)

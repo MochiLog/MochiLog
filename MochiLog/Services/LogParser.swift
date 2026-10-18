@@ -124,7 +124,8 @@ struct LogParser {
             let message = battery.message,
             message.last_value_CycleCount != nil,
             let nominal = message.last_value_NominalChargeCapacity, nominal > 0,
-            let raw = message.last_value_AppleRawMaxCapacity, raw > 0 {
+            let raw = message.last_value_AppleRawMaxCapacity, raw > 0
+          {
             lastCompleteBatteryJSONString = json
           }
         }
@@ -167,7 +168,8 @@ struct LogParser {
       let rawValue = msg.last_value_AppleRawMaxCapacity, rawValue > 0
     else {
 
-      let msg = lastBatteryJSONString == nil
+      let msg =
+        lastBatteryJSONString == nil
         ? L10n.string("import_no_battery_measurements", table: "Home")
         : L10n.string("import_invalid_battery_format", table: "Home")
       result.failureDescription = msg
@@ -189,7 +191,8 @@ struct LogParser {
     if let id = result.deviceModelCode,
       !id.isEmpty,
       let name = DeviceLibrary.getDeviceName(for: id),
-      let cap = DeviceProfileStore.shared.capacityVariant(for: name, productSku: result.productSku)?.capacity ?? DeviceLibrary.getCapacity(for: name)
+      let cap = DeviceProfileStore.shared.capacityVariant(for: name, productSku: result.productSku)?
+        .capacity ?? DeviceLibrary.getCapacity(for: name)
     {
       result.designCapacity = cap
     }

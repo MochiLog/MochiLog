@@ -6,14 +6,20 @@ import SwiftUI
 // MARK: - 共通処理メソッド
 extension HomeView {
   /// デバイス名とモデルコードを解決する
-  private func resolveDeviceName(from result: LogParser.ParseResult, sourceID: UUID? = nil,
-    foreignSource: Bool = false) -> (
+  private func resolveDeviceName(
+    from result: LogParser.ParseResult, sourceID: UUID? = nil,
+    foreignSource: Bool = false
+  ) -> (
     deviceName: String, modelCode: String?
   ) {
-    let id = LogSourceIdentity.resolve(detected: result.detectedIdentifier ?? result.deviceModelCode,
+    let id = LogSourceIdentity.resolve(
+      detected: result.detectedIdentifier ?? result.deviceModelCode,
       source: sourceID ?? pendingSourcePhysicalDeviceID, known: LogSourceIdentityStore.models(),
-      local: DeviceLibrary.localModelIdentifier(), foreign: foreignSource ||
-        pendingBatchReview.map { CloudLogSharingState.sharedToken(in: $0.sourceURL) != nil } == true)
+      local: DeviceLibrary.localModelIdentifier(),
+      foreign: foreignSource
+        || pendingBatchReview.map { CloudLogSharingState.sharedToken(in: $0.sourceURL) != nil }
+          == true
+    )
     return (id.flatMap { DeviceLibrary.getDeviceName(for: $0) } ?? "Unknown", id)
   }
 
@@ -29,7 +35,8 @@ extension HomeView {
     var needsManualSelection = false
 
     if deviceName == "iPhone Air" {
-      let isMagSafe = result.firstUseDate == nil
+      let isMagSafe =
+        result.firstUseDate == nil
         && result.deflator == nil
         && result.lowRateCapacity == 0
         && result.rawCapacity == 0
@@ -51,8 +58,10 @@ extension HomeView {
 
   /// レコードを保存する（キャッシュ追加 + データベース挿入）
   func canContinueBatchReview() -> Bool {
-    guard let pending = pendingBatchReview, !CloudLogSharingState.allowsImport(pending.sourceURL) else { return true }
-    NotificationCenter.default.post(name: NSNotification.Name("ShowImportError"), object: nil,
+    guard let pending = pendingBatchReview, !CloudLogSharingState.allowsImport(pending.sourceURL)
+    else { return true }
+    NotificationCenter.default.post(
+      name: NSNotification.Name("ShowImportError"), object: nil,
       userInfo: ["errorMessage": L10n.string("cloud_sharing_unavailable", table: "Settings")])
     return false
   }
@@ -100,7 +109,9 @@ extension HomeView {
     logDate: Date,
     silent: Bool
   ) -> (record: BatteryRecord?, shouldReturn: Bool) {
-    if let pending = pendingBatchReview, CloudLogSharingState.sharedToken(in: pending.sourceURL) != nil {
+    if let pending = pendingBatchReview,
+      CloudLogSharingState.sharedToken(in: pending.sourceURL) != nil
+    {
       guard canContinueBatchReview() else { return (nil, true) }
       // This log belongs to another iPhone. Its Watch cannot be inferred from
       // this receiver's sole registered Watch; require an explicit choice.
@@ -127,7 +138,8 @@ extension HomeView {
     if let registeredWatch = automaticRegisteredWatch() {
       // 重複チェック（設定に応じて）
       if !AppSettings.shared.allowDuplicateRecords,
-        hasDuplicateRecord(on: logDate, deviceName: registeredWatch,
+        hasDuplicateRecord(
+          on: logDate, deviceName: registeredWatch,
           physicalDeviceID: pendingSourcePhysicalDeviceID)
       {
         if silent {
@@ -208,7 +220,8 @@ extension HomeView {
     // 自動モード or サイレントモード: 従来の処理
     // 重複チェック（設定に応じて）
     if !AppSettings.shared.allowDuplicateRecords,
-      hasDuplicateRecord(on: logDate, deviceName: deviceName,
+      hasDuplicateRecord(
+        on: logDate, deviceName: deviceName,
         physicalDeviceID: pendingSourcePhysicalDeviceID)
     {
       if silent {
@@ -250,7 +263,8 @@ extension HomeView {
 
     // 重複チェック
     if !AppSettings.shared.allowDuplicateRecords,
-      hasDuplicateRecord(on: logDate, deviceName: name,
+      hasDuplicateRecord(
+        on: logDate, deviceName: name,
         physicalDeviceID: pendingSourcePhysicalDeviceID)
     {
       DispatchQueue.main.async {
@@ -302,8 +316,10 @@ extension HomeView {
 // MARK: - ログ処理
 extension HomeView {
   /// ログテキストを非同期で解析・処理する
-  func processLogTextAsync(_ text: String, silent: Bool = false, contentHash: Int? = nil,
-    physicalDeviceID: UUID? = nil) {
+  func processLogTextAsync(
+    _ text: String, silent: Bool = false, contentHash: Int? = nil,
+    physicalDeviceID: UUID? = nil
+  ) {
     isProcessing = true
 
     let enableValidation = AppSettings.shared.enableCapacityValidation
@@ -467,7 +483,9 @@ extension HomeView {
       silent: false
     )
 
-    if baseDeviceName == "Unknown" && !isWatchDevice(parseResult: result, deviceName: baseDeviceName) {
+    if baseDeviceName == "Unknown"
+      && !isWatchDevice(parseResult: result, deviceName: baseDeviceName)
+    {
       pendingParseResult = result
       showingDeviceSelectionFullList = true
       return nil
@@ -526,7 +544,8 @@ extension HomeView {
       if queue.shouldPresentResults { showingBatchResults = true }
       let offset = batchImportResults.count
       batchImportResults += urls.enumerated().map { index, url in
-        FileImportResult(id: offset + index, filename: url.lastPathComponent,
+        FileImportResult(
+          id: offset + index, filename: url.lastPathComponent,
           parsedDate: nil, deviceName: nil, rawText: nil, status: .processing, errorMessage: nil)
       }
       // A bounded window avoids holding dozens of large analytics logs in memory.
@@ -541,10 +560,12 @@ extension HomeView {
                   let started = ProcessInfo.processInfo.systemUptime
                   let text = try? LogTextReader.read(url)
                   let result = text.map {
-                    LogParser.parse(text: $0, enableValidation: validation, validationThreshold: threshold)
+                    LogParser.parse(
+                      text: $0, enableValidation: validation, validationThreshold: threshold)
                   }
                   if #available(iOS 17, *), url.pathComponents.contains("MacTransferInbox") {
-                    let message = "Import trace: parsed \(url.lastPathComponent), elapsedMs=\(Int((ProcessInfo.processInfo.systemUptime - started) * 1000)), readable=\(text != nil), parsed=\(result != nil)"
+                    let message =
+                      "Import trace: parsed \(url.lastPathComponent), elapsedMs=\(Int((ProcessInfo.processInfo.systemUptime - started) * 1000)), readable=\(text != nil), parsed=\(result != nil)"
                     Task { @MainActor in MacTransferManager.appendDebugEvent(message) }
                   }
                   continuation.resume(returning: (index, text, result))
@@ -561,32 +582,39 @@ extension HomeView {
           let id = offset + index
           let url = urls[index]
           if let text, let parsedResult {
-            var item = processBatchItem(id: id, parseResult: parsedResult,
+            var item = processBatchItem(
+              id: id, parseResult: parsedResult,
               filename: url.lastPathComponent, rawText: text,
               physicalDeviceID: queue.physicalDeviceID(for: url),
               transportRecordID: queue.physicalDeviceID(for: url).flatMap { origin in
-                guard let bytes = try? Data(contentsOf: url, options: .mappedIfSafe) else { return nil }
+                guard let bytes = try? Data(contentsOf: url, options: .mappedIfSafe) else {
+                  return nil
+                }
                 let digest = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
                 return CloudSharedLogToken.recordID(origin: origin, digest: digest)
               }, foreignSource: CloudLogSharingState.sharedToken(in: url) != nil,
               importAllowed: CloudLogSharingState.allowsImport(url))
             item.sourceURL = url
             if let date = parsedResult.logDate, let cycles = parsedResult.cycleCount,
-              let nominal = parsedResult.nominalCapacity, let raw = parsedResult.rawCapacity {
-              item.reviewSignature = BatchReviewSignature(logDate: date,
+              let nominal = parsedResult.nominalCapacity, let raw = parsedResult.rawCapacity
+            {
+              item.reviewSignature = BatchReviewSignature(
+                logDate: date,
                 cycleCount: cycles, nominalCapacity: nominal, rawCapacity: raw,
                 physicalDeviceID: item.physicalDeviceID)
             }
             batchImportResults[id] = item
           } else {
-            batchImportResults[id] = FileImportResult(id: id, filename: url.lastPathComponent,
+            batchImportResults[id] = FileImportResult(
+              id: id, filename: url.lastPathComponent,
               parsedDate: nil, deviceName: nil, rawText: nil, status: .error,
               errorMessage: L10n.string("file_read_error", table: "Home"), sourceURL: url)
           }
           let status = batchImportResults[id].status
           if #available(iOS 17, *), url.pathComponents.contains("MacTransferInbox") {
             let result = batchImportResults[id]
-            MacTransferManager.shared.recordImportOutcome(filename: result.filename,
+            MacTransferManager.shared.recordImportOutcome(
+              filename: result.filename,
               status: String(describing: status), logDate: result.parsedDate,
               detail: result.errorMessage, sourceURL: url)
           }
@@ -603,7 +631,8 @@ extension HomeView {
           let date = result.parsedDate, let name = result.deviceName,
           let record = records.first(where: {
             $0.deviceName == name && abs($0.logDate.timeIntervalSince(date)) < 1.0
-          }) {
+          })
+        {
           isProcessing = false
           showRecordDetail(record)
         } else {
@@ -621,22 +650,30 @@ extension HomeView {
   func finishBatchReviewIfSaved(in updatedRecords: [BatteryRecord]) {
     guard let pending = pendingBatchReview else { return }
     let expectedID: UUID? = pending.signature.physicalDeviceID.flatMap { origin in
-      guard let bytes = try? Data(contentsOf: pending.sourceURL, options: .mappedIfSafe) else { return nil }
+      guard let bytes = try? Data(contentsOf: pending.sourceURL, options: .mappedIfSafe) else {
+        return nil
+      }
       let digest = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
       return CloudSharedLogToken.recordID(origin: origin, digest: digest)
     }
-    guard updatedRecords.contains(where: {
-      (!pending.existingRecordIDs.contains($0.id) || $0.id == expectedID) && pending.signature.matches($0)
-    }) else { return }
+    guard
+      updatedRecords.contains(where: {
+        (!pending.existingRecordIDs.contains($0.id) || $0.id == expectedID)
+          && pending.signature.matches($0)
+      })
+    else { return }
     pendingBatchReview = nil
     if #available(iOS 17, *), pending.sourceURL.pathComponents.contains("MacTransferInbox") {
-      MacTransferManager.shared.recordImportOutcome(filename: pending.sourceURL.lastPathComponent,
-        status: "success", logDate: pending.signature.logDate, detail: "manual review saved", sourceURL: pending.sourceURL)
+      MacTransferManager.shared.recordImportOutcome(
+        filename: pending.sourceURL.lastPathComponent,
+        status: "success", logDate: pending.signature.logDate, detail: "manual review saved",
+        sourceURL: pending.sourceURL)
     }
     SharedImportQueue.shared.acknowledge(pending.sourceURL, saved: true)
     if let index = batchImportResults.firstIndex(where: { $0.sourceURL == pending.sourceURL }) {
       let item = batchImportResults[index]
-      batchImportResults[index] = FileImportResult(id: item.id, filename: item.filename,
+      batchImportResults[index] = FileImportResult(
+        id: item.id, filename: item.filename,
         parsedDate: item.parsedDate, deviceName: item.deviceName, rawText: nil,
         status: .success, errorMessage: nil, physicalDeviceID: item.physicalDeviceID)
     }
@@ -654,12 +691,16 @@ extension HomeView {
     transportRecordID: UUID? = nil, foreignSource: Bool = false, importAllowed: Bool = true
   ) -> FileImportResult {
     guard importAllowed else {
-      return FileImportResult(id: id, filename: filename, parsedDate: parseResult.logDate,
+      return FileImportResult(
+        id: id, filename: filename, parsedDate: parseResult.logDate,
         deviceName: nil, rawText: nil, status: .error,
         errorMessage: L10n.string("cloud_sharing_unavailable", table: "Settings"))
     }
-    if let transportRecordID, dataStore.recordsDescending.contains(where: { $0.id == transportRecordID }) {
-      return FileImportResult(id: id, filename: filename, parsedDate: parseResult.logDate,
+    if let transportRecordID,
+      dataStore.recordsDescending.contains(where: { $0.id == transportRecordID })
+    {
+      return FileImportResult(
+        id: id, filename: filename, parsedDate: parseResult.logDate,
         deviceName: nil, rawText: nil, status: .duplicate, errorMessage: nil)
     }
 
@@ -694,20 +735,22 @@ extension HomeView {
     }
 
     if parseResult.isCapacityMismatch {
-      return FileImportResult(id: id, filename: filename, parsedDate: logDate,
+      return FileImportResult(
+        id: id, filename: filename, parsedDate: logDate,
         deviceName: nil, rawText: rawText, status: .needsReview,
         errorMessage: L10n.string("capacity_mismatch_error", table: "Home"),
         physicalDeviceID: physicalDeviceID)
     }
 
     // デバイス名解決
-    let (baseDeviceName, baseModelCode) = resolveDeviceName(from: parseResult,
+    let (baseDeviceName, baseModelCode) = resolveDeviceName(
+      from: parseResult,
       sourceID: physicalDeviceID, foreignSource: foreignSource)
     let (resolvedName, resolvedModelCode, needsMagSafeSelection) = checkAndApplyMagSafeBattery(
       from: parseResult,
       deviceName: baseDeviceName,
       modelCode: baseModelCode,
-      silent: false // バッチ処理でもユーザーへの確認（needsReview）を行うためにfalseを指定
+      silent: false  // バッチ処理でもユーザーへの確認（needsReview）を行うためにfalseを指定
     )
 
     if needsMagSafeSelection {
@@ -728,7 +771,10 @@ extension HomeView {
 
     // Apple Watch の処理
     if isWatchDevice(parseResult: parseResult, deviceName: actualDeviceName) {
-      let sourceWatch = foreignSource ? records.first(where: { $0.physicalDeviceID == physicalDeviceID })?.deviceName : automaticRegisteredWatch()
+      let sourceWatch =
+        foreignSource
+        ? records.first(where: { $0.physicalDeviceID == physicalDeviceID })?.deviceName
+        : automaticRegisteredWatch()
       if sourceWatch == nil {
         // The interactive import below owns registration and model selection.
         return FileImportResult(
@@ -747,7 +793,8 @@ extension HomeView {
       }
     } else {
       if actualDeviceName == "Unknown" {
-        return FileImportResult(id: id, filename: filename, parsedDate: logDate,
+        return FileImportResult(
+          id: id, filename: filename, parsedDate: logDate,
           deviceName: nil, rawText: rawText, status: .needsReview,
           errorMessage: L10n.string("log_source_model_unknown", table: "Home"),
           physicalDeviceID: physicalDeviceID)
@@ -776,10 +823,12 @@ extension HomeView {
     // unrelated legacy records from the same day. Otherwise a resent log can
     // incorrectly become a perpetual manual-review item.
     if !AppSettings.shared.allowDuplicateRecords,
-      hasDuplicateRecord(on: logDate, deviceName: actualDeviceName,
+      hasDuplicateRecord(
+        on: logDate, deviceName: actualDeviceName,
         physicalDeviceID: sourcePhysicalID)
     {
-      return FileImportResult(id: id, filename: filename, parsedDate: logDate,
+      return FileImportResult(
+        id: id, filename: filename, parsedDate: logDate,
         deviceName: actualDeviceName, rawText: nil, status: .duplicate,
         errorMessage: nil)
     }
@@ -787,14 +836,18 @@ extension HomeView {
     // A same-model legacy entry cannot be assigned to this physical device
     // automatically. Leave the incoming log for user review.
     if sourcePhysicalID != nil,
-      hasMatchingLegacyRecord(parseResult, deviceName: actualDeviceName) {
-      return FileImportResult(id: id, filename: filename, parsedDate: logDate,
+      hasMatchingLegacyRecord(parseResult, deviceName: actualDeviceName)
+    {
+      return FileImportResult(
+        id: id, filename: filename, parsedDate: logDate,
         deviceName: actualDeviceName, rawText: nil, status: .duplicate,
         errorMessage: nil)
     }
     if sourcePhysicalID != nil,
-      hasAmbiguousLegacyRecord(on: logDate, deviceName: actualDeviceName) {
-      return FileImportResult(id: id, filename: filename, parsedDate: logDate,
+      hasAmbiguousLegacyRecord(on: logDate, deviceName: actualDeviceName)
+    {
+      return FileImportResult(
+        id: id, filename: filename, parsedDate: logDate,
         deviceName: actualDeviceName, rawText: rawText, status: .needsReview,
         errorMessage: Locale.preferredLanguages.first?.hasPrefix("ja") == true
           ? "同じ日付の旧記録があり、別のログか確認が必要です"
@@ -818,7 +871,8 @@ extension HomeView {
       let key = "\(record.logDate.timeIntervalSince1970)_\(actualDeviceName)"
       HomeView.recentlyAddedLogs[key] = Date()
     } catch {
-      return FileImportResult(id: id, filename: filename, parsedDate: logDate,
+      return FileImportResult(
+        id: id, filename: filename, parsedDate: logDate,
         deviceName: actualDeviceName, rawText: rawText, status: .error,
         errorMessage: error.localizedDescription)
     }

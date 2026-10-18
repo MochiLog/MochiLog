@@ -246,18 +246,27 @@ final class AppSettings: ObservableObject {
   /// 選択されているタブのインデックス（0: Home, 1: Analytics, 2: Settings）
   @Published var selectedTabIndex: Int = 0
 
-  @Published var pcAutomaticCollectionEnabled = UserDefaults.standard.object(forKey: "pcAutomaticCollectionEnabled") as? Bool ?? true {
+  @Published var pcAutomaticCollectionEnabled =
+    UserDefaults.standard.object(forKey: "pcAutomaticCollectionEnabled") as? Bool ?? true
+  {
     didSet {
-      UserDefaults.standard.set(pcAutomaticCollectionEnabled, forKey: "pcAutomaticCollectionEnabled")
+      UserDefaults.standard.set(
+        pcAutomaticCollectionEnabled, forKey: "pcAutomaticCollectionEnabled")
       if #available(iOS 27, *) {
-        if pcAutomaticCollectionEnabled { MacTransferManager.shared.start() }
-        else { MacTransferManager.shared.stopForBackground() }
+        if pcAutomaticCollectionEnabled {
+          MacTransferManager.shared.start()
+        } else {
+          MacTransferManager.shared.stopForBackground()
+        }
       }
     }
   }
-  @Published var localAutomaticCollectionEnabled = UserDefaults.standard.bool(forKey: "localAutomaticCollectionEnabled") {
+  @Published var localAutomaticCollectionEnabled = UserDefaults.standard.bool(
+    forKey: "localAutomaticCollectionEnabled")
+  {
     didSet {
-      UserDefaults.standard.set(localAutomaticCollectionEnabled, forKey: "localAutomaticCollectionEnabled")
+      UserDefaults.standard.set(
+        localAutomaticCollectionEnabled, forKey: "localAutomaticCollectionEnabled")
       if #available(iOS 17, *) { LocalDiagnosticsManager.shared.updateActivity() }
     }
   }
@@ -266,10 +275,11 @@ final class AppSettings: ObservableObject {
     didSet {
       UserDefaults.standard.set(liveBatteryEnabled, forKey: "liveBatteryEnabled")
       if !liveBatteryEnabled && selectedTabIndex == 3 { selectedTabIndex = 0 }
-      if #available(iOS 17, *) { LiveBatteryManager.shared.updateActivity(); LocalDiagnosticsManager.shared.updateActivity() }
+      if #available(iOS 17, *) {
+        LiveBatteryManager.shared.updateActivity(); LocalDiagnosticsManager.shared.updateActivity()
+      }
     }
   }
-
 
   /// デバイスの並び順（名前の配列）
   @Published var deviceSortOrder: [String] = []
@@ -435,11 +445,13 @@ final class AppSettings: ObservableObject {
       self.autoSelectMagSafeBattery = true
       UserDefaults.standard.set(true, forKey: Keys.autoSelectMagSafeBattery)
     } else {
-      self.autoSelectMagSafeBattery = UserDefaults.standard.bool(forKey: Keys.autoSelectMagSafeBattery)
+      self.autoSelectMagSafeBattery = UserDefaults.standard.bool(
+        forKey: Keys.autoSelectMagSafeBattery)
     }
 
     // デバイス識別子の上書きの初期化
-    self.overrideLocalModelIdentifier = UserDefaults.standard.string(forKey: Keys.overrideLocalModelIdentifier) ?? ""
+    self.overrideLocalModelIdentifier =
+      UserDefaults.standard.string(forKey: Keys.overrideLocalModelIdentifier) ?? ""
 
     // プロパティの変更を監視してUserDefaultsに保存
     setupObservers()

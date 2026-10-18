@@ -34,7 +34,8 @@ enum SettingsCategory: String, CaseIterable, Identifiable {
     switch self {
     case .language: return L10n.string("language_title", table: "Language")
     case .general: return L10n.string("general", table: "Settings")
-    case .iCloud: return L10n.string("icloud_sync_settings", defaultValue: "iCloud Sync", table: "Settings")
+    case .iCloud:
+      return L10n.string("icloud_sync_settings", defaultValue: "iCloud Sync", table: "Settings")
     case .appleWatch: return "Apple Watch"
     case .dataManagement: return L10n.string("data_management", table: "Settings")
     case .support: return L10n.string("support", table: "Settings")

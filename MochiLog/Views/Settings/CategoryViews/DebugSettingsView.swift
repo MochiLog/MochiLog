@@ -71,7 +71,6 @@ struct DebugSettingsView: View {
   }
 }
 
-
 // Both settings layouts open the same daily archives and storage controls.
 @available(iOS 17, *)
 struct DiagnosticLogSettingsLink: View {
@@ -97,7 +96,8 @@ struct DiagnosticLogSettingsLink: View {
           Image(systemName: "chevron.right").foregroundStyle(.secondary)
         }.padding(.vertical, 8)
       } else {
-        Label(L10n.text("diagnostic_logs_title", table: "Settings"),
+        Label(
+          L10n.text("diagnostic_logs_title", table: "Settings"),
           systemImage: "calendar.badge.clock")
       }
     }.accessibilityIdentifier("settings.diagnosticLogs")

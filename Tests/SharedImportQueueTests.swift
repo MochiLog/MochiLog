@@ -1,7 +1,7 @@
 // Run with scripts/test-shared-import.sh. Uses the production queue and text reader.
 import Foundation
 
-struct FileImportResult { }
+struct FileImportResult {}
 
 @MainActor
 final class AppSettings {
@@ -55,17 +55,21 @@ struct SharedImportQueueTests {
 
     now = now.addingTimeInterval(3)
     queue.enqueue(first, presentsResults: false, opensDetail: true)
-    assert(queue.shouldOpenDetail && !queue.shouldPresentResults,
+    assert(
+      queue.shouldOpenDetail && !queue.shouldPresentResults,
       "Direct single-file import must request detail without the batch sheet")
     assert(queue.begin())
     assert(queue.takeNext() == [first])
     queue.enqueue(second, presentsResults: true)
-    assert(queue.shouldPresentResults, "Extension input must retain the batch sheet even during a direct import")
+    assert(
+      queue.shouldPresentResults,
+      "Extension input must retain the batch sheet even during a direct import")
     assert(queue.takeNext() == [second])
     queue.acknowledge(first)
     queue.acknowledge(second)
     queue.finish()
-    assert(!queue.shouldOpenDetail && !queue.shouldPresentResults,
+    assert(
+      !queue.shouldOpenDetail && !queue.shouldPresentResults,
       "Presentation preferences must not leak into the next import")
 
     let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -86,17 +90,19 @@ struct SharedImportQueueTests {
     do {
       _ = try LogTextReader.read(directory.appendingPathComponent("missing.ips"))
       fatalError("Missing input must throw")
-    } catch { }
+    } catch {}
     let dateStrings = [
       "2026-09-01T12:00:00+0900", "2026-09-01T12:00:00+09:00",
       "2026-09-01T03:00:00Z", "2026-09-01T03:00:00.000Z",
-      "2026-09-01 12:00:00.00 +0900", "2026-09-01 12:00:00 +0900"
+      "2026-09-01 12:00:00.00 +0900", "2026-09-01 12:00:00 +0900",
     ]
     let expected = LogDateParser.parse(dateStrings[0])!
     for value in dateStrings {
       assert(LogDateParser.parse(value) == expected, "Timestamp must parse: \(value)")
     }
     assert(LogDateParser.parse("not a date") == nil)
-    print("PASS: queue delivery, exclusive consumer, late arrivals, retries, encodings, missing/empty files")
+    print(
+      "PASS: queue delivery, exclusive consumer, late arrivals, retries, encodings, missing/empty files"
+    )
   }
 }

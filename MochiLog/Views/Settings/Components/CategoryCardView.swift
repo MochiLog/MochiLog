@@ -34,7 +34,8 @@ struct CategoryCardView: View {
     .padding()
     .background(
       RoundedRectangle(cornerRadius: 16)
-        .fill(isSelected ? Color.accentColor.opacity(0.10) : Color(.secondarySystemGroupedBackground))
+        .fill(
+          isSelected ? Color.accentColor.opacity(0.10) : Color(.secondarySystemGroupedBackground))
     )
   }
 }

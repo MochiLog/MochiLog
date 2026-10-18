@@ -22,7 +22,9 @@ struct MainTabView: View {
   init() {
     // AppSettings.selectedTabIndexから初期値を取得
     let savedIndex = AppSettings.shared.selectedTabIndex
-    _selectedTab = State(initialValue: (savedIndex == 3 && !AppSettings.shared.liveBatteryEnabled) ? .home : (AppTab(rawValue: savedIndex) ?? .home))
+    _selectedTab = State(
+      initialValue: (savedIndex == 3 && !AppSettings.shared.liveBatteryEnabled)
+        ? .home : (AppTab(rawValue: savedIndex) ?? .home))
     _accentColor = State(initialValue: AppSettings.shared.accentColor)
   }
 
@@ -55,7 +57,9 @@ struct MainTabView: View {
   }
 
   private var showsLiveBattery: Bool {
-    if #available(iOS 17, *) { return appSettings.liveBatteryEnabled && !ProcessInfo.processInfo.isiOSAppOnMac }
+    if #available(iOS 17, *) {
+      return appSettings.liveBatteryEnabled && !ProcessInfo.processInfo.isiOSAppOnMac
+    }
     return false
   }
 
@@ -69,18 +73,28 @@ struct MainTabView: View {
       }
       VStack(spacing: 0) {
         if !deviceProfiles.conflicts.isEmpty {
-          Button { showingProfileConflicts = true } label: {
-            Label(L10n.string("profile_conflict_banner", table: "Settings"), systemImage: "exclamationmark.triangle")
-              .font(.subheadline).padding(12).frame(maxWidth: .infinity)
-              .background(.regularMaterial)
+          Button {
+            showingProfileConflicts = true
+          } label: {
+            Label(
+              L10n.string("profile_conflict_banner", table: "Settings"),
+              systemImage: "exclamationmark.triangle"
+            )
+            .font(.subheadline).padding(12).frame(maxWidth: .infinity)
+            .background(.regularMaterial)
           }
         }
         if !appSettings.allowDuplicateRecords && exactDuplicateExtraCount > 0 {
-          Button { showingExactDuplicates = true } label: {
-            Label(String(format: L10n.string("exact_duplicates_banner", table: "ExactDuplicates"),
-                         exactDuplicateExtraCount), systemImage: "square.on.square")
-              .font(.subheadline).padding(12).frame(maxWidth: .infinity)
-              .background(.regularMaterial)
+          Button {
+            showingExactDuplicates = true
+          } label: {
+            Label(
+              String(
+                format: L10n.string("exact_duplicates_banner", table: "ExactDuplicates"),
+                exactDuplicateExtraCount), systemImage: "square.on.square"
+            )
+            .font(.subheadline).padding(12).frame(maxWidth: .infinity)
+            .background(.regularMaterial)
           }
           .accessibilityIdentifier("home.exactDuplicatesBanner")
         }
@@ -121,7 +135,8 @@ struct MainTabView: View {
 
       // 初回起動時にチュートリアルを表示（データがない場合のみ）
       let hasRecords = !dataStore.recordsDescending.isEmpty
-      scanExactDuplicates(in: dataStore.recordsDescending, duplicatesAllowed: appSettings.allowDuplicateRecords)
+      scanExactDuplicates(
+        in: dataStore.recordsDescending, duplicatesAllowed: appSettings.allowDuplicateRecords)
 
       if !appSettings.hasCompletedTutorial {
         if hasRecords {
@@ -155,7 +170,8 @@ struct MainTabView: View {
     // AppSettings.selectedTabIndexの変更を監視してselectedTabに反映
     .onReceive(appSettings.$selectedTabIndex.removeDuplicates()) { newValue in
       if let newTab = AppTab(rawValue: newValue), newTab != selectedTab,
-        newTab != .liveBattery || showsLiveBattery {
+        newTab != .liveBattery || showsLiveBattery
+      {
         selectedTab = newTab
       }
     }
@@ -171,8 +187,9 @@ struct MainTabView: View {
   }
 
   private func scanExactDuplicates(in records: [BatteryRecord], duplicatesAllowed: Bool) {
-    exactDuplicateExtraCount = duplicatesAllowed ? 0 :
-      ExactDuplicateRecords.groups(in: records).reduce(0) { $0 + $1.extraCount }
+    exactDuplicateExtraCount =
+      duplicatesAllowed
+      ? 0 : ExactDuplicateRecords.groups(in: records).reduce(0) { $0 + $1.extraCount }
   }
 
   // MARK: - iOS 18+ sidebarAdaptable スタイル
@@ -261,8 +278,10 @@ struct MainTabView: View {
         }
         .tag(AppTab.settings)
       if #available(iOS 17, *), showsLiveBattery {
-        LiveBatteryView().tabItem { Label(AppTab.liveBattery.title, systemImage: AppTab.liveBattery.icon) }
-          .tag(AppTab.liveBattery)
+        LiveBatteryView().tabItem {
+          Label(AppTab.liveBattery.title, systemImage: AppTab.liveBattery.icon)
+        }
+        .tag(AppTab.liveBattery)
       }
     }
     .tint(accentColor.color)
@@ -426,8 +445,11 @@ struct HomeView: View {
               .accessibilityIdentifier("home.selection.cancel")
           }
           ToolbarItem(placement: .navigationBarTrailing) {
-            Button(L10n.string(selectedRecordIDs == allRecordIDs
-              ? "records_deselect_all" : "records_select_all", table: "Home")) {
+            Button(
+              L10n.string(
+                selectedRecordIDs == allRecordIDs
+                  ? "records_deselect_all" : "records_select_all", table: "Home")
+            ) {
               selectedRecordIDs = selectedRecordIDs == allRecordIDs ? [] : allRecordIDs
             }
             .accessibilityIdentifier("home.selection.selectAll")
@@ -460,11 +482,14 @@ struct HomeView: View {
       .safeAreaInset(edge: .bottom) {
         if selectingRecords {
           HStack(spacing: 16) {
-            Text(String(format: L10n.string("records_selected_count", table: "Home"),
-              selectedRecordIDs.count))
-              .font(.subheadline.weight(.semibold))
-              .frame(maxWidth: .infinity, alignment: .leading)
-              .accessibilityIdentifier("home.selection.count")
+            Text(
+              String(
+                format: L10n.string("records_selected_count", table: "Home"),
+                selectedRecordIDs.count)
+            )
+            .font(.subheadline.weight(.semibold))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .accessibilityIdentifier("home.selection.count")
             Button(role: .destructive) {
               pendingRecordDeletion = .init(ids: selectedRecordIDs, records: records)
               showingRecordDeletionConfirmation = true
@@ -480,8 +505,10 @@ struct HomeView: View {
           .background(.bar)
         }
       }
-      .alert(L10n.string("records_delete_title", table: "Home"),
-        isPresented: $showingRecordDeletionConfirmation) {
+      .alert(
+        L10n.string("records_delete_title", table: "Home"),
+        isPresented: $showingRecordDeletionConfirmation
+      ) {
         Button(L10n.string("delete", table: "Common"), role: .destructive) {
           confirmRecordDeletion()
         }
@@ -490,15 +517,21 @@ struct HomeView: View {
           pendingRecordDeletion = nil
         }
       } message: {
-        Text(String(format: L10n.string("records_delete_message", table: "Home"),
-          pendingRecordDeletion?.ids.count ?? 0)
-          + (dataStore.isICloudEnabled
-            ? "\n" + L10n.string("records_delete_sync_notice", table: "Home") : ""))
+        Text(
+          String(
+            format: L10n.string("records_delete_message", table: "Home"),
+            pendingRecordDeletion?.ids.count ?? 0)
+            + (dataStore.isICloudEnabled
+              ? "\n" + L10n.string("records_delete_sync_notice", table: "Home") : ""))
       }
-      .alert(L10n.string("records_delete_title", table: "Home"),
-        isPresented: $showingRecordDeletionResult) {
-        Button(L10n.string("ok", table: "Common"), role: .cancel) { }
-      } message: { Text(recordDeletionResult) }
+      .alert(
+        L10n.string("records_delete_title", table: "Home"),
+        isPresented: $showingRecordDeletionResult
+      ) {
+        Button(L10n.string("ok", table: "Common"), role: .cancel) {}
+      } message: {
+        Text(recordDeletionResult)
+      }
       .sheet(isPresented: $showingReorderSheet) {
         DeviceReorderView(
           items: showingSampleData
@@ -754,7 +787,8 @@ struct HomeView: View {
 
             // 重複チェック
             if !allowDuplicateRecords,
-              hasDuplicateRecord(on: logDate, deviceName: selectedWatch,
+              hasDuplicateRecord(
+                on: logDate, deviceName: selectedWatch,
                 physicalDeviceID: pendingSourcePhysicalDeviceID)
             {
               DispatchQueue.main.async {
@@ -884,8 +918,11 @@ struct HomeView: View {
       .sheet(isPresented: $showingBatchResults) {
         BatchImportResultView(results: $sharedImports.results) { result in
           if let sourceURL = result.sourceURL, !CloudLogSharingState.allowsImport(sourceURL) {
-            NotificationCenter.default.post(name: NSNotification.Name("ShowImportError"), object: nil,
-              userInfo: ["errorMessage": L10n.string("cloud_sharing_unavailable", table: "Settings")])
+            NotificationCenter.default.post(
+              name: NSNotification.Name("ShowImportError"), object: nil,
+              userInfo: [
+                "errorMessage": L10n.string("cloud_sharing_unavailable", table: "Settings")
+              ])
             return
           }
           // 1. シートを閉じる
@@ -894,12 +931,14 @@ struct HomeView: View {
           // 2. 少し待ってから、選択されたファイルの手動インポートを開始
           if let text = result.rawText {
             if let sourceURL = result.sourceURL, let signature = result.reviewSignature {
-              pendingBatchReview = PendingBatchReview(sourceURL: sourceURL,
+              pendingBatchReview = PendingBatchReview(
+                sourceURL: sourceURL,
                 signature: signature, existingRecordIDs: Set(records.map(\.id)))
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
               guard canContinueBatchReview() else { return }
-              processLogTextAsync(text, silent: false, contentHash: text.hashValue,
+              processLogTextAsync(
+                text, silent: false, contentHash: text.hashValue,
                 physicalDeviceID: result.physicalDeviceID)
             }
           }
@@ -951,16 +990,20 @@ struct HomeView: View {
     do {
       let result = try SelectedRecordDeletion.delete(plan, from: dataStore)
       if let selectedRecord, plan.ids.contains(selectedRecord.id) { self.selectedRecord = nil }
-      if let navigatingRecord, plan.ids.contains(navigatingRecord.id) { self.navigatingRecord = nil }
+      if let navigatingRecord, plan.ids.contains(navigatingRecord.id) {
+        self.navigatingRecord = nil
+      }
       endRecordSelection()
       if result.skipped > 0 {
-        recordDeletionResult = String(format: L10n.string("records_delete_changed", table: "Home"),
+        recordDeletionResult = String(
+          format: L10n.string("records_delete_changed", table: "Home"),
           result.deleted, result.skipped)
         showingRecordDeletionResult = true
       }
     } catch {
       pendingRecordDeletion = nil
-      errorMessage = L10n.string("records_delete_failed", table: "Home")
+      errorMessage =
+        L10n.string("records_delete_failed", table: "Home")
         + "\n" + error.localizedDescription
       showingErrorAlert = true
     }

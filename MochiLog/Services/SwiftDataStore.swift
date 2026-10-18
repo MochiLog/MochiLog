@@ -280,15 +280,16 @@ final class SwiftDataStore: DataStore {
     }
   }
 
-  override func reassignPhysicalDeviceID(from oldID: UUID, to newID: UUID,
-    matchingModelCode: String) throws -> Int {
+  override func reassignPhysicalDeviceID(
+    from oldID: UUID, to newID: UUID,
+    matchingModelCode: String
+  ) throws -> Int {
     let all = try modelContext.fetch(FetchDescriptor<SDBatteryRecord>())
     let matches = all.filter {
       $0.physicalDeviceID == oldID && $0.deviceModelCode == matchingModelCode
     }
     for record in matches { record.physicalDeviceID = newID }
-    do { try modelContext.save() }
-    catch {
+    do { try modelContext.save() } catch {
       modelContext.rollback()
       refreshRecords()
       throw error
@@ -306,9 +307,13 @@ final class SwiftDataStore: DataStore {
     return sdRecords.map { $0.toBatteryRecord() }
   }
 
-  override func applyDeviceProfile(_ profile: DeviceProfile, names: Set<String>, identifiers: Set<String>) throws -> Int {
+  override func applyDeviceProfile(
+    _ profile: DeviceProfile, names: Set<String>, identifiers: Set<String>
+  ) throws -> Int {
     let all = try modelContext.fetch(FetchDescriptor<SDBatteryRecord>())
-    let matches = all.filter { names.contains($0.deviceName) || identifiers.contains($0.deviceModelCode ?? "") }
+    let matches = all.filter {
+      names.contains($0.deviceName) || identifiers.contains($0.deviceModelCode ?? "")
+    }
     for record in matches {
       record.deviceName = profile.name
       record.designCapacity = profile.capacity
@@ -337,27 +342,40 @@ final class SwiftDataStore: DataStore {
       let known = LogSourceIdentityStore.models()
       for record in sdRecords {
         guard let id = record.recordID,
-          let model = LogSourceIdentity.shouldRepair(recordID: id, origin: record.physicalDeviceID,
+          let model = LogSourceIdentity.shouldRepair(
+            recordID: id, origin: record.physicalDeviceID,
             model: record.deviceModelCode, known: known),
           let name = DeviceLibrary.getDeviceName(for: model),
-          let capacity = DeviceProfileStore.shared.capacityVariant(for: name,
-            productSku: record.productSku)?.capacity ?? DeviceLibrary.getCapacity(for: name), capacity > 0
+          let capacity = DeviceProfileStore.shared.capacityVariant(
+            for: name,
+            productSku: record.productSku)?.capacity ?? DeviceLibrary.getCapacity(for: name),
+          capacity > 0
         else { continue }
         let previous = record.deviceModelCode ?? "unknown"
         record.deviceModelCode = model
         record.deviceName = name
         record.designCapacity = capacity
         let ratio = Double(record.rawCapacity) / Double(capacity) * 100
-        record.diagnosticResult = L10n.string(ratio < 80 ? "diag_replace_recommended" :
-          ratio < 90 ? "diag_slightly_degraded" : "diag_normal", table: "Records")
-        identityRepairEvents.append("Import identity repair: record=\(id.uuidString), source=\(record.physicalDeviceID!.uuidString), previousModel=\(previous), correctedModel=\(model); measured values and record ID unchanged")
+        record.diagnosticResult = L10n.string(
+          ratio < 80
+            ? "diag_replace_recommended" : ratio < 90 ? "diag_slightly_degraded" : "diag_normal",
+          table: "Records")
+        identityRepairEvents.append(
+          "Import identity repair: record=\(id.uuidString), source=\(record.physicalDeviceID!.uuidString), previousModel=\(previous), correctedModel=\(model); measured values and record ID unchanged"
+        )
       }
     }
-    let redundant = ProcessInfo.processInfo.isiOSAppOnMac ? [] : CloudSharedLogToken.redundantCopies(sdRecords, id: { $0.recordID ?? UUID() },
-      origin: { $0.physicalDeviceID }, date: { $0.logDate }, createdAt: { $0.createdAt })
+    let redundant =
+      ProcessInfo.processInfo.isiOSAppOnMac
+      ? []
+      : CloudSharedLogToken.redundantCopies(
+        sdRecords, id: { $0.recordID ?? UUID() },
+        origin: { $0.physicalDeviceID }, date: { $0.logDate }, createdAt: { $0.createdAt })
     let redundantIDs = Set(redundant.map { ObjectIdentifier($0) })
     for copy in redundant { modelContext.delete(copy) }
-    let records = sdRecords.filter { !redundantIDs.contains(ObjectIdentifier($0)) }.map { $0.toBatteryRecord() }
+    let records = sdRecords.filter { !redundantIDs.contains(ObjectIdentifier($0)) }.map {
+      $0.toBatteryRecord()
+    }
     // The canonical keeper uses persisted createdAt, not local object IDs.
     // Two devices seeing copies in opposite orders can never delete different keepers.
     // toBatteryRecord() が旧レコードに recordID を付与した場合、変更を保存
@@ -392,7 +410,9 @@ final class SwiftDataStore: DataStore {
     private static let migrationKeyPrefix = "Migration_Completed_"
 
     /// SDBatteryRecord向けマイグレーション（Migration_v1_iPhone16e_AvgTemp と同等のロジック）
-    static func runPendingMigrations(modelContext: ModelContext, onComplete: @escaping @MainActor () -> Void = {}) {
+    static func runPendingMigrations(
+      modelContext: ModelContext, onComplete: @escaping @MainActor () -> Void = {}
+    ) {
       Task { @MainActor in
         runV1Migration(modelContext: modelContext)
         runV2MagSafeMigration(modelContext: modelContext)
@@ -468,7 +488,8 @@ final class SwiftDataStore: DataStore {
 
       var modifiedCount = 0
       for record in airRecords {
-        let isMagSafe = record.firstUseDate == nil
+        let isMagSafe =
+          record.firstUseDate == nil
           && record.deflator == nil
           && (record.lowRateCapacity == nil || record.lowRateCapacity == 0)
           && record.rawCapacity == 0
@@ -483,7 +504,9 @@ final class SwiftDataStore: DataStore {
       if modifiedCount > 0 {
         do {
           try modelContext.save()
-          print("[SwiftDataMigration] \(version): Migrated \(modifiedCount) records to MagSafe Battery Pack.")
+          print(
+            "[SwiftDataMigration] \(version): Migrated \(modifiedCount) records to MagSafe Battery Pack."
+          )
         } catch {
           print("[SwiftDataMigration] Save failed in \(version): \(error)")
           ICloudSyncManager.shared.handleSaveError(error)

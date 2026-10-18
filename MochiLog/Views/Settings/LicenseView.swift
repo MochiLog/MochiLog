@@ -17,10 +17,15 @@ struct LicenseView: View {
 
   // MARK: - ライセンス一覧
   private let licenses: [LicenseInfo] = [
-    LicenseInfo(name: "idevice and native dependencies", licenseType: "MIT / Apache / BSD and other included licenses",
+    LicenseInfo(
+      name: "idevice and native dependencies",
+      licenseType: "MIT / Apache / BSD and other included licenses",
       copyright: "Jackson Coxson and the dependency authors listed in the full notices",
-      licenseText: "Maintained native Apple diagnostics library, with a pair-verify-only FFI entry point. The full notices include all resolved native dependencies.",
-      fullLicenseText: Bundle.main.url(forResource: "LICENSE-LocalDiagnostics", withExtension: "txt").flatMap { try? String(contentsOf: $0, encoding: .utf8) },
+      licenseText:
+        "Maintained native Apple diagnostics library, with a pair-verify-only FFI entry point. The full notices include all resolved native dependencies.",
+      fullLicenseText: Bundle.main.url(
+        forResource: "LICENSE-LocalDiagnostics", withExtension: "txt"
+      ).flatMap { try? String(contentsOf: $0, encoding: .utf8) },
       url: "https://github.com/jkcoxson/idevice"),
     // アプリ本体のライセンス
     LicenseInfo(

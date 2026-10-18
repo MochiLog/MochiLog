@@ -15,12 +15,17 @@ nonisolated struct RawBatteryField: Codable, Equatable {
     let data = Data(text.utf8)
     guard data.count <= 262144,
       revision.range(of: "^[a-f0-9]{64}$", options: .regularExpression) != nil,
-      SHA256.hash(data: data).map({ String(format: "%02x", $0) }).joined() == revision else { throw Failure.invalid }
+      SHA256.hash(data: data).map({ String(format: "%02x", $0) }).joined() == revision
+    else { throw Failure.invalid }
     let fields = try JSONDecoder().decode([RawBatteryField].self, from: data)
     guard !fields.isEmpty, fields.count <= 10000,
-      fields.allSatisfy({ !$0.path.isEmpty && $0.path.count <= 32 && $0.path.allSatisfy({ $0.count <= 512 })
-        && ["null", "boolean", "number", "string", "data", "date", "dictionary", "array"].contains($0.kind)
-        && $0.value.utf8.count <= 524288 }) else { throw Failure.invalid }
+      fields.allSatisfy({
+        !$0.path.isEmpty && $0.path.count <= 32 && $0.path.allSatisfy({ $0.count <= 512 })
+          && ["null", "boolean", "number", "string", "data", "date", "dictionary", "array"]
+            .contains($0.kind)
+          && $0.value.utf8.count <= 524288
+      })
+    else { throw Failure.invalid }
     return fields
   }
 }
@@ -44,16 +49,24 @@ enum BatteryPresentation {
   static func primary(_ field: RawBatteryField) -> BatterySummaryRow? {
     guard field.path.count == 1, let key = field.path.first, primaryKeys.contains(key),
       field.kind == "number", let value = Int(field.value),
-      (key == "CycleCount" ? 0...100000 : 1...200000).contains(value) else { return nil }
-    return BatterySummaryRow(key: key, value: value.formatted(), unit: key == "CycleCount" ? "" : " mAh")
+      (key == "CycleCount" ? 0...100000 : 1...200000).contains(value)
+    else { return nil }
+    return BatterySummaryRow(
+      key: key, value: value.formatted(), unit: key == "CycleCount" ? "" : " mAh")
   }
-  static let extraKeys = ["IsCharging", "FullyCharged", "ExternalConnected", "ExternalChargeCapable",
-    "AppleRawExternalConnected", "BatteryInstalled", "AtCriticalLevel", "Voltage", "Amperage", "InstantAmperage", "Serial"]
+  static let extraKeys = [
+    "IsCharging", "FullyCharged", "ExternalConnected", "ExternalChargeCapable",
+    "AppleRawExternalConnected", "BatteryInstalled", "AtCriticalLevel", "Voltage", "Amperage",
+    "InstantAmperage", "Serial",
+  ]
   static func extra(_ field: RawBatteryField) -> BatterySummaryRow? {
-    guard field.path.count == 1, let key = field.path.first, extraKeys.contains(key) else { return nil }
+    guard field.path.count == 1, let key = field.path.first, extraKeys.contains(key) else {
+      return nil
+    }
     if ["Voltage", "Amperage", "InstantAmperage"].contains(key) {
       guard field.kind == "number", let value = Int64(field.value),
-        (key == "Voltage" ? 0...100000 : -2000000...2000000).contains(value) else { return nil }
+        (key == "Voltage" ? 0...100000 : -2000000...2000000).contains(value)
+      else { return nil }
       return BatterySummaryRow(key: key, value: field.value, unit: key == "Voltage" ? " mV" : " mA")
     }
     if key == "Serial" {
@@ -63,25 +76,37 @@ enum BatteryPresentation {
     guard field.kind == "boolean", ["true", "false"].contains(field.value) else { return nil }
     return BatterySummaryRow(key: key, value: field.value, kind: "boolean")
   }
-  static func summary(values: [String: Int], charging: Bool?, fields: [RawBatteryField]) -> [BatterySummaryRow] {
+  static func summary(values: [String: Int], charging: Bool?, fields: [RawBatteryField])
+    -> [BatterySummaryRow]
+  {
     var rows = primaryKeys.map { key in
-      if let field = fields.first(where: { $0.path == [key] }), let row = primary(field) { return row }
+      if let field = fields.first(where: { $0.path == [key] }), let row = primary(field) {
+        return row
+      }
       // Old helpers attest a root CycleCount, but their capacity fields have no provenance.
-      return BatterySummaryRow(key: key, value: fields.isEmpty && key == "CycleCount" ? values[key].map { $0.formatted() } : nil,
+      return BatterySummaryRow(
+        key: key,
+        value: fields.isEmpty && key == "CycleCount" ? values[key].map { $0.formatted() } : nil,
         unit: key == "CycleCount" ? "" : " mAh")
     }
     for key in extraKeys {
       if key == "IsCharging", let charging {
-        rows.append(BatterySummaryRow(key: key, value: charging ? "true" : "false", kind: "boolean"))
-      } else if let field = fields.first(where: { $0.path == [key] }), let row = extra(field) { rows.append(row) }
+        rows.append(
+          BatterySummaryRow(key: key, value: charging ? "true" : "false", kind: "boolean"))
+      } else if let field = fields.first(where: { $0.path == [key] }), let row = extra(field) {
+        rows.append(row)
+      }
     }
     return rows
   }
-  static func details(values: [String: Int], charging: Bool?, fields: [RawBatteryField]) -> [RawBatteryField] {
+  static func details(values: [String: Int], charging: Bool?, fields: [RawBatteryField])
+    -> [RawBatteryField]
+  {
     fields.filter { field in
       if let row = extra(field) {
         // A contradictory raw charging flag must remain inspectable.
-        return row.key == "IsCharging" && charging != nil && row.value != (charging! ? "true" : "false")
+        return row.key == "IsCharging" && charging != nil
+          && row.value != (charging! ? "true" : "false")
       }
       return primary(field) == nil
     }
@@ -126,21 +151,30 @@ final class LiveBatteryManager: ObservableObject {
   private var pairingObserver: AnyCancellable?
   var activePairings: [MacTransferPairing] {
     #if DEBUG
-    if ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_TEST"] == "1" {
-      let count = ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_MULTI_TEST"] == "1" ? 2 : 1
-      return (1...count).map { index in
-        MacTransferPairing(hostID: UUID(uuidString: String(format: "00000000-0000-0000-0000-%012d", index))!,
-          physicalDeviceID: UUID(uuidString: "00000000-0000-0000-0000-000000000002")!,
-          model: "iPad16,6", secret: Data(repeating: 7, count: 32), platform: index == 1 ? "mac" : "windows")
+      if ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_TEST"] == "1" {
+        let count =
+          ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_MULTI_TEST"] == "1" ? 2 : 1
+        return (1...count).map { index in
+          MacTransferPairing(
+            hostID: UUID(uuidString: String(format: "00000000-0000-0000-0000-%012d", index))!,
+            physicalDeviceID: UUID(uuidString: "00000000-0000-0000-0000-000000000002")!,
+            model: "iPad16,6", secret: Data(repeating: 7, count: 32),
+            platform: index == 1 ? "mac" : "windows")
+        }
       }
-    }
-    if let text = ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_PORT"],
-      let port = UInt16(text), port != 0 {
-      return [MacTransferPairing(hostID: UUID(uuidString: "00000000-0000-0000-0000-000000000001")!,
-        physicalDeviceID: UUID(uuidString: "00000000-0000-0000-0000-000000000002")!,
-        model: "iPhone Test", secret: Data(repeating: 7, count: 32),
-        lanAddresses: [ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_HOST"] ?? "127.0.0.1"], lanPort: port, requiresSecureTransfer: true)]
-    }
+      if let text = ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_PORT"],
+        let port = UInt16(text), port != 0
+      {
+        return [
+          MacTransferPairing(
+            hostID: UUID(uuidString: "00000000-0000-0000-0000-000000000001")!,
+            physicalDeviceID: UUID(uuidString: "00000000-0000-0000-0000-000000000002")!,
+            model: "iPhone Test", secret: Data(repeating: 7, count: 32),
+            lanAddresses: [
+              ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_HOST"] ?? "127.0.0.1"
+            ], lanPort: port, requiresSecureTransfer: true)
+        ]
+      }
     #endif
     guard #available(iOS 27, *) else { return [] }
     return MacTransferManager.shared.pairings
@@ -166,7 +200,8 @@ final class LiveBatteryManager: ObservableObject {
 
   func updateActivity() {
     guard #available(iOS 27, *) else { stop(); return }
-    let shouldRun = AppSettings.shared.liveBatteryEnabled && !ProcessInfo.processInfo.isiOSAppOnMac
+    let shouldRun =
+      AppSettings.shared.liveBatteryEnabled && !ProcessInfo.processInfo.isiOSAppOnMac
       && UIApplication.shared.connectedScenes.contains { $0.activationState == .foregroundActive }
     guard shouldRun != active else { return }
     if shouldRun { start() } else { stop() }
@@ -176,31 +211,44 @@ final class LiveBatteryManager: ObservableObject {
     active = true
     CloudLogSharingState.shared.refresh()
     #if DEBUG
-    if ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_TEST"] == "1" {
-      // Synthetic display fixture, never a persisted pairing or battery record.
-      let id = UUID(uuidString: "00000000-0000-0000-0000-000000000001")!
-      readings[id] = LiveBatteryReading(values: ["CycleCount": 245, "DesignCapacity": 4000,
-        "NominalChargeCapacity": 3820, "AppleRawMaxCapacity": 3850,
-        "FullChargeCapacity": 3800, "CurrentCapacity": 67], charging: false,
-        revision: String(repeating: "a", count: 64), acquiredAt: Date())
-      let details = "[{\"path\":[\"BatteryData\",\"Huge\"],\"kind\":\"number\",\"value\":\"18446744073709551615\"},{\"path\":[\"Flag\"],\"kind\":\"boolean\",\"value\":\"false\"}]"
-      let known = ",{\"path\":[\"CycleCount\"],\"kind\":\"number\",\"value\":\"245\"},{\"path\":[\"DesignCapacity\"],\"kind\":\"number\",\"value\":\"4000\"},{\"path\":[\"Voltage\"],\"kind\":\"number\",\"value\":\"4010\"},{\"path\":[\"ExternalConnected\"],\"kind\":\"boolean\",\"value\":\"true\"}]"
-      let displayDetails = String(details.dropLast()) + known
-      readings[id]?.detailsJSON = displayDetails
-      readings[id]?.detailsRevision = SHA256.hash(data: Data(displayDetails.utf8)).map { String(format: "%02x", $0) }.joined()
-      states[id] = "current"
-      if ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_MULTI_TEST"] == "1" {
-        let other = UUID(uuidString: "00000000-0000-0000-0000-000000000002")!
-        let otherDetails = displayDetails.replacingOccurrences(of: "4010", with: "3990")
-          .replacingOccurrences(of: "\"Flag\",\"kind\":\"boolean\",\"value\":\"false\"", with: "\"Flag\",\"kind\":\"boolean\",\"value\":\"true\"")
-        readings[other] = LiveBatteryReading(values: readings[id]!.values, charging: false,
-          revision: String(repeating: "b", count: 64), acquiredAt: Date().addingTimeInterval(-120),
-          detailsJSON: otherDetails,
-          detailsRevision: SHA256.hash(data: Data(otherDetails.utf8)).map { String(format: "%02x", $0) }.joined())
-        states[other] = "stale"
+      if ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_TEST"] == "1" {
+        // Synthetic display fixture, never a persisted pairing or battery record.
+        let id = UUID(uuidString: "00000000-0000-0000-0000-000000000001")!
+        readings[id] = LiveBatteryReading(
+          values: [
+            "CycleCount": 245, "DesignCapacity": 4000,
+            "NominalChargeCapacity": 3820, "AppleRawMaxCapacity": 3850,
+            "FullChargeCapacity": 3800, "CurrentCapacity": 67,
+          ], charging: false,
+          revision: String(repeating: "a", count: 64), acquiredAt: Date())
+        let details =
+          "[{\"path\":[\"BatteryData\",\"Huge\"],\"kind\":\"number\",\"value\":\"18446744073709551615\"},{\"path\":[\"Flag\"],\"kind\":\"boolean\",\"value\":\"false\"}]"
+        let known =
+          ",{\"path\":[\"CycleCount\"],\"kind\":\"number\",\"value\":\"245\"},{\"path\":[\"DesignCapacity\"],\"kind\":\"number\",\"value\":\"4000\"},{\"path\":[\"Voltage\"],\"kind\":\"number\",\"value\":\"4010\"},{\"path\":[\"ExternalConnected\"],\"kind\":\"boolean\",\"value\":\"true\"}]"
+        let displayDetails = String(details.dropLast()) + known
+        readings[id]?.detailsJSON = displayDetails
+        readings[id]?.detailsRevision = SHA256.hash(data: Data(displayDetails.utf8)).map {
+          String(format: "%02x", $0)
+        }.joined()
+        states[id] = "current"
+        if ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_MULTI_TEST"] == "1" {
+          let other = UUID(uuidString: "00000000-0000-0000-0000-000000000002")!
+          let otherDetails = displayDetails.replacingOccurrences(of: "4010", with: "3990")
+            .replacingOccurrences(
+              of: "\"Flag\",\"kind\":\"boolean\",\"value\":\"false\"",
+              with: "\"Flag\",\"kind\":\"boolean\",\"value\":\"true\"")
+          readings[other] = LiveBatteryReading(
+            values: readings[id]!.values, charging: false,
+            revision: String(repeating: "b", count: 64),
+            acquiredAt: Date().addingTimeInterval(-120),
+            detailsJSON: otherDetails,
+            detailsRevision: SHA256.hash(data: Data(otherDetails.utf8)).map {
+              String(format: "%02x", $0)
+            }.joined())
+          states[other] = "stale"
+        }
+        return
       }
-      return
-    }
     #endif
     let parameters = NWParameters.tcp
     let browser = NWBrowser(for: .bonjour(type: "_mochilog._tcp", domain: nil), using: parameters)
@@ -210,16 +258,19 @@ final class LiveBatteryManager: ObservableObject {
         var routes: [UUID: [NWEndpoint]] = [:]
         for result in results {
           guard case .service(let name, _, _, _) = result.endpoint,
-            let host = UUID(uuidString: name) else { continue }
+            let host = UUID(uuidString: name)
+          else { continue }
           if case .bonjour(let txt) = result.metadata,
             let rawPort = txt["port"].flatMap(UInt16.init), rawPort != 0,
-            let port = NWEndpoint.Port(rawValue: rawPort) {
+            let port = NWEndpoint.Port(rawValue: rawPort)
+          {
             routes[host] = (txt["ipv4"] ?? "").split(separator: ",").prefix(4).compactMap {
               IPv4Address(String($0)).map { .hostPort(host: .ipv4($0), port: port) }
             }
             if let address = txt["tailnet"], let ip = IPv4Address(address),
               let value = (txt["tailnetPort"] ?? txt["port"]).flatMap(UInt16.init),
-              let tailPort = NWEndpoint.Port(rawValue: value), Self.isTailnet(address) {
+              let tailPort = NWEndpoint.Port(rawValue: value), Self.isTailnet(address)
+            {
               routes[host, default: []].append(.hostPort(host: .ipv4(ip), port: tailPort))
             }
           }
@@ -262,17 +313,20 @@ final class LiveBatteryManager: ObservableObject {
     var routes = discovered[pairing.hostID] ?? []
     func add(_ address: String?, _ port: UInt16?) {
       guard let address, let ip = IPv4Address(address), let port, port != 0,
-        let endpointPort = NWEndpoint.Port(rawValue: port) else { return }
+        let endpointPort = NWEndpoint.Port(rawValue: port)
+      else { return }
       let route: NWEndpoint = .hostPort(host: .ipv4(ip), port: endpointPort)
       if !routes.contains(route) { routes.append(route) }
     }
-    add(pairing.manualHostAddress, pairing.lanPort ?? (pairing.platform == "windows" ? 54556 : 54555))
+    add(
+      pairing.manualHostAddress, pairing.lanPort ?? (pairing.platform == "windows" ? 54556 : 54555))
     for address in pairing.lanAddresses ?? [] { add(address, pairing.lanPort) }
     add(pairing.tailnetAddress, pairing.tailnetPort)
     #if DEBUG
-    if ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_PORT"] != nil { return routes }
+      if ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_PORT"] != nil { return routes }
     #endif
-    let wifi = path?.usesInterfaceType(.wifi) == true || path?.usesInterfaceType(.wiredEthernet) == true
+    let wifi =
+      path?.usesInterfaceType(.wifi) == true || path?.usesInterfaceType(.wiredEthernet) == true
     if !wifi {
       guard MacTransferManager.shared.allowsCellularTransfer else { return [] }
       return routes.filter {
@@ -296,137 +350,205 @@ final class LiveBatteryManager: ObservableObject {
       var sourceIDs = [pairing.physicalDeviceID]
       var sourceIndex = 0
       while sourceIndex < sourceIDs.count {
-      let sourceID = sourceIDs[sourceIndex]
-      sourceIndex += 1
-      let own = sourceID == pairing.physicalDeviceID
-      let consentScope = CloudLogSharingState.shared.scope
-      if !own && consentScope == nil { continue }
-      let previous = own ? readings[pairing.hostID] : sharedSources[pairing.hostID]?[sourceID]?.reading
-      var received = false
-      for route in candidates.prefix(6) {
-        guard !Task.isCancelled, active else { return }
-        do {
-          let nonce = UUID()
-          let message = "v2|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)|"
-          let mac = HMAC<SHA256>.authenticationCode(for: Data(message.utf8),
-            using: SymmetricKey(data: pairing.secret)).map { String(format: "%02x", $0) }.joined()
-          let request: [String: String] = ["hostID": pairing.hostID.uuidString,
-            "physicalDeviceID": pairing.physicalDeviceID.uuidString, "nonce": nonce.uuidString,
-            "ack": "", "mac": mac, "version": "2", "liveBatteryVersion": "1",
-            "liveBatteryRevision": previous?.revision ?? "",
-            "liveBatterySharedVersion": "1", "liveBatterySourceID": sourceID.uuidString,
-            "cloudSharingVersion": "1", "cloudSharingScope": consentScope ?? "",
-            "liveBatteryRefresh": refresh ? "1" : "0", "liveBatteryDetailsVersion": "1",
-            "liveBatteryDetailsRevision": previous?.detailsRevision ?? ""]
-          let issuedAt = Int64(Date().timeIntervalSince1970)
-          let aad = Data("v3|request|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)|\(issuedAt)".utf8)
-          let inner = try JSONSerialization.data(withJSONObject:
-            LocalPairingAddressPolicy.addingDiagnosticRouteHints(to: request))
-          let box = try AES.GCM.seal(inner, using: SymmetricKey(data: pairing.secret), authenticating: aad)
-          let payload = try JSONSerialization.data(withJSONObject: ["version": "3",
-            "hostID": pairing.hostID.uuidString, "physicalDeviceID": pairing.physicalDeviceID.uuidString,
-            "nonce": nonce.uuidString, "issuedAt": issuedAt, "box": box.combined!.base64EncodedString()] as [String: Any]) + Data([10])
-          let encrypted = try await LiveBatteryTransport.exchange(route, payload: payload)
-          let responseAAD = Data("v2|response|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)".utf8)
-          let plain = try AES.GCM.open(AES.GCM.SealedBox(combined: encrypted),
-            using: SymmetricKey(data: pairing.secret), authenticating: responseAAD)
-          guard plain.count >= 2, plain[0] == 0, plain[1] == 0 else { throw LiveBatteryTransport.Failure.unsupported }
-          let json = try JSONSerialization.jsonObject(with: plain.dropFirst(2)) as? [String: Any]
-          guard json?["type"] as? String == "live-battery", json?["version"] as? Int == 1,
-            let state = json?["state"] as? String,
-            ["waiting", "unavailable", "stale", "current"].contains(state) else { throw LiveBatteryTransport.Failure.unsupported }
-          guard let json, active, !Task.isCancelled,
-            activePairings.contains(where: { $0.hostID == pairing.hostID && $0.physicalDeviceID == pairing.physicalDeviceID }) else { return }
-          if json["sharedVersion"] as? Int == 1 {
-            guard json["sourcePhysicalDeviceID"] as? String == sourceID.uuidString else { throw LiveBatteryTransport.Failure.invalid }
-            if !own {
-              guard let consentScope, consentScope == CloudLogSharingState.shared.scope,
-                json["scope"] as? String == consentScope else { throw LiveBatteryTransport.Failure.invalid }
+        let sourceID = sourceIDs[sourceIndex]
+        sourceIndex += 1
+        let own = sourceID == pairing.physicalDeviceID
+        let consentScope = CloudLogSharingState.shared.scope
+        if !own && consentScope == nil { continue }
+        let previous =
+          own ? readings[pairing.hostID] : sharedSources[pairing.hostID]?[sourceID]?.reading
+        var received = false
+        for route in candidates.prefix(6) {
+          guard !Task.isCancelled, active else { return }
+          do {
+            let nonce = UUID()
+            let message =
+              "v2|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)|"
+            let mac = HMAC<SHA256>.authenticationCode(
+              for: Data(message.utf8),
+              using: SymmetricKey(data: pairing.secret)
+            ).map { String(format: "%02x", $0) }.joined()
+            let request: [String: String] = [
+              "hostID": pairing.hostID.uuidString,
+              "physicalDeviceID": pairing.physicalDeviceID.uuidString, "nonce": nonce.uuidString,
+              "ack": "", "mac": mac, "version": "2", "liveBatteryVersion": "1",
+              "liveBatteryRevision": previous?.revision ?? "",
+              "liveBatterySharedVersion": "1", "liveBatterySourceID": sourceID.uuidString,
+              "cloudSharingVersion": "1", "cloudSharingScope": consentScope ?? "",
+              "liveBatteryRefresh": refresh ? "1" : "0", "liveBatteryDetailsVersion": "1",
+              "liveBatteryDetailsRevision": previous?.detailsRevision ?? "",
+            ]
+            let issuedAt = Int64(Date().timeIntervalSince1970)
+            let aad = Data(
+              "v3|request|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)|\(issuedAt)"
+                .utf8)
+            let inner = try JSONSerialization.data(
+              withJSONObject:
+                LocalPairingAddressPolicy.addingDiagnosticRouteHints(to: request))
+            let box = try AES.GCM.seal(
+              inner, using: SymmetricKey(data: pairing.secret), authenticating: aad)
+            let payload =
+              try JSONSerialization.data(
+                withJSONObject: [
+                  "version": "3",
+                  "hostID": pairing.hostID.uuidString,
+                  "physicalDeviceID": pairing.physicalDeviceID.uuidString,
+                  "nonce": nonce.uuidString, "issuedAt": issuedAt,
+                  "box": box.combined!.base64EncodedString(),
+                ] as [String: Any]) + Data([10])
+            let encrypted = try await LiveBatteryTransport.exchange(route, payload: payload)
+            let responseAAD = Data(
+              "v2|response|\(pairing.hostID.uuidString)|\(pairing.physicalDeviceID.uuidString)|\(nonce.uuidString)"
+                .utf8)
+            let plain = try AES.GCM.open(
+              AES.GCM.SealedBox(combined: encrypted),
+              using: SymmetricKey(data: pairing.secret), authenticating: responseAAD)
+            guard plain.count >= 2, plain[0] == 0, plain[1] == 0 else {
+              throw LiveBatteryTransport.Failure.unsupported
             }
-            if own {
-              var accepted: [UUID: SharedSource] = [:]
-              if let consentScope, json["scope"] as? String == consentScope,
-                let manifest = json["sources"] as? [[String: String]], manifest.count <= 64 {
-                for source in manifest {
-                  guard let id = source["physicalDeviceID"].flatMap(UUID.init(uuidString:)), id != pairing.physicalDeviceID,
-                    let model = source["model"], model.count <= 128 else { continue }
-                  let old = sharedSources[pairing.hostID]?[id]
-                  accepted[id] = SharedSource(model: model, scope: consentScope,
-                    reading: old?.scope == consentScope ? old?.reading : nil, state: old?.state ?? "waiting")
-                  if !sourceIDs.contains(id) { sourceIDs.append(id) }
-                }
+            let json = try JSONSerialization.jsonObject(with: plain.dropFirst(2)) as? [String: Any]
+            guard json?["type"] as? String == "live-battery", json?["version"] as? Int == 1,
+              let state = json?["state"] as? String,
+              ["waiting", "unavailable", "stale", "current"].contains(state)
+            else { throw LiveBatteryTransport.Failure.unsupported }
+            guard let json, active, !Task.isCancelled,
+              activePairings.contains(where: {
+                $0.hostID == pairing.hostID && $0.physicalDeviceID == pairing.physicalDeviceID
+              })
+            else { return }
+            if json["sharedVersion"] as? Int == 1 {
+              guard json["sourcePhysicalDeviceID"] as? String == sourceID.uuidString else {
+                throw LiveBatteryTransport.Failure.invalid
               }
-              sharedSources[pairing.hostID] = accepted
+              if !own {
+                guard let consentScope, consentScope == CloudLogSharingState.shared.scope,
+                  json["scope"] as? String == consentScope
+                else { throw LiveBatteryTransport.Failure.invalid }
+              }
+              if own {
+                var accepted: [UUID: SharedSource] = [:]
+                if let consentScope, json["scope"] as? String == consentScope,
+                  let manifest = json["sources"] as? [[String: String]], manifest.count <= 64
+                {
+                  for source in manifest {
+                    guard let id = source["physicalDeviceID"].flatMap(UUID.init(uuidString:)),
+                      id != pairing.physicalDeviceID,
+                      let model = source["model"], model.count <= 128
+                    else { continue }
+                    let old = sharedSources[pairing.hostID]?[id]
+                    accepted[id] = SharedSource(
+                      model: model, scope: consentScope,
+                      reading: old?.scope == consentScope ? old?.reading : nil,
+                      state: old?.state ?? "waiting")
+                    if !sourceIDs.contains(id) { sourceIDs.append(id) }
+                  }
+                }
+                sharedSources[pairing.hostID] = accepted
+              }
+            } else if !own {
+              throw LiveBatteryTransport.Failure.unsupported
+            } else {
+              sharedSources[pairing.hostID] = [:]
             }
-          } else if !own { throw LiveBatteryTransport.Failure.unsupported }
-          else { sharedSources[pairing.hostID] = [:] }
-          let reading = try Self.reading(json, previous: previous)
-          if own {
-            if let reading { readings[pairing.hostID] = reading }
-            states[pairing.hostID] = state
-          } else {
-            sharedSources[pairing.hostID]?[sourceID]?.reading = reading ?? previous
-            sharedSources[pairing.hostID]?[sourceID]?.state = state
+            let reading = try Self.reading(json, previous: previous)
+            if own {
+              if let reading { readings[pairing.hostID] = reading }
+              states[pairing.hostID] = state
+            } else {
+              sharedSources[pairing.hostID]?[sourceID]?.reading = reading ?? previous
+              sharedSources[pairing.hostID]?[sourceID]?.state = state
+            }
+            received = true
+            break
+          } catch LiveBatteryTransport.Failure.unsupported {
+            if own {
+              states[pairing.hostID] = "update"
+            } else {
+              sharedSources[pairing.hostID]?[sourceID]?.state = "update"
+            }
+            received = true; break
+          } catch {
+            if own {
+              states[pairing.hostID] = "offline"
+            } else {
+              sharedSources[pairing.hostID]?[sourceID]?.state = "offline"
+            }
           }
-          received = true
-          break
-        } catch LiveBatteryTransport.Failure.unsupported {
-          if own { states[pairing.hostID] = "update" }
-          else { sharedSources[pairing.hostID]?[sourceID]?.state = "update" }
-          received = true; break
-        } catch {
-          if own { states[pairing.hostID] = "offline" }
-          else { sharedSources[pairing.hostID]?[sourceID]?.state = "offline" }
         }
-      }
-      if !received {
-        if own { states[pairing.hostID] = "offline" }
-        else { sharedSources[pairing.hostID]?[sourceID]?.state = "offline" }
-      }
+        if !received {
+          if own {
+            states[pairing.hostID] = "offline"
+          } else {
+            sharedSources[pairing.hostID]?[sourceID]?.state = "offline"
+          }
+        }
       }
     }
   }
 
-  static func reading(_ object: [String: Any], previous: LiveBatteryReading?) throws -> LiveBatteryReading? {
+  static func reading(_ object: [String: Any], previous: LiveBatteryReading?) throws
+    -> LiveBatteryReading?
+  {
     guard let revision = object["revision"] as? String else { return nil }
     guard revision.range(of: "^[a-f0-9]{64}$", options: .regularExpression) != nil,
       let timestamp = object["acquiredAt"] as? String,
-      let date = Self.date(timestamp) else { throw LiveBatteryTransport.Failure.invalid }
+      let date = Self.date(timestamp)
+    else { throw LiveBatteryTransport.Failure.invalid }
     var details = previous?.detailsJSON
     var detailsRevision = previous?.detailsRevision
     if let advertised = object["detailsRevision"] as? String {
-      guard object["detailsVersion"] as? Int == 1 else { throw LiveBatteryTransport.Failure.invalid }
+      guard object["detailsVersion"] as? Int == 1 else {
+        throw LiveBatteryTransport.Failure.invalid
+      }
       if let fresh = object["detailsJSON"] as? String {
         _ = try RawBatteryField.decode(fresh, revision: advertised)
         details = fresh; detailsRevision = advertised
       } else {
-        guard advertised == detailsRevision, details != nil else { throw LiveBatteryTransport.Failure.invalid }
+        guard advertised == detailsRevision, details != nil else {
+          throw LiveBatteryTransport.Failure.invalid
+        }
       }
-    } else { details = nil; detailsRevision = nil }
-    guard let raw = object["values"] as? [String: Any] else {
-      guard let previous, previous.revision == revision else { throw LiveBatteryTransport.Failure.invalid }
-      return LiveBatteryReading(values: previous.values, charging: previous.charging,
-        revision: revision, acquiredAt: date, detailsJSON: details, detailsRevision: detailsRevision)
+    } else {
+      details = nil; detailsRevision = nil
     }
-    let limits = ["CycleCount": 0...100000, "DesignCapacity": 1...200000,
+    guard let raw = object["values"] as? [String: Any] else {
+      guard let previous, previous.revision == revision else {
+        throw LiveBatteryTransport.Failure.invalid
+      }
+      return LiveBatteryReading(
+        values: previous.values, charging: previous.charging,
+        revision: revision, acquiredAt: date, detailsJSON: details, detailsRevision: detailsRevision
+      )
+    }
+    let limits = [
+      "CycleCount": 0...100000, "DesignCapacity": 1...200000,
       "FullChargeCapacity": 1...200000, "NominalChargeCapacity": 1...200000,
-      "AppleRawMaxCapacity": 1...200000, "CurrentCapacity": 0...100]
+      "AppleRawMaxCapacity": 1...200000, "CurrentCapacity": 0...100,
+    ]
     var values: [String: Int] = [:]
     for (key, range) in limits {
       if let number = raw[key] as? NSNumber, CFGetTypeID(number) != CFBooleanGetTypeID(),
         number.doubleValue.isFinite, number.doubleValue == Double(number.intValue),
-        range.contains(number.intValue) { values[key] = number.intValue }
+        range.contains(number.intValue)
+      {
+        values[key] = number.intValue
+      }
     }
-    guard !values.filter({ $0.key != "CurrentCapacity" }).isEmpty || details != nil else { throw LiveBatteryTransport.Failure.invalid }
+    guard !values.filter({ $0.key != "CurrentCapacity" }).isEmpty || details != nil else {
+      throw LiveBatteryTransport.Failure.invalid
+    }
     let charging = (object["charging"] as? NSNumber).flatMap {
       CFGetTypeID($0) == CFBooleanGetTypeID() ? $0.boolValue : nil
     }
     var canonical: [String: Any] = values
     if let charging { canonical["IsCharging"] = charging }
-    let digest = SHA256.hash(data: try JSONSerialization.data(withJSONObject: canonical, options: [.sortedKeys]))
-      .map { String(format: "%02x", $0) }.joined()
+    let digest = SHA256.hash(
+      data: try JSONSerialization.data(withJSONObject: canonical, options: [.sortedKeys])
+    )
+    .map { String(format: "%02x", $0) }.joined()
     guard digest == revision else { throw LiveBatteryTransport.Failure.invalid }
-    return LiveBatteryReading(values: values, charging: charging, revision: revision, acquiredAt: date,
+    return LiveBatteryReading(
+      values: values, charging: charging, revision: revision, acquiredAt: date,
       detailsJSON: details, detailsRevision: detailsRevision)
   }
 
@@ -450,17 +572,24 @@ final class LiveBatteryTransport: @unchecked Sendable {
     parameters.prohibitExpensivePaths = !allowsCellular
     connection = NWConnection(to: endpoint, using: parameters)
   }
-  static func exchange(_ endpoint: NWEndpoint, payload: Data, timeoutSeconds: TimeInterval = 30) async throws -> Data {
-    let transport = LiveBatteryTransport(endpoint, allowsCellular: MacTransferManager.shared.allowsCellularTransfer)
+  static func exchange(_ endpoint: NWEndpoint, payload: Data, timeoutSeconds: TimeInterval = 30)
+    async throws -> Data
+  {
+    let transport = LiveBatteryTransport(
+      endpoint, allowsCellular: MacTransferManager.shared.allowsCellularTransfer)
     return try await withTaskCancellationHandler {
       try await withCheckedThrowingContinuation { continuation in
-        transport.queue.async { transport.begin(payload, continuation, timeoutSeconds: timeoutSeconds) }
+        transport.queue.async {
+          transport.begin(payload, continuation, timeoutSeconds: timeoutSeconds)
+        }
       }
     } onCancel: {
       transport.queue.async { transport.finish(.failure(CancellationError())) }
     }
   }
-  private func begin(_ payload: Data, _ continuation: CheckedContinuation<Data, Error>, timeoutSeconds: TimeInterval) {
+  private func begin(
+    _ payload: Data, _ continuation: CheckedContinuation<Data, Error>, timeoutSeconds: TimeInterval
+  ) {
     completion = continuation
     let deadline = DispatchWorkItem { [weak self] in self?.finish(.failure(Failure.unavailable)) }
     timeout = deadline
@@ -469,9 +598,11 @@ final class LiveBatteryTransport: @unchecked Sendable {
       guard let self else { return }
       switch state {
       case .ready:
-        self.connection.send(content: payload, completion: .contentProcessed { error in
-          if let error { self.finish(.failure(error)) } else { self.receive() }
-        })
+        self.connection.send(
+          content: payload,
+          completion: .contentProcessed { error in
+            if let error { self.finish(.failure(error)) } else { self.receive() }
+          })
       case .failed(let error): self.finish(.failure(error))
       case .cancelled: self.finish(.failure(Failure.unavailable))
       default: break
@@ -480,19 +611,28 @@ final class LiveBatteryTransport: @unchecked Sendable {
     connection.start(queue: queue)
   }
   private func receive() {
-    connection.receive(minimumIncompleteLength: 1, maximumLength: 65536) { [weak self] data, _, complete, error in
+    connection.receive(minimumIncompleteLength: 1, maximumLength: 65536) {
+      [weak self] data, _, complete, error in
       guard let self, self.completion != nil else { return }
       if let data { self.buffer.append(data) }
       guard self.buffer.count <= 1048580 else { self.finish(.failure(Failure.unsupported)); return }
       if self.buffer.count >= 4 {
         let length = self.buffer.prefix(4).reduce(0) { ($0 << 8) | Int($1) }
-        guard (28...1048576).contains(length) else { self.finish(.failure(Failure.unsupported)); return }
-        if self.buffer.count == length + 4 { self.finish(.success(self.buffer.dropFirst(4))); return }
+        guard (28...1048576).contains(length) else {
+          self.finish(.failure(Failure.unsupported)); return
+        }
+        if self.buffer.count == length + 4 {
+          self.finish(.success(self.buffer.dropFirst(4))); return
+        }
         if self.buffer.count > length + 4 { self.finish(.failure(Failure.invalid)); return }
       }
-      if let error { self.finish(.failure(error)) }
-      else if complete { self.finish(.failure(Failure.invalid)) }
-      else { self.receive() }
+      if let error {
+        self.finish(.failure(error))
+      } else if complete {
+        self.finish(.failure(Failure.invalid))
+      } else {
+        self.receive()
+      }
     }
   }
   private func finish(_ result: Result<Data, Error>) {

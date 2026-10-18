@@ -127,9 +127,9 @@ struct RecordListView<Header: View>: View {
     GeometryReader { geometry in
       ScrollView {
         header
-        .frame(maxWidth: 1200)
-        .padding(.horizontal, 24)
-        .padding(.top, 12)
+          .frame(maxWidth: 1200)
+          .padding(.horizontal, 24)
+          .padding(.top, 12)
 
         let availableWidth = min(geometry.size.width, 1248) - 48
         let minSectionWidth: CGFloat = 340
@@ -173,9 +173,13 @@ struct RecordListView<Header: View>: View {
                         Circle()
                           .fill(appSettings.accentColor.color.opacity(0.12))
                           .frame(width: 40, height: 40)
-                        Image(systemName: splitName.primary.contains("Watch") ? "applewatch" : (splitName.primary.contains("iPad") ? "ipad" : "iphone"))
-                          .foregroundStyle(appSettings.accentColor.color)
-                          .font(.system(size: 18, weight: .semibold))
+                        Image(
+                          systemName: splitName.primary.contains("Watch")
+                            ? "applewatch"
+                            : (splitName.primary.contains("iPad") ? "ipad" : "iphone")
+                        )
+                        .foregroundStyle(appSettings.accentColor.color)
+                        .font(.system(size: 18, weight: .semibold))
                       }
 
                       VStack(alignment: .leading, spacing: 2) {
@@ -199,7 +203,8 @@ struct RecordListView<Header: View>: View {
                         Image(systemName: "chevron.up")
                           .foregroundStyle(.secondary)
                           .font(.system(size: 14, weight: .bold))
-                          .rotationEffect(.degrees(collapsedSections.contains(section.id) ? 180 : 0))
+                          .rotationEffect(
+                            .degrees(collapsedSections.contains(section.id) ? 180 : 0))
                       }
                     }
                     .contentShape(Rectangle())
@@ -260,9 +265,12 @@ struct RecordListView<Header: View>: View {
                 .foregroundStyle(.primary)
                 .fixedSize(horizontal: false, vertical: true)
               Spacer(minLength: 8)
-              Image(systemName: collapsedSections.contains(section.id) ? "chevron.right" : "chevron.down")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.tertiary)
+              Image(
+                systemName: collapsedSections.contains(section.id)
+                  ? "chevron.right" : "chevron.down"
+              )
+              .font(.caption.weight(.semibold))
+              .foregroundStyle(.tertiary)
             }
             .frame(minHeight: 32)
             .contentShape(Rectangle())
@@ -292,7 +300,9 @@ struct RecordListView<Header: View>: View {
               }
             }
             if hasMoreRecords(section) {
-              Button { loadMoreRecords(for: section) } label: {
+              Button {
+                loadMoreRecords(for: section)
+              } label: {
                 HStack {
                   Text(L10n.string("load_more", table: "Home"))
                   Spacer()
@@ -315,7 +325,7 @@ struct RecordListView<Header: View>: View {
       do {
         try await Task.sleep(for: .milliseconds(500))
         allowSectionAnimation = false
-      } catch { }
+      } catch {}
     }
   }
 
@@ -355,16 +365,16 @@ struct RecordListView<Header: View>: View {
                 selectableRecordRow(record)
                   .contentShape(Rectangle())
               }
-                .buttonStyle(.plain)
-                .accessibilityIdentifier("home.record.\(record.id)")
-                .accessibilityValue(selectionValue(record))
-                .deleteDisabled(isSelecting)
-                .id(isSelecting)
-                .transition(
-                  .asymmetric(
-                    insertion: .move(edge: .top).combined(with: .opacity),
-                    removal: .move(edge: .bottom).combined(with: .opacity)
-                  ))
+              .buttonStyle(.plain)
+              .accessibilityIdentifier("home.record.\(record.id)")
+              .accessibilityValue(selectionValue(record))
+              .deleteDisabled(isSelecting)
+              .id(isSelecting)
+              .transition(
+                .asymmetric(
+                  insertion: .move(edge: .top).combined(with: .opacity),
+                  removal: .move(edge: .bottom).combined(with: .opacity)
+                ))
             }
             .onDelete { offsets in
               if !isSelecting, let onDelete = onRecordDelete {
@@ -397,9 +407,12 @@ struct RecordListView<Header: View>: View {
             Label {
               Text(section.displayName).font(.headline)
             } icon: {
-              Image(systemName: section.displayName.contains("Watch") ? "applewatch"
-                : section.displayName.contains("iPad") ? "ipad" : "iphone")
-                .foregroundStyle(appSettings.accentColor.color)
+              Image(
+                systemName: section.displayName.contains("Watch")
+                  ? "applewatch"
+                  : section.displayName.contains("iPad") ? "ipad" : "iphone"
+              )
+              .foregroundStyle(appSettings.accentColor.color)
             }
             .padding(.vertical, 6)
             .foregroundColor(.primary)
@@ -465,19 +478,20 @@ struct RecordListView<Header: View>: View {
         ModerniPadRecordCard(record: record)
           .frame(maxWidth: .infinity, alignment: .leading)
       }
-        .padding(16)
-        .background(
-          Color(uiColor: .tertiarySystemGroupedBackground)
-            .mochiShadow(color: Color.black.opacity(0.02), radius: 5, x: 0, y: 2)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .overlay(
-          RoundedRectangle(cornerRadius: 16)
-            .stroke(isSelecting && selectedRecordIDs.contains(record.id)
+      .padding(16)
+      .background(
+        Color(uiColor: .tertiarySystemGroupedBackground)
+          .mochiShadow(color: Color.black.opacity(0.02), radius: 5, x: 0, y: 2)
+      )
+      .clipShape(RoundedRectangle(cornerRadius: 16))
+      .overlay(
+        RoundedRectangle(cornerRadius: 16)
+          .stroke(
+            isSelecting && selectedRecordIDs.contains(record.id)
               ? appSettings.accentColor.color : Color(uiColor: .separator).opacity(0.1),
-              lineWidth: isSelecting && selectedRecordIDs.contains(record.id) ? 2 : 1)
-        )
-        .frame(maxWidth: .infinity)
+            lineWidth: isSelecting && selectedRecordIDs.contains(record.id) ? 2 : 1)
+      )
+      .frame(maxWidth: .infinity)
     }
     .buttonStyle(.plain)
     .accessibilityIdentifier("home.record.\(record.id)")
@@ -511,24 +525,26 @@ struct RecordListView<Header: View>: View {
   private func activateRecord(_ record: BatteryRecord) {
     guard isSelecting else { onRecordTap?(record); return }
     var updated = selectedRecordIDs
-    if updated.contains(record.id) { updated.remove(record.id) }
-    else { updated.insert(record.id) }
+    if updated.contains(record.id) { updated.remove(record.id) } else { updated.insert(record.id) }
     selectedRecordIDs = updated
   }
 
   private func selectionIndicator(_ record: BatteryRecord) -> some View {
     Image(systemName: selectedRecordIDs.contains(record.id) ? "checkmark.circle.fill" : "circle")
       .font(.title3)
-      .foregroundStyle(selectedRecordIDs.contains(record.id)
-        ? appSettings.accentColor.color : .secondary)
+      .foregroundStyle(
+        selectedRecordIDs.contains(record.id)
+          ? appSettings.accentColor.color : .secondary
+      )
       .frame(width: 28)
       .accessibilityHidden(true)
   }
 
   private func selectionValue(_ record: BatteryRecord) -> String {
     guard isSelecting else { return "" }
-    return L10n.string(selectedRecordIDs.contains(record.id)
-      ? "records_selected" : "records_not_selected", table: "Home")
+    return L10n.string(
+      selectedRecordIDs.contains(record.id)
+        ? "records_selected" : "records_not_selected", table: "Home")
   }
 
   // MARK: - デバイス名表示ヘルパー（iPad用）
@@ -587,7 +603,8 @@ private struct ModerniPadRecordCard: View {
 
         VStack(alignment: .leading, spacing: 5) {
           Label(
-            String(format: L10n.string("cycle_count_format", table: "Analytics"), record.cycleCount),
+            String(
+              format: L10n.string("cycle_count_format", table: "Analytics"), record.cycleCount),
             systemImage: "arrow.triangle.2.circlepath"
           )
           .font(.caption)
@@ -607,7 +624,9 @@ private struct ModerniPadRecordCard: View {
       Spacer(minLength: 8)
 
       // 右側: 健康度リング
-      let health = appSettings.analysisDataSource == .nominal ? record.nominalHealthPercent : record.healthPercent
+      let health =
+        appSettings.analysisDataSource == .nominal
+        ? record.nominalHealthPercent : record.healthPercent
 
       ZStack {
         Circle()

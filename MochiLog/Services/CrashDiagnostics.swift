@@ -6,7 +6,8 @@ final class CrashDiagnostics: NSObject, MXMetricManagerSubscriber {
   static let shared = CrashDiagnostics()
   private let lock = NSLock()
   private let url: URL = {
-    let directory = FileManager.default.urls(for: .applicationSupportDirectory,
+    let directory = FileManager.default.urls(
+      for: .applicationSupportDirectory,
       in: .userDomainMask)[0]
     return directory.appendingPathComponent("last-app-diagnostic.json")
   }()
@@ -36,8 +37,10 @@ final class CrashDiagnostics: NSObject, MXMetricManagerSubscriber {
   }
 
   func didReceive(_ payloads: [MXDiagnosticPayload]) {
-    for payload in payloads where
-      !(payload.crashDiagnostics ?? []).isEmpty || !(payload.hangDiagnostics ?? []).isEmpty {
+    for payload in payloads
+    where
+      !(payload.crashDiagnostics ?? []).isEmpty || !(payload.hangDiagnostics ?? []).isEmpty
+    {
       let kind = (payload.crashDiagnostics ?? []).isEmpty ? "hang" : "crash"
       save(kind: kind, diagnostic: payload.jsonRepresentation())
     }
@@ -53,25 +56,29 @@ final class CrashDiagnostics: NSObject, MXMetricManagerSubscriber {
     guard let data = latest(),
       let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
       let kind = object["kind"] as? String,
-      let receivedAt = object["receivedAt"] as? String else { return nil }
+      let receivedAt = object["receivedAt"] as? String
+    else { return nil }
     return "OS diagnostic: \(kind) received \(receivedAt)"
   }
 
   private func save(kind: String, diagnostic: Data) {
     guard diagnostic.count <= 1_048_576,
       let report = try? JSONSerialization.jsonObject(with: diagnostic),
-      let data = try? JSONSerialization.data(withJSONObject: [
-        "schema": 1, "platform": "iOS", "kind": kind,
-        "receivedAt": ISO8601DateFormatter().string(from: Date()),
-        "report": report
-      ], options: [.prettyPrinted, .sortedKeys]) else { return }
+      let data = try? JSONSerialization.data(
+        withJSONObject: [
+          "schema": 1, "platform": "iOS", "kind": kind,
+          "receivedAt": ISO8601DateFormatter().string(from: Date()),
+          "report": report,
+        ], options: [.prettyPrinted, .sortedKeys])
+    else { return }
     lock.lock()
     defer { lock.unlock() }
     do {
-      try FileManager.default.createDirectory(at: url.deletingLastPathComponent(),
+      try FileManager.default.createDirectory(
+        at: url.deletingLastPathComponent(),
         withIntermediateDirectories: true)
       try data.write(to: url, options: .atomic)
       try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
-    } catch { /* A diagnostic failure must not affect the app. */ }
+    } catch { /* A diagnostic failure must not affect the app. */  }
   }
 }

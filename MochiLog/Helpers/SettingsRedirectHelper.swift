@@ -45,7 +45,8 @@ enum SettingsRedirectHelper {
         guard !opened else { return }
         DispatchQueue.main.async {
           AppSettings.shared.isShortcutInstalled = false
-          NotificationCenter.default.post(name: NSNotification.Name("ShortcutNotFound"), object: nil)
+          NotificationCenter.default.post(
+            name: NSNotification.Name("ShortcutNotFound"), object: nil)
         }
       }
     }

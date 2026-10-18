@@ -21,9 +21,11 @@ struct MacTransferDebugLogView: View {
         if loading {
           ProgressView(L10n.text("mt_log_loading", table: "MacTransfer"))
         } else if days.isEmpty {
-          Label(L10n.text("mt_log_no_days", table: "MacTransfer"),
-            systemImage: "calendar.badge.exclamationmark")
-            .foregroundStyle(.secondary)
+          Label(
+            L10n.text("mt_log_no_days", table: "MacTransfer"),
+            systemImage: "calendar.badge.exclamationmark"
+          )
+          .foregroundStyle(.secondary)
         } else {
           ForEach(days, id: \.self) { day in
             NavigationLink {
@@ -40,9 +42,11 @@ struct MacTransferDebugLogView: View {
         Section(computerTitle(computer)) {
           let computerDays = computerDays[computer.hostID] ?? []
           if computerDays.isEmpty {
-            Label(L10n.text("mt_log_no_days", table: "MacTransfer"),
-              systemImage: "desktopcomputer")
-              .foregroundStyle(.secondary)
+            Label(
+              L10n.text("mt_log_no_days", table: "MacTransfer"),
+              systemImage: "desktopcomputer"
+            )
+            .foregroundStyle(.secondary)
           } else {
             ForEach(computerDays, id: \.self) { day in
               NavigationLink {
@@ -62,7 +66,8 @@ struct MacTransferDebugLogView: View {
         } label: {
           LabeledContent(
             L10n.text("mt_log_storage_title", table: "MacTransfer"),
-            value: String(format: L10n.text("mt_log_days_count", table: "MacTransfer"),
+            value: String(
+              format: L10n.text("mt_log_days_count", table: "MacTransfer"),
               manager.debugRetentionDays)
           )
           .padding(.vertical, 5)
@@ -78,8 +83,12 @@ struct MacTransferDebugLogView: View {
       let root = manager.debugLogDirectory()
       let roots = manager.pairings.map { ($0.hostID, manager.debugLogDirectory(for: $0.hostID)) }
       let catalog = await Task.detached(priority: .userInitiated) {
-        (DiagnosticLogViewer.days(in: root), Dictionary(uniqueKeysWithValues:
-          roots.map { ($0.0, DiagnosticLogViewer.days(in: $0.1)) }))
+        (
+          DiagnosticLogViewer.days(in: root),
+          Dictionary(
+            uniqueKeysWithValues:
+              roots.map { ($0.0, DiagnosticLogViewer.days(in: $0.1)) })
+        )
       }.value
       guard !Task.isCancelled else { return }
       days = catalog.0; computerDays = catalog.1; loading = false
@@ -99,7 +108,8 @@ struct MacTransferDebugLogView: View {
 
   private func computerTitle(_ computer: MacTransferPairing) -> String {
     let platform = computer.platform == "Windows" ? "Windows" : "Mac"
-    let suffix = manager.pairings.count > 1
+    let suffix =
+      manager.pairings.count > 1
       ? " · \(computer.hostID.uuidString.prefix(6))" : ""
     return "\(platform)\(suffix)"
   }
@@ -128,7 +138,9 @@ private struct MacTransferLogDayView: View {
   @State private var revision = 0
   let day: String?
   var hostID: UUID? = nil
-  private struct Request: Hashable { let day: String?; let host: UUID?; let category: String?; let revision: Int }
+  private struct Request: Hashable {
+    let day: String?; let host: UUID?; let category: String?; let revision: Int
+  }
 
   private func categoryTitle(_ category: String) -> String {
     switch category {
@@ -167,13 +179,19 @@ private struct MacTransferLogDayView: View {
         }
       }
     }
-    .navigationTitle(day.map(MacTransferDebugLogView.displayDate)
-      ?? L10n.text("mt_log_remote_title", table: "MacTransfer"))
+    .navigationTitle(
+      day.map(MacTransferDebugLogView.displayDate)
+        ?? L10n.text("mt_log_remote_title", table: "MacTransfer")
+    )
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
       ToolbarItemGroup(placement: .topBarTrailing) {
-        Button { revision += 1 } label: { Image(systemName: "arrow.clockwise") }
-          .accessibilityLabel(L10n.text("mt_015", table: "MacTransfer"))
+        Button {
+          revision += 1
+        } label: {
+          Image(systemName: "arrow.clockwise")
+        }
+        .accessibilityLabel(L10n.text("mt_015", table: "MacTransfer"))
         Button(L10n.text("mt_046", table: "MacTransfer")) { UIPasteboard.general.string = fullText }
           .disabled(loading || fullText.isEmpty)
       }
@@ -185,11 +203,16 @@ private struct MacTransferLogDayView: View {
       let snapshot = await Task.detached(priority: .userInitiated) {
         do {
           guard let selectedDay,
-            selectedDay.range(of: #"^[0-9]{4}-[0-9]{2}-[0-9]{2}$"#, options: .regularExpression) != nil
+            selectedDay.range(of: #"^[0-9]{4}-[0-9]{2}-[0-9]{2}$"#, options: .regularExpression)
+              != nil
           else { return ([String](), "", [String](), Optional<String>.none) }
-          let raw = try String(contentsOf: root.appendingPathComponent(selectedDay + ".log"), encoding: .utf8)
+          let raw = try String(
+            contentsOf: root.appendingPathComponent(selectedDay + ".log"), encoding: .utf8)
           let text = DiagnosticLogViewer.text(raw, category: selectedCategory)
-          return (DiagnosticLogViewer.categories(in: raw), text, DiagnosticLogViewer.pages(text), Optional<String>.none)
+          return (
+            DiagnosticLogViewer.categories(in: raw), text, DiagnosticLogViewer.pages(text),
+            Optional<String>.none
+          )
         } catch { return ([String](), "", [String](), Optional(error.localizedDescription)) }
       }.value
       guard !Task.isCancelled else { return }
@@ -223,9 +246,12 @@ private struct MacTransferLogStorageView: View {
             revision += 1
           } label: {
             HStack {
-              Text(String(format: L10n.text("mt_log_days_count", table: "MacTransfer"),
-                duration))
-                .foregroundStyle(.primary)
+              Text(
+                String(
+                  format: L10n.text("mt_log_days_count", table: "MacTransfer"),
+                  duration)
+              )
+              .foregroundStyle(.primary)
               Spacer()
               if manager.debugRetentionDays == duration {
                 Image(systemName: "checkmark")
@@ -240,8 +266,10 @@ private struct MacTransferLogStorageView: View {
       }
 
       Section {
-        Button(L10n.text("mt_log_delete", table: "MacTransfer"),
-          role: .destructive) {
+        Button(
+          L10n.text("mt_log_delete", table: "MacTransfer"),
+          role: .destructive
+        ) {
           showingDeleteConfirmation = true
         }
         .disabled(!hasLogs)
@@ -260,8 +288,10 @@ private struct MacTransferLogStorageView: View {
       L10n.text("mt_log_delete_confirm", table: "MacTransfer"),
       isPresented: $showingDeleteConfirmation
     ) {
-      Button(L10n.text("mt_log_delete", table: "MacTransfer"),
-        role: .destructive) {
+      Button(
+        L10n.text("mt_log_delete", table: "MacTransfer"),
+        role: .destructive
+      ) {
         manager.clearDebugLogs()
         revision += 1
       }

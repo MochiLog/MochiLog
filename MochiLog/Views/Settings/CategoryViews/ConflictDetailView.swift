@@ -12,11 +12,16 @@ struct ConflictDetailView: View {
       ScrollView {
         VStack(spacing: 24) {
           // ヘッダー説明
-          Text(L10n.string("conflict_detail_description", defaultValue: "同一の記録が複数のデバイスで同時に変更されました。以下の差分を確認し、どちらのデータを保持するか選択してください。", table: "Settings"))
-            .font(.subheadline)
-            .foregroundColor(.secondary)
-            .padding(.horizontal)
-            .padding(.top)
+          Text(
+            L10n.string(
+              "conflict_detail_description",
+              defaultValue: "同一の記録が複数のデバイスで同時に変更されました。以下の差分を確認し、どちらのデータを保持するか選択してください。",
+              table: "Settings")
+          )
+          .font(.subheadline)
+          .foregroundColor(.secondary)
+          .padding(.horizontal)
+          .padding(.top)
 
           // 差分テーブル
           GroupBox {
@@ -64,19 +69,22 @@ struct ConflictDetailView: View {
               )
 
               buildComparisonRow(
-                title: L10n.string("nominal_capacity", defaultValue: "最大容量(mAh)", table: "Analytics"),
+                title: L10n.string(
+                  "nominal_capacity", defaultValue: "最大容量(mAh)", table: "Analytics"),
                 localValue: format(int: conflict.localNominalCapacity),
                 serverValue: format(int: conflict.serverNominalCapacity)
               )
 
               buildComparisonRow(
-                title: L10n.string("design_capacity", defaultValue: "設計容量(mAh)", table: "Analytics"),
+                title: L10n.string(
+                  "design_capacity", defaultValue: "設計容量(mAh)", table: "Analytics"),
                 localValue: format(int: conflict.localDesignCapacity),
                 serverValue: format(int: conflict.serverDesignCapacity)
               )
 
               buildComparisonRow(
-                title: L10n.string("battery_health_percent", defaultValue: "設定アプリ表示(%)", table: "Settings"),
+                title: L10n.string(
+                  "battery_health_percent", defaultValue: "設定アプリ表示(%)", table: "Settings"),
                 localValue: format(percent: conflict.localSettingsDisplayPercent),
                 serverValue: format(percent: conflict.serverSettingsDisplayPercent)
               )
@@ -147,7 +155,9 @@ struct ConflictDetailView: View {
   }
 
   @ViewBuilder
-  private func buildComparisonRow(title: String, localValue: String, serverValue: String) -> some View {
+  private func buildComparisonRow(title: String, localValue: String, serverValue: String)
+    -> some View
+  {
     let isDifferent = localValue != serverValue
 
     VStack(spacing: 0) {

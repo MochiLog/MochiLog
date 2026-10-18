@@ -26,7 +26,8 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
   // MARK: - プライベートプロパティ
 
   private var session: WCSession?
-  private let deliveryQueue = DispatchQueue(label: "net.ryuya-dev.MochiLog.watch-delivery", qos: .utility)
+  private let deliveryQueue = DispatchQueue(
+    label: "net.ryuya-dev.MochiLog.watch-delivery", qos: .utility)
   // Accessed only on deliveryQueue. Keep data until activation/installation completes.
   private var pendingSnapshot: (records: [WatchBatteryRecord], isSampleMode: Bool)?
 
@@ -79,7 +80,8 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
 
   private func deliverPendingSnapshot() {
     guard let snapshot = pendingSnapshot, let session = session,
-      session.activationState == .activated, session.isWatchAppInstalled else { return }
+      session.activationState == .activated, session.isWatchAppInstalled
+    else { return }
     do {
       let encoder = JSONEncoder()
       encoder.dateEncodingStrategy = .iso8601
@@ -121,7 +123,7 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
       let message: [String: Any] = [
         "records": data,
         "syncDate": Date().timeIntervalSince1970,
-          "appLanguage": UserDefaults.standard.string(forKey: L10n.preferenceKey) ?? "system",
+        "appLanguage": UserDefaults.standard.string(forKey: L10n.preferenceKey) ?? "system",
       ]
 
       session.sendMessage(

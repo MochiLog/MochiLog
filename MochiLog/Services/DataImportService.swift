@@ -107,8 +107,9 @@ struct DataImportService {
 
     // フェーズ2: YAMLデコード（メインスレッド）
     // ExportData.Decodable が @MainActor に隔離されているため MainActor.run でラップして呼び出す
-    let (exportFormatVersion, appVersion, exportRecords): (String, String, [DataExportService.ExportRecord]) =
-      try await MainActor.run { try decodeYAML(yamlString) }
+    let (exportFormatVersion, appVersion, exportRecords):
+      (String, String, [DataExportService.ExportRecord]) =
+        try await MainActor.run { try decodeYAML(yamlString) }
 
     // レコードが空でないか確認
     guard !exportRecords.isEmpty else {
@@ -136,9 +137,11 @@ struct DataImportService {
       var index = Set<RecordKey>()
       for record in existingRecords {
         let components = calendar.dateComponents([.year, .month, .day], from: record.logDate)
-        let identity = record.physicalDeviceID.map { "id:\($0.uuidString)" }
+        let identity =
+          record.physicalDeviceID.map { "id:\($0.uuidString)" }
           ?? "legacy:\(record.deviceName)"
-        let key = "\(identity)|\(components.year ?? 0)-\(components.month ?? 0)-\(components.day ?? 0)"
+        let key =
+          "\(identity)|\(components.year ?? 0)-\(components.month ?? 0)-\(components.day ?? 0)"
         index.insert(key)
       }
       return index
@@ -158,7 +161,8 @@ struct DataImportService {
       ($0.offset, Array(exportRecords[$0.element..<min($0.element + batchSize, totalCount)]))
     }
 
-    let convertedBatches: [BatchResult] = try await withThrowingTaskGroup(of: BatchResult.self) { group in
+    let convertedBatches: [BatchResult] = try await withThrowingTaskGroup(of: BatchResult.self) {
+      group in
       for (batchIndex, batch) in batches {
         group.addTask {
           var converted: [ConvertedRecord] = []
@@ -207,7 +211,8 @@ struct DataImportService {
 
             // 3.0.0より古いデータ: iPhone Air MagSafe マイグレーション
             if needsMagSafeMigration && record.deviceName == "iPhone Air" {
-              let isMagSafe = record.firstUseDate == nil
+              let isMagSafe =
+                record.firstUseDate == nil
                 && record.deflator == nil
                 && (record.lowRateCapacity == nil || record.lowRateCapacity == 0)
                 && record.rawCapacity == 0
@@ -220,9 +225,11 @@ struct DataImportService {
             // 重複チェック（Set<String> インデックスを参照）
             if !allowDuplicates {
               let components = calendar.dateComponents([.year, .month, .day], from: record.logDate)
-              let identity = record.physicalDeviceID.map { "id:\($0.uuidString)" }
+              let identity =
+                record.physicalDeviceID.map { "id:\($0.uuidString)" }
                 ?? "legacy:\(record.deviceName)"
-              let key = "\(identity)|\(components.year ?? 0)-\(components.month ?? 0)-\(components.day ?? 0)"
+              let key =
+                "\(identity)|\(components.year ?? 0)-\(components.month ?? 0)-\(components.day ?? 0)"
               if existingKeys.contains(key) {
                 skipCount += 1
                 continue
@@ -363,6 +370,6 @@ struct DataImportService {
       if a < b { return true }
       if a > b { return false }
     }
-    return false // 同じバージョンの場合は false
+    return false  // 同じバージョンの場合は false
   }
 }

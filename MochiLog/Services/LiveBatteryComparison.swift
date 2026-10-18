@@ -43,9 +43,12 @@ enum LiveBatteryComparison {
     return order.map { LiveBatteryDeviceReadings(id: $0, sources: groups[$0] ?? []) }
   }
 
-  static func summary(_ readings: [LiveBatteryReading?]) -> [ComparedBatteryField<String, BatterySummaryRow>] {
+  static func summary(_ readings: [LiveBatteryReading?]) -> [ComparedBatteryField<
+    String, BatterySummaryRow
+  >] {
     let sources = readings.map {
-      BatteryPresentation.summary(values: $0?.values ?? [:], charging: $0?.charging, fields: $0?.fields ?? [])
+      BatteryPresentation.summary(
+        values: $0?.values ?? [:], charging: $0?.charging, fields: $0?.fields ?? [])
     }
     return (BatteryPresentation.primaryKeys + BatteryPresentation.extraKeys).compactMap { key in
       let values = sources.map { $0.first { $0.key == key } }
@@ -54,11 +57,14 @@ enum LiveBatteryComparison {
     }
   }
 
-  static func details(_ readings: [LiveBatteryReading?]) -> [ComparedBatteryField<BatteryFieldPath, RawBatteryField>] {
+  static func details(_ readings: [LiveBatteryReading?]) -> [ComparedBatteryField<
+    BatteryFieldPath, RawBatteryField
+  >] {
     let sources: [[BatteryFieldPath: RawBatteryField]] = readings.map { reading in
       var values: [BatteryFieldPath: RawBatteryField] = [:]
       var occurrences: [[String]: Int] = [:]
-      let fields = BatteryPresentation.details(values: reading?.values ?? [:], charging: reading?.charging,
+      let fields = BatteryPresentation.details(
+        values: reading?.values ?? [:], charging: reading?.charging,
         fields: reading?.fields ?? [])
       for field in fields {
         // Preserve duplicate paths and types rather than crashing or dropping data.
@@ -69,7 +75,8 @@ enum LiveBatteryComparison {
       return values
     }
     let keys = Set(sources.flatMap { $0.keys }).sorted {
-      $0.path == $1.path ? $0.occurrence < $1.occurrence : $0.path.lexicographicallyPrecedes($1.path)
+      $0.path == $1.path
+        ? $0.occurrence < $1.occurrence : $0.path.lexicographicallyPrecedes($1.path)
     }
     return keys.map { key in ComparedBatteryField(id: key, values: sources.map { $0[key] }) }
   }

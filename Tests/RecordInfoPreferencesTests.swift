@@ -20,7 +20,9 @@ struct RecordInfoPreferencesTests {
     defaults.removeObject(forKey: "recordInfoDefaultsRelease")
     defaults.set(true, forKey: "showRecordInfoButtons")
     RecordInfoPreferences.prepareForLaunch(defaults: defaults, release: "1.1(2)")
-    assert(!defaults.bool(forKey: "showRecordInfoButtons"), "Upgrade from older app without marker resets ON")
+    assert(
+      !defaults.bool(forKey: "showRecordInfoButtons"),
+      "Upgrade from older app without marker resets ON")
     print("PASS: initial OFF, legacy upgrade, version/build updates, manual ON survives relaunch")
   }
 }

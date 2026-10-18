@@ -36,7 +36,10 @@ def main() -> None:
             ["dns-sd", "-R", "MochiLog Probe", SERVICE_TYPE, "local", str(PORT)]
         )
         try:
-            print(f"Ready: {len(payload)} bytes, SHA-256 {hashlib.sha256(payload).hexdigest()}", flush=True)
+            print(
+                f"Ready: {len(payload)} bytes, SHA-256 {hashlib.sha256(payload).hexdigest()}",
+                flush=True,
+            )
             server.serve_forever()
         except KeyboardInterrupt:
             pass

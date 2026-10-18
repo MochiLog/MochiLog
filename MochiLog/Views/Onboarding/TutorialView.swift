@@ -344,7 +344,8 @@ struct TutorialPageView: View {
             // テキスト: 両方のテキストを常に存在させ、opacityで切り替え
             ZStack {
               Text(
-                L10n.string(String.LocalizationValue(
+                L10n.string(
+                  String.LocalizationValue(
                     page.customButtonTitleKey ?? "open_analytics_settings"),
                   table: "Onboarding")
               )

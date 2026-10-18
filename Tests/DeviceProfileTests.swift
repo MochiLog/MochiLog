@@ -1,7 +1,9 @@
 import Foundation
 import Combine
 
-enum L10n { static func string(_ value: String.LocalizationValue, table: String) -> String { "validation" } }
+enum L10n {
+  static func string(_ value: String.LocalizationValue, table: String) -> String { "validation" }
+}
 enum DeviceLibrary {
   static let deviceNamesJa = ["iPhone99,1": "iPhone Test"]
   static let designCapacities = ["iPhone Test": 4000]
@@ -16,13 +18,20 @@ enum DeviceLibrary {
 @main
 struct DeviceProfileTests {
   static func main() throws {
-    let baseline = DeviceProfile(id: "standard", name: "iPhone Future", identifiers: ["iPhone100,1"], capacity: 4000, soc: "A100", boards: [:])
-    let legacyJSON = #"{"id":"legacy","name":"iPhone Legacy","identifiers":["iPhone98,1"],"capacity":3000,"soc":"A98","boards":{}}"#.data(using: .utf8)!
+    let baseline = DeviceProfile(
+      id: "standard", name: "iPhone Future", identifiers: ["iPhone100,1"], capacity: 4000,
+      soc: "A100", boards: [:])
+    let legacyJSON =
+      #"{"id":"legacy","name":"iPhone Legacy","identifiers":["iPhone98,1"],"capacity":3000,"soc":"A98","boards":{}}"#
+      .data(using: .utf8)!
     let legacy = try JSONDecoder().decode(DeviceProfile.self, from: legacyJSON)
-    precondition(legacy.modelNumbers.isEmpty && legacy.modelNumbersByIdentifier.isEmpty
-      && legacy.capacityVariants.isEmpty)
-    let esimOnly = DeviceProfile(id: "esim", name: "iPhone eSIM", identifiers: ["iPhone98,2"],
-      capacity: 3000, soc: "A98", boards: [:], capacityVariants: [
+    precondition(
+      legacy.modelNumbers.isEmpty && legacy.modelNumbersByIdentifier.isEmpty
+        && legacy.capacityVariants.isEmpty)
+    let esimOnly = DeviceProfile(
+      id: "esim", name: "iPhone eSIM", identifiers: ["iPhone98,2"],
+      capacity: 3000, soc: "A98", boards: [:],
+      capacityVariants: [
         DeviceCapacityVariant(configuration: .esim, capacity: 3000, region: nil)
       ])
     precondition(esimOnly.capacityVariants.count == 1)
@@ -30,14 +39,18 @@ struct DeviceProfileTests {
     precondition(baseline.category == .iphone)
     var accessory = baseline; accessory.identifiers = []; accessory.name = "iPhone Air MagSafe"
     precondition(accessory.category == .other)
-    for (identifier, category) in [("iPad99,1", DeviceProfile.Category.ipad), ("Watch99,1", .watch), ("iPod99,1", .ipod)] {
+    for (identifier, category) in [
+      ("iPad99,1", DeviceProfile.Category.ipad), ("Watch99,1", .watch), ("iPod99,1", .ipod),
+    ] {
       var item = baseline; item.identifiers = [identifier]
       precondition(item.category == category)
     }
     var custom = baseline
     custom.id = "custom"
     custom.capacity = 4300
-    let entry = DeviceProfileEntry(original: custom, current: custom, acceptedBundled: [], previousNames: [custom.name], previousIdentifiers: Set(custom.identifiers))
+    let entry = DeviceProfileEntry(
+      original: custom, current: custom, acceptedBundled: [], previousNames: [custom.name],
+      previousIdentifiers: Set(custom.identifiers))
     precondition(DeviceProfileCatalog.conflicts(entry, bundled: []).isEmpty)
     precondition(DeviceProfileCatalog.conflicts(entry, bundled: [baseline]) == [baseline])
     precondition(DeviceProfileCatalog.merged(bundled: [baseline], entries: [entry]) == [custom])
@@ -63,7 +76,7 @@ struct DeviceProfileTests {
     simDevice.identifiers = ["iPhone97,1"]
     simDevice.capacityVariants = [
       DeviceCapacityVariant(configuration: .esim, capacity: 4288, region: nil),
-      DeviceCapacityVariant(configuration: .physicalSIM, capacity: 4056, region: "HK")
+      DeviceCapacityVariant(configuration: .physicalSIM, capacity: 4056, region: "HK"),
     ]
     try store.save(simDevice)
     precondition(store.capacityVariant(for: simDevice.name, productSku: "ZP/A")?.capacity == 4056)
@@ -93,8 +106,10 @@ struct DeviceProfileTests {
     var priorManual = original
     priorManual.id = "pre-update-manual"
     priorManual.capacity = 4800
-    let priorEntry = DeviceProfileEntry(original: priorManual, current: priorManual,
-      acceptedBundled: [], previousNames: [priorManual.name], previousIdentifiers: Set(priorManual.identifiers))
+    let priorEntry = DeviceProfileEntry(
+      original: priorManual, current: priorManual,
+      acceptedBundled: [], previousNames: [priorManual.name],
+      previousIdentifiers: Set(priorManual.identifiers))
     defaults.set(try JSONEncoder().encode([priorEntry]), forKey: "deviceProfileOverrides.v1")
     let upgraded = DeviceProfileStore(defaults: defaults)
     precondition(upgraded.conflicts.count == 1)
@@ -104,6 +119,8 @@ struct DeviceProfileTests {
     precondition(DeviceProfileStore(defaults: defaults).conflicts.isEmpty)
     try upgraded.restore(priorManual.id)
     precondition(upgraded.capacity(original.name) == 4800)
-    print("PASS: defaults retained, persistence, restore, custom creation, aliases, conflicts on update, duplicate and input validation")
+    print(
+      "PASS: defaults retained, persistence, restore, custom creation, aliases, conflicts on update, duplicate and input validation"
+    )
   }
 }

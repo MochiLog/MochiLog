@@ -17,9 +17,11 @@ import Foundation
     }
     precondition(serviced == [0, 1])
     precondition(current == 0 && rounds == 0)
-    precondition(!DiagnosticArchiveSyncPolicy.shouldRotate(completedRounds: 100, pairedComputers: 1))
+    precondition(
+      !DiagnosticArchiveSyncPolicy.shouldRotate(completedRounds: 100, pairedComputers: 1))
     precondition(DiagnosticArchiveSyncPolicy.continuationDelay(completedRounds: 25) == 10)
     precondition(DiagnosticArchiveSyncPolicy.continuationDelay(completedRounds: 1) > 0)
-    print("PASS: pending diagnostic history yields to another PC; single-PC catch-up remains bounded")
+    print(
+      "PASS: pending diagnostic history yields to another PC; single-PC catch-up remains bounded")
   }
 }

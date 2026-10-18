@@ -19,18 +19,25 @@ final class DeviceProfileStore: ObservableObject {
     return names.sorted().map { name in
       let identifiers = DeviceLibrary.deviceNamesJa.filter { $0.value == name }.keys.sorted()
       let capacityName = DeviceLibrary.capacityReferenceNames[name] ?? name
-      return DeviceProfile(id: "bundled:" + name, name: name, identifiers: identifiers,
-        capacity: DeviceLibrary.designCapacities[capacityName] ?? 0, soc: DeviceLibrary.socInfo[name] ?? "",
+      return DeviceProfile(
+        id: "bundled:" + name, name: name, identifiers: identifiers,
+        capacity: DeviceLibrary.designCapacities[capacityName] ?? 0,
+        soc: DeviceLibrary.socInfo[name] ?? "",
         boards: DeviceLibrary.boardToIdentifier.filter { identifiers.contains($0.value) },
         modelNumbers: DeviceLibrary.modelNumbers[name] ?? [],
-        modelNumbersByIdentifier: DeviceLibrary.modelNumbersByIdentifier.filter { identifiers.contains($0.key) },
+        modelNumbersByIdentifier: DeviceLibrary.modelNumbersByIdentifier.filter {
+          identifiers.contains($0.key)
+        },
         capacityVariants: DeviceLibrary.capacityVariants[name] ?? [])
     }
   }()
 
   init(defaults: UserDefaults = .standard) {
     self.defaults = defaults
-    stored = defaults.data(forKey: key).flatMap { try? JSONDecoder().decode([DeviceProfileEntry].self, from: $0) } ?? []
+    stored =
+      defaults.data(forKey: key).flatMap {
+        try? JSONDecoder().decode([DeviceProfileEntry].self, from: $0)
+      } ?? []
     rebuild()
   }
 
@@ -40,11 +47,14 @@ final class DeviceProfileStore: ObservableObject {
   var conflicts: [DeviceProfileEntry] {
     entries.filter { !DeviceProfileCatalog.conflicts($0, bundled: Self.bundled).isEmpty }
   }
-  func capacity(_ name: String) -> Int? { lock.lock(); defer { lock.unlock() }; return capacityMap[name] }
+  func capacity(_ name: String) -> Int? {
+    lock.lock(); defer { lock.unlock() }; return capacityMap[name]
+  }
   func soc(_ name: String) -> String? { lock.lock(); defer { lock.unlock() }; return socMap[name] }
   func capacityVariant(for name: String, productSku: String?) -> DeviceCapacityVariant? {
     lock.lock(); defer { lock.unlock() }
-    let configuration: SIMConfiguration = ["ZP/A", "CH/A"].contains(productSku ?? "") ? .physicalSIM : .esim
+    let configuration: SIMConfiguration =
+      ["ZP/A", "CH/A"].contains(productSku ?? "") ? .physicalSIM : .esim
     return resolved.first(where: { $0.name == name })?.capacityVariants.first {
       $0.configuration == configuration
     }
@@ -52,13 +62,19 @@ final class DeviceProfileStore: ObservableObject {
 
   func capacityVariant(for name: String, capacity: Int) -> DeviceCapacityVariant? {
     lock.lock(); defer { lock.unlock() }
-    return resolved.first(where: { $0.name == name })?.capacityVariants.first { $0.capacity == capacity }
+    return resolved.first(where: { $0.name == name })?.capacityVariants.first {
+      $0.capacity == capacity
+    }
   }
-  func identifier(for board: String) -> String? { lock.lock(); defer { lock.unlock() }; return boardMap[board] }
+  func identifier(for board: String) -> String? {
+    lock.lock(); defer { lock.unlock() }; return boardMap[board]
+  }
 
   func modelIdentifier(for name: String) -> String? {
     lock.lock(); defer { lock.unlock() }
-    if let identifier = nameMap.filter({ $0.value == name }).keys.sorted().first { return identifier }
+    if let identifier = nameMap.filter({ $0.value == name }).keys.sorted().first {
+      return identifier
+    }
     return stored.first { $0.previousNames.contains(name) }?.current.identifiers.sorted().first
   }
 
@@ -70,9 +86,12 @@ final class DeviceProfileStore: ObservableObject {
       throw ProfileError(key: error)
     }
     if stored.contains(where: { entry in
-      entry.id != profile.id && (entry.previousNames.contains(profile.name)
-        || !entry.previousIdentifiers.isDisjoint(with: profile.identifiers))
-    }) { throw ProfileError(key: "profile_duplicate") }
+      entry.id != profile.id
+        && (entry.previousNames.contains(profile.name)
+          || !entry.previousIdentifiers.isDisjoint(with: profile.identifiers))
+    }) {
+      throw ProfileError(key: "profile_duplicate")
+    }
     var next = stored
     if let index = next.firstIndex(where: { $0.id == profile.id }) {
       next[index].previousNames.insert(next[index].current.name)
@@ -81,9 +100,11 @@ final class DeviceProfileStore: ObservableObject {
     } else {
       let original = Self.bundled.first { $0.id == profile.id } ?? profile
       let bundled = Self.bundled.filter { $0.matches(profile) || $0.matches(original) }
-      next.append(DeviceProfileEntry(original: original, current: profile,
-        acceptedBundled: bundled.sorted { $0.id < $1.id },
-        previousNames: [original.name], previousIdentifiers: Set(original.identifiers)))
+      next.append(
+        DeviceProfileEntry(
+          original: original, current: profile,
+          acceptedBundled: bundled.sorted { $0.id < $1.id },
+          previousNames: [original.name], previousIdentifiers: Set(original.identifiers)))
     }
     try persist(next)
   }
@@ -95,7 +116,9 @@ final class DeviceProfileStore: ObservableObject {
     guard let index = next.firstIndex(where: { $0.id == id }) else { return }
     var validation = entry.original
     validation.capacity = max(1, validation.capacity)
-    if let error = DeviceProfileCatalog.validationError(validation, others: resolved) { throw ProfileError(key: error) }
+    if let error = DeviceProfileCatalog.validationError(validation, others: resolved) {
+      throw ProfileError(key: error)
+    }
     next[index].previousNames.insert(entry.current.name)
     next[index].previousIdentifiers.formUnion(entry.current.identifiers)
     next[index].current = entry.original
@@ -106,16 +129,22 @@ final class DeviceProfileStore: ObservableObject {
     lock.lock(); defer { lock.unlock() }
     guard let index = stored.firstIndex(where: { $0.id == id }) else { return }
     var next = stored
-    let candidates = Self.bundled.filter { next[index].current.matches($0) || next[index].original.matches($0) }
-      .sorted { $0.id < $1.id }
+    let candidates = Self.bundled.filter {
+      next[index].current.matches($0) || next[index].original.matches($0)
+    }
+    .sorted { $0.id < $1.id }
     // Multiple matching standard profiles need an explicit profile choice in the editor.
-    let chosen = bundledID.flatMap { id in candidates.first { $0.id == id } } ?? (candidates.count == 1 ? candidates.first : nil)
+    let chosen =
+      bundledID.flatMap { id in candidates.first { $0.id == id } }
+      ?? (candidates.count == 1 ? candidates.first : nil)
     guard !useBundled || chosen != nil else { throw ProfileError(key: "profile_multiple_matches") }
     if useBundled, var profile = chosen {
       profile.id = id
       var validation = profile
       validation.capacity = max(1, validation.capacity)
-      if let error = DeviceProfileCatalog.validationError(validation, others: resolved) { throw ProfileError(key: error) }
+      if let error = DeviceProfileCatalog.validationError(validation, others: resolved) {
+        throw ProfileError(key: error)
+      }
       next[index].previousNames.insert(next[index].current.name)
       next[index].previousIdentifiers.formUnion(next[index].current.identifiers)
       profile.id = id
@@ -145,8 +174,12 @@ final class DeviceProfileStore: ObservableObject {
     // Old log names remain resolvable until the user chooses to update those logs.
     for entry in stored {
       for oldName in entry.previousNames {
-        if capacityMap[oldName] == nil, entry.current.capacity > 0 { capacityMap[oldName] = entry.current.capacity }
-        if socMap[oldName] == nil, !entry.current.soc.isEmpty { socMap[oldName] = entry.current.soc }
+        if capacityMap[oldName] == nil, entry.current.capacity > 0 {
+          capacityMap[oldName] = entry.current.capacity
+        }
+        if socMap[oldName] == nil, !entry.current.soc.isEmpty {
+          socMap[oldName] = entry.current.soc
+        }
       }
     }
   }

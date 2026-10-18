@@ -27,7 +27,10 @@ final class RenderingPreferences: ObservableObject {
     mode = Mode(rawValue: UserDefaults.standard.string(forKey: "renderingMode") ?? "") ?? .automatic
     constrained = Self.isConstrained()
     NotificationCenter.default.publisher(for: .NSProcessInfoPowerStateDidChange)
-      .merge(with: NotificationCenter.default.publisher(for: ProcessInfo.thermalStateDidChangeNotification))
+      .merge(
+        with: NotificationCenter.default.publisher(
+          for: ProcessInfo.thermalStateDidChangeNotification)
+      )
       .receive(on: RunLoop.main)
       .sink { [weak self] _ in self?.constrained = Self.isConstrained() }
       .store(in: &observers)

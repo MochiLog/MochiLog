@@ -10,7 +10,7 @@ final class LanguageAndLayoutTests: XCTestCase {
     app.launchArguments = [
       "-hasCompletedTutorial", "YES", "-iCloudSyncEnabled", "NO",
       "-LastKnownAppVersion", "3.1.1", "-showPopupOnLoad", "NO",
-      "-AppleLanguages", "(en)", "-AppleLocale", "en_US"
+      "-AppleLanguages", "(en)", "-AppleLocale", "en_US",
     ]
   }
 
@@ -20,21 +20,29 @@ final class LanguageAndLayoutTests: XCTestCase {
   }
 
   func testHomeRecordMultipleDeletionInEightLanguages() {
-    let cancel = ["en": "Cancel", "ja": "キャンセル", "de": "Abbrechen", "es": "Cancelar",
-      "fr": "Annuler", "ko": "취소", "zh-Hans": "取消", "zh-Hant": "取消"]
-    let delete = ["en": "Delete", "ja": "削除", "de": "Löschen", "es": "Eliminar",
-      "fr": "Supprimer", "ko": "삭제", "zh-Hans": "删除", "zh-Hant": "刪除"]
-    let ids = ["10000000-0000-0000-0000-000000000001",
-      "20000000-0000-0000-0000-000000000002", "30000000-0000-0000-0000-000000000003"]
+    let cancel = [
+      "en": "Cancel", "ja": "キャンセル", "de": "Abbrechen", "es": "Cancelar",
+      "fr": "Annuler", "ko": "취소", "zh-Hans": "取消", "zh-Hant": "取消",
+    ]
+    let delete = [
+      "en": "Delete", "ja": "削除", "de": "Löschen", "es": "Eliminar",
+      "fr": "Supprimer", "ko": "삭제", "zh-Hans": "删除", "zh-Hant": "刪除",
+    ]
+    let ids = [
+      "10000000-0000-0000-0000-000000000001",
+      "20000000-0000-0000-0000-000000000002", "30000000-0000-0000-0000-000000000003",
+    ]
     for language in ["en", "ja", "de", "es", "fr", "ko", "zh-Hans", "zh-Hant"] {
       // The existing fixture creates a fresh in-memory store. User records and
       // iCloud data are never deleted by this UI test.
       app.launchEnvironment["MOCHI_DUPLICATE_REVIEW_TEST"] = "1"
-      app.launchArguments = ["-hasCompletedTutorial", "YES", "-showPopupOnLoad", "NO",
+      app.launchArguments = [
+        "-hasCompletedTutorial", "YES", "-showPopupOnLoad", "NO",
         "-showingSampleData", "NO", "-allowDuplicateRecords", "YES", "-iCloudSyncEnabled", "NO",
         "-appLanguage", language, "-AppleLanguages", "(\(language))", "-selectedTabIndex", "0",
         "-LastKnownAppVersion", "4.0.0", "-pcAutomaticCollectionEnabled", "NO",
-        "-localAutomaticCollectionEnabled", "NO"]
+        "-localAutomaticCollectionEnabled", "NO",
+      ]
       app.launch()
       let begin = app.buttons["home.selection.begin"]
       XCTAssertTrue(begin.waitForExistence(timeout: 15), app.debugDescription); begin.tap()
@@ -49,7 +57,9 @@ final class LanguageAndLayoutTests: XCTestCase {
       deleteSelection.tap()
       let confirmation = app.alerts.firstMatch
       XCTAssertTrue(confirmation.waitForExistence(timeout: 5), app.debugDescription)
-      XCTAssertTrue(confirmation.staticTexts.containing(NSPredicate(format: "label CONTAINS '2'")).firstMatch.exists)
+      XCTAssertTrue(
+        confirmation.staticTexts.containing(NSPredicate(format: "label CONTAINS '2'")).firstMatch
+          .exists)
       confirmation.buttons[cancel[language]!].tap()
       for row in rows { XCTAssertTrue(row.exists, "Cancelling must retain every record") }
       app.buttons["home.selection.cancel"].tap()
@@ -57,7 +67,8 @@ final class LanguageAndLayoutTests: XCTestCase {
       begin.tap()
       XCTAssertTrue(app.staticTexts["home.selection.count"].label.contains("0"))
       rows[0].tap(); rows[2].tap()
-      XCTAssertTrue(app.staticTexts["home.selection.count"].label.contains("2"), app.debugDescription)
+      XCTAssertTrue(
+        app.staticTexts["home.selection.count"].label.contains("2"), app.debugDescription)
       XCTAssertTrue(deleteSelection.isEnabled, app.debugDescription)
       screenshot("Home selection after cancel \(language)")
       deleteSelection.tap()
@@ -80,17 +91,20 @@ final class LanguageAndLayoutTests: XCTestCase {
   func testCollectionProgressAndResumeInEightLanguages() {
     for language in ["en", "ja", "de", "es", "fr", "ko", "zh-Hans", "zh-Hant"] {
       app.launchEnvironment["MOCHI_COLLECTION_PROGRESS_UI"] = "1"
-      app.launchArguments = ["-hasCompletedTutorial", "YES", "-iCloudSyncEnabled", "NO",
+      app.launchArguments = [
+        "-hasCompletedTutorial", "YES", "-iCloudSyncEnabled", "NO",
         "-showPopupOnLoad", "NO", "-appLanguage", language, "-AppleLanguages", "(\(language))",
         "-selectedTabIndex", "0", "-localAutomaticCollectionEnabled", "YES",
-        "-LastKnownAppVersion", "4.0.0"]
+        "-LastKnownAppVersion", "4.0.0",
+      ]
       app.launch()
       let details = app.buttons["localCollection.showDetails"].firstMatch
       XCTAssertTrue(details.waitForExistence(timeout: 15), app.debugDescription)
       XCTAssertTrue(details.isHittable)
       let navigation = app.navigationBars.firstMatch
       XCTAssertTrue(navigation.exists)
-      XCTAssertLessThanOrEqual(details.frame.maxY, navigation.frame.minY + 1,
+      XCTAssertLessThanOrEqual(
+        details.frame.maxY, navigation.frame.minY + 1,
         "The compact status must reserve space above navigation controls")
       screenshot("Collection status collapsed \(language)")
       details.tap()
@@ -99,14 +113,19 @@ final class LanguageAndLayoutTests: XCTestCase {
       XCTAssertTrue(progress.waitForExistence(timeout: 15), app.debugDescription)
       screenshot("Collection status expanded \(language)")
       XCTAssertTrue(pause.isHittable, app.debugDescription)
-      XCTAssertLessThanOrEqual(progress.frame.maxY, navigation.frame.minY + 1,
+      XCTAssertLessThanOrEqual(
+        progress.frame.maxY, navigation.frame.minY + 1,
         "Expanded progress must push navigation down instead of covering it")
-      XCTAssertFalse(pause.frame.intersects(navigation.frame), "Pause must not cover navigation controls")
+      XCTAssertFalse(
+        pause.frame.intersects(navigation.frame), "Pause must not cover navigation controls")
       let bytes = app.staticTexts["localCollection.bytes"].firstMatch
-      XCTAssertTrue(bytes.exists && bytes.label.contains("/"), "Received and total bytes are visible in the selected language")
+      XCTAssertTrue(
+        bytes.exists && bytes.label.contains("/"),
+        "Received and total bytes are visible in the selected language")
       XCUIDevice.shared.press(.home)
       app.activate()
-      XCTAssertTrue(pause.waitForExistence(timeout: 10), "Returning from background keeps the progress banner")
+      XCTAssertTrue(
+        pause.waitForExistence(timeout: 10), "Returning from background keeps the progress banner")
       pause.tap()
       let resume = app.buttons["localCollection.resume"].firstMatch
       XCTAssertTrue(resume.waitForExistence(timeout: 5), app.debugDescription)
@@ -119,16 +138,22 @@ final class LanguageAndLayoutTests: XCTestCase {
   }
 
   func testDiagnosticLogsInDebugSettingsInEightLanguages() {
-    let titles = ["en": "Activity logs", "ja": "動作ログ", "de": "Aktivitätsprotokolle",
+    let titles = [
+      "en": "Activity logs", "ja": "動作ログ", "de": "Aktivitätsprotokolle",
       "es": "Registros de actividad", "fr": "Journaux d’activité", "ko": "활동 로그",
-      "zh-Hans": "运行日志", "zh-Hant": "運作日誌"]
-    let settingsTitles = ["en": "Settings", "ja": "設定", "de": "Einstellungen", "es": "Ajustes",
-      "fr": "Réglages", "ko": "설정", "zh-Hans": "设置", "zh-Hant": "設定"]
+      "zh-Hans": "运行日志", "zh-Hant": "運作日誌",
+    ]
+    let settingsTitles = [
+      "en": "Settings", "ja": "設定", "de": "Einstellungen", "es": "Ajustes",
+      "fr": "Réglages", "ko": "설정", "zh-Hans": "设置", "zh-Hant": "設定",
+    ]
     for language in ["en", "ja", "de", "es", "fr", "ko", "zh-Hans", "zh-Hant"] {
-      app.launchArguments = ["-hasCompletedTutorial", "YES", "-showPopupOnLoad", "NO",
+      app.launchArguments = [
+        "-hasCompletedTutorial", "YES", "-showPopupOnLoad", "NO",
         "-iCloudSyncEnabled", "NO", "-appLanguage", language, "-AppleLanguages", "(\(language))",
         "-selectedTabIndex", "2", "-LastKnownAppVersion", "4.0.0",
-        "-pcAutomaticCollectionEnabled", "NO", "-localAutomaticCollectionEnabled", "NO"]
+        "-pcAutomaticCollectionEnabled", "NO", "-localAutomaticCollectionEnabled", "NO",
+      ]
       app.launch()
       let settings = app.buttons[settingsTitles[language]!].firstMatch
       XCTAssertTrue(settings.waitForExistence(timeout: 15)); settings.tap()
@@ -142,10 +167,12 @@ final class LanguageAndLayoutTests: XCTestCase {
       XCTAssertTrue(logs.exists && logs.isHittable, app.debugDescription)
       XCTAssertEqual(logs.label.contains(titles[language]!), true)
       logs.tap()
-      XCTAssertTrue(app.navigationBars[titles[language]!].waitForExistence(timeout: 10), app.debugDescription)
+      XCTAssertTrue(
+        app.navigationBars[titles[language]!].waitForExistence(timeout: 10), app.debugDescription)
       XCTAssertEqual(app.navigationBars.count, 1, "Logs must stay within the settings navigation")
       if UIDevice.current.userInterfaceIdiom == .pad {
-        XCTAssertTrue(app.buttons["settings.category.general"].exists,
+        XCTAssertTrue(
+          app.buttons["settings.category.general"].exists,
           "The settings sidebar must remain visible beside the log list")
       }
       let storage = app.buttons["diagnosticLogs.storage"]
@@ -160,17 +187,23 @@ final class LanguageAndLayoutTests: XCTestCase {
   }
 
   func testLargeErrorLogsInEightLanguages() {
-    let settingsTitles = ["en": "Settings", "ja": "設定", "de": "Einstellungen", "es": "Ajustes",
-      "fr": "Réglages", "ko": "설정", "zh-Hans": "设置", "zh-Hant": "設定"]
-    let lastPageTitles = ["en": "Last page", "ja": "最後のページ", "de": "Letzte Seite",
+    let settingsTitles = [
+      "en": "Settings", "ja": "設定", "de": "Einstellungen", "es": "Ajustes",
+      "fr": "Réglages", "ko": "설정", "zh-Hans": "设置", "zh-Hant": "設定",
+    ]
+    let lastPageTitles = [
+      "en": "Last page", "ja": "最後のページ", "de": "Letzte Seite",
       "es": "Última página", "fr": "Dernière page", "ko": "마지막 페이지",
-      "zh-Hans": "最后一页", "zh-Hant": "最後一頁"]
+      "zh-Hans": "最后一页", "zh-Hant": "最後一頁",
+    ]
     for language in ["en", "ja", "de", "es", "fr", "ko", "zh-Hans", "zh-Hant"] {
       app.launchEnvironment["MOCHI_ERROR_LOG_UI"] = "1"
-      app.launchArguments = ["-hasCompletedTutorial", "YES", "-showPopupOnLoad", "NO",
+      app.launchArguments = [
+        "-hasCompletedTutorial", "YES", "-showPopupOnLoad", "NO",
         "-iCloudSyncEnabled", "NO", "-appLanguage", language, "-AppleLanguages", "(\(language))",
         "-selectedTabIndex", "2", "-LastKnownAppVersion", "4.0.0",
-        "-pcAutomaticCollectionEnabled", "NO", "-localAutomaticCollectionEnabled", "NO"]
+        "-pcAutomaticCollectionEnabled", "NO", "-localAutomaticCollectionEnabled", "NO",
+      ]
       app.launch()
       let settings = app.buttons[settingsTitles[language]!].firstMatch
       XCTAssertTrue(settings.waitForExistence(timeout: 15)); settings.tap()
@@ -197,7 +230,8 @@ final class LanguageAndLayoutTests: XCTestCase {
       last.tap()
       XCTAssertTrue(text.waitForExistence(timeout: 5))
       XCTAssertTrue(text.label.contains("日本語🧪"))
-      XCTAssertLessThan(text.label.utf8.count, firstPageBytes,
+      XCTAssertLessThan(
+        text.label.utf8.count, firstPageBytes,
         "The fixture's shorter last page must replace the first page after tapping")
       XCTAssertEqual(app.navigationBars.count, 1)
       screenshot("Large error log \(language)")
@@ -207,7 +241,12 @@ final class LanguageAndLayoutTests: XCTestCase {
   }
 
   func testAutomaticCollectionInEightLanguages() {
-    verifyAutomaticCollectionLanguages([("en", "Automatic Log Collection"), ("ja", "自動ログ収集"), ("de", "Automatische Protokollerfassung"), ("es", "Recopilación automática de registros"), ("fr", "Collecte automatique des journaux"), ("ko", "자동 로그 수집"), ("zh-Hans", "自动日志收集"), ("zh-Hant", "自動日誌收集")])
+    verifyAutomaticCollectionLanguages([
+      ("en", "Automatic Log Collection"), ("ja", "自動ログ収集"),
+      ("de", "Automatische Protokollerfassung"), ("es", "Recopilación automática de registros"),
+      ("fr", "Collecte automatique des journaux"), ("ko", "자동 로그 수집"), ("zh-Hans", "自动日志收集"),
+      ("zh-Hant", "自動日誌收集"),
+    ])
   }
 
   func testTraditionalChineseAutomaticCollectionControls() {
@@ -215,19 +254,33 @@ final class LanguageAndLayoutTests: XCTestCase {
   }
 
   private func verifyAutomaticCollectionLanguages(_ titles: [(String, String)]) {
-    let settingsTitles = ["de": "Einstellungen", "en": "Settings", "es": "Ajustes", "fr": "Réglages", "ja": "設定", "ko": "설정", "zh-Hans": "设置", "zh-Hant": "設定"]
-    let batteryTitles = ["en":"Live Battery", "ja":"現在のバッテリー", "de":"Aktueller Akku", "es":"Batería actual", "fr":"Batterie actuelle", "ko":"현재 배터리", "zh-Hans":"当前电池", "zh-Hant":"目前電池"]
-    let cancelTitles = ["en":"Cancel", "ja":"キャンセル", "de":"Abbrechen", "es":"Cancelar", "fr":"Annuler", "ko":"취소", "zh-Hans":"取消", "zh-Hant":"取消"]
+    let settingsTitles = [
+      "de": "Einstellungen", "en": "Settings", "es": "Ajustes", "fr": "Réglages", "ja": "設定",
+      "ko": "설정", "zh-Hans": "设置", "zh-Hant": "設定",
+    ]
+    let batteryTitles = [
+      "en": "Live Battery", "ja": "現在のバッテリー", "de": "Aktueller Akku", "es": "Batería actual",
+      "fr": "Batterie actuelle", "ko": "현재 배터리", "zh-Hans": "当前电池", "zh-Hant": "目前電池",
+    ]
+    let cancelTitles = [
+      "en": "Cancel", "ja": "キャンセル", "de": "Abbrechen", "es": "Cancelar", "fr": "Annuler",
+      "ko": "취소", "zh-Hans": "取消", "zh-Hant": "取消",
+    ]
     for (language, title) in titles {
-      app.launchArguments = ["-hasCompletedTutorial", "YES", "-showPopupOnLoad", "NO",
+      app.launchArguments = [
+        "-hasCompletedTutorial", "YES", "-showPopupOnLoad", "NO",
         "-appLanguage", language, "-AppleLanguages", "(\(language))", "-selectedTabIndex", "2",
-        "-LastKnownAppVersion", "4.0.0", "-liveBatteryEnabled", "NO", "-pcAutomaticCollectionEnabled", "NO",
-        "-localAutomaticCollectionEnabled", "NO"]
+        "-LastKnownAppVersion", "4.0.0", "-liveBatteryEnabled", "NO",
+        "-pcAutomaticCollectionEnabled", "NO",
+        "-localAutomaticCollectionEnabled", "NO",
+      ]
       app.launch()
       let settings = app.buttons[settingsTitles[language]!].firstMatch
       XCTAssertTrue(settings.waitForExistence(timeout: 15)); settings.tap()
-      let collection = UIDevice.current.userInterfaceIdiom == .pad
-        ? app.buttons["settings.category.automaticCollection"] : app.buttons["settings.automaticCollection"]
+      let collection =
+        UIDevice.current.userInterfaceIdiom == .pad
+        ? app.buttons["settings.category.automaticCollection"]
+        : app.buttons["settings.automaticCollection"]
       for _ in 0..<10 { if collection.isHittable { break }; app.swipeUp() }
       XCTAssertTrue(collection.waitForExistence(timeout: 10), app.debugDescription)
       collection.tap()
@@ -235,7 +288,9 @@ final class LanguageAndLayoutTests: XCTestCase {
       XCTAssertTrue(app.switches["autoCollection.pcToggle"].exists)
       XCTAssertTrue(app.switches["autoCollection.localToggle"].exists)
       XCTAssertEqual(app.switches["autoCollection.localToggle"].value as? String, "0")
-      if UIDevice.current.userInterfaceIdiom == .pad { XCTAssertTrue(app.buttons["settings.category.general"].exists) }
+      if UIDevice.current.userInterfaceIdiom == .pad {
+        XCTAssertTrue(app.buttons["settings.category.general"].exists)
+      }
       screenshot("Automatic collection \(language)")
       let local = app.buttons["autoCollection.localSettings"]
       XCTAssertTrue(local.waitForExistence(timeout: 5)); local.tap()
@@ -246,10 +301,15 @@ final class LanguageAndLayoutTests: XCTestCase {
       XCTAssertTrue(requirement.exists, "Developer Mode must be explained before starting")
       screenshot("On-device pairing instructions \(language)")
       start.tap()
-      XCTAssertTrue(app.alerts.firstMatch.waitForExistence(timeout: 5), "First-time setup must confirm Developer Mode too")
-      XCTAssertFalse(app.buttons["localPairing.cancel"].exists, "Opening the prerequisite alert must not start OS pairing")
+      XCTAssertTrue(
+        app.alerts.firstMatch.waitForExistence(timeout: 5),
+        "First-time setup must confirm Developer Mode too")
+      XCTAssertFalse(
+        app.buttons["localPairing.cancel"].exists,
+        "Opening the prerequisite alert must not start OS pairing")
       app.alerts.buttons[cancelTitles[language]!].tap()
-      XCTAssertFalse(app.descendants(matching: .any)["localPairing.hostName"].firstMatch.exists,
+      XCTAssertFalse(
+        app.descendants(matching: .any)["localPairing.hostName"].firstMatch.exists,
         "Cancelling prerequisites must not generate an OS pairing host")
       XCTAssertFalse(app.buttons["localPairing.cancel"].exists)
       let battery = app.switches["localBattery.enable"]
@@ -257,13 +317,17 @@ final class LanguageAndLayoutTests: XCTestCase {
       XCTAssertTrue(battery.exists)
       revealLocalControl(app.buttons["localBattery.receive"])
       XCTAssertTrue(app.buttons["localBattery.receive"].exists)
-      XCTAssertFalse(app.buttons["localBattery.receive"].isEnabled, "Unconfigured devices must not query diagnostics")
+      XCTAssertFalse(
+        app.buttons["localBattery.receive"].isEnabled,
+        "Unconfigured devices must not query diagnostics")
       tapSwitch(battery)
       let values = app.buttons["localBattery.values"]
       revealLocalControl(values)
       XCTAssertTrue(values.isEnabled); values.tap()
       XCTAssertTrue(app.navigationBars[batteryTitles[language]!].waitForExistence(timeout: 5))
-      XCTAssertEqual(app.navigationBars.count, 1, "Embedded current values must use the existing settings navigation")
+      XCTAssertEqual(
+        app.navigationBars.count, 1,
+        "Embedded current values must use the existing settings navigation")
       screenshot("On-device current battery setup \(language)")
       app.terminate()
     }
@@ -271,8 +335,11 @@ final class LanguageAndLayoutTests: XCTestCase {
 
   private func tapSwitch(_ element: XCUIElement) {
     let control = element.switches.firstMatch
-    if control.exists { control.tap() }
-    else { element.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap() }
+    if control.exists {
+      control.tap()
+    } else {
+      element.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+    }
   }
 
   private func revealLocalControl(_ element: XCUIElement) {
@@ -286,29 +353,49 @@ final class LanguageAndLayoutTests: XCTestCase {
 
   func testDeviceAcquisitionOnOlderOS() throws {
     guard #available(iOS 17, *) else { throw XCTSkip("On-device acquisition starts at iOS 17") }
-    if #available(iOS 27, *) { throw XCTSkip("Use an iOS 17–26 simulator for the older-OS boundary") }
-    app.launchArguments += ["-appLanguage", "en", "-LastKnownAppVersion", "4.0.0",
-      "-selectedTabIndex", "2", "-liveBatteryEnabled", "NO", "-localAutomaticCollectionEnabled", "NO"]
-    if UIDevice.current.userInterfaceIdiom == .pad { XCUIDevice.shared.orientation = .landscapeLeft }
+    if #available(iOS 27, *) {
+      throw XCTSkip("Use an iOS 17–26 simulator for the older-OS boundary")
+    }
+    app.launchArguments += [
+      "-appLanguage", "en", "-LastKnownAppVersion", "4.0.0",
+      "-selectedTabIndex", "2", "-liveBatteryEnabled", "NO", "-localAutomaticCollectionEnabled",
+      "NO",
+    ]
+    if UIDevice.current.userInterfaceIdiom == .pad {
+      XCUIDevice.shared.orientation = .landscapeLeft
+    }
     app.launch()
-    if app.buttons["ToggleSidebar"].exists && app.buttons["ToggleSidebar"].label == "Show Sidebar" { app.buttons["ToggleSidebar"].tap() }
-    let settings = UIDevice.current.userInterfaceIdiom == .pad
+    if app.buttons["ToggleSidebar"].exists && app.buttons["ToggleSidebar"].label == "Show Sidebar" {
+      app.buttons["ToggleSidebar"].tap()
+    }
+    let settings =
+      UIDevice.current.userInterfaceIdiom == .pad
       ? app.staticTexts["Settings"].firstMatch : app.buttons["Settings"].firstMatch
     XCTAssertTrue(settings.waitForExistence(timeout: 15), app.debugDescription); settings.tap()
-    let collection = UIDevice.current.userInterfaceIdiom == .pad
-      ? app.buttons["settings.category.automaticCollection"] : app.buttons["settings.automaticCollection"]
+    let collection =
+      UIDevice.current.userInterfaceIdiom == .pad
+      ? app.buttons["settings.category.automaticCollection"]
+      : app.buttons["settings.automaticCollection"]
     for _ in 0..<10 { if collection.isHittable { break }; app.swipeUp() }
     XCTAssertTrue(collection.waitForExistence(timeout: 10)); collection.tap()
     XCTAssertTrue(app.switches["autoCollection.localToggle"].waitForExistence(timeout: 5))
     XCTAssertFalse(app.switches["autoCollection.pcToggle"].exists)
     let local = app.buttons["autoCollection.localSettings"]
     XCTAssertTrue(local.exists); local.tap()
-    for _ in 0..<4 { if app.otherElements["localPairing.importRequired"].isHittable || app.staticTexts["localPairing.importRequired"].isHittable { break }; app.swipeUp() }
+    for _ in 0..<4 {
+      if app.otherElements["localPairing.importRequired"].isHittable
+        || app.staticTexts["localPairing.importRequired"].isHittable
+      {
+        break
+      }; app.swipeUp()
+    }
     XCTAssertTrue(app.descendants(matching: .any)["localPairing.importRequired"].firstMatch.exists)
     XCTAssertFalse(app.buttons["localPairing.start"].exists)
     XCTAssertTrue(app.descendants(matching: .any)["localPairing.refreshNote"].firstMatch.exists)
     let battery = app.switches["localBattery.enable"]
-    for _ in 0..<6 { if battery.isHittable && app.buttons["localBattery.receive"].exists { break }; app.swipeUp() }
+    for _ in 0..<6 {
+      if battery.isHittable && app.buttons["localBattery.receive"].exists { break }; app.swipeUp()
+    }
     XCTAssertTrue(battery.exists)
     XCTAssertFalse(app.buttons["localBattery.receive"].isEnabled)
     tapSwitch(battery)
@@ -322,11 +409,14 @@ final class LanguageAndLayoutTests: XCTestCase {
 
   func testLiveBatteryTabChangesWithoutRelaunch() {
     app.launchEnvironment["MOCHI_LIVE_BATTERY_TEST"] = "1"
-    app.launchArguments += ["-appLanguage", "en", "-liveBatteryEnabled", "NO", "-selectedTabIndex", "2"]
+    app.launchArguments += [
+      "-appLanguage", "en", "-liveBatteryEnabled", "NO", "-selectedTabIndex", "2",
+    ]
     app.launch()
     let settings = app.buttons["Settings"].firstMatch
     XCTAssertTrue(settings.waitForExistence(timeout: 15)); settings.tap()
-    let advanced = UIDevice.current.userInterfaceIdiom == .pad
+    let advanced =
+      UIDevice.current.userInterfaceIdiom == .pad
       ? app.buttons["settings.category.advanced"] : app.buttons["settings.advanced"]
     for _ in 0..<10 { if advanced.isHittable { break }; app.swipeUp() }
     XCTAssertTrue(advanced.waitForExistence(timeout: 10)); advanced.tap()
@@ -341,7 +431,8 @@ final class LanguageAndLayoutTests: XCTestCase {
     screenshot("Native tab insertion")
     tapSwitch(toggle)
     XCTAssertEqual(toggle.value as? String, "0")
-    let gone = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: tab)
+    let gone = XCTNSPredicateExpectation(
+      predicate: NSPredicate(format: "exists == false"), object: tab)
     XCTAssertEqual(XCTWaiter.wait(for: [gone], timeout: 5), .completed)
     XCTAssertTrue(toggle.exists)
     screenshot("Native tab removal")
@@ -364,7 +455,8 @@ final class LanguageAndLayoutTests: XCTestCase {
     for _ in 0..<6 { if details.isHittable { break }; app.swipeUp() }
     XCTAssertTrue(details.isHittable)
     details.tap()
-    let batteryGroup = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "BatteryData")).firstMatch
+    let batteryGroup = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "BatteryData"))
+      .firstMatch
     XCTAssertTrue(batteryGroup.waitForExistence(timeout: 5))
     batteryGroup.tap()
     XCTAssertTrue(app.staticTexts["18446744073709551615"].waitForExistence(timeout: 5))
@@ -397,11 +489,13 @@ final class LanguageAndLayoutTests: XCTestCase {
     for _ in 0..<8 { if details.isHittable { break }; app.swipeUp() }
     XCTAssertTrue(details.isHittable)
     details.tap()
-    let group = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "BatteryData")).firstMatch
+    let group = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "BatteryData"))
+      .firstMatch
     for _ in 0..<4 { if group.isHittable { break }; app.swipeUp() }
     XCTAssertTrue(group.isHittable)
     group.tap()
-    XCTAssertEqual(app.staticTexts.matching(NSPredicate(format: "label == %@", "18446744073709551615")).count, 1)
+    XCTAssertEqual(
+      app.staticTexts.matching(NSPredicate(format: "label == %@", "18446744073709551615")).count, 1)
     screenshot("Live Battery computer differences")
     XCUIDevice.shared.orientation = .landscapeLeft
     XCTAssertTrue(app.staticTexts["live.CycleCount"].exists)
@@ -413,7 +507,8 @@ final class LanguageAndLayoutTests: XCTestCase {
       throw XCTSkip("Set MOCHI_LIVE_BATTERY_PORT for the isolated encrypted server")
     }
     app.launchEnvironment["MOCHI_LIVE_BATTERY_PORT"] = port
-    app.launchEnvironment["MOCHI_LIVE_BATTERY_HOST"] = ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_HOST"] ?? "127.0.0.1"
+    app.launchEnvironment["MOCHI_LIVE_BATTERY_HOST"] =
+      ProcessInfo.processInfo.environment["MOCHI_LIVE_BATTERY_HOST"] ?? "127.0.0.1"
     app.launchArguments += ["-appLanguage", "en", "-liveBatteryEnabled", "YES"]
     app.launch()
     let tab = app.buttons["Live Battery"].firstMatch
@@ -432,7 +527,8 @@ final class LanguageAndLayoutTests: XCTestCase {
     for _ in 0..<6 { if details.isHittable { break }; app.swipeUp() }
     XCTAssertTrue(details.isHittable)
     details.tap()
-    let group = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "BatteryData")).firstMatch
+    let group = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "BatteryData"))
+      .firstMatch
     XCTAssertTrue(group.waitForExistence(timeout: 5)); group.tap()
     XCTAssertTrue(app.staticTexts["18446744073709551615"].waitForExistence(timeout: 5))
     screenshot("Live Battery encrypted PC response")
@@ -447,7 +543,8 @@ final class LanguageAndLayoutTests: XCTestCase {
     XCTAssertTrue(app.staticTexts["iPhone 15 Pro"].firstMatch.waitForExistence(timeout: 15))
     screenshot("Duo approximation 800x1120 Home")
     for title in ["Analytics", "Settings"] {
-      let tab = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", title)).firstMatch
+      let tab = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", title))
+        .firstMatch
       XCTAssertTrue(tab.waitForExistence(timeout: 10))
       tab.tap()
       if title == "Analytics" {
@@ -462,9 +559,12 @@ final class LanguageAndLayoutTests: XCTestCase {
       screenshot("Wide landscape 980x700 " + title)
       app.buttons["layout.mode.0"].tap()
     }
-    let home = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "Home")).firstMatch
+    let home = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "Home"))
+      .firstMatch
     home.tap()
-    let record = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "home.record.")).firstMatch
+    let record = app.buttons.matching(
+      NSPredicate(format: "identifier BEGINSWITH %@", "home.record.")
+    ).firstMatch
     XCTAssertTrue(record.waitForExistence(timeout: 10))
     record.tap()
     let detail = app.navigationBars["Details"]
@@ -479,16 +579,21 @@ final class LanguageAndLayoutTests: XCTestCase {
 
   func testHomeDoesNotDuplicateDeviceCards() {
     for size in ["UICTContentSizeCategoryL", "UICTContentSizeCategoryAccessibilityXXXL"] {
-      app.launchArguments += ["-appLanguage", "en", "-selectedTabIndex", "0",
-                              "-UIPreferredContentSizeCategoryName", size]
+      app.launchArguments += [
+        "-appLanguage", "en", "-selectedTabIndex", "0",
+        "-UIPreferredContentSizeCategoryName", size,
+      ]
       app.launch()
       let sample = app.buttons["View Sample Data"]
       if sample.waitForExistence(timeout: 5) { sample.tap() }
       let record = app.buttons.matching(
-        NSPredicate(format: "identifier BEGINSWITH %@", "home.record.")).firstMatch
+        NSPredicate(format: "identifier BEGINSWITH %@", "home.record.")
+      ).firstMatch
       XCTAssertTrue(record.waitForExistence(timeout: 15))
-      XCTAssertFalse(app.descendants(matching: .any).matching(
-        NSPredicate(format: "identifier BEGINSWITH %@", "home.deviceSummary.")).firstMatch.exists)
+      XCTAssertFalse(
+        app.descendants(matching: .any).matching(
+          NSPredicate(format: "identifier BEGINSWITH %@", "home.deviceSummary.")
+        ).firstMatch.exists)
       XCTAssertFalse(app.otherElements["home.librarySummary"].exists)
       record.tap()
       XCTAssertTrue(app.navigationBars["Details"].waitForExistence(timeout: 10))
@@ -498,16 +603,19 @@ final class LanguageAndLayoutTests: XCTestCase {
 
   func testExactDuplicateReviewKeepsOneCopyAndOtherDevice() {
     app.launchEnvironment["MOCHI_DUPLICATE_REVIEW_TEST"] = "1"
-    app.launchArguments += ["-appLanguage", "en", "-selectedTabIndex", "0",
-                            "-allowDuplicateRecords", "NO", "-showingSampleData", "NO"]
+    app.launchArguments += [
+      "-appLanguage", "en", "-selectedTabIndex", "0",
+      "-allowDuplicateRecords", "NO", "-showingSampleData", "NO",
+    ]
     app.launch()
 
     let banner = app.buttons["home.exactDuplicatesBanner"]
     XCTAssertTrue(banner.waitForExistence(timeout: 15))
     banner.tap()
     XCTAssertTrue(app.navigationBars["Review Duplicate Records"].waitForExistence(timeout: 10))
-    XCTAssertEqual(app.buttons.matching(identifier: "duplicates.group").count, 1,
-                   "Identical measurements from a different physical device must be excluded")
+    XCTAssertEqual(
+      app.buttons.matching(identifier: "duplicates.group").count, 1,
+      "Identical measurements from a different physical device must be excluded")
     app.buttons["duplicates.group"].tap()
     let remove = app.buttons["duplicates.removeSelected"]
     XCTAssertTrue(remove.isEnabled)
@@ -520,8 +628,11 @@ final class LanguageAndLayoutTests: XCTestCase {
     XCTAssertTrue(app.staticTexts["No exact duplicates found"].waitForExistence(timeout: 10))
     XCTAssertFalse(banner.exists)
     app.buttons["Close"].tap()
-    XCTAssertEqual(app.buttons.matching(NSPredicate(
-      format: "identifier BEGINSWITH %@", "home.record.")).count, 2,
+    XCTAssertEqual(
+      app.buttons.matching(
+        NSPredicate(
+          format: "identifier BEGINSWITH %@", "home.record.")
+      ).count, 2,
       "The retained copy and the other physical device must remain visible")
   }
 
@@ -531,7 +642,8 @@ final class LanguageAndLayoutTests: XCTestCase {
       app.launchArguments += ["-appLanguage", "en", "-selectedTabIndex", "2"]
       app.launch()
       let settings = app.descendants(matching: .any).matching(
-        NSPredicate(format: "label == %@", "Settings")).firstMatch
+        NSPredicate(format: "label == %@", "Settings")
+      ).firstMatch
       XCTAssertTrue(settings.waitForExistence(timeout: 10), app.debugDescription)
       settings.tap()
       let support = app.buttons["settings.category.support"]
@@ -563,16 +675,20 @@ final class LanguageAndLayoutTests: XCTestCase {
       "-hasCompletedTutorial", "YES", "-iCloudSyncEnabled", "NO",
       "-LastKnownAppVersion", "3.2.0", "-showPopupOnLoad", "NO",
       "-appLanguage", language, "-AppleLanguages", "(\(language))", "-AppleLocale", locale,
-      "-selectedTabIndex", "0", "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryL"
+      "-selectedTabIndex", "0", "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryL",
     ]
     app.launch()
     let japanese = language == "ja"
     let sample = app.buttons[japanese ? "サンプルデータを見る" : "View Sample Data"]
     if sample.waitForExistence(timeout: 5) { sample.tap() }
-    let record = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "home.record.")).firstMatch
+    let record = app.buttons.matching(
+      NSPredicate(format: "identifier BEGINSWITH %@", "home.record.")
+    ).firstMatch
     XCTAssertTrue(record.waitForExistence(timeout: 15), app.debugDescription)
     if UIDevice.current.userInterfaceIdiom == .phone {
-      let watchHeader = app.buttons.matching(NSPredicate(format: "label == %@", "Apple Watch Series 9")).firstMatch
+      let watchHeader = app.buttons.matching(
+        NSPredicate(format: "label == %@", "Apple Watch Series 9")
+      ).firstMatch
       if watchHeader.isHittable { watchHeader.tap() }
     }
     let phoneRecord: XCUIElement
@@ -580,25 +696,38 @@ final class LanguageAndLayoutTests: XCTestCase {
       // Wide cards omit the repeated device name; choose a visible card under its column header.
       let header = app.buttons.matching(NSPredicate(format: "label == %@", "iPhone 14")).firstMatch
       XCTAssertTrue(header.waitForExistence(timeout: 10), app.debugDescription)
-      let cards = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "home.record.")).allElementsBoundByIndex
-      guard let card = cards.first(where: {
-        $0.isHittable && abs($0.frame.midX - header.frame.midX) < 10 && $0.frame.minY >= header.frame.maxY
-      }) else { XCTFail("No visible iPhone 14 card: \(app.debugDescription)"); return }
+      let cards = app.buttons.matching(
+        NSPredicate(format: "identifier BEGINSWITH %@", "home.record.")
+      ).allElementsBoundByIndex
+      guard
+        let card = cards.first(where: {
+          $0.isHittable && abs($0.frame.midX - header.frame.midX) < 10
+            && $0.frame.minY >= header.frame.maxY
+        })
+      else { XCTFail("No visible iPhone 14 card: \(app.debugDescription)"); return }
       phoneRecord = card
     } else {
-      phoneRecord = app.buttons.matching(NSPredicate(format:
-        "identifier BEGINSWITH %@ AND label CONTAINS %@", "home.record.", "iPhone 14")).firstMatch
+      phoneRecord =
+        app.buttons.matching(
+          NSPredicate(
+            format:
+              "identifier BEGINSWITH %@ AND label CONTAINS %@", "home.record.", "iPhone 14")
+        ).firstMatch
     }
     XCTAssertTrue(phoneRecord.waitForExistence(timeout: 10), app.debugDescription)
     Thread.sleep(forTimeInterval: 2)
     screenshot("store_\(locale)_01_home")
     phoneRecord.tap()
-    XCTAssertTrue(app.navigationBars[japanese ? "詳細" : "Details"].waitForExistence(timeout: 10), app.debugDescription)
+    XCTAssertTrue(
+      app.navigationBars[japanese ? "詳細" : "Details"].waitForExistence(timeout: 10),
+      app.debugDescription)
     Thread.sleep(forTimeInterval: 1)
     let detailScroll = app!
     if UIDevice.current.userInterfaceIdiom == .phone {
       detailScroll.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7))
-        .press(forDuration: 0.1, thenDragTo: detailScroll.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.45)),
+        .press(
+          forDuration: 0.1,
+          thenDragTo: detailScroll.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.45)),
           withVelocity: .slow, thenHoldForDuration: 0.3)
     }
     Thread.sleep(forTimeInterval: 1)
@@ -606,15 +735,19 @@ final class LanguageAndLayoutTests: XCTestCase {
     // Relaunch to dismiss both iPhone's sheet and iPad's pushed detail consistently.
     app.terminate(); app.launch()
     if sample.waitForExistence(timeout: 3) { sample.tap() }
-    for (index, title) in [("03_analytics", japanese ? "分析" : "Analytics"),
-                            ("04_settings", japanese ? "設定" : "Settings")] {
-      let tab = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", title)).firstMatch
+    for (index, title) in [
+      ("03_analytics", japanese ? "分析" : "Analytics"),
+      ("04_settings", japanese ? "設定" : "Settings"),
+    ] {
+      let tab = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", title))
+        .firstMatch
       XCTAssertTrue(tab.waitForExistence(timeout: 10), app.debugDescription)
       tab.tap()
       Thread.sleep(forTimeInterval: 2)
       if index == "03_analytics" && UIDevice.current.userInterfaceIdiom == .phone {
         app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.75))
-          .press(forDuration: 0.1,
+          .press(
+            forDuration: 0.1,
             thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.60)),
             withVelocity: .slow, thenHoldForDuration: 0.3)
         Thread.sleep(forTimeInterval: 2)
@@ -641,7 +774,9 @@ final class LanguageAndLayoutTests: XCTestCase {
     app.launch()
     app.launchArguments.removeLast(2)
     func openSettings() {
-      let tab = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "Settings")).firstMatch
+      let tab = app.descendants(matching: .any).matching(
+        NSPredicate(format: "label == %@", "Settings")
+      ).firstMatch
       XCTAssertTrue(tab.waitForExistence(timeout: 10))
       tab.tap()
     }
@@ -666,7 +801,9 @@ final class LanguageAndLayoutTests: XCTestCase {
   func testStatisticsCards() {
     app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryL"]
     app.launch()
-    let tab = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "Analytics")).firstMatch
+    let tab = app.descendants(matching: .any).matching(
+      NSPredicate(format: "label == %@", "Analytics")
+    ).firstMatch
     XCTAssertTrue(tab.waitForExistence(timeout: 10))
     tab.tap()
     let statistics = app.otherElements["analytics.statistics"].firstMatch
@@ -706,7 +843,8 @@ final class LanguageAndLayoutTests: XCTestCase {
     app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryL"]
     app.launch()
     let settings = app.descendants(matching: .any).matching(
-      NSPredicate(format: "label == %@", "Settings")).firstMatch
+      NSPredicate(format: "label == %@", "Settings")
+    ).firstMatch
     XCTAssertTrue(settings.waitForExistence(timeout: 10))
     settings.tap()
     let advanced = app.buttons["settings.category.advanced"]
@@ -716,8 +854,9 @@ final class LanguageAndLayoutTests: XCTestCase {
     let macTransfer = app.buttons["settings.macTransfer"]
     XCTAssertTrue(macTransfer.waitForExistence(timeout: 10))
     macTransfer.tap()
-    XCTAssertTrue(app.buttons["settings.category.general"].exists,
-                  "The iPad settings sidebar should remain visible")
+    XCTAssertTrue(
+      app.buttons["settings.category.general"].exists,
+      "The iPad settings sidebar should remain visible")
     XCTAssertTrue(app.buttons["settings.category.advanced"].exists)
     XCTAssertTrue(app.staticTexts["macTransfer.connectionPhase"].waitForExistence(timeout: 10))
     let receiveNow = app.buttons["macTransfer.receiveNow"]
@@ -746,7 +885,8 @@ final class LanguageAndLayoutTests: XCTestCase {
     app.launchArguments += ["-selectedTabIndex", "2"]
     app.launch()
     let settings = app.descendants(matching: .any).matching(
-      NSPredicate(format: "label == %@", "Settings")).firstMatch
+      NSPredicate(format: "label == %@", "Settings")
+    ).firstMatch
     XCTAssertTrue(settings.waitForExistence(timeout: 10))
     settings.tap()
     let advanced = app.buttons["settings.automaticCollection"]
@@ -778,10 +918,13 @@ final class LanguageAndLayoutTests: XCTestCase {
   func testDeviceProfileEditAndRestore() {
     app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryL"]
     app.launch()
-    let settings = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "Settings")).firstMatch
+    let settings = app.descendants(matching: .any).matching(
+      NSPredicate(format: "label == %@", "Settings")
+    ).firstMatch
     XCTAssertTrue(settings.waitForExistence(timeout: 10))
     settings.tap()
-    let advanced = app.buttons["settings.category.advanced"].exists
+    let advanced =
+      app.buttons["settings.category.advanced"].exists
       ? app.buttons["settings.category.advanced"] : app.buttons["settings.advanced"]
     for _ in 0..<8 {
       if advanced.isHittable { break }
@@ -800,7 +943,8 @@ final class LanguageAndLayoutTests: XCTestCase {
     XCTAssertTrue(capacity.waitForExistence(timeout: 5))
     let original = capacity.value as! String
     capacity.tap()
-    capacity.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: original.count) + "4000")
+    capacity.typeText(
+      String(repeating: XCUIKeyboardKey.delete.rawValue, count: original.count) + "4000")
     if app.buttons["Close"].exists { app.buttons["Close"].tap() }
     app.swipeUp()
     func tap(_ identifier: String) {
@@ -832,7 +976,9 @@ final class LanguageAndLayoutTests: XCTestCase {
     app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryL"]
     app.launch()
     if app.buttons["View Sample Data"].exists { app.buttons["View Sample Data"].tap() }
-    let analytics = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "Analytics")).firstMatch
+    let analytics = app.descendants(matching: .any).matching(
+      NSPredicate(format: "label == %@", "Analytics")
+    ).firstMatch
     XCTAssertTrue(analytics.waitForExistence(timeout: 10)); analytics.tap()
     let health = app.buttons["chart.range"].firstMatch
     XCTAssertTrue(health.waitForExistence(timeout: 10)); health.tap()
@@ -849,7 +995,8 @@ final class LanguageAndLayoutTests: XCTestCase {
       health.tap(); app.buttons["Auto"].firstMatch.tap()
       XCUIDevice.shared.orientation = .landscapeLeft
       for _ in 0..<5 { if cycle.isHittable { break }; app.swipeUp() }
-      XCTAssertTrue(cycle.label.contains("1w"), "Cycle range must survive health changes and rotation")
+      XCTAssertTrue(
+        cycle.label.contains("1w"), "Cycle range must survive health changes and rotation")
     } else {
       app.swipeUp()
       XCTAssertFalse(cycle.exists, "iPhone keeps one shared range selector")
@@ -859,14 +1006,17 @@ final class LanguageAndLayoutTests: XCTestCase {
 
   func testLocalizedDeviceChartsDoNotCrash() {
     app.launchEnvironment["MOCHI_CHART_LOCALIZATION_TEST"] = "1"
-    app.launchArguments += ["-appLanguage", "zh-Hans", "-AppleLanguages", "(zh-Hans)",
-                            "-AppleLocale", "zh_CN"]
+    app.launchArguments += [
+      "-appLanguage", "zh-Hans", "-AppleLanguages", "(zh-Hans)",
+      "-AppleLocale", "zh_CN",
+    ]
     app.launch()
     let sample = app.buttons["查看示例数据"]
     XCTAssertTrue(sample.waitForExistence(timeout: 10))
     sample.tap()
     let analytics = app.descendants(matching: .any).matching(
-      NSPredicate(format: "label == %@", "分析")).firstMatch
+      NSPredicate(format: "label == %@", "分析")
+    ).firstMatch
     XCTAssertTrue(analytics.waitForExistence(timeout: 10))
     analytics.tap()
     let localizedName = app.staticTexts["iPad Pro 11 (第1代)"].firstMatch
@@ -877,36 +1027,44 @@ final class LanguageAndLayoutTests: XCTestCase {
       if cycleTrend.isHittable { break }
       app.swipeUp()
     }
-    XCTAssertTrue(cycleTrend.waitForExistence(timeout: 5) && cycleTrend.isHittable,
-                  "Both localized trend charts must render without a Charts scale crash")
+    XCTAssertTrue(
+      cycleTrend.waitForExistence(timeout: 5) && cycleTrend.isHittable,
+      "Both localized trend charts must render without a Charts scale crash")
   }
 
   func testRecordDetailShareOpensWithLocalizedRecords() {
     app.launchEnvironment["MOCHI_CHART_LOCALIZATION_TEST"] = "1"
     app.launchEnvironment["MOCHI_SHARE_SINGLE_RECORD_TEST"] = "1"
-    app.launchArguments += ["-appLanguage", "zh-Hans", "-AppleLanguages", "(zh-Hans)",
-                            "-AppleLocale", "zh_CN"]
+    app.launchArguments += [
+      "-appLanguage", "zh-Hans", "-AppleLanguages", "(zh-Hans)",
+      "-AppleLocale", "zh_CN",
+    ]
     app.launch()
     let sample = app.buttons["查看示例数据"]
     XCTAssertTrue(sample.waitForExistence(timeout: 10))
     sample.tap()
     let record = app.buttons.matching(
-      NSPredicate(format: "identifier BEGINSWITH %@", "home.record.")).firstMatch
+      NSPredicate(format: "identifier BEGINSWITH %@", "home.record.")
+    ).firstMatch
     XCTAssertTrue(record.waitForExistence(timeout: 15))
     record.tap()
     let share = app.buttons["record.share"]
     XCTAssertTrue(share.waitForExistence(timeout: 10))
     share.tap()
-    XCTAssertTrue(app.otherElements["ActivityListView"].waitForExistence(timeout: 20),
-                  "The record share sheet must open after rendering its chart image")
+    XCTAssertTrue(
+      app.otherElements["ActivityListView"].waitForExistence(timeout: 20),
+      "The record share sheet must open after rendering its chart image")
   }
 
   func testAddDeviceFromLibrary() {
     app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryL"]
     app.launch()
-    let settings = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "Settings")).firstMatch
+    let settings = app.descendants(matching: .any).matching(
+      NSPredicate(format: "label == %@", "Settings")
+    ).firstMatch
     XCTAssertTrue(settings.waitForExistence(timeout: 10)); settings.tap()
-    let advanced = app.buttons["settings.category.advanced"].exists
+    let advanced =
+      app.buttons["settings.category.advanced"].exists
       ? app.buttons["settings.category.advanced"] : app.buttons["settings.advanced"]
     for _ in 0..<8 { if advanced.isHittable { break }; app.swipeUp() }
     advanced.tap(); app.buttons["settings.deviceProfiles"].tap()
@@ -934,18 +1092,25 @@ final class LanguageAndLayoutTests: XCTestCase {
   func testDeviceCategoriesAndGeneralSettings() {
     app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryL"]
     app.launch()
-    let settings = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", "Settings")).firstMatch
+    let settings = app.descendants(matching: .any).matching(
+      NSPredicate(format: "label == %@", "Settings")
+    ).firstMatch
     XCTAssertTrue(settings.waitForExistence(timeout: 10)); settings.tap()
-    if app.buttons["settings.category.general"].exists { app.buttons["settings.category.general"].tap() }
+    if app.buttons["settings.category.general"].exists {
+      app.buttons["settings.category.general"].tap()
+    }
     screenshot("General Settings Unified")
-    let advanced = app.buttons["settings.category.advanced"].exists
+    let advanced =
+      app.buttons["settings.category.advanced"].exists
       ? app.buttons["settings.category.advanced"] : app.buttons["settings.advanced"]
     for _ in 0..<8 { if advanced.isHittable { break }; app.swipeUp() }
     advanced.tap()
     app.buttons["settings.deviceProfiles"].tap()
     XCTAssertTrue(app.textFields["profiles.search"].waitForExistence(timeout: 10))
     for category in ["iPhone", "iPad", "Apple Watch", "iPod", "other"] {
-      XCTAssertTrue(app.descendants(matching: .any).matching(identifier: "profiles.category." + category).firstMatch.exists)
+      XCTAssertTrue(
+        app.descendants(matching: .any).matching(identifier: "profiles.category." + category)
+          .firstMatch.exists)
     }
     screenshot("Device Categories")
     let search = app.textFields["profiles.search"]
@@ -968,11 +1133,13 @@ final class LanguageAndLayoutTests: XCTestCase {
     profiles.tap()
     let search = app.textFields["profiles.search"]
     XCTAssertTrue(search.waitForExistence(timeout: 10))
-    XCTAssertGreaterThan(search.frame.minX, advanced.frame.maxX,
+    XCTAssertGreaterThan(
+      search.frame.minX, advanced.frame.maxX,
       "Device management should remain in the right settings pane")
     let back = app.buttons["BackButton"].firstMatch
     XCTAssertTrue(app.staticTexts["Device Library"].isHittable)
-    XCTAssertLessThan(app.buttons["profiles.addRow"].frame.minY - back.frame.maxY, 65,
+    XCTAssertLessThan(
+      app.buttons["profiles.addRow"].frame.minY - back.frame.maxY, 65,
       "Device management should not leave a large empty title area")
     screenshot("iPad Device Management Pane")
     search.tap()
@@ -982,7 +1149,8 @@ final class LanguageAndLayoutTests: XCTestCase {
     model.tap()
     let capacity = app.textFields["profiles.capacity"]
     XCTAssertTrue(capacity.waitForExistence(timeout: 5))
-    XCTAssertGreaterThan(capacity.frame.minX, advanced.frame.maxX,
+    XCTAssertGreaterThan(
+      capacity.frame.minX, advanced.frame.maxX,
       "Device editing should remain in the right settings pane")
     app.buttons["BackButton"].firstMatch.tap()
     XCTAssertTrue(search.waitForExistence(timeout: 5))
@@ -993,7 +1161,8 @@ final class LanguageAndLayoutTests: XCTestCase {
     transfer.tap()
     let connection = app.staticTexts["macTransfer.connectionPhase"]
     XCTAssertTrue(connection.waitForExistence(timeout: 10))
-    XCTAssertGreaterThan(connection.frame.minX, advanced.frame.maxX,
+    XCTAssertGreaterThan(
+      connection.frame.minX, advanced.frame.maxX,
       "PC transfer should remain in the right settings pane")
     screenshot("iPad PC Transfer Pane")
     app.buttons["BackButton"].firstMatch.tap()
@@ -1005,18 +1174,24 @@ final class LanguageAndLayoutTests: XCTestCase {
     app.launch()
     if app.buttons["View Sample Data"].exists { app.buttons["View Sample Data"].tap() }
     // A phone list lazily creates rows; the first device can be a Watch.
-    let record = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "home.record.")).firstMatch
+    let record = app.buttons.matching(
+      NSPredicate(format: "identifier BEGINSWITH %@", "home.record.")
+    ).firstMatch
     XCTAssertTrue(record.waitForExistence(timeout: 15))
     screenshot("Refreshed Home")
     for title in ["Analytics", "Settings"] {
       let tab = app.descendants(matching: .any).matching(
-        NSPredicate(format: "label == %@", title)).firstMatch
+        NSPredicate(format: "label == %@", title)
+      ).firstMatch
       XCTAssertTrue(tab.waitForExistence(timeout: 5), app.debugDescription)
       tab.tap()
       if title == "Analytics" {
-        XCTAssertTrue(app.buttons["chart.range"].firstMatch.waitForExistence(timeout: 10), app.debugDescription)
+        XCTAssertTrue(
+          app.buttons["chart.range"].firstMatch.waitForExistence(timeout: 10), app.debugDescription)
       } else {
-        XCTAssertTrue(app.switches["settings.recordInfo"].firstMatch.waitForExistence(timeout: 10), app.debugDescription)
+        XCTAssertTrue(
+          app.switches["settings.recordInfo"].firstMatch.waitForExistence(timeout: 10),
+          app.debugDescription)
       }
       screenshot("Refreshed " + title)
     }
@@ -1046,7 +1221,8 @@ final class LanguageAndLayoutTests: XCTestCase {
   }
 
   private func screenshot(_ name: String) {
-    let attachment = XCTAttachment(screenshot: name.hasPrefix("store_") ? app.screenshot() : XCUIScreen.main.screenshot())
+    let attachment = XCTAttachment(
+      screenshot: name.hasPrefix("store_") ? app.screenshot() : XCUIScreen.main.screenshot())
     attachment.name = name
     attachment.lifetime = .keepAlways
     add(attachment)
@@ -1085,15 +1261,19 @@ final class LanguageAndLayoutTests: XCTestCase {
   }
 
   func testSettingsAtLargeTextAndLandscape() {
-    app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"]
+    app.launchArguments += [
+      "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL",
+    ]
     app.launch()
     openLanguage()
     screenshot("Language settings at largest text size")
     XCUIDevice.shared.orientation = .landscapeLeft
-    let rotated = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
-      self.app.frame.width > self.app.frame.height
-    }, object: nil)
-    XCTAssertEqual(XCTWaiter.wait(for: [rotated], timeout: 5), .completed,
+    let rotated = XCTNSPredicateExpectation(
+      predicate: NSPredicate { _, _ in
+        self.app.frame.width > self.app.frame.height
+      }, object: nil)
+    XCTAssertEqual(
+      XCTWaiter.wait(for: [rotated], timeout: 5), .completed,
       "The app must actually rotate")
     // Wait for the system rotation animation before capturing the whole display.
     Thread.sleep(forTimeInterval: 1)

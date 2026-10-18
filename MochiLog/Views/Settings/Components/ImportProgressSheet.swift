@@ -16,29 +16,35 @@ struct ImportProgressSheet: View {
   private var stageLabel: String {
     switch progress {
     case ..<0.11:
-      return L10n.string("import_stage_reading",
-                    defaultValue: "ファイルを読み込んでいます…",
-                    table: "Settings")
+      return L10n.string(
+        "import_stage_reading",
+        defaultValue: "ファイルを読み込んでいます…",
+        table: "Settings")
     case ..<0.25:
-      return L10n.string("import_stage_decoding",
-                    defaultValue: "データを解析しています…",
-                    table: "Settings")
+      return L10n.string(
+        "import_stage_decoding",
+        defaultValue: "データを解析しています…",
+        table: "Settings")
     case ..<0.35:
-      return L10n.string("import_stage_indexing",
-                    defaultValue: "重複チェックの準備中…",
-                    table: "Settings")
+      return L10n.string(
+        "import_stage_indexing",
+        defaultValue: "重複チェックの準備中…",
+        table: "Settings")
     case ..<0.72:
-      return L10n.string("import_stage_converting",
-                    defaultValue: "レコードを変換しています…",
-                    table: "Settings")
+      return L10n.string(
+        "import_stage_converting",
+        defaultValue: "レコードを変換しています…",
+        table: "Settings")
     case ..<0.99:
-      return L10n.string("import_stage_saving",
-                    defaultValue: "データを保存しています…",
-                    table: "Settings")
+      return L10n.string(
+        "import_stage_saving",
+        defaultValue: "データを保存しています…",
+        table: "Settings")
     default:
-      return L10n.string("import_stage_done",
-                    defaultValue: "完了しています…",
-                    table: "Settings")
+      return L10n.string(
+        "import_stage_done",
+        defaultValue: "完了しています…",
+        table: "Settings")
     }
   }
 
@@ -93,12 +99,15 @@ struct ImportProgressSheet: View {
       }
 
       VStack(spacing: 12) {
-        Text(L10n.string("importing_data_title",
-                    defaultValue: "データをインポート中",
-                    table: "Settings"))
-          .font(.title3)
-          .fontWeight(.semibold)
-          .foregroundStyle(.primary)
+        Text(
+          L10n.string(
+            "importing_data_title",
+            defaultValue: "データをインポート中",
+            table: "Settings")
+        )
+        .font(.title3)
+        .fontWeight(.semibold)
+        .foregroundStyle(.primary)
 
         Text(stageLabel)
           .font(.subheadline)

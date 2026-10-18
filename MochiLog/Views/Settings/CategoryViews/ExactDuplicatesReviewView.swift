@@ -25,12 +25,18 @@ struct ExactDuplicatesReviewView: View {
         Text(L10n.string("exact_duplicates_explanation", table: "ExactDuplicates"))
           .foregroundStyle(.secondary)
         if groups.isEmpty {
-          Label(L10n.string("exact_duplicates_none", table: "ExactDuplicates"), systemImage: "checkmark.circle")
-            .foregroundStyle(.green)
+          Label(
+            L10n.string("exact_duplicates_none", table: "ExactDuplicates"),
+            systemImage: "checkmark.circle"
+          )
+          .foregroundStyle(.green)
         } else {
-          Text(String(format: L10n.string("exact_duplicates_found", table: "ExactDuplicates"),
-                      groups.count, groups.reduce(0) { $0 + $1.extraCount }))
-            .font(.headline)
+          Text(
+            String(
+              format: L10n.string("exact_duplicates_found", table: "ExactDuplicates"),
+              groups.count, groups.reduce(0) { $0 + $1.extraCount })
+          )
+          .font(.headline)
         }
       }
 
@@ -43,8 +49,11 @@ struct ExactDuplicatesReviewView: View {
               selected = Set(groups.map(\.id))
             }
           } label: {
-            Text(L10n.string(selected.count == groups.count
-              ? "exact_duplicates_deselect_all" : "exact_duplicates_select_all", table: "ExactDuplicates"))
+            Text(
+              L10n.string(
+                selected.count == groups.count
+                  ? "exact_duplicates_deselect_all" : "exact_duplicates_select_all",
+                table: "ExactDuplicates"))
           }
 
           ForEach(groups) { group in
@@ -53,7 +62,9 @@ struct ExactDuplicatesReviewView: View {
             } label: {
               HStack(alignment: .top, spacing: 12) {
                 Image(systemName: selected.contains(group.id) ? "checkmark.circle.fill" : "circle")
-                  .foregroundStyle(selected.contains(group.id) ? settings.accentColor.color : .secondary)
+                  .foregroundStyle(
+                    selected.contains(group.id) ? settings.accentColor.color : .secondary
+                  )
                   .font(.title3)
                 VStack(alignment: .leading, spacing: 4) {
                   Text(group.representative.localizedDeviceName)
@@ -61,16 +72,22 @@ struct ExactDuplicatesReviewView: View {
                     .foregroundStyle(.primary)
                   Text(group.id.logDate.formatted(date: .abbreviated, time: .omitted))
                     .foregroundStyle(.secondary)
-                  Text(String(format: L10n.string("exact_duplicates_values", table: "ExactDuplicates"),
-                              group.id.cycleCount, group.id.rawCapacity, group.id.nominalCapacity))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                  Text(
+                    String(
+                      format: L10n.string("exact_duplicates_values", table: "ExactDuplicates"),
+                      group.id.cycleCount, group.id.rawCapacity, group.id.nominalCapacity)
+                  )
+                  .font(.caption)
+                  .foregroundStyle(.secondary)
                 }
                 Spacer()
-                Text(String(format: L10n.string("exact_duplicates_copies", table: "ExactDuplicates"),
-                            group.records.count))
-                  .font(.caption.weight(.semibold))
-                  .foregroundStyle(.secondary)
+                Text(
+                  String(
+                    format: L10n.string("exact_duplicates_copies", table: "ExactDuplicates"),
+                    group.records.count)
+                )
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
               }
               .contentShape(Rectangle())
             }
@@ -82,9 +99,13 @@ struct ExactDuplicatesReviewView: View {
         }
 
         Section {
-          Button(role: .destructive) { showingConfirmation = true } label: {
-            Label(String(format: L10n.string("exact_duplicates_remove_selected", table: "ExactDuplicates"),
-                         selectedExtraCount), systemImage: "trash")
+          Button(role: .destructive) {
+            showingConfirmation = true
+          } label: {
+            Label(
+              String(
+                format: L10n.string("exact_duplicates_remove_selected", table: "ExactDuplicates"),
+                selectedExtraCount), systemImage: "trash")
           }
           .accessibilityIdentifier("duplicates.removeSelected")
           .disabled(selectedExtraCount == 0 || settings.allowDuplicateRecords)
@@ -96,8 +117,9 @@ struct ExactDuplicatesReviewView: View {
       if let backupURL {
         Section {
           ShareLink(item: backupURL) {
-            Label(L10n.string("exact_duplicates_save_backup", table: "ExactDuplicates"),
-                  systemImage: "square.and.arrow.up")
+            Label(
+              L10n.string("exact_duplicates_save_backup", table: "ExactDuplicates"),
+              systemImage: "square.and.arrow.up")
           }
         } footer: {
           Text(L10n.string("exact_duplicates_backup_footer", table: "ExactDuplicates"))
@@ -112,18 +134,24 @@ struct ExactDuplicatesReviewView: View {
         }
       }
     }
-    .alert(L10n.string("exact_duplicates_confirm_title", table: "ExactDuplicates"),
-           isPresented: $showingConfirmation) {
+    .alert(
+      L10n.string("exact_duplicates_confirm_title", table: "ExactDuplicates"),
+      isPresented: $showingConfirmation
+    ) {
       Button(L10n.string("cancel", table: "Common"), role: .cancel) {}
       Button(L10n.string("delete", table: "Common"), role: .destructive) {
         removeSelected()
       }
     } message: {
-      Text(String(format: L10n.string("exact_duplicates_confirm_message", table: "ExactDuplicates"),
-                  selectedExtraCount))
+      Text(
+        String(
+          format: L10n.string("exact_duplicates_confirm_message", table: "ExactDuplicates"),
+          selectedExtraCount))
     }
-    .alert(L10n.string("exact_duplicates_title", table: "ExactDuplicates"),
-           isPresented: $showingResult) {
+    .alert(
+      L10n.string("exact_duplicates_title", table: "ExactDuplicates"),
+      isPresented: $showingResult
+    ) {
       Button(L10n.string("ok", table: "Common"), role: .cancel) {}
     } message: {
       Text(resultMessage)
@@ -142,13 +170,15 @@ struct ExactDuplicatesReviewView: View {
       }
       let yaml = try DataExportService.exportToYAML(records: dataStore.recordsDescending)
       let directory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-      let url = directory.appendingPathComponent("MochiLog-before-duplicate-cleanup-\(UUID().uuidString).yaml")
+      let url = directory.appendingPathComponent(
+        "MochiLog-before-duplicate-cleanup-\(UUID().uuidString).yaml")
       try yaml.write(to: url, atomically: true, encoding: .utf8)
       backupURL = url
 
       let removed = try ExactDuplicateRecords.removeSelected(selected, from: dataStore)
       selected.removeAll()
-      resultMessage = String(format: L10n.string("exact_duplicates_removed", table: "ExactDuplicates"), removed)
+      resultMessage = String(
+        format: L10n.string("exact_duplicates_removed", table: "ExactDuplicates"), removed)
       showingResult = true
     } catch {
       resultMessage = error.localizedDescription

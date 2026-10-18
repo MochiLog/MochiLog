@@ -37,13 +37,19 @@ extension HomeView {
       }
       await consumeSharedImports()
       if !errors.isEmpty || files.isEmpty {
-        errorMessage = errors.isEmpty
+        errorMessage =
+          errors.isEmpty
           ? L10n.string("no_supported_files", table: "Home") : errors.joined(separator: "\n")
         showingErrorAlert = true
       }
     case .failure(let error):
-      if (error as NSError).domain == NSCocoaErrorDomain && (error as NSError).code == CocoaError.userCancelled.rawValue { return }
-      errorMessage = "\(L10n.string("file_select_error", table: "Home")): \(error.localizedDescription)"
+      if (error as NSError).domain == NSCocoaErrorDomain
+        && (error as NSError).code == CocoaError.userCancelled.rawValue
+      {
+        return
+      }
+      errorMessage =
+        "\(L10n.string("file_select_error", table: "Home")): \(error.localizedDescription)"
       showingErrorAlert = true
     }
   }
@@ -53,9 +59,13 @@ struct ImportHelper {
   nonisolated static func recursiveContentsOfFolder(url: URL) async throws -> [URL] {
     try await Task.detached(priority: .userInitiated) {
       var readError: Error?
-      guard let enumerator = FileManager.default.enumerator(
-        at: url, includingPropertiesForKeys: [.isRegularFileKey, .isSymbolicLinkKey],
-        options: [.skipsHiddenFiles], errorHandler: { _, error in readError = error; return false })
+      guard
+        let enumerator = FileManager.default.enumerator(
+          at: url, includingPropertiesForKeys: [.isRegularFileKey, .isSymbolicLinkKey],
+          options: [.skipsHiddenFiles],
+          errorHandler: { _, error in
+            readError = error; return false
+          })
       else { throw CocoaError(.fileReadUnknown) }
       var files: [URL] = []
       while let file = enumerator.nextObject() as? URL {
@@ -70,7 +80,8 @@ struct ImportHelper {
   nonisolated static func extractZipContents(zipURL: URL) async throws -> [URL] {
     try await Task.detached(priority: .userInitiated) {
       let fm = FileManager.default
-      let directory = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+      let directory = fm.temporaryDirectory.appendingPathComponent(
+        UUID().uuidString, isDirectory: true)
       try fm.createDirectory(at: directory, withIntermediateDirectories: true)
       do {
         let archive = try Archive(url: zipURL, accessMode: .read)
@@ -82,8 +93,10 @@ struct ImportHelper {
             throw CocoaError(.fileReadInvalidFileName)
           }
           if entry.type == .directory { continue }
-          guard !entry.path.hasPrefix("__MACOSX/"), !destination.lastPathComponent.hasPrefix(".") else { continue }
-          try fm.createDirectory(at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
+          guard !entry.path.hasPrefix("__MACOSX/"), !destination.lastPathComponent.hasPrefix(".")
+          else { continue }
+          try fm.createDirectory(
+            at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
           _ = try archive.extract(entry, to: destination)
           files.append(destination)
         }

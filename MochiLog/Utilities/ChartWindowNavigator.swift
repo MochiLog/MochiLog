@@ -52,7 +52,8 @@ struct ChartWindowNavigator {
     let effectiveEnd = effectiveEndDate(for: recordDates, windowEnd: windowEnd, range: range)
     let startDate = windowStart(for: effectiveEnd, range: effectiveRange, allRecords: [])
     let automaticStart = recordDates.filter { $0 <= effectiveEnd }.min() ?? startDate
-    let startDay = calendar.startOfDay(for: range == .auto ? min(startDate, automaticStart) : startDate)
+    let startDay = calendar.startOfDay(
+      for: range == .auto ? min(startDate, automaticStart) : startDate)
     let endDay = calendar.startOfDay(for: effectiveEnd)
 
     let visibleDates = recordDates.filter {
@@ -567,8 +568,11 @@ struct ChartWindowNavigator {
   static func autoRange(forDates recordDates: [Date]) -> RangePreset {
     guard let first = recordDates.min(), let last = recordDates.max() else { return .oneMonth }
     let calendar = Calendar.current
-    let days = calendar.dateComponents([.day], from: calendar.startOfDay(for: first),
-      to: calendar.startOfDay(for: last)).day ?? 0
+    let days =
+      calendar.dateComponents(
+        [.day], from: calendar.startOfDay(for: first),
+        to: calendar.startOfDay(for: last)
+      ).day ?? 0
 
     if days < 7 { return .oneWeek }
     if days < 14 { return .twoWeeks }

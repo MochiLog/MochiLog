@@ -13,7 +13,13 @@ struct AdvancedSettingsDetailView: View {
     Form {
       if #available(iOS 17, *), !ProcessInfo.processInfo.isiOSAppOnMac {
         Section {
-          Toggle(isOn: Binding(get: { appSettings.liveBatteryEnabled }, set: { value in withAnimation(.smooth(duration: 0.35)) { appSettings.liveBatteryEnabled = value } })) {
+          Toggle(
+            isOn: Binding(
+              get: { appSettings.liveBatteryEnabled },
+              set: { value in
+                withAnimation(.smooth(duration: 0.35)) { appSettings.liveBatteryEnabled = value }
+              })
+          ) {
             Label(L10n.text("live_enable", table: "MacTransfer"), systemImage: "battery.100percent")
           }.accessibilityIdentifier("settings.liveBattery")
           Text(L10n.text("live_enable_note", table: "MacTransfer"))
@@ -135,7 +141,9 @@ struct AdvancedSettingsDetailView: View {
         }
         .padding(.vertical, 4)
       } footer: {
-        Text("iPhone Airのログにおいて、MagSafeバッテリー特有の条件に合致した場合、自動的に「iPhone Air MagSafeバッテリー」として登録するか、毎回手動で選ぶかを設定します。")
+        Text(
+          "iPhone Airのログにおいて、MagSafeバッテリー特有の条件に合致した場合、自動的に「iPhone Air MagSafeバッテリー」として登録するか、毎回手動で選ぶかを設定します。"
+        )
       }
 
       // MARK: - 容量検証設定
@@ -180,7 +188,9 @@ struct AdvancedSettingsDetailView: View {
         )
         if !appSettings.allowDuplicateRecords {
           NavigationLink(destination: ExactDuplicatesReviewView()) {
-            Label(L10n.string("exact_duplicates_title", table: "ExactDuplicates"), systemImage: "square.on.square")
+            Label(
+              L10n.string("exact_duplicates_title", table: "ExactDuplicates"),
+              systemImage: "square.on.square")
           }
         }
       } footer: {

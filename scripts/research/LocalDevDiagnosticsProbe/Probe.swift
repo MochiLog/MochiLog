@@ -7,11 +7,13 @@ import Network
 struct ProbeView: View {
   @StateObject var probe = Probe()
   var body: some View {
-    ScrollView { VStack(alignment: .leading, spacing: 16) {
-      Text("MochiLog · LocalDevVPN経路調査").font(.title)
-      Text("端末自身から要求します。PCはビルド・結果確認だけに使い、診断要求の中継はしません。既存のPC連携や保存記録は変更しません。")
-      Text(probe.output).font(.system(.callout, design: .monospaced)).textSelection(.enabled)
-    }.padding() }.task { await probe.run() }
+    ScrollView {
+      VStack(alignment: .leading, spacing: 16) {
+        Text("MochiLog · LocalDevVPN経路調査").font(.title)
+        Text("端末自身から要求します。PCはビルド・結果確認だけに使い、診断要求の中継はしません。既存のPC連携や保存記録は変更しません。")
+        Text(probe.output).font(.system(.callout, design: .monospaced)).textSelection(.enabled)
+      }.padding()
+    }.task { await probe.run() }
   }
 }
 @MainActor final class Probe: ObservableObject {
@@ -22,8 +24,11 @@ struct ProbeView: View {
     guard !running else { return }; running = true
     UIApplication.shared.isIdleTimerDisabled = true
     defer { UIApplication.shared.isIdleTimerDisabled = false }
-    results.append(["stage": "start", "os": UIDevice.current.systemVersion,
-      "time": ISO8601DateFormatter().string(from: Date()), "transport": "device-originated TCP via existing Tailscale reflector"])
+    results.append([
+      "stage": "start", "os": UIDevice.current.systemVersion,
+      "time": ISO8601DateFormatter().string(from: Date()),
+      "transport": "device-originated TCP via existing Tailscale reflector",
+    ])
     for host in ["10.7.0.1", "127.0.0.1"] {
       for port in [62078, 49152] {
         let channel = ProbeChannel(host: host, port: UInt16(port))
@@ -33,11 +38,15 @@ struct ProbeView: View {
           row["result"] = "ready"
           row["tcpReady"] = "true"
           if port == 62078 {
-            let reply = try await channel.query(["Request": "QueryType", "Label": "MochiLogLocalDevResearch"])
+            let reply = try await channel.query([
+              "Request": "QueryType", "Label": "MochiLogLocalDevResearch",
+            ])
             row["lockdownType"] = reply["Type"] as? String ?? "missing"
             row["error"] = reply["Error"] as? String ?? "none"
             for key in ["ProductType", "ProductVersion"] {
-              let response = try await channel.query(["Request": "GetValue", "Key": key, "Label": "MochiLogLocalDevResearch"])
+              let response = try await channel.query([
+                "Request": "GetValue", "Key": key, "Label": "MochiLogLocalDevResearch",
+              ])
               row[key] = response["Value"] as? String ?? (response["Error"] as? String ?? "missing")
             }
           }
@@ -48,14 +57,23 @@ struct ProbeView: View {
     output += "\n認証・診断サービスを調査中…"
     let ffiRows = await Task.detached(priority: .utility) { FFIProbe.run() }.value
     results.append(contentsOf: ffiRows)
-    results.append(["stage": "complete", "dailyFileAcquired": String(ffiRows.contains { $0["fileBodyRead"] == "true" }),
-      "batteryValuesAcquired": String(ffiRows.contains { !($0["numericMetricNames"] ?? "").isEmpty })])
+    results.append([
+      "stage": "complete",
+      "dailyFileAcquired": String(ffiRows.contains { $0["fileBodyRead"] == "true" }),
+      "batteryValuesAcquired": String(
+        ffiRows.contains { !($0["numericMetricNames"] ?? "").isEmpty }),
+    ])
     update()
   }
   private func update() {
-    output = results.map { row in row.keys.sorted().map { "\($0): \(row[$0]!)" }.joined(separator: " | ") }.joined(separator: "\n\n")
-    let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("research-results.json")
-    if let data = try? JSONSerialization.data(withJSONObject: results, options: [.prettyPrinted, .sortedKeys]) {
+    output = results.map { row in
+      row.keys.sorted().map { "\($0): \(row[$0]!)" }.joined(separator: " | ")
+    }.joined(separator: "\n\n")
+    let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+      .appendingPathComponent("research-results.json")
+    if let data = try? JSONSerialization.data(
+      withJSONObject: results, options: [.prettyPrinted, .sortedKeys])
+    {
       try? data.write(to: url, options: [.atomic, .completeFileProtection])
     }
   }
@@ -65,7 +83,8 @@ final class ProbeChannel {
   private let connection: NWConnection
   private let queue = DispatchQueue(label: "MochiLog.LocalDevResearch")
   init(host: String, port: UInt16) {
-    connection = NWConnection(host: NWEndpoint.Host(host), port: NWEndpoint.Port(rawValue: port)!, using: .tcp)
+    connection = NWConnection(
+      host: NWEndpoint.Host(host), port: NWEndpoint.Port(rawValue: port)!, using: .tcp)
   }
   func open() async throws {
     try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
@@ -89,19 +108,25 @@ final class ProbeChannel {
   }
   func close() { connection.cancel() }
   func query(_ value: [String: Any]) async throws -> [String: Any] {
-    let payload = try PropertyListSerialization.data(fromPropertyList: value, format: .xml, options: 0)
+    let payload = try PropertyListSerialization.data(
+      fromPropertyList: value, format: .xml, options: 0)
     var length = UInt32(payload.count).bigEndian
     var frame = Data(bytes: &length, count: 4); frame.append(payload)
     try await withCheckedThrowingContinuation { (c: CheckedContinuation<Void, Error>) in
-      connection.send(content: frame, completion: .contentProcessed { error in
-        if let error { c.resume(throwing: error) } else { c.resume() }
-      })
+      connection.send(
+        content: frame,
+        completion: .contentProcessed { error in
+          if let error { c.resume(throwing: error) } else { c.resume() }
+        })
     }
     let header = try await read(count: 4)
     let size = header.reduce(UInt32(0)) { ($0 << 8) | UInt32($1) }
     guard size > 0, size < 1024 * 1024 else { throw Failure.tooLarge }
     let data = try await read(count: Int(size))
-    guard let reply = try PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any] else { throw Failure.malformed }
+    guard
+      let reply = try PropertyListSerialization.propertyList(from: data, options: [], format: nil)
+        as? [String: Any]
+    else { throw Failure.malformed }
     return reply
   }
   private func read(count: Int) async throws -> Data {
@@ -111,11 +136,16 @@ final class ProbeChannel {
         guard !completed else { return }; completed = true
         c.resume(throwing: Failure.timeout); connection.cancel()
       }
-      connection.receive(minimumIncompleteLength: count, maximumLength: count) { data, _, isComplete, error in
+      connection.receive(minimumIncompleteLength: count, maximumLength: count) {
+        data, _, isComplete, error in
         guard !completed else { return }; completed = true
-        if let error { c.resume(throwing: error) }
-        else if let data, data.count == count { c.resume(returning: data) }
-        else { c.resume(throwing: isComplete ? Failure.closed : Failure.malformed) }
+        if let error {
+          c.resume(throwing: error)
+        } else if let data, data.count == count {
+          c.resume(returning: data)
+        } else {
+          c.resume(throwing: isComplete ? Failure.closed : Failure.malformed)
+        }
       }
     }
   }

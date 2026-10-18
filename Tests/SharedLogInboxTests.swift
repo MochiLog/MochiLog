@@ -19,7 +19,8 @@ import Foundation
     let partial = try SharedLogInbox.pendingFiles(at: inbox)
     assert(partial.isEmpty, "Partial batches must stay invisible")
     do {
-      try SharedLogInbox.copy(originals.appendingPathComponent("missing.ips"), index: 8, into: batch)
+      try SharedLogInbox.copy(
+        originals.appendingPathComponent("missing.ips"), index: 8, into: batch)
       fatalError("Missing file must fail")
     } catch {}
     try SharedLogInbox.publish(batch)
@@ -35,12 +36,21 @@ import Foundation
     }
     let remaining = try SharedLogInbox.pendingFiles(at: inbox)
     assert(remaining.isEmpty)
-    let reviewed = fm.enumerator(at: inbox.appendingPathComponent("Review"), includingPropertiesForKeys: nil)!
+    let reviewed = fm.enumerator(
+      at: inbox.appendingPathComponent("Review"), includingPropertiesForKeys: nil)!
       .allObjects.compactMap { $0 as? URL }.filter { $0.pathExtension == "ips" }
-    assert(reviewed.count == 1, "Unsuccessful file remains available for review, without auto-retrying forever")
+    assert(
+      reviewed.count == 1,
+      "Unsuccessful file remains available for review, without auto-retrying forever")
     for index in 0..<8 {
-      assert(fm.fileExists(atPath: originals.appendingPathComponent(String(index)).appendingPathComponent("same-name.ips").path))
+      assert(
+        fm.fileExists(
+          atPath: originals.appendingPathComponent(String(index)).appendingPathComponent(
+            "same-name.ips"
+          ).path))
     }
-    print("PASS: eight files, filename collisions, atomic publication, restart recovery, failure retention, originals preserved")
+    print(
+      "PASS: eight files, filename collisions, atomic publication, restart recovery, failure retention, originals preserved"
+    )
   }
 }

@@ -182,39 +182,39 @@ struct SupportSettingsView: View {
       }
 
       if donationManager.purchasesAvailable {
-      // 支援
-      GroupBox {
-        Button {
-          showingDonation = true
-        } label: {
-          HStack(spacing: 20) {
-            Image(systemName: "heart.fill")
-              .font(.system(size: 32))
-              .foregroundStyle(.pink)
-              .frame(width: 60)
+        // 支援
+        GroupBox {
+          Button {
+            showingDonation = true
+          } label: {
+            HStack(spacing: 20) {
+              Image(systemName: "heart.fill")
+                .font(.system(size: 32))
+                .foregroundStyle(.pink)
+                .frame(width: 60)
 
-            VStack(alignment: .leading, spacing: 4) {
-              Text(L10n.string("donation_title", table: "Settings"))
-            .accessibilityIdentifier("settings.donation")
-                .font(.headline)
-                .foregroundStyle(.primary)
+              VStack(alignment: .leading, spacing: 4) {
+                Text(L10n.string("donation_title", table: "Settings"))
+                  .accessibilityIdentifier("settings.donation")
+                  .font(.headline)
+                  .foregroundStyle(.primary)
 
-              Text(L10n.string("donation_description_short", table: "Settings"))
-                .font(.subheadline)
+                Text(L10n.string("donation_description_short", table: "Settings"))
+                  .font(.subheadline)
+                  .foregroundStyle(.secondary)
+              }
+
+              Spacer()
+
+              Image(systemName: "chevron.right")
                 .foregroundStyle(.secondary)
             }
-
-            Spacer()
-
-            Image(systemName: "chevron.right")
-              .foregroundStyle(.secondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+            .padding(.vertical, 8)
           }
-          .frame(maxWidth: .infinity, alignment: .leading)
-          .contentShape(Rectangle())
-          .padding(.vertical, 8)
+          .buttonStyle(.plain)
         }
-        .buttonStyle(.plain)
-      }
       }
 
     }

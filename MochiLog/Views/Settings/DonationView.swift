@@ -1,7 +1,7 @@
 import Combine
 import StoreKit
 #if canImport(MarketplaceKit) && !targetEnvironment(macCatalyst)
-import MarketplaceKit
+  import MarketplaceKit
 #endif
 import SwiftUI
 
@@ -28,27 +28,27 @@ final class DonationManager: ObservableObject {
     if let distributionTask { return await distributionTask.value }
     let task = Task<Bool, Never> {
       #if DEBUG && targetEnvironment(simulator)
-      if let source = ProcessInfo.processInfo.environment["MOCHI_TEST_DISTRIBUTOR"] {
-        return source == "appStore" || source == "testFlight"
-      }
+        if let source = ProcessInfo.processInfo.environment["MOCHI_TEST_DISTRIBUTOR"] {
+          return source == "appStore" || source == "testFlight"
+        }
       #endif
       #if canImport(MarketplaceKit) && !targetEnvironment(macCatalyst)
-      // iPhone/iPad apps can run on macOS without MarketplaceKit being present.
-      // The framework is weak-linked there, so calling it would jump to address 0.
-      if ProcessInfo.processInfo.isiOSAppOnMac { return true }
-      if #available(iOS 17.4, *) {
-        do {
-          switch try await AppDistributor.current {
-          case .appStore, .testFlight, .other: return true
-          case .marketplace: return false
-          case .web: return false
-          @unknown default: return false
+        // iPhone/iPad apps can run on macOS without MarketplaceKit being present.
+        // The framework is weak-linked there, so calling it would jump to address 0.
+        if ProcessInfo.processInfo.isiOSAppOnMac { return true }
+        if #available(iOS 17.4, *) {
+          do {
+            switch try await AppDistributor.current {
+            case .appStore, .testFlight, .other: return true
+            case .marketplace: return false
+            case .web: return false
+            @unknown default: return false
+            }
+          } catch {
+            // Never start a payment when the installation source is unknown.
+            return false
           }
-        } catch {
-          // Never start a payment when the installation source is unknown.
-          return false
         }
-      }
       #endif
       return true
     }
@@ -235,11 +235,14 @@ struct DonationView: View {
   private static func localizedName(for product: Product) -> String {
     switch product.id {
     case "net.ryuya_dev.net.mochilog.donation.small":
-      return L10n.string("donation_product_coffee_name", defaultValue: "開発者にコーヒーを奢る", table: "Settings")
+      return L10n.string(
+        "donation_product_coffee_name", defaultValue: "開発者にコーヒーを奢る", table: "Settings")
     case "net.ryuya_dev.net.mochilog.donation.medium":
-      return L10n.string("donation_product_lunch_name", defaultValue: "開発者にランチを奢る", table: "Settings")
+      return L10n.string(
+        "donation_product_lunch_name", defaultValue: "開発者にランチを奢る", table: "Settings")
     case "net.ryuya_dev.net.mochilog.donation.large":
-      return L10n.string("donation_product_dinner_name", defaultValue: "開発者にディナーを奢る", table: "Settings")
+      return L10n.string(
+        "donation_product_dinner_name", defaultValue: "開発者にディナーを奢る", table: "Settings")
     default:
       return product.displayName
     }
@@ -248,11 +251,15 @@ struct DonationView: View {
   private static func localizedDescription(for product: Product) -> String {
     switch product.id {
     case "net.ryuya_dev.net.mochilog.donation.small":
-      return L10n.string("donation_product_coffee_description", defaultValue: "カフェイン注入でバグを修正します。", table: "Settings")
+      return L10n.string(
+        "donation_product_coffee_description", defaultValue: "カフェイン注入でバグを修正します。", table: "Settings")
     case "net.ryuya_dev.net.mochilog.donation.medium":
-      return L10n.string("donation_product_lunch_description", defaultValue: "お腹が空いてはコードが書けません。", table: "Settings")
+      return L10n.string(
+        "donation_product_lunch_description", defaultValue: "お腹が空いてはコードが書けません。", table: "Settings")
     case "net.ryuya_dev.net.mochilog.donation.large":
-      return L10n.string("donation_product_dinner_description", defaultValue: "開発の励みになります！今夜はご馳走です。", table: "Settings")
+      return L10n.string(
+        "donation_product_dinner_description", defaultValue: "開発の励みになります！今夜はご馳走です。",
+        table: "Settings")
     default:
       return product.description
     }

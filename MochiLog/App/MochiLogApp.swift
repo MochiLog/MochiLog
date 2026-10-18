@@ -9,13 +9,16 @@ import WatchConnectivity
 final class MochiLogApp: UIResponder, UIApplicationDelegate {
   private static let appGroupIdentifier = "group.net.ryuya-dev.MochiLog"
 
-  func application(_ application: UIApplication,
+  func application(
+    _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
   ) -> Bool {
     prepareApplicationSupportDirectories()
     CrashDiagnostics.shared.start()
     if #available(iOS 17, *) {
-      MacTransferManager.appendDebugEvent("Application launch: state=\(application.applicationState.rawValue), background=\(application.applicationState == .background), unlocked=\(application.isProtectedDataAvailable)")
+      MacTransferManager.appendDebugEvent(
+        "Application launch: state=\(application.applicationState.rawValue), background=\(application.applicationState == .background), unlocked=\(application.isProtectedDataAvailable)"
+      )
       LocalCollectionScheduler.register()
     }
     if #available(iOS 27, *) { LocalDevicePairing.register() }
@@ -27,7 +30,8 @@ final class MochiLogApp: UIResponder, UIApplicationDelegate {
     if #available(iOS 17, *) { LocalDiagnosticsManager.shared.updateActivity() }
   }
 
-  func application(_ application: UIApplication,
+  func application(
+    _ application: UIApplication,
     configurationForConnecting connectingSceneSession: UISceneSession,
     options: UIScene.ConnectionOptions
   ) -> UISceneConfiguration {
@@ -52,7 +56,8 @@ final class MochiLogApp: UIResponder, UIApplicationDelegate {
         handleShortcutCallback(url)
       } else {
         let interactive = AppSettings.shared.openAppAfterShareImport
-        SharedImportQueue.shared.enqueue(url,
+        SharedImportQueue.shared.enqueue(
+          url,
           presentsResults: interactive && files.count > 1,
           opensDetail: interactive && files.count == 1)
       }
@@ -123,36 +128,41 @@ final class MochiLogApp: UIResponder, UIApplicationDelegate {
 final class MochiLogSceneDelegate: UIResponder, UIWindowSceneDelegate {
   var window: UIWindow?
 
-  func scene(_ scene: UIScene, willConnectTo session: UISceneSession,
+  func scene(
+    _ scene: UIScene, willConnectTo session: UISceneSession,
     options connectionOptions: UIScene.ConnectionOptions
   ) {
     guard let windowScene = scene as? UIWindowScene else { return }
     let window = UIWindow(windowScene: windowScene)
     #if DEBUG && targetEnvironment(simulator)
-    // Screenshot automation must be dark even if Xcode supplies a light trait override.
-    if ProcessInfo.processInfo.environment["MOCHI_STORE_SCREENSHOTS"] == "1" {
-      window.overrideUserInterfaceStyle = .dark
-      // Export the same sample records for the companion's isolated screenshot fixture.
-      do {
-        let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
-        let records = SampleDataProvider.generateSampleRecords().map { WatchBatteryRecord(from: $0) }
-        let destination = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+      // Screenshot automation must be dark even if Xcode supplies a light trait override.
+      if ProcessInfo.processInfo.environment["MOCHI_STORE_SCREENSHOTS"] == "1" {
+        window.overrideUserInterfaceStyle = .dark
+        // Export the same sample records for the companion's isolated screenshot fixture.
+        do {
+          let encoder = JSONEncoder()
+          encoder.dateEncodingStrategy = .iso8601
+          let records = SampleDataProvider.generateSampleRecords().map {
+            WatchBatteryRecord(from: $0)
+          }
+          let destination = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[
+            0
+          ]
           .appendingPathComponent("store-screenshot-records.json")
-        try encoder.encode(records).write(to: destination, options: .atomic)
-      } catch { print("Screenshot fixture export failed: \(error)") }
-    }
-    if ProcessInfo.processInfo.environment["MOCHI_LAYOUT_TEST"] == "1" {
-      window.rootViewController = UIHostingController(rootView: LayoutValidationHost())
-    } else {
-      window.rootViewController = UIHostingController(rootView: MochiLogRootView())
-    }
+          try encoder.encode(records).write(to: destination, options: .atomic)
+        } catch { print("Screenshot fixture export failed: \(error)") }
+      }
+      if ProcessInfo.processInfo.environment["MOCHI_LAYOUT_TEST"] == "1" {
+        window.rootViewController = UIHostingController(rootView: LayoutValidationHost())
+      } else {
+        window.rootViewController = UIHostingController(rootView: MochiLogRootView())
+      }
     #else
-    window.rootViewController = UIHostingController(rootView: MochiLogRootView())
+      window.rootViewController = UIHostingController(rootView: MochiLogRootView())
     #endif
     self.window = window
     #if DEBUG
-    if #available(iOS 27, *) { MacTransferManager.shared.debugReceiveIfRequested() }
+      if #available(iOS 27, *) { MacTransferManager.shared.debugReceiveIfRequested() }
     #endif
     window.makeKeyAndVisible()
     open(connectionOptions.urlContexts)
@@ -169,29 +179,33 @@ final class MochiLogSceneDelegate: UIResponder, UIWindowSceneDelegate {
       LiveBatteryManager.shared.updateActivity()
       LocalDiagnosticsManager.shared.updateActivity()
       #if DEBUG
-      #if targetEnvironment(simulator)
-      LocalDiagnosticsManager.shared.debugSimulatorFixtureIfRequested()
-      #endif
-      LocalDiagnosticsManager.shared.debugProbeIfRequested()
-      if #available(iOS 27, *) { LocalDevicePairing.shared.debugProbeIfRequested() }
+        #if targetEnvironment(simulator)
+          LocalDiagnosticsManager.shared.debugSimulatorFixtureIfRequested()
+        #endif
+        LocalDiagnosticsManager.shared.debugProbeIfRequested()
+        if #available(iOS 27, *) { LocalDevicePairing.shared.debugProbeIfRequested() }
       #endif
     }
     guard let root = SharedLogInbox.root else { return }
     do {
       let files = try SharedLogInbox.pendingFiles(at: root)
       if !files.isEmpty {
-        ErrorLogStore.shared.saveLog(message: "[Share extension receipt] \(files.count) file(s)", rawText: nil)
+        ErrorLogStore.shared.saveLog(
+          message: "[Share extension receipt] \(files.count) file(s)", rawText: nil)
       }
       for file in files { SharedImportQueue.shared.enqueue(file, presentsResults: true) }
     } catch {
-      ErrorLogStore.shared.saveLog(message: "Shared import inbox: \(error.localizedDescription)", rawText: nil)
+      ErrorLogStore.shared.saveLog(
+        message: "Shared import inbox: \(error.localizedDescription)", rawText: nil)
     }
   }
 
   func sceneDidEnterBackground(_ scene: UIScene) {
-    guard !UIApplication.shared.connectedScenes.contains(where: {
-      $0.activationState == .foregroundActive || $0.activationState == .foregroundInactive
-    }) else { return }
+    guard
+      !UIApplication.shared.connectedScenes.contains(where: {
+        $0.activationState == .foregroundActive || $0.activationState == .foregroundInactive
+      })
+    else { return }
     if #available(iOS 27, *) { MacTransferManager.shared.stopForBackground() }
     if #available(iOS 17, *) {
       LiveBatteryManager.shared.stop()
@@ -204,8 +218,6 @@ final class MochiLogSceneDelegate: UIResponder, UIWindowSceneDelegate {
   }
 }
 
-
-
 /// アプリのルートビュー。iCloud設定に応じてDataStoreを動的に切り替える責務を持つ。
 struct MochiLogRootView: View {
   @ObservedObject private var languageSettings = LanguageSettings.shared
@@ -217,27 +229,32 @@ struct MochiLogRootView: View {
   init() {
     let store: DataStore
     #if DEBUG
-    if ProcessInfo.processInfo.environment["MOCHI_DUPLICATE_REVIEW_TEST"] == "1", #available(iOS 17, *) {
-      let testStore = SwiftDataStore(inMemory: true)
-      let date = Date(timeIntervalSince1970: 1_780_000_000)
-      let first = BatteryRecord(id: UUID(uuidString: "10000000-0000-0000-0000-000000000001")!,
-        logDate: date, deviceName: "iPhone 17", deviceModelCode: "iPhone18,3",
-        cycleCount: 42, designCapacity: 3692, nominalCapacity: 3600, rawCapacity: 3550)
-      let duplicate = BatteryRecord(id: UUID(uuidString: "20000000-0000-0000-0000-000000000002")!,
-        logDate: date, deviceName: "iPhone 17", deviceModelCode: "iPhone18,3",
-        cycleCount: 42, designCapacity: 3692, nominalCapacity: 3600, rawCapacity: 3550)
-      let otherDevice = BatteryRecord(id: UUID(uuidString: "30000000-0000-0000-0000-000000000003")!,
-        logDate: date, deviceName: "iPhone 17", deviceModelCode: "iPhone18,3",
-        cycleCount: 42, designCapacity: 3692, nominalCapacity: 3600, rawCapacity: 3550)
-      otherDevice.physicalDeviceID = UUID(uuidString: "40000000-0000-0000-0000-000000000004")!
-      for record in [first, duplicate, otherDevice] { testStore.insert(record) }
-      testStore.save()
-      store = testStore
-    } else {
-      store = DataStore.create(iCloudEnabled: AppSettings.shared.iCloudSyncEnabled)
-    }
+      if ProcessInfo.processInfo.environment["MOCHI_DUPLICATE_REVIEW_TEST"] == "1",
+        #available(iOS 17, *)
+      {
+        let testStore = SwiftDataStore(inMemory: true)
+        let date = Date(timeIntervalSince1970: 1_780_000_000)
+        let first = BatteryRecord(
+          id: UUID(uuidString: "10000000-0000-0000-0000-000000000001")!,
+          logDate: date, deviceName: "iPhone 17", deviceModelCode: "iPhone18,3",
+          cycleCount: 42, designCapacity: 3692, nominalCapacity: 3600, rawCapacity: 3550)
+        let duplicate = BatteryRecord(
+          id: UUID(uuidString: "20000000-0000-0000-0000-000000000002")!,
+          logDate: date, deviceName: "iPhone 17", deviceModelCode: "iPhone18,3",
+          cycleCount: 42, designCapacity: 3692, nominalCapacity: 3600, rawCapacity: 3550)
+        let otherDevice = BatteryRecord(
+          id: UUID(uuidString: "30000000-0000-0000-0000-000000000003")!,
+          logDate: date, deviceName: "iPhone 17", deviceModelCode: "iPhone18,3",
+          cycleCount: 42, designCapacity: 3692, nominalCapacity: 3600, rawCapacity: 3550)
+        otherDevice.physicalDeviceID = UUID(uuidString: "40000000-0000-0000-0000-000000000004")!
+        for record in [first, duplicate, otherDevice] { testStore.insert(record) }
+        testStore.save()
+        store = testStore
+      } else {
+        store = DataStore.create(iCloudEnabled: AppSettings.shared.iCloudSyncEnabled)
+      }
     #else
-    store = DataStore.create(iCloudEnabled: AppSettings.shared.iCloudSyncEnabled)
+      store = DataStore.create(iCloudEnabled: AppSettings.shared.iCloudSyncEnabled)
     #endif
     _dataStore = StateObject(wrappedValue: store)
     // CloudKitのインポートイベント完了時に自動refreshできるよう登録

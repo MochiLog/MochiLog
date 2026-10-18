@@ -18,7 +18,9 @@ struct ICloudSettingsContentView: View {
             HStack(spacing: 12) {
               Image(systemName: "icloud.fill")
                 .foregroundColor(appSettings.accentColor.color)
-              Text(L10n.string("enable_icloud_sync", defaultValue: "iCloud同期を有効にする", table: "Settings"))
+              Text(
+                L10n.string("enable_icloud_sync", defaultValue: "iCloud同期を有効にする", table: "Settings")
+              )
             }
           }
           .font(.headline)
@@ -32,9 +34,14 @@ struct ICloudSettingsContentView: View {
             HStack(alignment: .top, spacing: 6) {
               Image(systemName: "exclamationmark.triangle.fill")
                 .foregroundColor(.orange)
-              Text(L10n.string("icloud_restart_required", defaultValue: "設定を反映するにはアプリの再起動が必要です。一度アプリを上にスワイプして完全に終了し、開き直してください。", table: "Settings"))
-                .font(.footnote)
-                .foregroundColor(.orange)
+              Text(
+                L10n.string(
+                  "icloud_restart_required",
+                  defaultValue: "設定を反映するにはアプリの再起動が必要です。一度アプリを上にスワイプして完全に終了し、開き直してください。",
+                  table: "Settings")
+              )
+              .font(.footnote)
+              .foregroundColor(.orange)
             }
           }
 
@@ -42,9 +49,14 @@ struct ICloudSettingsContentView: View {
             HStack(alignment: .top, spacing: 6) {
               Image(systemName: "xmark.octagon.fill")
                 .foregroundColor(.red)
-              Text(L10n.string("icloud_not_signed_in", defaultValue: "端末がiCloudにサインインしていないか、iCloud Driveが無効になっています。iOSの設定アプリから確認してください。", table: "Settings"))
-                .font(.footnote)
-                .foregroundColor(.red)
+              Text(
+                L10n.string(
+                  "icloud_not_signed_in",
+                  defaultValue: "端末がiCloudにサインインしていないか、iCloud Driveが無効になっています。iOSの設定アプリから確認してください。",
+                  table: "Settings")
+              )
+              .font(.footnote)
+              .foregroundColor(.red)
             }
           }
 
@@ -55,7 +67,8 @@ struct ICloudSettingsContentView: View {
           }
 
           Text(
-            L10n.string("icloud_sync_footer",
+            L10n.string(
+              "icloud_sync_footer",
               defaultValue: "iCloud同期をオンにすると、同じApple IDでサインインした複数のデバイス間でバッテリー記録を自動的に共有できます。",
               table: "Settings"
             )
@@ -97,10 +110,12 @@ struct ICloudSettingsContentView: View {
                     .font(.subheadline)
                     .foregroundColor(.green)
                 case .notAuthenticated:
-                  Label("iCloudにサインインしてください", systemImage: "person.crop.circle.badge.exclamationmark")
-                    .font(.caption)
-                    .foregroundColor(.orange)
-                    .multilineTextAlignment(.trailing)
+                  Label(
+                    "iCloudにサインインしてください", systemImage: "person.crop.circle.badge.exclamationmark"
+                  )
+                  .font(.caption)
+                  .foregroundColor(.orange)
+                  .multilineTextAlignment(.trailing)
                 case .error(let message):
                   Text(message)
                     .font(.caption)
@@ -116,9 +131,12 @@ struct ICloudSettingsContentView: View {
                 .foregroundColor(.primary)
               Spacer()
               if appSettings.lastICloudSyncDate > 0 {
-                Text(Date(timeIntervalSince1970: appSettings.lastICloudSyncDate).formatted(date: .abbreviated, time: .shortened))
-                  .font(.subheadline)
-                  .foregroundColor(.secondary)
+                Text(
+                  Date(timeIntervalSince1970: appSettings.lastICloudSyncDate).formatted(
+                    date: .abbreviated, time: .shortened)
+                )
+                .font(.subheadline)
+                .foregroundColor(.secondary)
               } else {
                 Text(L10n.string("not_synced_yet", defaultValue: "未同期", table: "Settings"))
                   .font(.subheadline)
@@ -163,38 +181,51 @@ struct ICloudSettingsContentView: View {
               .padding(.top, 4)
             }
 
-
             // iCloud同期の説明セクション
             VStack(alignment: .leading, spacing: 8) {
-              Text(L10n.string("icloud_how_sync_works_title", defaultValue: "同期の仕組みについて", table: "Settings"))
-                .font(.caption)
-                .fontWeight(.semibold)
-                .foregroundColor(.secondary)
+              Text(
+                L10n.string(
+                  "icloud_how_sync_works_title", defaultValue: "同期の仕組みについて", table: "Settings")
+              )
+              .font(.caption)
+              .fontWeight(.semibold)
+              .foregroundColor(.secondary)
 
               VStack(alignment: .leading, spacing: 4) {
                 Label(
-                  L10n.string("icloud_sync_how1", defaultValue: "同期はアプリ起動時やバックグラウンドで自動的に行われます", table: "Settings"),
+                  L10n.string(
+                    "icloud_sync_how1", defaultValue: "同期はアプリ起動時やバックグラウンドで自動的に行われます",
+                    table: "Settings"),
                   systemImage: "arrow.triangle.2.circlepath.icloud"
                 )
                 .font(.caption)
                 .foregroundColor(.secondary)
 
                 Label(
-                  L10n.string("icloud_sync_how2", defaultValue: "「強制同期」はローカルの変更をiCloudにプッシュし、既に受信済みのデータを表示に反映します", table: "Settings"),
+                  L10n.string(
+                    "icloud_sync_how2",
+                    defaultValue: "「強制同期」はローカルの変更をiCloudにプッシュし、既に受信済みのデータを表示に反映します",
+                    table: "Settings"),
                   systemImage: "icloud.and.arrow.up"
                 )
                 .font(.caption)
                 .foregroundColor(.secondary)
 
                 Label(
-                  L10n.string("icloud_sync_how3", defaultValue: "他デバイスのデータを引き出すタイミングはAppleのサーバーが决定します。数秒〜数分かかる場合があります", table: "Settings"),
+                  L10n.string(
+                    "icloud_sync_how3",
+                    defaultValue: "他デバイスのデータを引き出すタイミングはAppleのサーバーが决定します。数秒〜数分かかる場合があります",
+                    table: "Settings"),
                   systemImage: "clock"
                 )
                 .font(.caption)
                 .foregroundColor(.secondary)
 
                 Label(
-                  L10n.string("icloud_sync_how4", defaultValue: "強制同期後も表示されない場合は、アプリを完全に終了（スワイプアップ）して再起動すると反映されます", table: "Settings"),
+                  L10n.string(
+                    "icloud_sync_how4",
+                    defaultValue: "強制同期後も表示されない場合は、アプリを完全に終了（スワイプアップ）して再起動すると反映されます",
+                    table: "Settings"),
                   systemImage: "arrow.counterclockwise"
                 )
                 .font(.caption)
@@ -223,21 +254,37 @@ struct ICloudSettingsContentView: View {
 
           // 強制同期の説明
           VStack(alignment: .leading, spacing: 4) {
-            Text(L10n.string("force_sync_description", defaultValue: "「強制同期」をタップすると、以下の処理を実行します：", table: "Settings"))
-              .font(.caption)
-              .foregroundColor(.secondary)
+            Text(
+              L10n.string(
+                "force_sync_description", defaultValue: "「強制同期」をタップすると、以下の処理を実行します：",
+                table: "Settings")
+            )
+            .font(.caption)
+            .foregroundColor(.secondary)
 
-            Text(L10n.string("force_sync_action1", defaultValue: "• 未保存のローカルデータをiCloudに送信", table: "Settings"))
-              .font(.caption)
-              .foregroundColor(.secondary)
+            Text(
+              L10n.string(
+                "force_sync_action1", defaultValue: "• 未保存のローカルデータをiCloudに送信", table: "Settings")
+            )
+            .font(.caption)
+            .foregroundColor(.secondary)
 
-            Text(L10n.string("force_sync_action2", defaultValue: "• iCloudが既に受信済みのデータを画面に反映", table: "Settings"))
-              .font(.caption)
-              .foregroundColor(.secondary)
+            Text(
+              L10n.string(
+                "force_sync_action2", defaultValue: "• iCloudが既に受信済みのデータを画面に反映", table: "Settings")
+            )
+            .font(.caption)
+            .foregroundColor(.secondary)
 
-            Text(L10n.string("force_sync_note", defaultValue: "※ 他デバイスのデータを引き出すのは Appleのサーバー任せになります。強制同期後にデータが表示されない場合は、数分待ってからアプリを再起動してください。", table: "Settings"))
-              .font(.caption)
-              .foregroundColor(.secondary)
+            Text(
+              L10n.string(
+                "force_sync_note",
+                defaultValue:
+                  "※ 他デバイスのデータを引き出すのは Appleのサーバー任せになります。強制同期後にデータが表示されない場合は、数分待ってからアプリを再起動してください。",
+                table: "Settings")
+            )
+            .font(.caption)
+            .foregroundColor(.secondary)
           }
 
           Divider()
@@ -264,9 +311,11 @@ struct ICloudSettingsContentView: View {
 
           if let report = syncManager.lastDiagnosticReport {
             VStack(alignment: .leading, spacing: 8) {
-              Label(L10n.string("cloud_diagnostic_title", table: "Language"),
-                systemImage: "stethoscope")
-                .font(.caption.weight(.semibold))
+              Label(
+                L10n.string("cloud_diagnostic_title", table: "Language"),
+                systemImage: "stethoscope"
+              )
+              .font(.caption.weight(.semibold))
               Text(report)
                 .font(.caption)
                 .textSelection(.enabled)
@@ -287,9 +336,12 @@ struct ICloudSettingsContentView: View {
             Text(L10n.string("unresolved_conflicts", defaultValue: "未解決の競合", table: "Settings"))
               .font(.headline)
 
-            Text(L10n.string("conflict_footer", defaultValue: "タップしてどちらのデータを優先するか選択してください。", table: "Settings"))
-              .font(.subheadline)
-              .foregroundColor(.secondary)
+            Text(
+              L10n.string(
+                "conflict_footer", defaultValue: "タップしてどちらのデータを優先するか選択してください。", table: "Settings")
+            )
+            .font(.subheadline)
+            .foregroundColor(.secondary)
 
             Divider()
 
@@ -300,9 +352,12 @@ struct ICloudSettingsContentView: View {
               } label: {
                 HStack {
                   VStack(alignment: .leading, spacing: 4) {
-                    Text(L10n.string("conflict_detected", defaultValue: "競合が検出されました", table: "Settings"))
-                      .font(.subheadline)
-                      .foregroundColor(.red)
+                    Text(
+                      L10n.string(
+                        "conflict_detected", defaultValue: "競合が検出されました", table: "Settings")
+                    )
+                    .font(.subheadline)
+                    .foregroundColor(.red)
                     Text("端末: \(conflict.localDevice) (ローカル) vs \(conflict.serverDevice) (サーバー)")
                       .font(.caption)
                       .foregroundColor(.primary)
@@ -346,7 +401,8 @@ struct ICloudSettingsContentView: View {
         appSettings.lastICloudSyncDate = Date().timeIntervalSince1970
         // 新たなコンフリクトが発生していたら自動表示
         if syncManager.unresolvedConflicts.count > previousConflictCount,
-           let latestConflict = syncManager.unresolvedConflicts.last {
+          let latestConflict = syncManager.unresolvedConflicts.last
+        {
           selectedConflict = latestConflict
         }
       case .syncing, .idle:

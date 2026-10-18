@@ -36,19 +36,24 @@ final class ShareViewController: UIViewController {
     NSLayoutConstraint.activate([
       scroll.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
       scroll.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-      scroll.leadingAnchor.constraint(equalTo: view.leadingAnchor), scroll.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+      scroll.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+      scroll.trailingAnchor.constraint(equalTo: view.trailingAnchor),
       stack.topAnchor.constraint(equalTo: scroll.contentLayoutGuide.topAnchor, constant: 32),
       stack.bottomAnchor.constraint(equalTo: scroll.contentLayoutGuide.bottomAnchor, constant: -32),
-      stack.leadingAnchor.constraint(equalTo: scroll.contentLayoutGuide.leadingAnchor, constant: 24),
-      stack.trailingAnchor.constraint(equalTo: scroll.contentLayoutGuide.trailingAnchor, constant: -24),
+      stack.leadingAnchor.constraint(
+        equalTo: scroll.contentLayoutGuide.leadingAnchor, constant: 24),
+      stack.trailingAnchor.constraint(
+        equalTo: scroll.contentLayoutGuide.trailingAnchor, constant: -24),
       stack.widthAnchor.constraint(equalTo: scroll.frameLayoutGuide.widthAnchor, constant: -48),
-      done.heightAnchor.constraint(greaterThanOrEqualToConstant: 44)
+      done.heightAnchor.constraint(greaterThanOrEqualToConstant: 44),
     ])
     task = Task { await receiveFiles() }
   }
 
   private func receiveFiles() async {
-    let providers = (extensionContext?.inputItems as? [NSExtensionItem] ?? []).flatMap { $0.attachments ?? [] }
+    let providers = (extensionContext?.inputItems as? [NSExtensionItem] ?? []).flatMap {
+      $0.attachments ?? []
+    }
     guard let root = SharedLogInbox.root else {
       status.text = japanese ? "共有データを保存できませんでした" : "Shared storage is unavailable"
       done.isEnabled = true
@@ -62,21 +67,35 @@ final class ShareViewController: UIViewController {
       var errors: [String] = []
       for (index, provider) in providers.enumerated() {
         try Task.checkCancellation()
-        status.text = japanese ? "ログを受け取り中 \(index + 1)/\(providers.count)" : "Receiving logs \(index + 1)/\(providers.count)"
+        status.text =
+          japanese
+          ? "ログを受け取り中 \(index + 1)/\(providers.count)"
+          : "Receiving logs \(index + 1)/\(providers.count)"
         do {
           try await copyAttachment(provider, index: index, into: pending)
           received += 1
         } catch {
-          errors.append("\(provider.suggestedName ?? String(index + 1)): \(error.localizedDescription)")
+          errors.append(
+            "\(provider.suggestedName ?? String(index + 1)): \(error.localizedDescription)")
         }
       }
       try Task.checkCancellation()
-      if received > 0 { try SharedLogInbox.publish(pending) }
-      else { try? FileManager.default.removeItem(at: pending) }
+      if received > 0 {
+        try SharedLogInbox.publish(pending)
+      } else {
+        try? FileManager.default.removeItem(at: pending)
+      }
       batch = nil
-      status.text = japanese ? "\(providers.count)件中\(received)件を受け取りました" : "Received \(received) of \(providers.count) files"
-      let next = japanese ? "完了を押してMochiLogを開くと、ログをまとめて取り込みます。元のファイルは変更しません。" : "Tap Done, then open MochiLog to import these logs together. Original files are unchanged."
-      details.text = (received > 0 ? next : (japanese ? "受け取れるログがありませんでした。" : "No logs could be received."))
+      status.text =
+        japanese
+        ? "\(providers.count)件中\(received)件を受け取りました"
+        : "Received \(received) of \(providers.count) files"
+      let next =
+        japanese
+        ? "完了を押してMochiLogを開くと、ログをまとめて取り込みます。元のファイルは変更しません。"
+        : "Tap Done, then open MochiLog to import these logs together. Original files are unchanged."
+      details.text =
+        (received > 0 ? next : (japanese ? "受け取れるログがありませんでした。" : "No logs could be received."))
         + (errors.isEmpty ? "" : "\n\n" + errors.joined(separator: "\n"))
     } catch {
       if let batch { try? FileManager.default.removeItem(at: batch) }
@@ -88,14 +107,19 @@ final class ShareViewController: UIViewController {
     isModalInPresentation = false
   }
 
-  private func copyAttachment(_ provider: NSItemProvider, index: Int, into batch: URL) async throws {
+  private func copyAttachment(_ provider: NSItemProvider, index: Int, into batch: URL) async throws
+  {
     // Copy in the provider callback: its temporary URL expires when the callback returns.
     if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
-      try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-        provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, error in
+      try await withCheckedThrowingContinuation {
+        (continuation: CheckedContinuation<Void, Error>) in
+        provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) {
+          item, error in
           do {
             if let error { throw error }
-            let url = (item as? URL) ?? (item as? Data).flatMap { URL(dataRepresentation: $0, relativeTo: nil) }
+            let url =
+              (item as? URL)
+              ?? (item as? Data).flatMap { URL(dataRepresentation: $0, relativeTo: nil) }
             guard let url, url.isFileURL else { throw CocoaError(.fileReadUnsupportedScheme) }
             let scoped = url.startAccessingSecurityScopedResource()
             defer { if scoped { url.stopAccessingSecurityScopedResource() } }
@@ -105,9 +129,13 @@ final class ShareViewController: UIViewController {
         }
       }
     } else {
-      guard let type = provider.registeredTypeIdentifiers.first(where: { UTType($0)?.conforms(to: .data) == true })
-        else { throw CocoaError(.fileReadUnsupportedScheme) }
-      try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+      guard
+        let type = provider.registeredTypeIdentifiers.first(where: {
+          UTType($0)?.conforms(to: .data) == true
+        })
+      else { throw CocoaError(.fileReadUnsupportedScheme) }
+      try await withCheckedThrowingContinuation {
+        (continuation: CheckedContinuation<Void, Error>) in
         provider.loadFileRepresentation(forTypeIdentifier: type) { url, error in
           do {
             if let error { throw error }

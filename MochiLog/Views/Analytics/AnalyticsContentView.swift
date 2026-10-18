@@ -47,22 +47,25 @@ struct AnalyticsContentView: View {
 
   private var effectiveWindowEndForNavigation: Date {
     if selectedRange != .auto { return windowEnd }
-    return ChartWindowNavigator.effectiveEndDate(for: filteredRecords.map(\.logDate),
+    return ChartWindowNavigator.effectiveEndDate(
+      for: filteredRecords.map(\.logDate),
       windowEnd: windowEnd, range: selectedRange)
   }
 
   private var canMoveNext: Bool {
-    selectedRange != .auto && ChartWindowNavigator.canMoveNext(
-      currentEnd: effectiveWindowEndForNavigation,
-      range: effectiveRangeForNavigation,
-      records: filteredRecords)
+    selectedRange != .auto
+      && ChartWindowNavigator.canMoveNext(
+        currentEnd: effectiveWindowEndForNavigation,
+        range: effectiveRangeForNavigation,
+        records: filteredRecords)
   }
 
   private var canMovePrevious: Bool {
-    selectedRange != .auto && ChartWindowNavigator.canMovePrevious(
-      currentEnd: effectiveWindowEndForNavigation,
-      range: effectiveRangeForNavigation,
-      records: filteredRecords)
+    selectedRange != .auto
+      && ChartWindowNavigator.canMovePrevious(
+        currentEnd: effectiveWindowEndForNavigation,
+        range: effectiveRangeForNavigation,
+        records: filteredRecords)
   }
 
   private func shiftWindow(backward: Bool) {
@@ -115,7 +118,9 @@ struct AnalyticsContentView: View {
             DevicePickerView(deviceNames: cachedDeviceNames, selectedDevice: $selectedDevice)
 
             // iPad: 2列レイアウト、iPhone: 1列レイアウト
-            if horizontalSizeClass == .regular && availableWidth >= 740 && !dynamicTypeSize.isAccessibilitySize {
+            if horizontalSizeClass == .regular && availableWidth >= 740
+              && !dynamicTypeSize.isAccessibilitySize
+            {
               // iPad向け：グラフと統計を同じ幅にまとめる
               VStack(spacing: 20) {
                 // iPad向け2列グリッド
@@ -315,7 +320,8 @@ struct AnalyticsContentView: View {
 
       // MainActor に戻って UI 更新
       await MainActor.run {
-        let latestHash = Self.makeParametersHash(records: cachedFilteredRecords,
+        let latestHash = Self.makeParametersHash(
+          records: cachedFilteredRecords,
           windowEnd: windowEnd, selectedRange: selectedRange, selectedDevice: selectedDevice)
         guard latestHash == parametersHash else {
           isPreparingChartData = false

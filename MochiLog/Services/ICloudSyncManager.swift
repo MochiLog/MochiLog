@@ -84,7 +84,10 @@ final class ICloudSyncManager: ObservableObject {
 
   @objc
   private func handleCloudKitEventChanged(_ notification: Notification) {
-    guard let event = notification.userInfo?[NSPersistentCloudKitContainer.eventNotificationUserInfoKey] as? NSPersistentCloudKitContainer.Event else {
+    guard
+      let event = notification.userInfo?[NSPersistentCloudKitContainer.eventNotificationUserInfoKey]
+        as? NSPersistentCloudKitContainer.Event
+    else {
       return
     }
 
@@ -135,11 +138,14 @@ final class ICloudSyncManager: ObservableObject {
       for entry in entries.prefix(500) {
         guard let log = entry as? OSLogEntryLog else { continue }
         let message = log.composedMessage
-        if log.level == .error || log.level == .fault || message.contains("fail") || message.contains("CloudKit") {
+        if log.level == .error || log.level == .fault || message.contains("fail")
+          || message.contains("CloudKit")
+        {
           lines.append("[\(log.date.formatted(date: .omitted, time: .standard))] \(message)")
         }
       }
-      return lines.isEmpty ? "" : "\n\n=== Core Data diagnostics ===\n" + lines.suffix(100).joined(separator: "\n")
+      return lines.isEmpty
+        ? "" : "\n\n=== Core Data diagnostics ===\n" + lines.suffix(100).joined(separator: "\n")
     } catch {
       return "\n(Core Data log collection failed: \(error.localizedDescription))"
     }
@@ -154,10 +160,12 @@ final class ICloudSyncManager: ObservableObject {
 
   /// CloudKit/CoreDataエラーの全情報をログ出力し、UI表示用の文字列として返す
   @discardableResult
-  private func logCloudKitError(_ error: Error, eventType: NSPersistentCloudKitContainer.EventType) -> String {
+  private func logCloudKitError(_ error: Error, eventType: NSPersistentCloudKitContainer.EventType)
+    -> String
+  {
     let typeLabel: String
     switch eventType {
-    case .setup:  typeLabel = "setup"
+    case .setup: typeLabel = "setup"
     case .import: typeLabel = "import"
     case .export: typeLabel = "export"
     @unknown default: typeLabel = "unknown"
@@ -215,7 +223,7 @@ final class ICloudSyncManager: ObservableObject {
           }
         }
       case NSLocalizedDescriptionKey, "NSLocalizedFailureReason":
-        break // desc と重複するためスキップ
+        break  // desc と重複するためスキップ
       default:
         lines.append("\(indent)[\(keyStr)]: \(value)")
       }
@@ -225,14 +233,14 @@ final class ICloudSyncManager: ObservableObject {
   /// CKErrorコード番号から名前文字列を返す
   private func ckErrorCodeName(_ code: Int) -> String {
     switch code {
-    case 1:  return "internalError"
-    case 2:  return "partialFailure"
-    case 3:  return "networkUnavailable"
-    case 4:  return "networkFailure"
-    case 5:  return "badContainer"
-    case 6:  return "serviceUnavailable"
-    case 7:  return "requestRateLimited"
-    case 9:  return "notAuthenticated"
+    case 1: return "internalError"
+    case 2: return "partialFailure"
+    case 3: return "networkUnavailable"
+    case 4: return "networkFailure"
+    case 5: return "badContainer"
+    case 6: return "serviceUnavailable"
+    case 7: return "requestRateLimited"
+    case 9: return "notAuthenticated"
     case 10: return "permissionFailure"
     case 11: return "unknownItem"
     case 12: return "invalidArguments"
@@ -264,7 +272,6 @@ final class ICloudSyncManager: ObservableObject {
     }
   }
 
-
   /// CKErrorコードに応じた日本語エラーメッセージを返す
   private func friendlyErrorMessage(_ error: Error) -> String {
     guard let cloudError = extractCKError(error) else {
@@ -274,7 +281,8 @@ final class ICloudSyncManager: ObservableObject {
     let message: String
     switch cloudError.code {
     case .partialFailure:
-      let count = (cloudError.userInfo[CKPartialErrorsByItemIDKey] as? [AnyHashable: Error])?.count ?? 0
+      let count =
+        (cloudError.userInfo[CKPartialErrorsByItemIDKey] as? [AnyHashable: Error])?.count ?? 0
       message = String(format: L10n.string("cloud_partial", table: "Language"), count)
     case .networkUnavailable, .networkFailure:
       message = L10n.string("cloud_network", table: "Language")
@@ -302,12 +310,12 @@ final class ICloudSyncManager: ObservableObject {
       let status = try await CKContainer.default().accountStatus()
       let label: String
       switch status {
-      case .available:        label = "available（正常）"
-      case .noAccount:        label = "noAccount（アカウントなし）"
-      case .restricted:       label = "restricted（制限あり）"
+      case .available: label = "available（正常）"
+      case .noAccount: label = "noAccount（アカウントなし）"
+      case .restricted: label = "restricted（制限あり）"
       case .couldNotDetermine: label = "couldNotDetermine（不明）"
       case .temporarilyUnavailable: label = "temporarilyUnavailable（一時的に利用不可）"
-      @unknown default:       label = "unknown"
+      @unknown default: label = "unknown"
       }
       print("[ICloudSync] ℹ️ CKContainer.accountStatus = \(label)")
     } catch {
@@ -327,35 +335,46 @@ final class ICloudSyncManager: ObservableObject {
     if let store = dataStore {
       let records = store.recordsDescending
       let invalid = records.filter { record in
-        let numbers = [record.deflator, record.avgTemp, record.maxTemp, record.minTemp,
-                       record.maxVoltage, record.minVoltage].compactMap { $0 }
+        let numbers = [
+          record.deflator, record.avgTemp, record.maxTemp, record.minTemp,
+          record.maxVoltage, record.minVoltage,
+        ].compactMap { $0 }
         let dates = [record.logDate, record.createdAt] + [record.firstUseDate].compactMap { $0 }
-        return numbers.contains { !$0.isFinite } || dates.contains { !$0.timeIntervalSince1970.isFinite }
+        return numbers.contains { !$0.isFinite }
+          || dates.contains { !$0.timeIntervalSince1970.isFinite }
       }
       if records.isEmpty {
         report = L10n.string("cloud_diagnostic_no_data", table: "Language")
       } else if !invalid.isEmpty {
         hasDiagnosticError = true
-        report = String(format: L10n.string("cloud_diagnostic_invalid", table: "Language"),
+        report = String(
+          format: L10n.string("cloud_diagnostic_invalid", table: "Language"),
           invalid.prefix(20).map { $0.id.uuidString }.joined(separator: ", "))
       } else {
-        let localReport = String(format: L10n.string("cloud_diagnostic_pass", table: "Language"), records.count)
+        let localReport = String(
+          format: L10n.string("cloud_diagnostic_pass", table: "Language"), records.count)
         do {
           let status = try await CKContainer.default().accountStatus()
           hasDiagnosticError = status != .available
-          let accountReport = status == .available
+          let accountReport =
+            status == .available
             ? L10n.string("cloud_account_ready", table: "Language")
             : L10n.string("cloud_auth", table: "Language")
           if status == .available {
             do {
               let serverCount = try await readOnlyCloudRecordCount()
-              report = localReport + "\n\n" + accountReport + "\n\n"
-                + String(format: L10n.string("cloud_diagnostic_server_count",
-                  defaultValue: "iCloud上の記録: %d件（読み取り専用）", table: "Settings"), serverCount)
+              report =
+                localReport + "\n\n" + accountReport + "\n\n"
+                + String(
+                  format: L10n.string(
+                    "cloud_diagnostic_server_count",
+                    defaultValue: "iCloud上の記録: %d件（読み取り専用）", table: "Settings"), serverCount)
             } catch {
               hasDiagnosticError = true
-              report = localReport + "\n\n" + accountReport + "\n\n"
-                + L10n.string("cloud_diagnostic_server_unavailable",
+              report =
+                localReport + "\n\n" + accountReport + "\n\n"
+                + L10n.string(
+                  "cloud_diagnostic_server_unavailable",
                   defaultValue: "iCloud上の件数を取得できませんでした。", table: "Settings")
                 + "\n" + friendlyErrorMessage(error)
             }
@@ -373,7 +392,8 @@ final class ICloudSyncManager: ObservableObject {
     }
     lastDiagnosticReport = report
     if hasDiagnosticError {
-      ErrorLogStore.shared.saveLog(message: L10n.string("cloud_diagnostic_title", table: "Language"), rawText: report)
+      ErrorLogStore.shared.saveLog(
+        message: L10n.string("cloud_diagnostic_title", table: "Language"), rawText: report)
     }
   }
 
@@ -382,7 +402,9 @@ final class ICloudSyncManager: ObservableObject {
   private func readOnlyCloudRecordCount() async throws -> Int {
     let database = CKContainer.default().privateCloudDatabase
     let zones = try await database.allRecordZones()
-    guard let zone = zones.first(where: { $0.zoneID.zoneName == "com.apple.coredata.cloudkit.zone" }) else {
+    guard
+      let zone = zones.first(where: { $0.zoneID.zoneName == "com.apple.coredata.cloudkit.zone" })
+    else {
       return 0
     }
 
@@ -448,7 +470,9 @@ final class ICloudSyncManager: ObservableObject {
 
   /// コンフリクトを解決する
   @MainActor
-  func resolveConflict(_ conflict: SyncConflictItem, resolution: SyncConflictResolution, dataStore: DataStore) {
+  func resolveConflict(
+    _ conflict: SyncConflictItem, resolution: SyncConflictResolution, dataStore: DataStore
+  ) {
     switch resolution {
     case .server:
       // サーバーを優先する場合、ローカルの変更はすでにrollbackされているので、何もしない（リストから削除のみ）
@@ -476,7 +500,7 @@ final class ICloudSyncManager: ObservableObject {
 
     case .all:
       // 全てを残す場合、サーバーデータはそのまま維持し、ローカルデータを新しいIDで追加する
-      if let record = parseSnapshot(conflict.localSnapshot, recordID: UUID()) { // 新しいUUID
+      if let record = parseSnapshot(conflict.localSnapshot, recordID: UUID()) {  // 新しいUUID
         dataStore.insert(record)
         do {
           try dataStore.saveChanges()
@@ -495,7 +519,8 @@ final class ICloudSyncManager: ObservableObject {
   /// スナップショット辞書から BatteryRecord を生成するヘルパー
   private func parseSnapshot(_ dict: [String: Any], recordID: UUID) -> BatteryRecord? {
     guard let logDate = dict["logDate"] as? Date,
-          let deviceName = dict["deviceName"] as? String else {
+      let deviceName = dict["deviceName"] as? String
+    else {
       return nil
     }
 
@@ -538,7 +563,7 @@ final class ICloudSyncManager: ObservableObject {
       "cycleCount": 150,
       "designCapacity": 3000,
       "nominalCapacity": 2500,
-      "settingsDisplayPercent": 85
+      "settingsDisplayPercent": 85,
     ]
     let serverSnap: [String: Any] = [
       "logDate": Date().addingTimeInterval(-3600),
@@ -546,7 +571,7 @@ final class ICloudSyncManager: ObservableObject {
       "cycleCount": 140,
       "designCapacity": 3000,
       "nominalCapacity": 2600,
-      "settingsDisplayPercent": 88
+      "settingsDisplayPercent": 88,
     ]
 
     let item = SyncConflictItem(

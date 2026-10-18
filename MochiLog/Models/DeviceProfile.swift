@@ -26,10 +26,12 @@ struct DeviceProfile: Codable, Equatable, Identifiable {
   var modelNumbersByIdentifier: [String: [String]]
   var capacityVariants: [DeviceCapacityVariant]
 
-  init(id: String, name: String, identifiers: [String], capacity: Int, soc: String,
-       boards: [String: String], modelNumbers: [String] = [],
-       modelNumbersByIdentifier: [String: [String]] = [:],
-       capacityVariants: [DeviceCapacityVariant] = []) {
+  init(
+    id: String, name: String, identifiers: [String], capacity: Int, soc: String,
+    boards: [String: String], modelNumbers: [String] = [],
+    modelNumbersByIdentifier: [String: [String]] = [:],
+    capacityVariants: [DeviceCapacityVariant] = []
+  ) {
     self.id = id
     self.name = name
     self.identifiers = identifiers
@@ -42,7 +44,8 @@ struct DeviceProfile: Codable, Equatable, Identifiable {
   }
 
   private enum CodingKeys: String, CodingKey {
-    case id, name, identifiers, capacity, soc, boards, modelNumbers, modelNumbersByIdentifier, capacityVariants
+    case id, name, identifiers, capacity, soc, boards, modelNumbers, modelNumbersByIdentifier,
+      capacityVariants
   }
 
   init(from decoder: Decoder) throws {
@@ -54,8 +57,10 @@ struct DeviceProfile: Codable, Equatable, Identifiable {
     soc = try values.decode(String.self, forKey: .soc)
     boards = try values.decode([String: String].self, forKey: .boards)
     modelNumbers = try values.decodeIfPresent([String].self, forKey: .modelNumbers) ?? []
-    modelNumbersByIdentifier = try values.decodeIfPresent([String: [String]].self, forKey: .modelNumbersByIdentifier) ?? [:]
-    capacityVariants = try values.decodeIfPresent([DeviceCapacityVariant].self, forKey: .capacityVariants) ?? []
+    modelNumbersByIdentifier =
+      try values.decodeIfPresent([String: [String]].self, forKey: .modelNumbersByIdentifier) ?? [:]
+    capacityVariants =
+      try values.decodeIfPresent([DeviceCapacityVariant].self, forKey: .capacityVariants) ?? []
   }
 
   enum Category: String, CaseIterable, Identifiable {
@@ -113,16 +118,31 @@ enum DeviceProfileCatalog {
   }
 
   static func validationError(_ profile: DeviceProfile, others: [DeviceProfile]) -> String? {
-    if profile.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return "profile_name_required" }
-    let permitsUnknownCapacity = profile.capacity == 0
-      && profile.capacityVariants.contains(where: { $0.configuration == .esim && $0.capacity == nil })
-    if !(1...100000).contains(profile.capacity) && !permitsUnknownCapacity { return "profile_capacity_invalid" }
-    if profile.identifiers.contains(where: { $0.range(of: "^(iPhone|iPad|Watch|iPod)[0-9]+,[0-9]+$", options: .regularExpression) == nil })
-      || Set(profile.identifiers).count != profile.identifiers.count { return "profile_identifiers_invalid" }
-    if profile.boards.contains(where: { $0.key.isEmpty || !profile.identifiers.contains($0.value) }) {
+    if profile.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+      return "profile_name_required"
+    }
+    let permitsUnknownCapacity =
+      profile.capacity == 0
+      && profile.capacityVariants.contains(where: {
+        $0.configuration == .esim && $0.capacity == nil
+      })
+    if !(1...100000).contains(profile.capacity) && !permitsUnknownCapacity {
+      return "profile_capacity_invalid"
+    }
+    if profile.identifiers.contains(where: {
+      $0.range(of: "^(iPhone|iPad|Watch|iPod)[0-9]+,[0-9]+$", options: .regularExpression) == nil
+    })
+      || Set(profile.identifiers).count != profile.identifiers.count
+    {
+      return "profile_identifiers_invalid"
+    }
+    if profile.boards.contains(where: { $0.key.isEmpty || !profile.identifiers.contains($0.value) })
+    {
       return "profile_boards_invalid"
     }
-    if Set(profile.modelNumbers).count != profile.modelNumbers.count { return "profile_model_numbers_invalid" }
+    if Set(profile.modelNumbers).count != profile.modelNumbers.count {
+      return "profile_model_numbers_invalid"
+    }
     if profile.modelNumbersByIdentifier.contains(where: { !profile.identifiers.contains($0.key) }) {
       return "profile_model_numbers_invalid"
     }
@@ -130,11 +150,18 @@ enum DeviceProfileCatalog {
       || profile.capacityVariants.contains(where: { variant in
         if let capacity = variant.capacity { return !(1...100000).contains(capacity) }
         return false
-      }) { return "profile_sim_capacities_invalid" }
-    if others.contains(where: { $0.id != profile.id && profile.matches($0) }) { return "profile_duplicate" }
+      })
+    {
+      return "profile_sim_capacities_invalid"
+    }
+    if others.contains(where: { $0.id != profile.id && profile.matches($0) }) {
+      return "profile_duplicate"
+    }
     if others.contains(where: { other in
       other.id != profile.id && !Set(other.boards.keys).isDisjoint(with: profile.boards.keys)
-    }) { return "profile_board_duplicate" }
+    }) {
+      return "profile_board_duplicate"
+    }
     return nil
   }
 }

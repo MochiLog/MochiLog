@@ -6,15 +6,16 @@ struct ContentView: View {
   }
 }
 
-
 /// Shared surfaces keep charts, summaries and settings visually consistent.
 struct MochiCardSurface: ViewModifier {
   @Environment(\.colorScheme) private var colorScheme
 
   func body(content: Content) -> some View {
     content
-      .background(Color(uiColor: .secondarySystemGroupedBackground),
-        in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+      .background(
+        Color(uiColor: .secondarySystemGroupedBackground),
+        in: RoundedRectangle(cornerRadius: 24, style: .continuous)
+      )
       .overlay {
         RoundedRectangle(cornerRadius: 24, style: .continuous)
           .strokeBorder(Color.primary.opacity(colorScheme == .dark ? 0.09 : 0.045), lineWidth: 1)

@@ -23,249 +23,288 @@ struct MacTransferSettingsView: View {
     Form {
       if ProcessInfo.processInfo.isiOSAppOnMac {
       } else {
-      Section {
-        workflowDiagram
-        DisclosureGroup(L10n.text("mt_flow_details", table: "MacTransfer")) {
-          guidePoint("mt_guide_collect_title", "mt_guide_collect_detail",
-            symbol: "macbook.and.iphone")
-          guidePoint("mt_guide_import_title", "mt_guide_import_detail",
-            symbol: "arrow.down.doc")
-          guidePoint("mt_guide_cloud_title", "mt_guide_cloud_detail",
-            symbol: "icloud.and.arrow.down")
-          guidePoint("mt_guide_without_title", "mt_guide_without_detail",
-            symbol: "iphone")
-        }
-      } header: {
-        Text(L10n.text("mt_guide_title", table: "MacTransfer"))
-      } footer: {
-        Text(L10n.text("mt_guide_footer", table: "MacTransfer"))
-      }
-      if isPreparingPairing {
-        Section { ProgressView(L10n.text("mt_secure_pair_connecting", table: "MacTransfer")) }
-      }
-      Section {
-        HStack(alignment: .top, spacing: 12) {
-          Image(systemName: connectionSymbol)
-            .font(.title3.weight(.semibold))
-            .foregroundStyle(connectionColor)
-            .frame(width: 32, height: 32)
-          VStack(alignment: .leading, spacing: 5) {
-            Text(L10n.text(connectionTitleKey, table: "MacTransfer"))
-              .font(.headline)
-              .accessibilityIdentifier("macTransfer.connectionPhase")
-            Text(manager.status)
-              .font(.subheadline)
-              .foregroundStyle(.secondary)
+        Section {
+          workflowDiagram
+          DisclosureGroup(L10n.text("mt_flow_details", table: "MacTransfer")) {
+            guidePoint(
+              "mt_guide_collect_title", "mt_guide_collect_detail",
+              symbol: "macbook.and.iphone")
+            guidePoint(
+              "mt_guide_import_title", "mt_guide_import_detail",
+              symbol: "arrow.down.doc")
+            guidePoint(
+              "mt_guide_cloud_title", "mt_guide_cloud_detail",
+              symbol: "icloud.and.arrow.down")
+            guidePoint(
+              "mt_guide_without_title", "mt_guide_without_detail",
+              symbol: "iphone")
           }
-          Spacer(minLength: 0)
-          if manager.isReceiving { ProgressView().controlSize(.small) }
+        } header: {
+          Text(L10n.text("mt_guide_title", table: "MacTransfer"))
+        } footer: {
+          Text(L10n.text("mt_guide_footer", table: "MacTransfer"))
         }
-        .padding(.vertical, 4)
-        if let lastContact = manager.lastAuthenticatedContactAt {
-          LabeledContent(L10n.text("mt_103", table: "MacTransfer"),
-            value: lastContact.formatted(.dateTime.locale(L10n.locale)
-              .month().day().hour().minute()))
+        if isPreparingPairing {
+          Section { ProgressView(L10n.text("mt_secure_pair_connecting", table: "MacTransfer")) }
+        }
+        Section {
+          HStack(alignment: .top, spacing: 12) {
+            Image(systemName: connectionSymbol)
+              .font(.title3.weight(.semibold))
+              .foregroundStyle(connectionColor)
+              .frame(width: 32, height: 32)
+            VStack(alignment: .leading, spacing: 5) {
+              Text(L10n.text(connectionTitleKey, table: "MacTransfer"))
+                .font(.headline)
+                .accessibilityIdentifier("macTransfer.connectionPhase")
+              Text(manager.status)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            }
+            Spacer(minLength: 0)
+            if manager.isReceiving { ProgressView().controlSize(.small) }
+          }
+          .padding(.vertical, 4)
+          if let lastContact = manager.lastAuthenticatedContactAt {
+            LabeledContent(
+              L10n.text("mt_103", table: "MacTransfer"),
+              value: lastContact.formatted(
+                .dateTime.locale(L10n.locale)
+                  .month().day().hour().minute())
+            )
             .font(.subheadline)
             .accessibilityIdentifier("macTransfer.lastContact")
-        }
-        if manager.legacyTransferConfirmed {
-          Label(L10n.text("mt_legacy_update", table: "MacTransfer"),
-            systemImage: "exclamationmark.shield")
+          }
+          if manager.legacyTransferConfirmed {
+            Label(
+              L10n.text("mt_legacy_update", table: "MacTransfer"),
+              systemImage: "exclamationmark.shield"
+            )
             .foregroundStyle(.orange)
-          Link(destination: manager.pairing?.platform == "windows"
-            ? windowsURL : macReleaseURL) {
-            Label(L10n.text("mt_legacy_update_link", table: "MacTransfer"),
-              systemImage: "arrow.up.right.square")
+            Link(
+              destination: manager.pairing?.platform == "windows"
+                ? windowsURL : macReleaseURL
+            ) {
+              Label(
+                L10n.text("mt_legacy_update_link", table: "MacTransfer"),
+                systemImage: "arrow.up.right.square")
+            }
+          }
+          Button {
+            manager.receiveNow()
+          } label: {
+            Label(
+              L10n.text("mt_105", table: "MacTransfer"),
+              systemImage: "arrow.down.doc"
+            )
+            .frame(maxWidth: .infinity)
+          }
+          .buttonStyle(.borderedProminent)
+          .disabled(manager.pairing == nil || manager.isReceiving)
+          .accessibilityIdentifier("macTransfer.receiveNow")
+        } header: {
+          Text(L10n.text("mt_093", table: "MacTransfer"))
+        } footer: {
+          Text(L10n.text("mt_102", table: "MacTransfer"))
+        }
+        Section(L10n.text("mt_048", table: "MacTransfer")) {
+          Link(destination: macReleaseURL) {
+            Label(
+              L10n.text("mt_049", table: "MacTransfer"),
+              systemImage: "arrow.down.app")
+          }
+          ShareLink(item: macReleaseURL) {
+            Label(
+              L10n.text("mt_050", table: "MacTransfer"),
+              systemImage: "square.and.arrow.up")
+          }
+          Text(L10n.text("mt_051", table: "MacTransfer"))
+            .font(.caption).foregroundStyle(.secondary)
+          Link(destination: windowsURL) {
+            Label(
+              L10n.text("mt_windows_alpha", table: "MacTransfer"),
+              systemImage: "desktopcomputer")
           }
         }
-        Button { manager.receiveNow() } label: {
-          Label(L10n.text("mt_105", table: "MacTransfer"),
-            systemImage: "arrow.down.doc")
-            .frame(maxWidth: .infinity)
+        Section(L10n.text("mt_052", table: "MacTransfer")) {
+          Label(
+            L10n.text("mt_053", table: "MacTransfer"),
+            systemImage: "checkmark.circle")
+          Label(
+            L10n.text("mt_054", table: "MacTransfer"),
+            systemImage: "wifi")
+          Label(
+            L10n.text("mt_055", table: "MacTransfer"),
+            systemImage: "lock.open")
+          Text(L10n.text("mt_089", table: "MacTransfer"))
+            .font(.caption).foregroundStyle(.secondary)
         }
-        .buttonStyle(.borderedProminent)
-        .disabled(manager.pairing == nil || manager.isReceiving)
-        .accessibilityIdentifier("macTransfer.receiveNow")
-      } header: {
-        Text(L10n.text("mt_093", table: "MacTransfer"))
-      } footer: {
-        Text(L10n.text("mt_102", table: "MacTransfer"))
-      }
-      Section(L10n.text("mt_048", table: "MacTransfer")) {
-        Link(destination: macReleaseURL) {
-          Label(L10n.text("mt_049", table: "MacTransfer"),
-            systemImage: "arrow.down.app")
-        }
-        ShareLink(item: macReleaseURL) {
-          Label(L10n.text("mt_050", table: "MacTransfer"),
-            systemImage: "square.and.arrow.up")
-        }
-        Text(L10n.text("mt_051", table: "MacTransfer"))
-          .font(.caption).foregroundStyle(.secondary)
-        Link(destination: windowsURL) {
-          Label(L10n.text("mt_windows_alpha", table: "MacTransfer"),
-            systemImage: "desktopcomputer")
-        }
-      }
-      Section(L10n.text("mt_052", table: "MacTransfer")) {
-        Label(L10n.text("mt_053", table: "MacTransfer"),
-          systemImage: "checkmark.circle")
-        Label(L10n.text("mt_054", table: "MacTransfer"),
-          systemImage: "wifi")
-        Label(L10n.text("mt_055", table: "MacTransfer"),
-          systemImage: "lock.open")
-        Text(L10n.text("mt_089", table: "MacTransfer"))
-          .font(.caption).foregroundStyle(.secondary)
-      }
-      Section {
-        Toggle(L10n.text("mt_090", table: "MacTransfer"),
-          isOn: Binding(
-            get: { manager.allowsCellularTransfer },
-            set: { manager.setAllowsCellularTransfer($0) }
-          ))
-          .accessibilityIdentifier("macTransfer.allowCellularData")
-      } footer: {
-        VStack(alignment: .leading, spacing: 8) {
-          Text(L10n.text("mt_091", table: "MacTransfer"))
-          Text(L10n.text("mt_092", table: "MacTransfer"))
-        }
-      }
-      if manager.pairing != nil {
         Section {
-          TextField(L10n.text("mt_manual_ip_placeholder", table: "MacTransfer"),
-            text: $manualHostAddress)
+          Toggle(
+            L10n.text("mt_090", table: "MacTransfer"),
+            isOn: Binding(
+              get: { manager.allowsCellularTransfer },
+              set: { manager.setAllowsCellularTransfer($0) }
+            )
+          )
+          .accessibilityIdentifier("macTransfer.allowCellularData")
+        } footer: {
+          VStack(alignment: .leading, spacing: 8) {
+            Text(L10n.text("mt_091", table: "MacTransfer"))
+            Text(L10n.text("mt_092", table: "MacTransfer"))
+          }
+        }
+        if manager.pairing != nil {
+          Section {
+            TextField(
+              L10n.text("mt_manual_ip_placeholder", table: "MacTransfer"),
+              text: $manualHostAddress
+            )
             .keyboardType(.numbersAndPunctuation)
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
-          HStack {
-            Button(L10n.text("mt_manual_ip_save", table: "MacTransfer")) {
-              do { try manager.setManualHostAddress(manualHostAddress) }
-              catch { errorMessage = error.localizedDescription }
+            HStack {
+              Button(L10n.text("mt_manual_ip_save", table: "MacTransfer")) {
+                do { try manager.setManualHostAddress(manualHostAddress) } catch {
+                  errorMessage = error.localizedDescription
+                }
+              }
+              Spacer()
+              Button(L10n.text("mt_manual_ip_clear", table: "MacTransfer")) {
+                do {
+                  try manager.setManualHostAddress(nil)
+                  manualHostAddress = ""
+                } catch { errorMessage = error.localizedDescription }
+              }
             }
-            Spacer()
-            Button(L10n.text("mt_manual_ip_clear", table: "MacTransfer")) {
-              do {
-                try manager.setManualHostAddress(nil)
-                manualHostAddress = ""
-              } catch { errorMessage = error.localizedDescription }
+          } header: {
+            Text(L10n.text("mt_manual_ip_title", table: "MacTransfer"))
+          } footer: {
+            Text(L10n.text("mt_manual_ip_footer", table: "MacTransfer"))
+          }
+        }
+        Section(L10n.text("mt_056", table: "MacTransfer")) {
+          Picker(L10n.text("mt_platform", table: "MacTransfer"), selection: $guidePlatform) {
+            Text("Mac").tag(0)
+            Text("Windows").tag(1)
+          }
+          .pickerStyle(.segmented)
+          if guidePlatform == 1 {
+            Text(L10n.text("mt_win_requirements", table: "MacTransfer"))
+              .font(.caption)
+              .foregroundStyle(.secondary)
+          }
+          pairingDiagram
+          DisclosureGroup(L10n.text("mt_pair_details", table: "MacTransfer")) {
+            if guidePlatform == 0 {
+              step(1, L10n.text("mt_057", table: "MacTransfer"))
+              step(2, L10n.text("mt_058", table: "MacTransfer"))
+              step(3, L10n.text("mt_059", table: "MacTransfer"))
+              step(4, L10n.text("mt_060", table: "MacTransfer"))
+            } else {
+              step(1, L10n.text("mt_win_step_1", table: "MacTransfer"))
+              step(2, L10n.text("mt_win_step_2", table: "MacTransfer"))
+              step(3, L10n.text("mt_win_step_3", table: "MacTransfer"))
+              step(4, L10n.text("mt_win_step_4", table: "MacTransfer"))
             }
+          }
+        }
+        Section {
+          Toggle(
+            L10n.text("mt_061", table: "MacTransfer"),
+            isOn: $tagManualImportsAsThisDevice)
+        } footer: {
+          Text(L10n.text("mt_062", table: "MacTransfer"))
+        }
+        Section {
+          if let pairing = manager.pairing {
+            LabeledContent(
+              L10n.text("mt_063", table: "MacTransfer"),
+              value: pairing.physicalDeviceID.uuidString
+            ).font(.caption)
+          }
+          ForEach(manager.pairings, id: \.hostID) { paired in
+            HStack {
+              Button {
+                manager.selectPairing(paired.hostID)
+              } label: {
+                HStack(spacing: 10) {
+                  Image(systemName: paired.platform == "windows" ? "desktopcomputer" : "macmini")
+                    .frame(width: 26)
+                  VStack(alignment: .leading, spacing: 2) {
+                    Text(paired.platform == "windows" ? "Windows" : "Mac")
+                      .font(.subheadline.weight(.semibold))
+                    Text(String(paired.hostID.uuidString.suffix(8)))
+                      .font(.caption.monospaced()).foregroundStyle(.secondary)
+                  }
+                  Spacer()
+                  Image(systemName: "checkmark.circle.fill")
+                    .foregroundStyle(.green)
+                }
+              }.buttonStyle(.plain)
+              Button(role: .destructive) {
+                unpairHostID = paired.hostID
+              } label: {
+                Image(systemName: "minus.circle")
+              }
+              .buttonStyle(.borderless)
+              .accessibilityLabel(L10n.text("mt_unpair_button", table: "MacTransfer"))
+            }
+          }
+          if !manager.pendingRevocations.isEmpty {
+            Text(L10n.text("mt_unpair_pending", table: "MacTransfer"))
+              .font(.caption).foregroundStyle(.secondary)
+          }
+          Button {
+            showingScanner = true
+          } label: {
+            Label(
+              L10n.text("mt_065", table: "MacTransfer"),
+              systemImage: "qrcode.viewfinder")
           }
         } header: {
-          Text(L10n.text("mt_manual_ip_title", table: "MacTransfer"))
+          Text(L10n.text("mt_066", table: "MacTransfer"))
         } footer: {
-          Text(L10n.text("mt_manual_ip_footer", table: "MacTransfer"))
+          Text(L10n.text("mt_067", table: "MacTransfer"))
         }
-      }
-      Section(L10n.text("mt_056", table: "MacTransfer")) {
-        Picker(L10n.text("mt_platform", table: "MacTransfer"), selection: $guidePlatform) {
-          Text("Mac").tag(0)
-          Text("Windows").tag(1)
-        }
-        .pickerStyle(.segmented)
-        if guidePlatform == 1 {
-          Text(L10n.text("mt_win_requirements", table: "MacTransfer"))
-            .font(.caption)
-            .foregroundStyle(.secondary)
-        }
-        pairingDiagram
-        DisclosureGroup(L10n.text("mt_pair_details", table: "MacTransfer")) {
-          if guidePlatform == 0 {
-            step(1, L10n.text("mt_057", table: "MacTransfer"))
-            step(2, L10n.text("mt_058", table: "MacTransfer"))
-            step(3, L10n.text("mt_059", table: "MacTransfer"))
-            step(4, L10n.text("mt_060", table: "MacTransfer"))
-          } else {
-            step(1, L10n.text("mt_win_step_1", table: "MacTransfer"))
-            step(2, L10n.text("mt_win_step_2", table: "MacTransfer"))
-            step(3, L10n.text("mt_win_step_3", table: "MacTransfer"))
-            step(4, L10n.text("mt_win_step_4", table: "MacTransfer"))
+        Section(L10n.text("mt_help_title", table: "MacTransfer")) {
+          helpDiagram
+          DisclosureGroup(L10n.text("mt_help_remote_title", table: "MacTransfer")) {
+            Text(L10n.text("mt_help_remote_detail", table: "MacTransfer"))
+              .font(.subheadline).foregroundStyle(.secondary)
+          }
+          NavigationLink {
+            MacTransferSupportView()
+          } label: {
+            Label(
+              L10n.text("mt_help_support", table: "MacTransfer"),
+              systemImage: "questionmark.circle")
           }
         }
-      }
-      Section {
-        Toggle(L10n.text("mt_061", table: "MacTransfer"),
-          isOn: $tagManualImportsAsThisDevice)
-      } footer: {
-        Text(L10n.text("mt_062", table: "MacTransfer"))
-      }
-      Section {
-        if let pairing = manager.pairing {
-          LabeledContent(L10n.text("mt_063", table: "MacTransfer"),
-            value: pairing.physicalDeviceID.uuidString).font(.caption)
-        }
-        ForEach(manager.pairings, id: \.hostID) { paired in
-          HStack {
-            Button {
-              manager.selectPairing(paired.hostID)
-            } label: {
-              HStack(spacing: 10) {
-                Image(systemName: paired.platform == "windows" ? "desktopcomputer" : "macmini")
-                  .frame(width: 26)
-                VStack(alignment: .leading, spacing: 2) {
-                  Text(paired.platform == "windows" ? "Windows" : "Mac")
-                    .font(.subheadline.weight(.semibold))
-                  Text(String(paired.hostID.uuidString.suffix(8)))
-                    .font(.caption.monospaced()).foregroundStyle(.secondary)
-                }
-                Spacer()
-                Image(systemName: "checkmark.circle.fill")
-                  .foregroundStyle(.green)
-              }
-            }.buttonStyle(.plain)
-            Button(role: .destructive) { unpairHostID = paired.hostID } label: {
-              Image(systemName: "minus.circle")
-            }
-            .buttonStyle(.borderless)
-            .accessibilityLabel(L10n.text("mt_unpair_button", table: "MacTransfer"))
+        Section(L10n.text("mt_022", table: "MacTransfer")) {
+          NavigationLink {
+            MacTransferSupportView()
+          } label: {
+            Label(
+              L10n.text("mt_069", table: "MacTransfer"),
+              systemImage: "envelope.badge")
           }
-        }
-        if !manager.pendingRevocations.isEmpty {
-          Text(L10n.text("mt_unpair_pending", table: "MacTransfer"))
+          Text(L10n.text("mt_070", table: "MacTransfer"))
             .font(.caption).foregroundStyle(.secondary)
         }
-        Button {
-          showingScanner = true
-        } label: {
-          Label(L10n.text("mt_065", table: "MacTransfer"),
-            systemImage: "qrcode.viewfinder")
-        }
-      } header: {
-        Text(L10n.text("mt_066", table: "MacTransfer"))
-      } footer: {
-        Text(L10n.text("mt_067", table: "MacTransfer"))
-      }
-      Section(L10n.text("mt_help_title", table: "MacTransfer")) {
-        helpDiagram
-        DisclosureGroup(L10n.text("mt_help_remote_title", table: "MacTransfer")) {
-          Text(L10n.text("mt_help_remote_detail", table: "MacTransfer"))
-            .font(.subheadline).foregroundStyle(.secondary)
-        }
-        NavigationLink {
-          MacTransferSupportView()
-        } label: {
-          Label(L10n.text("mt_help_support", table: "MacTransfer"),
-            systemImage: "questionmark.circle")
-        }
-      }
-      Section(L10n.text("mt_022", table: "MacTransfer")) {
-        NavigationLink {
-          MacTransferSupportView()
-        } label: {
-          Label(L10n.text("mt_069", table: "MacTransfer"),
-            systemImage: "envelope.badge")
-        }
-        Text(L10n.text("mt_070", table: "MacTransfer"))
-          .font(.caption).foregroundStyle(.secondary)
-      }
       }
     }
-    .confirmationDialog(L10n.text("mt_unpair_title", table: "MacTransfer"),
-      isPresented: Binding(get: { unpairHostID != nil },
-        set: { if !$0 { unpairHostID = nil } }), titleVisibility: .visible) {
+    .confirmationDialog(
+      L10n.text("mt_unpair_title", table: "MacTransfer"),
+      isPresented: Binding(
+        get: { unpairHostID != nil },
+        set: { if !$0 { unpairHostID = nil } }), titleVisibility: .visible
+    ) {
       Button(L10n.text("mt_unpair_button", table: "MacTransfer"), role: .destructive) {
         if let unpairHostID {
-          do { try manager.unpair(unpairHostID) }
-          catch { errorMessage = error.localizedDescription }
+          do { try manager.unpair(unpairHostID) } catch {
+            errorMessage = error.localizedDescription
+          }
         }
         unpairHostID = nil
       }
@@ -292,12 +331,19 @@ struct MacTransferSettingsView: View {
         }
       }
     }
-    .alert(L10n.text("mt_073", table: "MacTransfer"),
-      isPresented: Binding(get: { errorMessage != nil }, set: { if !$0 { errorMessage = nil } })) {
+    .alert(
+      L10n.text("mt_073", table: "MacTransfer"),
+      isPresented: Binding(get: { errorMessage != nil }, set: { if !$0 { errorMessage = nil } })
+    ) {
       Button("OK", role: .cancel) { errorMessage = nil }
-    } message: { Text(errorMessage ?? "") }
-    .alert(L10n.text("mt_074", table: "MacTransfer"),
-      isPresented: Binding(get: { pendingPairingQR != nil }, set: { if !$0 { pendingPairingQR = nil } })) {
+    } message: {
+      Text(errorMessage ?? "")
+    }
+    .alert(
+      L10n.text("mt_074", table: "MacTransfer"),
+      isPresented: Binding(
+        get: { pendingPairingQR != nil }, set: { if !$0 { pendingPairingQR = nil } })
+    ) {
       Button(L10n.text("mt_075", table: "MacTransfer")) {
         if let qr = pendingPairingQR {
           handlePairingQR(qr, relinkLocalRecords: true)
@@ -308,19 +354,26 @@ struct MacTransferSettingsView: View {
     } message: {
       Text(L10n.text("mt_077", table: "MacTransfer"))
     }
-    .alert(L10n.text("mt_secure_pair_title", table: "MacTransfer"),
-      isPresented: Binding(get: { secureCandidate != nil },
-        set: { if !$0 { secureCandidate = nil } })) {
-      TextField(L10n.text("mt_secure_pair_placeholder", table: "MacTransfer"),
-        text: $enteredPairingCode)
-        .keyboardType(.numberPad)
+    .alert(
+      L10n.text("mt_secure_pair_title", table: "MacTransfer"),
+      isPresented: Binding(
+        get: { secureCandidate != nil },
+        set: { if !$0 { secureCandidate = nil } })
+    ) {
+      TextField(
+        L10n.text("mt_secure_pair_placeholder", table: "MacTransfer"),
+        text: $enteredPairingCode
+      )
+      .keyboardType(.numberPad)
       Button(L10n.text("mt_secure_pair_confirm", table: "MacTransfer")) {
         guard let candidate = secureCandidate else { return }
         secureCandidate = nil
         Task {
-          do { try await manager.confirmSecurePairing(candidate,
-            enteredCode: enteredPairingCode, dataStore: dataStore) }
-          catch { errorMessage = error.localizedDescription }
+          do {
+            try await manager.confirmSecurePairing(
+              candidate,
+              enteredCode: enteredPairingCode, dataStore: dataStore)
+          } catch { errorMessage = error.localizedDescription }
           enteredPairingCode = ""
         }
       }
@@ -341,9 +394,10 @@ struct MacTransferSettingsView: View {
   }
 
   private func handlePairingQR(_ value: String, relinkLocalRecords: Bool = false) {
-    let isSecure = URLComponents(string: value)?.queryItems?.contains {
-      $0.name == "v" && ["2", "3"].contains($0.value ?? "")
-    } == true
+    let isSecure =
+      URLComponents(string: value)?.queryItems?.contains {
+        $0.name == "v" && ["2", "3"].contains($0.value ?? "")
+      } == true
     guard isSecure else {
       errorMessage = L10n.text("mt_secure_pair_update_mac", table: "MacTransfer")
       return
@@ -352,11 +406,13 @@ struct MacTransferSettingsView: View {
     Task {
       defer { isPreparingPairing = false }
       do {
-        secureCandidate = try await manager.prepareSecurePairing(from: value,
+        secureCandidate = try await manager.prepareSecurePairing(
+          from: value,
           dataStore: dataStore, relinkLocalRecords: relinkLocalRecords)
         enteredPairingCode = ""
-      } catch TransferError.identityConflict { pendingPairingQR = value }
-      catch { errorMessage = error.localizedDescription }
+      } catch TransferError.identityConflict { pendingPairingQR = value } catch {
+        errorMessage = error.localizedDescription
+      }
     }
   }
 
@@ -378,8 +434,8 @@ struct MacTransferSettingsView: View {
       .padding(.vertical, 10)
     } else {
       verticalWorkflowDiagram
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.vertical, 8)
     }
   }
 
@@ -393,8 +449,10 @@ struct MacTransferSettingsView: View {
     }
   }
 
-  private func horizontalFlowNode(_ symbol: String, _ titleKey: String,
-    tint: Color) -> some View {
+  private func horizontalFlowNode(
+    _ symbol: String, _ titleKey: String,
+    tint: Color
+  ) -> some View {
     VStack(spacing: 8) {
       Image(systemName: symbol)
         .font(.title2.weight(.medium)).foregroundStyle(tint)
@@ -408,8 +466,10 @@ struct MacTransferSettingsView: View {
     .accessibilityElement(children: .combine)
   }
 
-  private func verticalFlowNode(_ symbol: String, _ titleKey: String,
-    tint: Color) -> some View {
+  private func verticalFlowNode(
+    _ symbol: String, _ titleKey: String,
+    tint: Color
+  ) -> some View {
     HStack(spacing: 14) {
       Image(systemName: symbol)
         .font(.title3.weight(.medium)).foregroundStyle(tint)
@@ -451,7 +511,7 @@ struct MacTransferSettingsView: View {
       .frame(maxWidth: .infinity).padding(.vertical, 10)
     } else {
       verticalPairingDiagram
-      .frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, 8)
+        .frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, 8)
     }
   }
 
@@ -475,8 +535,10 @@ struct MacTransferSettingsView: View {
     guidePlatform == 1 ? "mt_win_pair_os_short" : "mt_pair_os_short"
   }
 
-  @ViewBuilder private func pairingStage(_ number: Int, _ symbol: String,
-    _ titleKey: String, horizontal: Bool) -> some View {
+  @ViewBuilder private func pairingStage(
+    _ number: Int, _ symbol: String,
+    _ titleKey: String, horizontal: Bool
+  ) -> some View {
     if horizontal {
       VStack(spacing: 8) {
         numberedSymbol(number, symbol)
@@ -513,11 +575,14 @@ struct MacTransferSettingsView: View {
     if isPad {
       ViewThatFits(in: .horizontal) {
         HStack(alignment: .top, spacing: 10) {
-          helpStage(1, "doc.text.magnifyingglass", "mt_help_missing_title",
+          helpStage(
+            1, "doc.text.magnifyingglass", "mt_help_missing_title",
             "mt_help_missing_detail", horizontal: true)
-          helpStage(2, "macbook", "mt_help_collect_title", "mt_help_collect_detail",
+          helpStage(
+            2, "macbook", "mt_help_collect_title", "mt_help_collect_detail",
             horizontal: true)
-          helpStage(3, "iphone.gen3", "mt_help_import_title", "mt_help_import_detail",
+          helpStage(
+            3, "iphone.gen3", "mt_help_import_title", "mt_help_import_detail",
             horizontal: true)
         }
         verticalHelpDiagram
@@ -525,21 +590,24 @@ struct MacTransferSettingsView: View {
       .padding(.vertical, 8)
     } else {
       verticalHelpDiagram
-      .padding(.vertical, 8)
+        .padding(.vertical, 8)
     }
   }
 
   private var verticalHelpDiagram: some View {
     VStack(alignment: .leading, spacing: 6) {
-      helpStage(1, "doc.text.magnifyingglass", "mt_help_missing_title",
+      helpStage(
+        1, "doc.text.magnifyingglass", "mt_help_missing_title",
         "mt_help_missing_detail")
       helpStage(2, "macbook", "mt_help_collect_title", "mt_help_collect_detail")
       helpStage(3, "iphone.gen3", "mt_help_import_title", "mt_help_import_detail")
     }
   }
 
-  private func helpStage(_ number: Int, _ symbol: String,
-    _ titleKey: String, _ detailKey: String, horizontal: Bool = false) -> some View {
+  private func helpStage(
+    _ number: Int, _ symbol: String,
+    _ titleKey: String, _ detailKey: String, horizontal: Bool = false
+  ) -> some View {
     DisclosureGroup {
       Text(L10n.text(detailKey, table: "MacTransfer"))
         .font(.caption).foregroundStyle(.secondary)
@@ -557,10 +625,13 @@ struct MacTransferSettingsView: View {
           .fixedSize(horizontal: false, vertical: true)
       }
     }
-    .frame(minWidth: horizontal ? 170 : nil, maxWidth: .infinity,
-      alignment: .topLeading)
+    .frame(
+      minWidth: horizontal ? 170 : nil, maxWidth: .infinity,
+      alignment: .topLeading
+    )
     .padding(12)
-    .background(Color.accentColor.opacity(0.06),
+    .background(
+      Color.accentColor.opacity(0.06),
       in: RoundedRectangle(cornerRadius: 14))
   }
 
@@ -572,8 +643,10 @@ struct MacTransferSettingsView: View {
     }.padding(.vertical, 4)
   }
 
-  private func guidePoint(_ titleKey: String, _ detailKey: String,
-    symbol: String) -> some View {
+  private func guidePoint(
+    _ titleKey: String, _ detailKey: String,
+    symbol: String
+  ) -> some View {
     HStack(alignment: .top, spacing: 12) {
       Image(systemName: symbol)
         .font(.body.weight(.semibold))
@@ -647,9 +720,12 @@ private final class ScannerController: UIViewController, AVCaptureMetadataOutput
   override func viewDidLoad() {
     super.viewDidLoad()
     view.backgroundColor = .black
-    guard let camera = AVCaptureDevice.default(.builtInWideAngleCamera,
-      for: .video, position: .back),
-      let input = try? AVCaptureDeviceInput(device: camera), session.canAddInput(input) else { return }
+    guard
+      let camera = AVCaptureDevice.default(
+        .builtInWideAngleCamera,
+        for: .video, position: .back),
+      let input = try? AVCaptureDeviceInput(device: camera), session.canAddInput(input)
+    else { return }
     session.addInput(input)
     let output = AVCaptureMetadataOutput()
     guard session.canAddOutput(output) else { return }
@@ -662,8 +738,10 @@ private final class ScannerController: UIViewController, AVCaptureMetadataOutput
     view.layer.addSublayer(preview)
     let coordinator = AVCaptureDevice.RotationCoordinator(device: camera, previewLayer: preview)
     rotationCoordinator = coordinator
-    rotationObservation = coordinator.observe(\.videoRotationAngleForHorizonLevelPreview,
-      options: [.initial, .new]) { [weak self] coordinator, _ in
+    rotationObservation = coordinator.observe(
+      \.videoRotationAngleForHorizonLevelPreview,
+      options: [.initial, .new]
+    ) { [weak self] coordinator, _ in
       guard let connection = self?.previewLayer?.connection else { return }
       let angle = coordinator.videoRotationAngleForHorizonLevelPreview
       if connection.isVideoRotationAngleSupported(angle) {
@@ -683,10 +761,14 @@ private final class ScannerController: UIViewController, AVCaptureMetadataOutput
     sessionQueue.async { self.session.stopRunning() }
   }
 
-  func metadataOutput(_ output: AVCaptureMetadataOutput,
-    didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
+  func metadataOutput(
+    _ output: AVCaptureMetadataOutput,
+    didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection
+  ) {
     guard !delivered,
-      let code = metadataObjects.compactMap({ ($0 as? AVMetadataMachineReadableCodeObject)?.stringValue }).first
+      let code = metadataObjects.compactMap({
+        ($0 as? AVMetadataMachineReadableCodeObject)?.stringValue
+      }).first
     else { return }
     delivered = true
     onCode?(code)

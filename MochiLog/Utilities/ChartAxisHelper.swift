@@ -55,8 +55,10 @@ struct ChartAxisHelper {
     var result: [BatteryRecord] = []
     for deviceRecords in Dictionary(grouping: sorted, by: \.deviceName).values {
       let buckets = Dictionary(grouping: deviceRecords) { record in
-        (calendar.dateComponents([.day], from: startDay,
-          to: calendar.startOfDay(for: record.logDate)).day ?? 0) / intervalDays
+        (calendar.dateComponents(
+          [.day], from: startDay,
+          to: calendar.startOfDay(for: record.logDate)
+        ).day ?? 0) / intervalDays
       }
       for bucket in buckets.values {
         // Keep endpoints and extrema: choosing only the first record hid drops and recoveries.

@@ -8,7 +8,8 @@ nonisolated enum LocalLogCheckpoint {
     let parent = root.resolvingSymlinksInPath().standardizedFileURL.pathComponents
     let components = file.resolvingSymlinksInPath().standardizedFileURL.pathComponents
     guard components.count > parent.count,
-      Array(components.prefix(parent.count)) == parent else { return nil }
+      Array(components.prefix(parent.count)) == parent
+    else { return nil }
     let base = components.dropFirst(parent.count).joined(separator: "::")
     return CloudSharedLogToken.validBase(base) ? base : nil
   }

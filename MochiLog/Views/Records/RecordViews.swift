@@ -4,8 +4,10 @@ import Foundation
 import SwiftUI
 
 private func simCapacityProfile(for record: BatteryRecord) -> String? {
-  guard let variant = DeviceProfileStore.shared.capacityVariant(
-    for: record.deviceName, productSku: record.productSku) else { return nil }
+  guard
+    let variant = DeviceProfileStore.shared.capacityVariant(
+      for: record.deviceName, productSku: record.productSku)
+  else { return nil }
   switch variant.configuration {
   case .esim:
     return L10n.string("sim_profile_esim", table: "Records")
@@ -38,25 +40,25 @@ struct InfoLabeledContent<V: View>: View {
       HStack(spacing: 4) {
         Text(label)
         if showInfoButtons {
-        Button {
-          isShowingInfo = true
-        } label: {
-          // 当たり判定を広げる（行の高さを太らせない範囲で）
-          Image(systemName: "info.circle")
-            .font(.caption)
-            .foregroundStyle(.secondary)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.borderless)
-        .background {
-          // UIKitポップオーバーのアンカービューを背面に配置してタップを妨げないようにする
-          InfoPopoverAnchor(isPresented: $isShowingInfo, title: label, hint: hint)
-            .allowsHitTesting(false)
-        }
-        .accessibilityLabel(label)
-        .accessibilityIdentifier("record.info.\(label)")
+          Button {
+            isShowingInfo = true
+          } label: {
+            // 当たり判定を広げる（行の高さを太らせない範囲で）
+            Image(systemName: "info.circle")
+              .font(.caption)
+              .foregroundStyle(.secondary)
+              .padding(.horizontal, 8)
+              .padding(.vertical, 4)
+              .contentShape(Rectangle())
+          }
+          .buttonStyle(.borderless)
+          .background {
+            // UIKitポップオーバーのアンカービューを背面に配置してタップを妨げないようにする
+            InfoPopoverAnchor(isPresented: $isShowingInfo, title: label, hint: hint)
+              .allowsHitTesting(false)
+          }
+          .accessibilityLabel(label)
+          .accessibilityIdentifier("record.info.\(label)")
         }
       }
     }
@@ -250,20 +252,22 @@ struct RecordRowView: View {
   }
 
   private var phoneHealthLabel: some View {
-    let health = appSettings.analysisDataSource == .nominal
+    let health =
+      appSettings.analysisDataSource == .nominal
       ? record.nominalHealthPercent : record.healthPercent
     return VStack(alignment: .trailing, spacing: 5) {
       Text(health / 100, format: .percent.precision(.fractionLength(1)))
-      .font(.system(.title2, weight: .semibold))
-      .monospacedDigit()
-      .foregroundStyle(health < 80 ? Color.red : health < 90 ? Color.orange : appSettings.accentColor.color)
+        .font(.system(.title2, weight: .semibold))
+        .monospacedDigit()
+        .foregroundStyle(
+          health < 80 ? Color.red : health < 90 ? Color.orange : appSettings.accentColor.color)
       Text(record.cachedDiagnostic)
         .font(.caption)
         .foregroundStyle(.secondary)
     }
-      .fixedSize()
-      .accessibilityLabel(L10n.string("battery_health", table: "Records"))
-      .accessibilityValue(Text(health / 100, format: .percent.precision(.fractionLength(1))))
+    .fixedSize()
+    .accessibilityLabel(L10n.string("battery_health", table: "Records"))
+    .accessibilityValue(Text(health / 100, format: .percent.precision(.fractionLength(1))))
   }
 
   private var existingRow: some View {
@@ -286,15 +290,18 @@ struct RecordRowView: View {
       Text(record.logDate, style: .date)
         .font(.subheadline.weight(.semibold))
         .foregroundStyle(.primary)
-      Label(String(format: L10n.string("cycle_count_format", table: "Analytics"), record.cycleCount),
-        systemImage: "arrow.triangle.2.circlepath")
-        .font(.caption)
-        .foregroundStyle(.secondary)
+      Label(
+        String(format: L10n.string("cycle_count_format", table: "Analytics"), record.cycleCount),
+        systemImage: "arrow.triangle.2.circlepath"
+      )
+      .font(.caption)
+      .foregroundStyle(.secondary)
     }
   }
 
   private var healthLabel: some View {
-    let health = appSettings.analysisDataSource == .nominal
+    let health =
+      appSettings.analysisDataSource == .nominal
       ? record.nominalHealthPercent : record.healthPercent
     return VStack(alignment: .leading, spacing: 5) {
       Text(health / 100, format: .percent.precision(.fractionLength(1)))
@@ -408,537 +415,543 @@ struct RecordDetailView: View {
   var body: some View {
 
     GeometryReader { geometry in
-    Group {
-      // iPad / Regular width: bento-styleカードグリッド with polished header and summary panel
-      if horizontalSizeClass == .regular && geometry.size.width >= 620 && !dynamicTypeSize.isAccessibilitySize {
-        ScrollView {
-          LazyVStack(spacing: 20) {
-            // Header with large circular health ring and summary info
-            HStack(alignment: .center, spacing: 20) {
-              // 健康リング（動的コンテンツなのでCachedView削除）
-              ZStack {
-                Circle()
-                  .stroke(Color(uiColor: .systemGray5), lineWidth: 10)
-                  .frame(width: 120, height: 120)
-                Circle()
-                  .trim(
-                    from: 0,
-                    to: CGFloat(
-                      min(
-                        max(
-                          appSettings.analysisDataSource == .nominal
-                            ? record.nominalHealthPercent : record.healthPercent, 0), 100))
-                      / 100.0
-                  )
-                  .stroke(
-                    AppSettings.shared.accentColor.color,
-                    style: StrokeStyle(lineWidth: 8, lineCap: .round)
-                  )
-                  .rotationEffect(.degrees(-90))
-                  .frame(width: 120, height: 120)
-                VStack {
-                  let health =
-                    appSettings.analysisDataSource == .nominal
-                    ? record.nominalHealthPercent : record.healthPercent
-                  Text("\(String(format: "%.0f", health))%")
-                    .font(.title)
-                    .bold()
-                    .foregroundStyle(healthColorLocal(health))
+      Group {
+        // iPad / Regular width: bento-styleカードグリッド with polished header and summary panel
+        if horizontalSizeClass == .regular && geometry.size.width >= 620
+          && !dynamicTypeSize.isAccessibilitySize
+        {
+          ScrollView {
+            LazyVStack(spacing: 20) {
+              // Header with large circular health ring and summary info
+              HStack(alignment: .center, spacing: 20) {
+                // 健康リング（動的コンテンツなのでCachedView削除）
+                ZStack {
+                  Circle()
+                    .stroke(Color(uiColor: .systemGray5), lineWidth: 10)
+                    .frame(width: 120, height: 120)
+                  Circle()
+                    .trim(
+                      from: 0,
+                      to: CGFloat(
+                        min(
+                          max(
+                            appSettings.analysisDataSource == .nominal
+                              ? record.nominalHealthPercent : record.healthPercent, 0), 100))
+                        / 100.0
+                    )
+                    .stroke(
+                      AppSettings.shared.accentColor.color,
+                      style: StrokeStyle(lineWidth: 8, lineCap: .round)
+                    )
+                    .rotationEffect(.degrees(-90))
+                    .frame(width: 120, height: 120)
+                  VStack {
+                    let health =
+                      appSettings.analysisDataSource == .nominal
+                      ? record.nominalHealthPercent : record.healthPercent
+                    Text("\(String(format: "%.0f", health))%")
+                      .font(.title)
+                      .bold()
+                      .foregroundStyle(healthColorLocal(health))
+                  }
                 }
-              }
-              .padding(10)
+                .padding(10)
 
-              VStack(alignment: .leading, spacing: 6) {
-                Text(record.localizedDeviceName).font(.title2).bold()
-                if let code = record.deviceModelCode {
-                  Text(code).font(.subheadline).foregroundStyle(.secondary)
-                }
-                Text(record.logDate, style: .date).font(.subheadline).foregroundStyle(.secondary)
+                VStack(alignment: .leading, spacing: 6) {
+                  Text(record.localizedDeviceName).font(.title2).bold()
+                  if let code = record.deviceModelCode {
+                    Text(code).font(.subheadline).foregroundStyle(.secondary)
+                  }
+                  Text(record.logDate, style: .date).font(.subheadline).foregroundStyle(.secondary)
 
-                HStack(spacing: 12) {
-                  Label(
-                    String(
-                      format: L10n.string("cycle_count_format", table: "Analytics"),
-                      record.cycleCount),
-                    systemImage: "gauge"
-                  )
-                  .font(.caption)
-                  .foregroundStyle(.secondary)
-                  Label("\(record.nominalCapacity) mAh", systemImage: "battery.25")
+                  HStack(spacing: 12) {
+                    Label(
+                      String(
+                        format: L10n.string("cycle_count_format", table: "Analytics"),
+                        record.cycleCount),
+                      systemImage: "gauge"
+                    )
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    Label("\(record.nominalCapacity) mAh", systemImage: "battery.25")
+                      .font(.caption)
+                      .foregroundStyle(.secondary)
+                  }
                 }
+
+                Spacer()
+
+              }
+              .padding(24)
+              .mochiCard()
+
+              // Device info spans full width on iPad
+              DetailCard(
+                title: L10n.string("device_info", table: "Records"), systemImage: "iphone"
+              ) {
+                VStack(alignment: .leading, spacing: 8) {
+                  LabeledContent(
+                    L10n.string("device_name", table: "Common"), value: record.localizedDeviceName)
+
+                  if !isMagSafe {
+                    if let soc = record.soc {
+                      InfoLabeledContent(
+                        L10n.string("soc", table: "Records"),
+                        hint: L10n.string("hint_soc", table: "Records"),
+                        value: soc)
+                    }
+                  }
+
+                  if let modelCode = record.deviceModelCode {
+                    InfoLabeledContent(
+                      L10n.string("model_code", table: "Records"),
+                      hint: L10n.string("hint_model_code", table: "Records"),
+                      value: modelCode)
+                  }
+                  if let productSku = record.productSku, !productSku.isEmpty {
+                    InfoLabeledContent(
+                      L10n.string("product_sku", table: "Records"),
+                      hint: L10n.string("hint_product_sku", table: "Records"),
+                      value: productSku)
+                  }
+
+                  if !isMagSafe {
+                    if record.storage != nil, let formatted = record.formattedStorage {
+                      InfoLabeledContent(
+                        L10n.string("storage", table: "Records"),
+                        hint: L10n.string("hint_storage", table: "Records"),
+                        value: formatted)
+                    }
+                    if record.ram != nil, let formattedRam = record.formattedRAM {
+                      InfoLabeledContent(
+                        L10n.string("ram", table: "Records"),
+                        hint: L10n.string("hint_ram", table: "Records"),
+                        value: formattedRam)
+                    }
+                  }
+
+                  LabeledContent(
+                    L10n.string("log_date", table: "Records"), value: record.logDate,
+                    format: .dateTime.year().month().day())
+                  if let firstUse = record.firstUseDate {
+                    InfoLabeledContent(
+                      L10n.string("first_use_date", table: "Records"),
+                      hint: L10n.string("hint_first_use_date", table: "Records")
+                    ) {
+                      Text(firstUse, format: .dateTime.year().month().day())
+                    }
+                  }
+                }
+                .padding(.vertical, 4)
               }
 
-              Spacer()
-
-            }
-            .padding(24)
-            .mochiCard()
-
-            // Device info spans full width on iPad
-            DetailCard(
-              title: L10n.string("device_info", table: "Records"), systemImage: "iphone"
-            ) {
-              VStack(alignment: .leading, spacing: 8) {
-                LabeledContent(
-                  L10n.string("device_name", table: "Common"), value: record.localizedDeviceName)
-
-                if !isMagSafe {
-                  if let soc = record.soc {
+              // Battery capacity spans full width to avoid cut-off
+              DetailCard(
+                title: L10n.string("battery_capacity", table: "Analytics"),
+                systemImage: "battery.100"
+              ) {
+                VStack(alignment: .leading, spacing: 8) {
+                  InfoLabeledContent(
+                    L10n.string("cycle_count", table: "Analytics"),
+                    hint: L10n.string("hint_cycle_count", table: "Records"),
+                    value: String(
+                      format: L10n.string("cycle_count_format", table: "Analytics"),
+                      record.cycleCount))
+                  if record.designCapacity > 0 {
                     InfoLabeledContent(
-                      L10n.string("soc", table: "Records"),
-                      hint: L10n.string("hint_soc", table: "Records"),
-                      value: soc)
-                  }
-                }
-
-                if let modelCode = record.deviceModelCode {
-                  InfoLabeledContent(
-                    L10n.string("model_code", table: "Records"),
-                    hint: L10n.string("hint_model_code", table: "Records"),
-                    value: modelCode)
-                }
-                if let productSku = record.productSku, !productSku.isEmpty {
-                  InfoLabeledContent(
-                    L10n.string("product_sku", table: "Records"),
-                    hint: L10n.string("hint_product_sku", table: "Records"),
-                    value: productSku)
-                }
-
-                if !isMagSafe {
-                  if record.storage != nil, let formatted = record.formattedStorage {
+                      L10n.string("design_capacity", table: "Analytics"),
+                      hint: L10n.string("hint_design_capacity", table: "Records"),
+                      value: "\(record.designCapacity) mAh (100%)")
+                  } else {
                     InfoLabeledContent(
-                      L10n.string("storage", table: "Records"),
-                      hint: L10n.string("hint_storage", table: "Records"),
-                      value: formatted)
+                      L10n.string("design_capacity", table: "Analytics"),
+                      hint: L10n.string("hint_design_capacity", table: "Records"),
+                      value: L10n.string("unknown", table: "Common"))
                   }
-                  if record.ram != nil, let formattedRam = record.formattedRAM {
-                    InfoLabeledContent(
-                      L10n.string("ram", table: "Records"),
-                      hint: L10n.string("hint_ram", table: "Records"),
-                      value: formattedRam)
+                  if let simProfile = simCapacityProfile(for: record) {
+                    LabeledContent(L10n.string("sim_profile", table: "Records"), value: simProfile)
                   }
-                }
-
-                LabeledContent(
-                  L10n.string("log_date", table: "Records"), value: record.logDate,
-                  format: .dateTime.year().month().day())
-                if let firstUse = record.firstUseDate {
                   InfoLabeledContent(
-                    L10n.string("first_use_date", table: "Records"),
-                    hint: L10n.string("hint_first_use_date", table: "Records")
-                  ) {
-                    Text(firstUse, format: .dateTime.year().month().day())
-                  }
-                }
-              }
-              .padding(.vertical, 4)
-            }
-
-            // Battery capacity spans full width to avoid cut-off
-            DetailCard(
-              title: L10n.string("battery_capacity", table: "Analytics"),
-              systemImage: "battery.100"
-            ) {
-              VStack(alignment: .leading, spacing: 8) {
-                InfoLabeledContent(
-                  L10n.string("cycle_count", table: "Analytics"),
-                  hint: L10n.string("hint_cycle_count", table: "Records"),
-                  value: String(
-                    format: L10n.string("cycle_count_format", table: "Analytics"),
-                    record.cycleCount))
-                if record.designCapacity > 0 {
-                  InfoLabeledContent(
-                    L10n.string("design_capacity", table: "Analytics"),
-                    hint: L10n.string("hint_design_capacity", table: "Records"),
-                    value: "\(record.designCapacity) mAh (100%)")
-                } else {
-                  InfoLabeledContent(
-                    L10n.string("design_capacity", table: "Analytics"),
-                    hint: L10n.string("hint_design_capacity", table: "Records"),
-                    value: L10n.string("unknown", table: "Common"))
-                }
-                if let simProfile = simCapacityProfile(for: record) {
-                  LabeledContent(L10n.string("sim_profile", table: "Records"), value: simProfile)
-                }
-                InfoLabeledContent(
-                  L10n.string("nominal_capacity", table: "Analytics"),
-                  hint: L10n.string("hint_nominal_capacity", table: "Records")
-                ) {
-                  HStack(spacing: 8) {
-                    Text("\(record.nominalCapacity) mAh")
-                    let nominalPercent =
-                      record.designCapacity > 0
-                      ? (Double(record.nominalCapacity) / Double(record.designCapacity)) * 100.0
-                      : record.realHealthPercent
-                    Text("(\(String(format: "%.1f%%", nominalPercent)))")
-                      .foregroundStyle(healthColorLocal(nominalPercent))
-                  }
-                }
-                if !isMagSafe {
-                  InfoLabeledContent(
-                    L10n.string("raw_capacity", table: "Analytics"),
-                    hint: L10n.string("hint_raw_capacity", table: "Records")
+                    L10n.string("nominal_capacity", table: "Analytics"),
+                    hint: L10n.string("hint_nominal_capacity", table: "Records")
                   ) {
                     HStack(spacing: 8) {
-                      Text("\(record.rawCapacity) mAh")
-                      let health =
-                        appSettings.analysisDataSource == .nominal
-                        ? record.nominalHealthPercent : record.healthPercent
-                      Text("(\(String(format: "%.1f%%", record.healthPercent)))")
-                        .foregroundStyle(healthColorLocal(health))
+                      Text("\(record.nominalCapacity) mAh")
+                      let nominalPercent =
+                        record.designCapacity > 0
+                        ? (Double(record.nominalCapacity) / Double(record.designCapacity)) * 100.0
+                        : record.realHealthPercent
+                      Text("(\(String(format: "%.1f%%", nominalPercent)))")
+                        .foregroundStyle(healthColorLocal(nominalPercent))
                     }
                   }
-                  if let lowRate = record.lowRateCapacity {
-                    let lowRateRatio = record.designCapacity > 0 ? (Double(lowRate) / Double(record.designCapacity)) * 100.0 : 0.0
+                  if !isMagSafe {
                     InfoLabeledContent(
-                      L10n.string("low_rate_capacity", table: "Records"),
-                      hint: L10n.string("hint_low_rate_capacity", table: "Records"),
-                      value: "\(lowRate) mAh (\(String(format: "%.1f%%", lowRateRatio)))"
+                      L10n.string("raw_capacity", table: "Analytics"),
+                      hint: L10n.string("hint_raw_capacity", table: "Records")
+                    ) {
+                      HStack(spacing: 8) {
+                        Text("\(record.rawCapacity) mAh")
+                        let health =
+                          appSettings.analysisDataSource == .nominal
+                          ? record.nominalHealthPercent : record.healthPercent
+                        Text("(\(String(format: "%.1f%%", record.healthPercent)))")
+                          .foregroundStyle(healthColorLocal(health))
+                      }
+                    }
+                    if let lowRate = record.lowRateCapacity {
+                      let lowRateRatio =
+                        record.designCapacity > 0
+                        ? (Double(lowRate) / Double(record.designCapacity)) * 100.0 : 0.0
+                      InfoLabeledContent(
+                        L10n.string("low_rate_capacity", table: "Records"),
+                        hint: L10n.string("hint_low_rate_capacity", table: "Records"),
+                        value: "\(lowRate) mAh (\(String(format: "%.1f%%", lowRateRatio)))"
+                      )
+                    }
+                    if let display = record.settingsDisplayPercent {
+                      InfoLabeledContent(
+                        L10n.string("os_display", table: "Records"),
+                        hint: L10n.string("hint_os_display", table: "Records"),
+                        value: "\(min(display, 100))%")
+                    }
+                  }
+
+                  Divider().padding(.vertical, 6)
+
+                  if let deflator = record.deflator {
+                    InfoLabeledContent(
+                      L10n.string("deflator", table: "Records"),
+                      hint: L10n.string("hint_deflator", table: "Records"),
+                      value: String(format: "%.1f%%", deflator)
                     )
                   }
-                  if let display = record.settingsDisplayPercent {
-                    InfoLabeledContent(
-                      L10n.string("os_display", table: "Records"),
-                      hint: L10n.string("hint_os_display", table: "Records"),
-                      value: "\(min(display, 100))%")
-                  }
-                }
-
-                Divider().padding(.vertical, 6)
-
-                if let deflator = record.deflator {
                   InfoLabeledContent(
-                    L10n.string("deflator", table: "Records"),
-                    hint: L10n.string("hint_deflator", table: "Records"),
-                    value: String(format: "%.1f%%", deflator)
-                  )
-                }
-                InfoLabeledContent(
-                  L10n.string("diagnostic_result", table: "Records"),
-                  hint: L10n.string("hint_diagnostic_result", table: "Records"),
-                  value: record.cachedDiagnostic)
-                if !isMagSafe {
-                  if let displayDiagnostic = settingsDisplayDiagnosticMessage(
-                    record.settingsDisplayPercent)
-                  {
-                    InfoLabeledContent(
-                      L10n.string("settings_display_diagnostic", table: "Records"),
-                      hint: L10n.string("hint_settings_display_diagnostic", table: "Records"),
-                      value: displayDiagnostic
-                    )
-                  }
-                }
-                Text(L10n.string("not_official_note", table: "Records"))
-                  .font(.caption2)
-                  .foregroundStyle(.secondary)
-              }
-              .padding(.vertical, 4)
-            }
-
-            // Remaining cards in grid
-            LazyVGrid(
-              columns: [GridItem(.adaptive(minimum: 280, maximum: 500), spacing: 20)],
-              alignment: .leading,
-              spacing: 20
-            ) {
-              // Temperature (optional)
-              if record.avgTemp != nil || record.maxTemp != nil || record.minTemp != nil {
-                DetailCard(
-                  title: L10n.string("temperature_daily", table: "Records"),
-                  systemImage: "thermometer"
-                ) {
-                  VStack(alignment: .leading, spacing: 8) {
-                    if let avg = record.avgTemp {
+                    L10n.string("diagnostic_result", table: "Records"),
+                    hint: L10n.string("hint_diagnostic_result", table: "Records"),
+                    value: record.cachedDiagnostic)
+                  if !isMagSafe {
+                    if let displayDiagnostic = settingsDisplayDiagnosticMessage(
+                      record.settingsDisplayPercent)
+                    {
                       InfoLabeledContent(
-                        L10n.string("average", table: "Analytics"),
-                        hint: L10n.string("hint_temperature", table: "Records"),
-                        value: String(format: "%.1f°C", avg))
-                    }
-                    if let max = record.maxTemp {
-                      InfoLabeledContent(
-                        L10n.string("maximum", table: "Analytics"),
-                        hint: L10n.string("hint_temperature", table: "Records"),
-                        value: String(format: "%.1f°C", max))
-                    }
-                    if let min = record.minTemp {
-                      InfoLabeledContent(
-                        L10n.string("minimum", table: "Analytics"),
-                        hint: L10n.string("hint_temperature", table: "Records"),
-                        value: String(format: "%.1f°C", min))
+                        L10n.string("settings_display_diagnostic", table: "Records"),
+                        hint: L10n.string("hint_settings_display_diagnostic", table: "Records"),
+                        value: displayDiagnostic
+                      )
                     }
                   }
-                  .padding(.vertical, 4)
+                  Text(L10n.string("not_official_note", table: "Records"))
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
                 }
+                .padding(.vertical, 4)
               }
 
-              // Voltage (optional)
-              if record.maxVoltage != nil || record.minVoltage != nil {
-                DetailCard(
-                  title: L10n.string("voltage", table: "Records"), systemImage: "bolt.fill"
-                ) {
-                  VStack(alignment: .leading, spacing: 8) {
-                    if let max = record.maxVoltage {
-                      InfoLabeledContent(
-                        L10n.string("maximum", table: "Analytics"),
-                        hint: L10n.string("hint_voltage", table: "Records"),
-                        value: String(format: "%.0f mV", max))
-                    }
-                    if let min = record.minVoltage {
-                      InfoLabeledContent(
-                        L10n.string("minimum", table: "Analytics"),
-                        hint: L10n.string("hint_voltage", table: "Records"),
-                        value: String(format: "%.0f mV", min))
-                    }
-                  }
-                  .padding(.vertical, 4)
-                }
-              }
-
-              // Charge range (optional)
-              if record.maxSoC != nil || record.minSoC != nil {
-                DetailCard(
-                  title: L10n.string("charge_range_daily", table: "Records"),
-                  systemImage: "battery.75"
-                ) {
-                  VStack(alignment: .leading, spacing: 8) {
-                    if let max = record.maxSoC {
-                      InfoLabeledContent(
-                        L10n.string("max_soc", table: "Records"),
-                        hint: L10n.string("hint_charge_range", table: "Records"),
-                        value: "\(max)%")
-                    }
-                    if let min = record.minSoC {
-                      InfoLabeledContent(
-                        L10n.string("min_soc", table: "Records"),
-                        hint: L10n.string("hint_charge_range", table: "Records"),
-                        value: "\(min)%")
-                    }
-                  }
-                  .padding(.vertical, 4)
-                }
-              }
-            }
-            .padding(.vertical, 18)
-          }
-        }
-        .frame(maxWidth: 960)
-        .frame(maxWidth: .infinity)
-        .scrollContentBackground(.hidden)
-        .background(Color(uiColor: .systemGroupedBackground))
-        .padding(.horizontal, 20)
-        .padding(.vertical, 10)
-      } else {
-        // Compact width (iPhone): 既存の List ベース UI
-        List {
-          Section {
-            detailOverview
-              .listRowInsets(EdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20))
-          }
-          Section(L10n.string("device_info", table: "Records")) {
-            LabeledContent(
-              L10n.string("device_name", table: "Common"), value: record.localizedDeviceName)
-
-            if !isMagSafe {
-              if let soc = record.soc {
-                InfoLabeledContent(
-                  L10n.string("soc", table: "Records"),
-                  hint: L10n.string("hint_soc", table: "Records"),
-                  value: soc)
-              }
-            }
-
-            if let modelCode = record.deviceModelCode {
-              InfoLabeledContent(
-                L10n.string("model_code", table: "Records"),
-                hint: L10n.string("hint_model_code", table: "Records"),
-                value: modelCode)
-            }
-            if let productSku = record.productSku, !productSku.isEmpty {
-              InfoLabeledContent(
-                L10n.string("product_sku", table: "Records"),
-                hint: L10n.string("hint_product_sku", table: "Records"),
-                value: productSku)
-            }
-
-            if !isMagSafe {
-              if record.storage != nil, let formatted = record.formattedStorage {
-                InfoLabeledContent(
-                  L10n.string("storage", table: "Records"),
-                  hint: L10n.string("hint_storage", table: "Records"),
-                  value: formatted)
-              }
-              if record.ram != nil, let formattedRam = record.formattedRAM {
-                InfoLabeledContent(
-                  L10n.string("ram", table: "Records"),
-                  hint: L10n.string("hint_ram", table: "Records"),
-                  value: formattedRam)
-              }
-            }
-
-            LabeledContent(
-              L10n.string("log_date", table: "Records"), value: record.logDate,
-              format: .dateTime.year().month().day())
-            if let firstUse = record.firstUseDate {
-              InfoLabeledContent(
-                L10n.string("first_use_date", table: "Records"),
-                hint: L10n.string("hint_first_use_date", table: "Records")
+              // Remaining cards in grid
+              LazyVGrid(
+                columns: [GridItem(.adaptive(minimum: 280, maximum: 500), spacing: 20)],
+                alignment: .leading,
+                spacing: 20
               ) {
-                Text(firstUse, format: .dateTime.year().month().day())
+                // Temperature (optional)
+                if record.avgTemp != nil || record.maxTemp != nil || record.minTemp != nil {
+                  DetailCard(
+                    title: L10n.string("temperature_daily", table: "Records"),
+                    systemImage: "thermometer"
+                  ) {
+                    VStack(alignment: .leading, spacing: 8) {
+                      if let avg = record.avgTemp {
+                        InfoLabeledContent(
+                          L10n.string("average", table: "Analytics"),
+                          hint: L10n.string("hint_temperature", table: "Records"),
+                          value: String(format: "%.1f°C", avg))
+                      }
+                      if let max = record.maxTemp {
+                        InfoLabeledContent(
+                          L10n.string("maximum", table: "Analytics"),
+                          hint: L10n.string("hint_temperature", table: "Records"),
+                          value: String(format: "%.1f°C", max))
+                      }
+                      if let min = record.minTemp {
+                        InfoLabeledContent(
+                          L10n.string("minimum", table: "Analytics"),
+                          hint: L10n.string("hint_temperature", table: "Records"),
+                          value: String(format: "%.1f°C", min))
+                      }
+                    }
+                    .padding(.vertical, 4)
+                  }
+                }
+
+                // Voltage (optional)
+                if record.maxVoltage != nil || record.minVoltage != nil {
+                  DetailCard(
+                    title: L10n.string("voltage", table: "Records"), systemImage: "bolt.fill"
+                  ) {
+                    VStack(alignment: .leading, spacing: 8) {
+                      if let max = record.maxVoltage {
+                        InfoLabeledContent(
+                          L10n.string("maximum", table: "Analytics"),
+                          hint: L10n.string("hint_voltage", table: "Records"),
+                          value: String(format: "%.0f mV", max))
+                      }
+                      if let min = record.minVoltage {
+                        InfoLabeledContent(
+                          L10n.string("minimum", table: "Analytics"),
+                          hint: L10n.string("hint_voltage", table: "Records"),
+                          value: String(format: "%.0f mV", min))
+                      }
+                    }
+                    .padding(.vertical, 4)
+                  }
+                }
+
+                // Charge range (optional)
+                if record.maxSoC != nil || record.minSoC != nil {
+                  DetailCard(
+                    title: L10n.string("charge_range_daily", table: "Records"),
+                    systemImage: "battery.75"
+                  ) {
+                    VStack(alignment: .leading, spacing: 8) {
+                      if let max = record.maxSoC {
+                        InfoLabeledContent(
+                          L10n.string("max_soc", table: "Records"),
+                          hint: L10n.string("hint_charge_range", table: "Records"),
+                          value: "\(max)%")
+                      }
+                      if let min = record.minSoC {
+                        InfoLabeledContent(
+                          L10n.string("min_soc", table: "Records"),
+                          hint: L10n.string("hint_charge_range", table: "Records"),
+                          value: "\(min)%")
+                      }
+                    }
+                    .padding(.vertical, 4)
+                  }
+                }
               }
+              .padding(.vertical, 18)
             }
           }
+          .frame(maxWidth: 960)
+          .frame(maxWidth: .infinity)
+          .scrollContentBackground(.hidden)
+          .background(Color(uiColor: .systemGroupedBackground))
+          .padding(.horizontal, 20)
+          .padding(.vertical, 10)
+        } else {
+          // Compact width (iPhone): 既存の List ベース UI
+          List {
+            Section {
+              detailOverview
+                .listRowInsets(EdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20))
+            }
+            Section(L10n.string("device_info", table: "Records")) {
+              LabeledContent(
+                L10n.string("device_name", table: "Common"), value: record.localizedDeviceName)
 
-          Section(L10n.string("battery_capacity", table: "Analytics")) {
-            InfoLabeledContent(
-              L10n.string("cycle_count", table: "Analytics"),
-              hint: L10n.string("hint_cycle_count", table: "Records"),
-              value: String(
-                format: L10n.string("cycle_count_format", table: "Analytics"),
-                record.cycleCount))
-            if record.designCapacity > 0 {
-              InfoLabeledContent(
-                L10n.string("design_capacity", table: "Analytics"),
-                hint: L10n.string("hint_design_capacity", table: "Records"),
-                value: "\(record.designCapacity) mAh (100%)")
-            } else {
-              InfoLabeledContent(
-                L10n.string("design_capacity", table: "Analytics"),
-                hint: L10n.string("hint_design_capacity", table: "Records"),
-                value: L10n.string("unknown", table: "Common"))
-            }
-            if let simProfile = simCapacityProfile(for: record) {
-              LabeledContent(L10n.string("sim_profile", table: "Records"), value: simProfile)
-            }
-            InfoLabeledContent(
-              L10n.string("nominal_capacity", table: "Analytics"),
-              hint: L10n.string("hint_nominal_capacity", table: "Records")
-            ) {
-              HStack(spacing: 8) {
-                Text("\(record.nominalCapacity) mAh")
-                let nominalPercent =
-                  record.designCapacity > 0
-                  ? (Double(record.nominalCapacity) / Double(record.designCapacity)) * 100.0
-                  : record.realHealthPercent
-                Text("(\(String(format: "%.1f%%", nominalPercent)))")
-                  .foregroundStyle(healthColorLocal(nominalPercent))
+              if !isMagSafe {
+                if let soc = record.soc {
+                  InfoLabeledContent(
+                    L10n.string("soc", table: "Records"),
+                    hint: L10n.string("hint_soc", table: "Records"),
+                    value: soc)
+                }
+              }
+
+              if let modelCode = record.deviceModelCode {
+                InfoLabeledContent(
+                  L10n.string("model_code", table: "Records"),
+                  hint: L10n.string("hint_model_code", table: "Records"),
+                  value: modelCode)
+              }
+              if let productSku = record.productSku, !productSku.isEmpty {
+                InfoLabeledContent(
+                  L10n.string("product_sku", table: "Records"),
+                  hint: L10n.string("hint_product_sku", table: "Records"),
+                  value: productSku)
+              }
+
+              if !isMagSafe {
+                if record.storage != nil, let formatted = record.formattedStorage {
+                  InfoLabeledContent(
+                    L10n.string("storage", table: "Records"),
+                    hint: L10n.string("hint_storage", table: "Records"),
+                    value: formatted)
+                }
+                if record.ram != nil, let formattedRam = record.formattedRAM {
+                  InfoLabeledContent(
+                    L10n.string("ram", table: "Records"),
+                    hint: L10n.string("hint_ram", table: "Records"),
+                    value: formattedRam)
+                }
+              }
+
+              LabeledContent(
+                L10n.string("log_date", table: "Records"), value: record.logDate,
+                format: .dateTime.year().month().day())
+              if let firstUse = record.firstUseDate {
+                InfoLabeledContent(
+                  L10n.string("first_use_date", table: "Records"),
+                  hint: L10n.string("hint_first_use_date", table: "Records")
+                ) {
+                  Text(firstUse, format: .dateTime.year().month().day())
+                }
               }
             }
-            if !isMagSafe {
+
+            Section(L10n.string("battery_capacity", table: "Analytics")) {
               InfoLabeledContent(
-                L10n.string("raw_capacity", table: "Analytics"),
-                hint: L10n.string("hint_raw_capacity", table: "Records")
+                L10n.string("cycle_count", table: "Analytics"),
+                hint: L10n.string("hint_cycle_count", table: "Records"),
+                value: String(
+                  format: L10n.string("cycle_count_format", table: "Analytics"),
+                  record.cycleCount))
+              if record.designCapacity > 0 {
+                InfoLabeledContent(
+                  L10n.string("design_capacity", table: "Analytics"),
+                  hint: L10n.string("hint_design_capacity", table: "Records"),
+                  value: "\(record.designCapacity) mAh (100%)")
+              } else {
+                InfoLabeledContent(
+                  L10n.string("design_capacity", table: "Analytics"),
+                  hint: L10n.string("hint_design_capacity", table: "Records"),
+                  value: L10n.string("unknown", table: "Common"))
+              }
+              if let simProfile = simCapacityProfile(for: record) {
+                LabeledContent(L10n.string("sim_profile", table: "Records"), value: simProfile)
+              }
+              InfoLabeledContent(
+                L10n.string("nominal_capacity", table: "Analytics"),
+                hint: L10n.string("hint_nominal_capacity", table: "Records")
               ) {
                 HStack(spacing: 8) {
-                  Text("\(record.rawCapacity) mAh")
-                  let health =
-                    appSettings.analysisDataSource == .nominal
-                    ? record.nominalHealthPercent : record.healthPercent
-                  Text("(\(String(format: "%.1f%%", record.healthPercent)))")
-                    .foregroundStyle(healthColorLocal(health))
+                  Text("\(record.nominalCapacity) mAh")
+                  let nominalPercent =
+                    record.designCapacity > 0
+                    ? (Double(record.nominalCapacity) / Double(record.designCapacity)) * 100.0
+                    : record.realHealthPercent
+                  Text("(\(String(format: "%.1f%%", nominalPercent)))")
+                    .foregroundStyle(healthColorLocal(nominalPercent))
                 }
               }
-              if let lowRate = record.lowRateCapacity {
-                let lowRateRatio = record.designCapacity > 0 ? (Double(lowRate) / Double(record.designCapacity)) * 100.0 : 0.0
+              if !isMagSafe {
                 InfoLabeledContent(
-                  L10n.string("low_rate_capacity", table: "Records"),
-                  hint: L10n.string("hint_low_rate_capacity", table: "Records"),
-                  value: "\(lowRate) mAh (\(String(format: "%.1f%%", lowRateRatio)))"
-                )
+                  L10n.string("raw_capacity", table: "Analytics"),
+                  hint: L10n.string("hint_raw_capacity", table: "Records")
+                ) {
+                  HStack(spacing: 8) {
+                    Text("\(record.rawCapacity) mAh")
+                    let health =
+                      appSettings.analysisDataSource == .nominal
+                      ? record.nominalHealthPercent : record.healthPercent
+                    Text("(\(String(format: "%.1f%%", record.healthPercent)))")
+                      .foregroundStyle(healthColorLocal(health))
+                  }
+                }
+                if let lowRate = record.lowRateCapacity {
+                  let lowRateRatio =
+                    record.designCapacity > 0
+                    ? (Double(lowRate) / Double(record.designCapacity)) * 100.0 : 0.0
+                  InfoLabeledContent(
+                    L10n.string("low_rate_capacity", table: "Records"),
+                    hint: L10n.string("hint_low_rate_capacity", table: "Records"),
+                    value: "\(lowRate) mAh (\(String(format: "%.1f%%", lowRateRatio)))"
+                  )
+                }
+                if let display = record.settingsDisplayPercent {
+                  InfoLabeledContent(
+                    L10n.string("os_display", table: "Records"),
+                    hint: L10n.string("hint_os_display", table: "Records"),
+                    value: "\(min(display, 100))%")
+                }
               }
-              if let display = record.settingsDisplayPercent {
-                InfoLabeledContent(
-                  L10n.string("os_display", table: "Records"),
-                  hint: L10n.string("hint_os_display", table: "Records"),
-                  value: "\(min(display, 100))%")
-              }
-            }
 
-            if let deflator = record.deflator {
+              if let deflator = record.deflator {
+                InfoLabeledContent(
+                  L10n.string("deflator", table: "Records"),
+                  hint: L10n.string("hint_deflator", table: "Records"),
+                  value: String(format: "%.1f%%", deflator))
+              }
               InfoLabeledContent(
-                L10n.string("deflator", table: "Records"),
-                hint: L10n.string("hint_deflator", table: "Records"),
-                value: String(format: "%.1f%%", deflator))
-            }
-            InfoLabeledContent(
-              L10n.string("diagnostic_result", table: "Records"),
-              hint: L10n.string("hint_diagnostic_result", table: "Records"),
-              value: record.dynamicDiagnosticResult)
-            if !isMagSafe {
-              if let displayDiagnostic = settingsDisplayDiagnosticMessage(
-                record.settingsDisplayPercent)
-              {
-                InfoLabeledContent(
-                  L10n.string("settings_display_diagnostic", table: "Records"),
-                  hint: L10n.string("hint_settings_display_diagnostic", table: "Records"),
-                  value: displayDiagnostic)
+                L10n.string("diagnostic_result", table: "Records"),
+                hint: L10n.string("hint_diagnostic_result", table: "Records"),
+                value: record.dynamicDiagnosticResult)
+              if !isMagSafe {
+                if let displayDiagnostic = settingsDisplayDiagnosticMessage(
+                  record.settingsDisplayPercent)
+                {
+                  InfoLabeledContent(
+                    L10n.string("settings_display_diagnostic", table: "Records"),
+                    hint: L10n.string("hint_settings_display_diagnostic", table: "Records"),
+                    value: displayDiagnostic)
+                }
               }
+              Text(L10n.string("not_official_note", table: "Records"))
+                .font(.caption2)
+                .foregroundStyle(.secondary)
             }
-            Text(L10n.string("not_official_note", table: "Records"))
-              .font(.caption2)
-              .foregroundStyle(.secondary)
-          }
 
-          if record.avgTemp != nil || record.maxTemp != nil || record.minTemp != nil {
-            Section(L10n.string("temperature_daily", table: "Records")) {
-              if let avg = record.avgTemp {
-                InfoLabeledContent(
-                  L10n.string("average", table: "Analytics"),
-                  hint: L10n.string("hint_temperature", table: "Records"),
-                  value: String(format: "%.1f°C", avg))
-              }
-              if let max = record.maxTemp {
-                InfoLabeledContent(
-                  L10n.string("maximum", table: "Analytics"),
-                  hint: L10n.string("hint_temperature", table: "Records"),
-                  value: String(format: "%.1f°C", max))
-              }
-              if let min = record.minTemp {
-                InfoLabeledContent(
-                  L10n.string("minimum", table: "Analytics"),
-                  hint: L10n.string("hint_temperature", table: "Records"),
-                  value: String(format: "%.1f°C", min))
-              }
-            }
-          }
-
-          if record.maxVoltage != nil || record.minVoltage != nil {
-            Section(L10n.string("voltage", table: "Records")) {
-              if let max = record.maxVoltage {
-                InfoLabeledContent(
-                  L10n.string("maximum", table: "Analytics"),
-                  hint: L10n.string("hint_voltage", table: "Records"),
-                  value: String(format: "%.0f mV", max))
-              }
-              if let min = record.minVoltage {
-                InfoLabeledContent(
-                  L10n.string("minimum", table: "Analytics"),
-                  hint: L10n.string("hint_voltage", table: "Records"),
-                  value: String(format: "%.0f mV", min))
+            if record.avgTemp != nil || record.maxTemp != nil || record.minTemp != nil {
+              Section(L10n.string("temperature_daily", table: "Records")) {
+                if let avg = record.avgTemp {
+                  InfoLabeledContent(
+                    L10n.string("average", table: "Analytics"),
+                    hint: L10n.string("hint_temperature", table: "Records"),
+                    value: String(format: "%.1f°C", avg))
+                }
+                if let max = record.maxTemp {
+                  InfoLabeledContent(
+                    L10n.string("maximum", table: "Analytics"),
+                    hint: L10n.string("hint_temperature", table: "Records"),
+                    value: String(format: "%.1f°C", max))
+                }
+                if let min = record.minTemp {
+                  InfoLabeledContent(
+                    L10n.string("minimum", table: "Analytics"),
+                    hint: L10n.string("hint_temperature", table: "Records"),
+                    value: String(format: "%.1f°C", min))
+                }
               }
             }
-          }
 
-          if record.maxSoC != nil || record.minSoC != nil {
-            Section(L10n.string("charge_range_daily", table: "Records")) {
-              if let max = record.maxSoC {
-                InfoLabeledContent(
-                  L10n.string("max_soc", table: "Records"),
-                  hint: L10n.string("hint_charge_range", table: "Records"),
-                  value: "\(max)%")
+            if record.maxVoltage != nil || record.minVoltage != nil {
+              Section(L10n.string("voltage", table: "Records")) {
+                if let max = record.maxVoltage {
+                  InfoLabeledContent(
+                    L10n.string("maximum", table: "Analytics"),
+                    hint: L10n.string("hint_voltage", table: "Records"),
+                    value: String(format: "%.0f mV", max))
+                }
+                if let min = record.minVoltage {
+                  InfoLabeledContent(
+                    L10n.string("minimum", table: "Analytics"),
+                    hint: L10n.string("hint_voltage", table: "Records"),
+                    value: String(format: "%.0f mV", min))
+                }
               }
-              if let min = record.minSoC {
-                InfoLabeledContent(
-                  L10n.string("min_soc", table: "Records"),
-                  hint: L10n.string("hint_charge_range", table: "Records"),
-                  value: "\(min)%")
+            }
+
+            if record.maxSoC != nil || record.minSoC != nil {
+              Section(L10n.string("charge_range_daily", table: "Records")) {
+                if let max = record.maxSoC {
+                  InfoLabeledContent(
+                    L10n.string("max_soc", table: "Records"),
+                    hint: L10n.string("hint_charge_range", table: "Records"),
+                    value: "\(max)%")
+                }
+                if let min = record.minSoC {
+                  InfoLabeledContent(
+                    L10n.string("min_soc", table: "Records"),
+                    hint: L10n.string("hint_charge_range", table: "Records"),
+                    value: "\(min)%")
+                }
               }
             }
           }
         }
       }
-    }
     }
     .navigationTitle(L10n.string("detail", table: "Records"))
     .navigationBarTitleDisplayMode(.inline)
@@ -950,28 +963,28 @@ struct RecordDetailView: View {
           }
         }
       }
-        ToolbarItem(placement: .navigationBarTrailing) {
-          Button {
-            Task {
-              isGeneratingImage = true
-              let image: UIImage?
-              if let cached = cachedChartImage {
-                image = cached
-              } else {
-                image = await generateChartImageAsync()
-              }
-              isGeneratingImage = false
-              shareContent(text: generateShareText(), image: image)
-            }
-          } label: {
-            if isGeneratingImage {
-              ProgressView()
+      ToolbarItem(placement: .navigationBarTrailing) {
+        Button {
+          Task {
+            isGeneratingImage = true
+            let image: UIImage?
+            if let cached = cachedChartImage {
+              image = cached
             } else {
-              Image(systemName: "square.and.arrow.up")
+              image = await generateChartImageAsync()
             }
+            isGeneratingImage = false
+            shareContent(text: generateShareText(), image: image)
           }
-          .accessibilityIdentifier("record.share")
+        } label: {
+          if isGeneratingImage {
+            ProgressView()
+          } else {
+            Image(systemName: "square.and.arrow.up")
+          }
         }
+        .accessibilityIdentifier("record.share")
+      }
     }
     .scrollContentBackground(.hidden)
     .background(Color(uiColor: .systemGroupedBackground).ignoresSafeArea())
@@ -984,11 +997,11 @@ struct RecordDetailView: View {
       }
     }
 
-
   }
 
   private var detailOverview: some View {
-    let health = appSettings.analysisDataSource == .nominal
+    let health =
+      appSettings.analysisDataSource == .nominal
       ? record.nominalHealthPercent : record.healthPercent
     return VStack(alignment: .leading, spacing: 16) {
       VStack(alignment: .leading, spacing: 5) {

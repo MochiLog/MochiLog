@@ -137,7 +137,7 @@ struct DeveloperOptionsView: View {
           Text("マイグレーションをリセットすると、次回起動時に再実行されます。データ破損の可能性があるため注意してください。")
             .font(.caption)
         }
-        
+
         // iCloud同期セクション
         Section {
           Button(action: {
@@ -199,7 +199,8 @@ struct DeveloperOptionsView: View {
             MigrationManager.resetAllMigrations()
           }
           UserDefaults.standard.removeObject(forKey: "Migration_Completed_v2_MagSafe_Battery")
-          UserDefaults.standard.removeObject(forKey: "CoreDataMigration_Completed_v2_MagSafe_Battery")
+          UserDefaults.standard.removeObject(
+            forKey: "CoreDataMigration_Completed_v2_MagSafe_Battery")
         }
       } message: {
         Text("全てのマイグレーションフラグをリセットします。次回起動時に再実行されます。")

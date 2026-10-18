@@ -11,11 +11,14 @@ import Foundation
 
   static func remember(models: [String: String], scope: String) -> Bool {
     guard CloudSharedLogToken.validScope(scope), models.count <= 64 else { return false }
-    var accounts = UserDefaults.standard.dictionary(forKey: key) as? [String: [String: String]] ?? [:]
+    var accounts =
+      UserDefaults.standard.dictionary(forKey: key) as? [String: [String: String]] ?? [:]
     var values = accounts[scope] ?? [:]
     let previous = values
     for (rawID, model) in models {
-      guard let id = UUID(uuidString: rawID), LogSourceIdentity.validHostModel(model) else { return false }
+      guard let id = UUID(uuidString: rawID), LogSourceIdentity.validHostModel(model) else {
+        return false
+      }
       if let existing = values[id.uuidString], existing != model { return false }
       values[id.uuidString] = model
     }
@@ -30,12 +33,16 @@ import Foundation
     guard #available(iOS 17, *) else { return [:] }
     var result: [UUID: String] = [:]
     if let scope = CloudLogSharingState.shared.scope,
-      let accounts = UserDefaults.standard.dictionary(forKey: key) as? [String: [String: String]] {
+      let accounts = UserDefaults.standard.dictionary(forKey: key) as? [String: [String: String]]
+    {
       for (id, model) in accounts[scope] ?? [:] {
-        if let id = UUID(uuidString: id), LogSourceIdentity.validHostModel(model) { result[id] = model }
+        if let id = UUID(uuidString: id), LogSourceIdentity.validHostModel(model) {
+          result[id] = model
+        }
       }
     }
-    for pairing in MacTransferManager.shared.pairings where LogSourceIdentity.validHostModel(pairing.model) {
+    for pairing in MacTransferManager.shared.pairings
+    where LogSourceIdentity.validHostModel(pairing.model) {
       result[pairing.physicalDeviceID] = pairing.model
     }
     return result

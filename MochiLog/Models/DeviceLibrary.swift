@@ -685,7 +685,8 @@ struct DeviceLibrary {
   /// 保存・集計に使う機種名は変えず、画面表示時だけ世代表記を選択言語へ変換する。
   static func localizedName(for canonicalName: String) -> String {
     guard let regex = try? NSRegularExpression(pattern: "第([0-9]+)世代"),
-      let match = regex.firstMatch(in: canonicalName, range: NSRange(canonicalName.startIndex..., in: canonicalName)),
+      let match = regex.firstMatch(
+        in: canonicalName, range: NSRange(canonicalName.startIndex..., in: canonicalName)),
       let numberRange = Range(match.range(at: 1), in: canonicalName),
       let wholeRange = Range(match.range(at: 0), in: canonicalName)
     else {
@@ -712,8 +713,9 @@ struct DeviceLibrary {
     guard let number = Int(value) else { return value }
     let lastTwo = number % 100
     let suffix: String
-    if 11...13 ~= lastTwo { suffix = "th" }
-    else {
+    if 11...13 ~= lastTwo {
+      suffix = "th"
+    } else {
       switch number % 10 {
       case 1: suffix = "st"
       case 2: suffix = "nd"

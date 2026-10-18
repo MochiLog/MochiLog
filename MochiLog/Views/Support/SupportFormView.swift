@@ -63,7 +63,8 @@ struct SupportFormView: View {
           .pickerStyle(.menu)
           .onChange(of: inquiryType) { newValue in
             guard let template = newValue.messageTemplate,
-              message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+              message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            else { return }
             message = template
           }
         }
@@ -79,7 +80,8 @@ struct SupportFormView: View {
         }
         if CrashDiagnostics.shared.latest() != nil {
           Section {
-            Toggle(L10n.string("attach_app_diagnostic", table: "Support"),
+            Toggle(
+              L10n.string("attach_app_diagnostic", table: "Support"),
               isOn: $attachDiagnostic)
           } footer: {
             Text(L10n.string("attach_app_diagnostic_help", table: "Support"))
@@ -117,8 +119,11 @@ struct SupportFormView: View {
           subject: "[MochiLog] \(inquiryType.localizedName)",
           body: composeEmailBody(),
           attachments: (attachDiagnostic ? CrashDiagnostics.shared.latest() : nil).map {
-            [MailAttachment(data: $0, mimeType: "application/json",
-              fileName: "mochilog-ios-app-diagnostic.json")]
+            [
+              MailAttachment(
+                data: $0, mimeType: "application/json",
+                fileName: "mochilog-ios-app-diagnostic.json")
+            ]
           } ?? []
         ) { result in
           if result == .sent {
@@ -188,7 +193,8 @@ struct MailComposeView: UIViewControllerRepresentable {
     composer.setSubject(subject)
     composer.setMessageBody(body, isHTML: false)
     for attachment in attachments {
-      composer.addAttachmentData(attachment.data, mimeType: attachment.mimeType,
+      composer.addAttachmentData(
+        attachment.data, mimeType: attachment.mimeType,
         fileName: attachment.fileName)
     }
     return composer

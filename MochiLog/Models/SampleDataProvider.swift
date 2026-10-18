@@ -25,20 +25,24 @@ enum SampleDataProvider {
     for sampleDevice in sampleDevices {
       var device = sampleDevice
       #if DEBUG
-      // Exercise a name whose localized display value differs from its stored chart key.
-      if ProcessInfo.processInfo.environment["MOCHI_CHART_LOCALIZATION_TEST"] == "1",
-        device.name == "iPhone 15 Pro" {
-        device.name = "iPad Pro 11 (第1世代)"
-        device.modelCode = "iPad8,1"
-      }
+        // Exercise a name whose localized display value differs from its stored chart key.
+        if ProcessInfo.processInfo.environment["MOCHI_CHART_LOCALIZATION_TEST"] == "1",
+          device.name == "iPhone 15 Pro"
+        {
+          device.name = "iPad Pro 11 (第1世代)"
+          device.modelCode = "iPad8,1"
+        }
       #endif
       // 3年分のデータを生成（月1回のレコード、計36レコード）
       var previousCycles = 0
 
       for monthOffset in stride(from: 35, through: 0, by: -1) {
         #if DEBUG
-        if ProcessInfo.processInfo.environment["MOCHI_SHARE_SINGLE_RECORD_TEST"] == "1",
-          monthOffset != 0 { continue }
+          if ProcessInfo.processInfo.environment["MOCHI_SHARE_SINGLE_RECORD_TEST"] == "1",
+            monthOffset != 0
+          {
+            continue
+          }
         #endif
         guard let logDate = calendar.date(byAdding: .month, value: -monthOffset, to: today) else {
           continue
@@ -118,7 +122,8 @@ enum SampleDataProvider {
           deflator: nil,
           settingsDisplayPercent: settingsDisplayPercent,
           diagnosticResult: currentNominalHealth >= 80
-            ? L10n.string("diag_normal", table: "Records") : L10n.string("diag_slightly_degraded", table: "Records"),
+            ? L10n.string("diag_normal", table: "Records")
+            : L10n.string("diag_slightly_degraded", table: "Records"),
           avgTemp: avgTemp,
           maxTemp: maxTemp,
           minTemp: minTemp,

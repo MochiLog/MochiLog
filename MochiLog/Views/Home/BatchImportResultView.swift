@@ -29,38 +29,38 @@ struct FileImportResult: Identifiable {
   /// インポートステータス
   enum ImportStatus: Equatable {
     case processing  // パース中（スピナー表示）
-    case success     // 保存成功
-    case duplicate   // 重複スキップ
-    case needsReview // 手動選択が必要（Watch複数・手動デバイスモード）
-    case error       // 解析・保存エラー
+    case success  // 保存成功
+    case duplicate  // 重複スキップ
+    case needsReview  // 手動選択が必要（Watch複数・手動デバイスモード）
+    case error  // 解析・保存エラー
 
     var iconName: String {
       switch self {
-      case .processing:  return "ellipsis.circle.fill"
-      case .success:     return "checkmark.circle.fill"
-      case .duplicate:   return "arrow.triangle.2.circlepath.circle.fill"
+      case .processing: return "ellipsis.circle.fill"
+      case .success: return "checkmark.circle.fill"
+      case .duplicate: return "arrow.triangle.2.circlepath.circle.fill"
       case .needsReview: return "hand.raised.fill"
-      case .error:       return "xmark.circle.fill"
+      case .error: return "xmark.circle.fill"
       }
     }
 
     var color: Color {
       switch self {
-      case .processing:  return Color(uiColor: .secondaryLabel)
-      case .success:     return Color(red: 0.18, green: 0.73, blue: 0.44)
-      case .duplicate:   return Color(red: 0.98, green: 0.62, blue: 0.12)
+      case .processing: return Color(uiColor: .secondaryLabel)
+      case .success: return Color(red: 0.18, green: 0.73, blue: 0.44)
+      case .duplicate: return Color(red: 0.98, green: 0.62, blue: 0.12)
       case .needsReview: return Color(red: 0.35, green: 0.37, blue: 0.90)
-      case .error:       return Color(red: 0.92, green: 0.27, blue: 0.27)
+      case .error: return Color(red: 0.92, green: 0.27, blue: 0.27)
       }
     }
 
     var label: String {
       switch self {
-      case .processing:  return L10n.string("processing", table: "BatchImport")
-      case .success:     return L10n.string("saved", table: "BatchImport")
-      case .duplicate:   return L10n.string("duplicate_skipped", table: "BatchImport")
+      case .processing: return L10n.string("processing", table: "BatchImport")
+      case .success: return L10n.string("saved", table: "BatchImport")
+      case .duplicate: return L10n.string("duplicate_skipped", table: "BatchImport")
       case .needsReview: return L10n.string("review", table: "BatchImport")
-      case .error:       return L10n.string("error", table: "BatchImport")
+      case .error: return L10n.string("error", table: "BatchImport")
       }
     }
 
@@ -105,13 +105,13 @@ struct BatchImportResultView: View {
 
   // MARK: - 集計値（処理完了済みのみカウント）
 
-  private var completedCount: Int   { results.filter { $0.status.isCompleted }.count }
-  private var processingCount: Int  { results.filter { $0.status == .processing   }.count }
-  private var successCount: Int     { results.filter { $0.status == .success      }.count }
-  private var duplicateCount: Int   { results.filter { $0.status == .duplicate    }.count }
-  private var needsReviewCount: Int { results.filter { $0.status == .needsReview  }.count }
-  private var errorCount: Int       { results.filter { $0.status == .error        }.count }
-  private var isAllDone: Bool       { processingCount == 0 }
+  private var completedCount: Int { results.filter { $0.status.isCompleted }.count }
+  private var processingCount: Int { results.filter { $0.status == .processing }.count }
+  private var successCount: Int { results.filter { $0.status == .success }.count }
+  private var duplicateCount: Int { results.filter { $0.status == .duplicate }.count }
+  private var needsReviewCount: Int { results.filter { $0.status == .needsReview }.count }
+  private var errorCount: Int { results.filter { $0.status == .error }.count }
+  private var isAllDone: Bool { processingCount == 0 }
 
   // MARK: - Body
 
@@ -161,16 +161,25 @@ struct BatchImportResultView: View {
         HStack(spacing: 10) {
           ProgressView()
             .scaleEffect(0.85)
-          Text(String(format: L10n.string("progress_count", table: "BatchImport"), completedCount, results.count))
-            .font(.headline)
-            .contentTransition(.numericText())
-            .animation(.spring(duration: 0.3), value: completedCount)
+          Text(
+            String(
+              format: L10n.string("progress_count", table: "BatchImport"), completedCount,
+              results.count)
+          )
+          .font(.headline)
+          .contentTransition(.numericText())
+          .animation(.spring(duration: 0.3), value: completedCount)
         }
       }
 
       // 成功 / 重複 / 要手動選択 / エラー バッジ行
-      LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count:
-        dynamicTypeSize.isAccessibilitySize ? 1 : (horizontalSizeClass == .compact ? 2 : 4)), spacing: 16) {
+      LazyVGrid(
+        columns: Array(
+          repeating: GridItem(.flexible()),
+          count:
+            dynamicTypeSize.isAccessibilitySize ? 1 : (horizontalSizeClass == .compact ? 2 : 4)),
+        spacing: 16
+      ) {
         summaryBadge(
           count: successCount,
           label: L10n.string("saved", table: "BatchImport"),
@@ -230,16 +239,19 @@ struct BatchImportResultView: View {
   private var resultList: some View {
     LazyVStack(spacing: 0) {
       ForEach(results) { result in
-        ResultRowView(result: result, onResolve: {
-          if isAllDone { onResolve(result) }
-        })
-          .disabled(!isAllDone)
-          .transition(
-            .asymmetric(
-              insertion: .opacity.combined(with: .move(edge: .top)),
-              removal: .opacity
-            )
+        ResultRowView(
+          result: result,
+          onResolve: {
+            if isAllDone { onResolve(result) }
+          }
+        )
+        .disabled(!isAllDone)
+        .transition(
+          .asymmetric(
+            insertion: .opacity.combined(with: .move(edge: .top)),
+            removal: .opacity
           )
+        )
         if result.id < results.count - 1 {
           Divider()
             .padding(.leading, 56)
@@ -350,7 +362,6 @@ private struct ResultRowView: View {
       .animation(.spring(duration: 0.4), value: result.deviceName)
       .animation(.spring(duration: 0.4), value: result.parsedDate)
       .animation(.spring(duration: 0.4), value: result.errorMessage)
-
 
     }
     .frame(maxWidth: .infinity, alignment: .leading)

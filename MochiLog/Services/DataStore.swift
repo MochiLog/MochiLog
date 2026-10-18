@@ -74,8 +74,10 @@ class DataStore: ObservableObject {
 
   /// Only records explicitly tagged with this installation's previous ID are
   /// relinked after user confirmation. Legacy nil-ID records are untouched.
-  func reassignPhysicalDeviceID(from oldID: UUID, to newID: UUID,
-    matchingModelCode: String) throws -> Int { 0 }
+  func reassignPhysicalDeviceID(
+    from oldID: UUID, to newID: UUID,
+    matchingModelCode: String
+  ) throws -> Int { 0 }
 
   /// 特定デバイスのレコードを取得（日付昇順）
   func fetchRecords(for deviceName: String, ascending: Bool = true) -> [BatteryRecord] {
@@ -97,7 +99,8 @@ class DataStore: ObservableObject {
   /// 取得したレコードでキャッシュを更新
   func updateCachedRecords(_ records: [BatteryRecord]) {
     // Both stores fetch in descending date order; avoid sorting the same data twice.
-    let sorted = CloudSharedLogToken.coalesced(records, id: { $0.id },
+    let sorted = CloudSharedLogToken.coalesced(
+      records, id: { $0.id },
       origin: { $0.physicalDeviceID }, date: { $0.logDate })
     recordsDescending = sorted
     recordsAscending = sorted.reversed()
@@ -106,7 +109,9 @@ class DataStore: ObservableObject {
   }
 
   /// Update only device metadata; measured capacities, dates and record IDs stay intact.
-  func applyDeviceProfile(_ profile: DeviceProfile, names: Set<String>, identifiers: Set<String>) throws -> Int {
+  func applyDeviceProfile(_ profile: DeviceProfile, names: Set<String>, identifiers: Set<String>)
+    throws -> Int
+  {
     fatalError("Subclass must override applyDeviceProfile")
   }
 

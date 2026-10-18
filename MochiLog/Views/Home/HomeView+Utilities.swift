@@ -30,12 +30,15 @@ extension HomeView {
   ) -> BatteryRecord {
     let logDate = result.logDate ?? Date()
     let modelCodeUsed = deviceModelCodeOverride ?? result.deviceModelCode
-    let designCapacityUsed = DeviceProfileStore.shared.capacityVariant(for: deviceName, productSku: result.productSku)?.capacity
+    let designCapacityUsed =
+      DeviceProfileStore.shared.capacityVariant(for: deviceName, productSku: result.productSku)?
+      .capacity
       ?? designCapacityOverride ?? result.designCapacity ?? 0
     let reviewID: UUID? = pendingBatchReview.flatMap { pending in
       guard let origin = pendingSourcePhysicalDeviceID,
         pending.signature.physicalDeviceID == origin,
-        let bytes = try? Data(contentsOf: pending.sourceURL, options: .mappedIfSafe) else { return nil }
+        let bytes = try? Data(contentsOf: pending.sourceURL, options: .mappedIfSafe)
+      else { return nil }
       let digest = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
       return CloudSharedLogToken.recordID(origin: origin, digest: digest)
     }
@@ -46,7 +49,8 @@ extension HomeView {
       deviceModelCode: modelCodeUsed,
       osVersion: result.osVersion,
       productSku: result.productSku,
-      physicalDeviceID: PhysicalDeviceIdentityStore.identityForLocallyRecognizedLog(modelCode: modelCodeUsed),
+      physicalDeviceID: PhysicalDeviceIdentityStore.identityForLocallyRecognizedLog(
+        modelCode: modelCodeUsed),
       storage: result.storage,
       ram: result.ram,
       manufactureDate: nil,
@@ -128,7 +132,8 @@ extension HomeView {
         let sampleRecords = SampleDataProvider.generateSampleRecords()
         let watchRecords = sampleRecords.map { WatchBatteryRecord(from: $0) }
         Task.detached(priority: .utility) {
-          await WatchConnectivityManager.shared.sendWatchRecordsToWatch(watchRecords, isSampleMode: true)
+          await WatchConnectivityManager.shared.sendWatchRecordsToWatch(
+            watchRecords, isSampleMode: true)
           let elapsed = (CFAbsoluteTimeGetCurrent() - startTime) * 1000
           print("[Performance] syncRecordsToWatch完了（サンプルモード）: \(String(format: "%.2f", elapsed))ms")
         }
@@ -152,7 +157,8 @@ extension HomeView {
       let watchRecords = currentRecords.map { WatchBatteryRecord(from: $0) }
       Task.detached(priority: .utility) {
         // 通常モードでデータを送信
-        await WatchConnectivityManager.shared.sendWatchRecordsToWatch(watchRecords, isSampleMode: false)
+        await WatchConnectivityManager.shared.sendWatchRecordsToWatch(
+          watchRecords, isSampleMode: false)
         let elapsed = (CFAbsoluteTimeGetCurrent() - startTime) * 1000
         print(
           "[Performance] syncRecordsToWatch完了（\(watchRecords.count)件）: \(String(format: "%.2f", elapsed))ms"
@@ -165,8 +171,10 @@ extension HomeView {
 // MARK: - 重複チェック
 extension HomeView {
   /// 日付とデバイス名で重複レコードを検索する（日単位）
-  func hasDuplicateRecord(on date: Date, deviceName: String, physicalDeviceID: UUID? = nil) -> Bool {
-    let localID = physicalDeviceID == nil
+  func hasDuplicateRecord(on date: Date, deviceName: String, physicalDeviceID: UUID? = nil) -> Bool
+  {
+    let localID =
+      physicalDeviceID == nil
       ? PhysicalDeviceIdentityStore.identityForLocallyRecognizedLog(
         modelCode: DeviceLibrary.getIdentifierForDeviceName(deviceName)) : nil
     return records.contains { existing in
@@ -202,7 +210,8 @@ extension HomeView {
     guard let date = result.logDate,
       let cycles = result.cycleCount,
       let nominal = result.nominalCapacity,
-      let raw = result.rawCapacity else { return false }
+      let raw = result.rawCapacity
+    else { return false }
     return records.contains {
       $0.physicalDeviceID == nil && $0.deviceName == deviceName
         && abs($0.logDate.timeIntervalSince(date)) < 1

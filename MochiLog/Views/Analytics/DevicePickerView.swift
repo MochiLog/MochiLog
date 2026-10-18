@@ -11,7 +11,8 @@ struct DevicePickerView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
-      let layout = dynamicTypeSize.isAccessibilitySize
+      let layout =
+        dynamicTypeSize.isAccessibilitySize
         ? AnyLayout(VStackLayout(alignment: .leading, spacing: 12))
         : AnyLayout(HStackLayout(alignment: .center, spacing: 12))
       layout {

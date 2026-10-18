@@ -119,7 +119,9 @@ struct SampleDataAnalyticsContent: View {
       }()
 
       // iPad: 2列レイアウト、iPhone: 1列レイアウト
-      if horizontalSizeClass == .regular && availableWidth >= 740 && !dynamicTypeSize.isAccessibilitySize {
+      if horizontalSizeClass == .regular && availableWidth >= 740
+        && !dynamicTypeSize.isAccessibilitySize
+      {
         // iPad向け2列グリッド
         VStack(spacing: 20) {
           HStack(alignment: .top, spacing: 20) {
@@ -202,7 +204,8 @@ struct SampleDataAnalyticsContent: View {
     windowEnd: Date,
     range: RangePreset
   ) -> (startDay: Date, endDay: Date, unit: AppSettings.ChartUnit) {
-    ChartWindowNavigator.computeChartWindow(recordDates: recordDates,
+    ChartWindowNavigator.computeChartWindow(
+      recordDates: recordDates,
       windowEnd: windowEnd, range: range)
   }
 }

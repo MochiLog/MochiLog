@@ -8,16 +8,18 @@ private struct OptionalShadow: ViewModifier {
   let x: CGFloat
   let y: CGFloat
   @ViewBuilder func body(content: Content) -> some View {
-    if rendering.reduced || reduceTransparency { content }
-    else { content.shadow(color: color, radius: radius, x: x, y: y) }
+    if rendering.reduced || reduceTransparency {
+      content
+    } else {
+      content.shadow(color: color, radius: radius, x: x, y: y)
+    }
   }
 }
 
 private struct ChartRendering: ViewModifier {
   @ObservedObject private var rendering = RenderingPreferences.shared
   @ViewBuilder func body(content: Content) -> some View {
-    if rendering.reduced { content }
-    else { content.drawingGroup() }
+    if rendering.reduced { content } else { content.drawingGroup() }
   }
 }
 
@@ -35,7 +37,9 @@ private struct LoadingSurface: ViewModifier {
 }
 
 extension View {
-  func mochiShadow(color: Color = .black.opacity(0.33), radius: CGFloat, x: CGFloat = 0, y: CGFloat = 0) -> some View {
+  func mochiShadow(
+    color: Color = .black.opacity(0.33), radius: CGFloat, x: CGFloat = 0, y: CGFloat = 0
+  ) -> some View {
     modifier(OptionalShadow(color: color, radius: radius, x: x, y: y))
   }
   func mochiChartRendering() -> some View { modifier(ChartRendering()) }
@@ -49,7 +53,8 @@ struct RenderingSettingsRow: View {
   var body: some View {
     Picker(selection: $rendering.mode) {
       ForEach(RenderingPreferences.Mode.allCases) { mode in
-        Text(L10n.string(String.LocalizationValue("rendering_" + mode.rawValue), table: "Settings")).tag(mode)
+        Text(L10n.string(String.LocalizationValue("rendering_" + mode.rawValue), table: "Settings"))
+          .tag(mode)
       }
     } label: {
       VStack(alignment: .leading, spacing: 4) {

@@ -26,12 +26,12 @@ struct HealthTrendView: View {
     return VStack(alignment: .leading, spacing: 12) {
       HStack(alignment: .firstTextBaseline) {
         Text(
-          L10n.string(analysisDataSource == .nominal
+          L10n.string(
+            analysisDataSource == .nominal
               ? "health_trend_nominal" : "health_trend_actual",
             table: "Analytics")
         )
         .font(.headline)
-
 
       }
 
@@ -64,7 +64,9 @@ struct HealthTrendView: View {
             // フォールバック: allDeviceNamesにない場合はデバイス名のハッシュから色を選択
             print(
               "[Warning] Device '\(deviceName)' not found in allDeviceNames, using fallback color")
-            let fallbackIndex = Int(UInt(bitPattern: deviceName.hashValue) % UInt(ChartAxisHelper.deviceColorPalette.count))
+            let fallbackIndex = Int(
+              UInt(bitPattern: deviceName.hashValue)
+                % UInt(ChartAxisHelper.deviceColorPalette.count))
             return ChartAxisHelper.deviceColorPalette[fallbackIndex]
           }
 
@@ -185,7 +187,9 @@ struct HealthTrendView: View {
         }
       }
     }
-    .chartXScale(domain: startDay...(Calendar.current.date(byAdding: .day, value: 1, to: endDay) ?? endDay))
+    .chartXScale(
+      domain: startDay...(Calendar.current.date(byAdding: .day, value: 1, to: endDay) ?? endDay)
+    )
     .chartYAxis {
       AxisMarks(values: .automatic(desiredCount: 5)) { value in
         AxisGridLine()

@@ -26,7 +26,8 @@ enum SelectedRecordDeletion {
     let grouped = Dictionary(grouping: records, by: \.id)
     return plan.ids.sorted { $0.uuidString < $1.uuidString }.compactMap { id in
       guard let expected = plan.payloads[id], let copies = grouped[id], copies.count == 1,
-        ExactRecordPayload(copies[0]) == expected else { return nil }
+        ExactRecordPayload(copies[0]) == expected
+      else { return nil }
       return copies[0]
     }
   }
