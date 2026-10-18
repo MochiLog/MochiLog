@@ -1,7 +1,7 @@
-MochiLog 4.0.0 beta (1058)
+MochiLog 4.0.0 beta (1059)
 
-Home now supports selecting and deleting multiple battery records. Tap Select, check the records, then use Delete at the bottom and confirm the count. Select all, deselect all and cancellation are supported on iPhone and iPad in all eight languages. Sample records cannot be deleted.
+This maintenance build improves the readability and consistency of the internal source code. Swift indentation, long conditions and argument lists now follow consistent formatting, making future changes easier to review. Source syntax was compared before and after formatting. Existing tests covered importing, record deletion, physical device identity, PC pairing, multi-device sharing and Watch-record compatibility. Installation and launch were verified on a physical iPhone.
 
-Confirmation captures the selected record IDs and contents. They are checked again immediately before deletion, so a record changed or deleted on another device is never replaced with a different record as a deletion target. Failed saves are rolled back and reported. With iCloud sync enabled, deletion also applies to synced devices. Deletion cannot be undone, so check that records you want to keep are not selected.
+The Home multi-select and deletion feature from 1058 remains available. Tap Select, choose records and confirm the count before deleting. Record IDs and contents are checked again before deletion to protect records changed on another device. With iCloud sync enabled, deletion also applies to synced devices.
 
-This build includes the PC pairing improvements from 1057. Current LAN address hints are sent inside the existing encrypted request, allowing updated companions to try the right Apple diagnostic endpoint when it differs from the transfer peer address. Use Mac 0.2.29 or Windows 0.1.27. Existing pairings and older-version communication remain supported. Companions distinguish failed downloads and retry waiting from completed acquisition. Log collection still requires the device to be unlocked.
+The 4.0.0 beta features, including PC pairing, on-device collection and current battery information, remain available. Existing records and pairings are retained; this update does not require pairing again. Mac 0.2.34 is also being distributed. Unlock the device when collecting daily Analytics logs.
