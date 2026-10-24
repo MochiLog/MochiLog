@@ -101,7 +101,7 @@ if mode == "verify"
       raise "#{locale} #{attribute} differs from the committed metadata" unless localization.dig("attributes", attribute).to_s.strip == expected
     end
     placements = api.get("/appStoreVersionLocalizations/#{localization.fetch('id')}/placements",
-      "limit" => "200", "sort" => "placementGroupPosition", "include" => "image")
+      "limit" => "200", "sort" => "placementGroupPosition", "include" => "image,appStoreVersionLocalization")
     raise "Unexpected screenshot pagination" if placements.dig("links", "next")
     images = placements.fetch("included", []).select { |item| item["type"] == "appAssetLibraryImages" }.to_h { |item| [item.fetch("id"), item] }
     report[:locales][locale] = {}
