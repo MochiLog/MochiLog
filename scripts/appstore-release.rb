@@ -30,4 +30,38 @@ if selected
     File.write(File.join(output, "#{relationship}.json"), JSON.pretty_generate(data))
   end
 end
-raise "Mutation modes are not enabled until inspection has completed" unless mode == "inspect"
+# Preparing metadata never creates/submits a review request. The user presses
+# the review submission button after checking the completed version in ASC.
+if mode == "prepare"
+  unless selected
+    selected = api.post("/appStoreVersions", data: {
+      type: "appStoreVersions", attributes: {platform: "IOS", versionString: version, releaseType: "AFTER_APPROVAL"},
+      relationships: {app: {data: {type: "apps", id: app}}}
+    }).fetch("data")
+  end
+  id = selected.fetch("id")
+  state = selected.dig("attributes", "appVersionState") || selected.dig("attributes", "appStoreState")
+  raise "Version is not editable: #{state}" unless %w[PREPARE_FOR_SUBMISSION DEVELOPER_REJECTED REJECTED METADATA_REJECTED].include?(state)
+  localizations = api.get("/appStoreVersions/#{id}/appStoreVersionLocalizations", "limit" => "200").fetch("data")
+  %w[ja en-US].each do |locale|
+    item = localizations.find { |x| x.dig("attributes", "locale") == locale }
+    raise "Missing existing #{locale} localization" unless item
+    notes = File.read(File.expand_path("../fastlane/metadata/#{locale}/release_notes.txt", __dir__), encoding: "UTF-8").strip
+    raise "Invalid note size" unless notes.length.between?(10, 4000)
+    localization_id = item.fetch("id")
+    api.patch("/appStoreVersionLocalizations/#{localization_id}", data: {type: "appStoreVersionLocalizations", id: localization_id, attributes: {whatsNew: notes}})
+    puts "Saved #{locale} release notes; existing store description retained"
+  end
+  uploaded = builds.fetch("data").find { |x| x.dig("attributes", "version") == build && x.dig("attributes", "processingState") == "VALID" }
+  if uploaded
+    prerelease_id = uploaded.dig("relationships", "preReleaseVersion", "data", "id")
+    prerelease = builds.fetch("included", []).find { |x| x["type"] == "preReleaseVersions" && x["id"] == prerelease_id }
+    raise "Build marketing version differs" unless prerelease&.dig("attributes", "version") == version
+    api.patch("/appStoreVersions/#{id}/relationships/build", data: {type: "builds", id: uploaded.fetch("id")})
+    puts "Selected #{version} (#{build})"
+  else
+    puts "Build #{build} is not VALID yet; metadata prepared without selecting a build"
+  end
+  File.write(File.join(output, "prepared-version.json"), JSON.pretty_generate(api.get("/appStoreVersions/#{id}", "include" => "build,appStoreVersionLocalizations,appStoreReviewDetail")))
+  puts "Prepared #{version}; NO review submission was created or submitted"
+end

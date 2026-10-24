@@ -1,0 +1,52 @@
+name: Capture release store screenshots
+on:
+  workflow_dispatch:
+    inputs:
+      devices:
+        type: choice
+        default: duo
+        options: [duo, iphone, ipad, watch, all]
+      duo_screen:
+        type: choice
+        default: inner
+        options: [inner, outer]
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: xcode-27
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build local diagnostics dependency
+        env:
+          CARGO_BUILD_JOBS: '1'
+        run: |
+          export PATH="$HOME/.cargo/bin:$PATH"
+          if ! command -v rustup >/dev/null; then curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y; fi
+          bash scripts/build-local-diagnostics.sh
+      - name: Capture actual release UI sequentially
+        env:
+          CAPTURE_DEVICE: ${{ inputs.devices }}
+          DUO_SCREEN: ${{ inputs.duo_screen }}
+        run: |
+          set -euo pipefail
+          xcodebuild -version
+          if [ "$CAPTURE_DEVICE" = all ]; then
+            python3 scripts/capture-store-screenshots.py --duo-screen "$DUO_SCREEN"
+          else
+            python3 scripts/capture-store-screenshots.py --devices "$CAPTURE_DEVICE" --duo-screen "$DUO_SCREEN"
+          fi
+          for capture in build/store-screenshots/*; do
+            swift scripts/compose-store-screenshots.swift "$capture/screenshots" "$capture/artwork"
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: store-screenshots-${{ inputs.devices }}
+          path: |
+            build/store-screenshots/*/screenshots/
+            build/store-screenshots/*/artwork/
+            build/store-screenshots/*/capture.json
+            build/store-screenshots/*/*.log
+          retention-days: 7

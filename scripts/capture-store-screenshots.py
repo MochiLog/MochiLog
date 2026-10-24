@@ -360,4 +360,5 @@ print(
 with zipfile.ZipFile(OUTPUT / "MochiLog-screenshots.zip", "w", zipfile.ZIP_DEFLATED) as archive:
     for screenshot in sorted((OUTPUT / "screenshots").rglob("*.png")):
         archive.write(screenshot, screenshot.relative_to(OUTPUT / "screenshots"))
-run("open", str(OUTPUT / "screenshots"))
+if not os.environ.get("CI"):
+    run("open", str(OUTPUT / "screenshots"))
