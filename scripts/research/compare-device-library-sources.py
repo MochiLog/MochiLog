@@ -114,11 +114,20 @@ def combine(snapshot_dir):
     kit_names = read_devicekit(kit_file)
     source_path = ROOT / "MochiLog/Models/DeviceLibrary.swift"
     source = source_path.read_text()
+    project = (ROOT / "MochiLog.xcodeproj/project.pbxproj").read_text()
+    build_number = re.search(r"CURRENT_PROJECT_VERSION = (\d+);", project)[1]
+    marketing_version = re.search(r"MARKETING_VERSION = ([\d.]+);", project)[1]
     names = string_table(source, "deviceNamesJa")
     boards = string_table(source, "boardToIdentifier")
     soc = string_table(source, "socInfo")
     capacity_block = re.search(r"static let designCapacities:.*?= \[(.*?)\n  \]", source, re.S)[1]
     capacities = {key: int(value) for key, value in re.findall(r'"([^"]+)":\s*(\d+)', capacity_block)}
+    approved = {
+        "names": {r["key"]: r["officialNames"][0] for r in official["identifiers"] if r["status"] == "difference"},
+        "boards": {r["key"]: r["reference"][0] for r in appledb["boards"] if r["status"] == "difference"},
+        "soc": {r["name"]: r["official"][0] for r in official["soc"] if r["status"] == "difference"},
+        "capacities": {},
+    }
     for table, actual, snapshot_key, value_key in [
         ("names", names, "identifiers", "current"),
         ("boards", boards, "boards", "currentIdentifier"),
@@ -126,8 +135,11 @@ def combine(snapshot_dir):
         ("capacities", capacities, "capacities", "currentDesignCapacitymAh"),
     ]:
         expected = {(r.get("key") or r.get("board") or r.get("name")): r[value_key] for r in official[snapshot_key]}
-        if actual != expected:
-            raise ValueError(f"Current {table} no longer matches the reviewed audit; refresh it first")
+        if actual.keys() != expected.keys() or any(
+            actual[key] not in {expected[key], approved[table].get(key, expected[key])}
+            for key in expected
+        ):
+            raise ValueError(f"Current {table} contains an unreviewed change; refresh the audit first")
 
     db = {table: {r["key"]: r for r in appledb[table]} for table in ["names", "boards", "soc", "capacities", "modelNumbers"]}
     rows = []
@@ -147,6 +159,9 @@ def combine(snapshot_dir):
         status, note = "一致", "機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。"
         if item["status"] == "difference":
             status, note = "誤登録・未修正", "Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。"
+            if current == approved["names"][key]:
+                status = "修正済み"
+                note = f"1062の登録値: {item['current']}。標準ライブラリを修正。既存Watchの選択名を保ち、旧代表IDのみ一方向に補正。容量は変更しない。"
         elif reference["status"] == "difference":
             status, note = "資料側の相違", "AppleDBは44mm。Apple公式のA2353/A2355、Xcode、libirecovery、DeviceKitは40mm。現在値を維持。"
         elif current.startswith("Apple Watch") and key in kit_names and kit_names[key] != re.sub(r" Cellular$", "", current):
@@ -159,7 +174,7 @@ def combine(snapshot_dir):
             apple=item.get("officialPublicName") or ("製品名確認・内部ID未記載" if item.get("officialProductNameConfirmed") else "内部IDは公開資料で未確認"),
             adb=reference["canonicalReference"], lib=lib_names.get(key), kit=kit_names.get(key),
             xcode=item["officialNames"], status=status, note=note,
-            difference=status in {"誤登録・未修正", "資料側の相違"},
+            difference=status in {"誤登録・未修正", "資料側の相違", "修正済み"},
             sources=[WATCH_URL] if key.startswith("Watch") else [], evidence={"appleAudit": item, "appledbAudit": reference})
 
     for item in official["boards"]:
@@ -172,17 +187,22 @@ def combine(snapshot_dir):
         xcode = "記載なし"
         if item["xcodeProductClass"]:
             xcode = f"{item['xcodeProductClass']}グループ: {display(item['xcodeRepresentedIdentifiers'])}"
+        status = "誤登録・未修正" if mismatch else "第三者資料で一致"
+        note = "AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。"
+        if mismatch and boards[key] == approved["boards"][key]:
+            status = "修正済み"
+            note = f"1062の登録値: {item['currentIdentifier']}。基板文字列自体が残る既存記録のみ補正し、解決済みIDだけから元の基板は推測しない。容量は変更しない。"
         add("基板ID", key, boards[key], apple="物理基板の厳密な対応は未確認", adb=reference["reference"],
-            lib=exact, xcode=xcode, status="誤登録・未修正" if mismatch else "第三者資料で一致",
-            note="AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。",
+            lib=exact, xcode=xcode, status=status, note=note,
             difference=mismatch, sources=[LIB_URL, appledb["source"]["pinnedURL"]], evidence={"appleAudit": item, "appledbAudit": reference})
 
     for item in official["soc"]:
         key = item["name"]
         mismatch = item["status"] == "difference"
+        fixed = mismatch and soc[key] == approved["soc"][key]
         add("SoC", key, soc[key], apple=item["official"], adb=db["soc"][key]["reference"],
-            status="誤登録・未修正" if mismatch else "一致", difference=mismatch,
-            note="libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。",
+            status="修正済み" if fixed else "誤登録・未修正" if mismatch else "一致", difference=mismatch,
+            note=f"1062の登録値: {item['current']}。SoCはライブラリから表示するため既存記録にも反映。ユーザー定義プロファイルは維持。" if fixed else "libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。",
             sources=[item["source"]], evidence={"appleAudit": item, "appledbAudit": db["soc"][key]})
 
     capacity_status = {
@@ -233,7 +253,7 @@ def combine(snapshot_dir):
     counts = Counter(row["status"] for row in rows)
     differences = [row for row in rows if row["difference"]]
     assert len(rows) == 605
-    assert counts["誤登録・未修正"] == 20
+    assert counts["誤登録・未修正"] + counts["修正済み"] == 21
     assert counts["資料側の相違"] == 3
     assert len(differences) == 37
     assert len({row["id"] for row in rows}) == len(rows)
@@ -241,11 +261,12 @@ def combine(snapshot_dir):
         "auditDate": "2026-10-25",
         "generatedAt": datetime.now(timezone.utc).isoformat(),
         "currentCommit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
-        "currentBuild": "4.0.0 (1062)",
-        "appDataChanged": False,
+        "currentBuild": f"{marketing_version} ({build_number})",
+        "reportModifiesApplicationData": False,
+        "deviceLibrarySha256": sha256(source_path),
         "summary": {"allRows": len(rows), "differenceRows": len(differences), "statusCounts": dict(counts)},
         "definitions": [
-            "誤登録20項目は機種名10・基板対応8・SoC2。重複する端末があり、20台という意味ではない。",
+            "照合で判明した誤登録20項目は機種名10・基板対応8・SoC2。重複する端末があり、20台という意味ではない。修正済みにはDuo容量1項目も含む。",
             "定義差8項目は設計容量と公式定格容量の相違で、誤登録とはまだ断定しない。",
             "資料側の相違3項目はAppleDB 1・DeviceKit 2。MochiLogの現在値を維持。",
             "未記載・未確認は一致として数えない。XcodeにmAhの容量定数は見つからなかった。",
@@ -266,9 +287,9 @@ def combine(snapshot_dir):
 def write_outputs(data, prefix):
     prefix.parent.mkdir(parents=True, exist_ok=True)
     prefix.with_suffix(".json").write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n")
-    headers = ["分類", "対象", "現在値(1062)", "Apple公開資料", "AppleDB", "libirecovery", "DeviceKit", "Xcode", "判定", "補足"]
+    headers = ["分類", "対象", f"現在値 {data['currentBuild']}", "Apple公開資料", "AppleDB", "libirecovery", "DeviceKit", "Xcode", "判定", "補足"]
     fields = ["category", "key", "current", "apple", "appledb", "libirecovery", "devicekit", "xcode", "status", "note"]
-    lines = ["MochiLog DeviceLibrary 全ソース統合差分表", "照合日: 2026-10-25 / 現在: 4.0.0 (1062)"]
+    lines = ["MochiLog DeviceLibrary 全ソース統合差分表", f"照合日: 2026-10-25 / 現在: {data['currentBuild']}"]
     lines.extend(data["definitions"])
     lines.extend(["", "差分・注意点: 37項目", " | ".join(headers)])
     for row in data["differences"]:

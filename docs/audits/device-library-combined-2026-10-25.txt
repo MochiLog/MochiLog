@@ -1,36 +1,36 @@
 MochiLog DeviceLibrary 全ソース統合差分表
-照合日: 2026-10-25 / 現在: 4.0.0 (1062)
-誤登録20項目は機種名10・基板対応8・SoC2。重複する端末があり、20台という意味ではない。
+照合日: 2026-10-25 / 現在: 4.0.0 (1063)
+照合で判明した誤登録20項目は機種名10・基板対応8・SoC2。重複する端末があり、20台という意味ではない。修正済みにはDuo容量1項目も含む。
 定義差8項目は設計容量と公式定格容量の相違で、誤登録とはまだ断定しない。
 資料側の相違3項目はAppleDB 1・DeviceKit 2。MochiLogの現在値を維持。
 未記載・未確認は一致として数えない。XcodeにmAhの容量定数は見つからなかった。
 機種名は表記とGPS/Cellularのまとめ方を正規化。容量の同一性を意味しない。
 
 差分・注意点: 37項目
-分類 | 対象 | 現在値(1062) | Apple公開資料 | AppleDB | libirecovery | DeviceKit | Xcode | 判定 | 補足
-機種ID | Watch4,2 | Apple Watch 4 (40mm) | 内部IDは公開資料で未確認 | Apple Watch 4 (44mm) | Apple Watch 4 (44mm) | Apple Watch 4 (44mm) | Apple Watch 4 (44mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
-機種ID | Watch4,3 | Apple Watch 4 (44mm) | 内部IDは公開資料で未確認 | Apple Watch 4 (40mm) | Apple Watch 4 (40mm) | Apple Watch 4 (40mm) | Apple Watch 4 (40mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
+分類 | 対象 | 現在値 4.0.0 (1063) | Apple公開資料 | AppleDB | libirecovery | DeviceKit | Xcode | 判定 | 補足
+機種ID | Watch4,2 | Apple Watch 4 (44mm) | 内部IDは公開資料で未確認 | Apple Watch 4 (44mm) | Apple Watch 4 (44mm) | Apple Watch 4 (44mm) | Apple Watch 4 (44mm) | 修正済み | 1062の登録値: Apple Watch 4 (40mm)。標準ライブラリを修正。既存Watchの選択名を保ち、旧代表IDのみ一方向に補正。容量は変更しない。
+機種ID | Watch4,3 | Apple Watch 4 (40mm) | 内部IDは公開資料で未確認 | Apple Watch 4 (40mm) | Apple Watch 4 (40mm) | Apple Watch 4 (40mm) | Apple Watch 4 (40mm) | 修正済み | 1062の登録値: Apple Watch 4 (44mm)。標準ライブラリを修正。既存Watchの選択名を保ち、旧代表IDのみ一方向に補正。容量は変更しない。
 機種ID | Watch5,11 | Apple Watch SE (第1世代) (40mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第1世代) (44mm) | Apple Watch SE (第1世代) (40mm) | Apple Watch SE (第1世代) (40mm) | Apple Watch SE (第1世代) (40mm) | 資料側の相違 | AppleDBは44mm。Apple公式のA2353/A2355、Xcode、libirecovery、DeviceKitは40mm。現在値を維持。
-機種ID | Watch6,10 | Apple Watch 8 (41mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
-機種ID | Watch6,11 | Apple Watch 8 (45mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
-機種ID | Watch6,12 | Apple Watch 8 (41mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
-機種ID | Watch6,13 | Apple Watch 8 (45mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
-機種ID | Watch6,14 | Apple Watch SE (第2世代) (40mm) | 内部IDは公開資料で未確認 | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
-機種ID | Watch6,15 | Apple Watch SE (第2世代) (44mm) | 内部IDは公開資料で未確認 | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
-機種ID | Watch6,16 | Apple Watch SE (第2世代) (40mm) | 内部IDは公開資料で未確認 | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
-機種ID | Watch6,17 | Apple Watch SE (第2世代) (44mm) | 内部IDは公開資料で未確認 | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
+機種ID | Watch6,10 | Apple Watch SE (第2世代) (40mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | 修正済み | 1062の登録値: Apple Watch 8 (41mm)。標準ライブラリを修正。既存Watchの選択名を保ち、旧代表IDのみ一方向に補正。容量は変更しない。
+機種ID | Watch6,11 | Apple Watch SE (第2世代) (44mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | 修正済み | 1062の登録値: Apple Watch 8 (45mm)。標準ライブラリを修正。既存Watchの選択名を保ち、旧代表IDのみ一方向に補正。容量は変更しない。
+機種ID | Watch6,12 | Apple Watch SE (第2世代) (40mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | 修正済み | 1062の登録値: Apple Watch 8 (41mm)。標準ライブラリを修正。既存Watchの選択名を保ち、旧代表IDのみ一方向に補正。容量は変更しない。
+機種ID | Watch6,13 | Apple Watch SE (第2世代) (44mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | 修正済み | 1062の登録値: Apple Watch 8 (45mm)。標準ライブラリを修正。既存Watchの選択名を保ち、旧代表IDのみ一方向に補正。容量は変更しない。
+機種ID | Watch6,14 | Apple Watch 8 (41mm) | 内部IDは公開資料で未確認 | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | 修正済み | 1062の登録値: Apple Watch SE (第2世代) (40mm)。標準ライブラリを修正。既存Watchの選択名を保ち、旧代表IDのみ一方向に補正。容量は変更しない。
+機種ID | Watch6,15 | Apple Watch 8 (45mm) | 内部IDは公開資料で未確認 | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | 修正済み | 1062の登録値: Apple Watch SE (第2世代) (44mm)。標準ライブラリを修正。既存Watchの選択名を保ち、旧代表IDのみ一方向に補正。容量は変更しない。
+機種ID | Watch6,16 | Apple Watch 8 (41mm) | 内部IDは公開資料で未確認 | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | 修正済み | 1062の登録値: Apple Watch SE (第2世代) (40mm)。標準ライブラリを修正。既存Watchの選択名を保ち、旧代表IDのみ一方向に補正。容量は変更しない。
+機種ID | Watch6,17 | Apple Watch 8 (45mm) | 内部IDは公開資料で未確認 | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | 修正済み | 1062の登録値: Apple Watch SE (第2世代) (44mm)。標準ライブラリを修正。既存Watchの選択名を保ち、旧代表IDのみ一方向に補正。容量は変更しない。
 機種ID | Watch7,14 | Apple Watch SE (第3世代) (44mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第3世代) (44mm) | Apple Watch SE (第3世代) (44mm) | Apple Watch SE (第3世代) (40mm) | Apple Watch SE (第3世代) (44mm) | 資料側の相違 | DeviceKitのサイズがXcode・AppleDB・libirecoveryと相違。現在値を維持。
 機種ID | Watch7,15 | Apple Watch SE (第3世代) (40mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第3世代) (40mm) | Apple Watch SE (第3世代) (40mm) | Apple Watch SE (第3世代) (44mm) | Apple Watch SE (第3世代) (40mm) | 資料側の相違 | DeviceKitのサイズがXcode・AppleDB・libirecoveryと相違。現在値を維持。
-基板ID | N66AP | iPhone8,1 | 物理基板の厳密な対応は未確認 | iPhone8,2 | iPhone8,2 | 記載なし | N66グループ: iPhone8,2 | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
-基板ID | N66mAP | iPhone8,1 | 物理基板の厳密な対応は未確認 | iPhone8,2 | iPhone8,2 | 記載なし | 記載なし | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
-基板ID | N71AP | iPhone8,2 | 物理基板の厳密な対応は未確認 | iPhone8,1 | iPhone8,1 | 記載なし | N71グループ: iPhone8,1 | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
-基板ID | N71mAP | iPhone8,2 | 物理基板の厳密な対応は未確認 | iPhone8,1 | iPhone8,1 | 記載なし | 記載なし | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
-基板ID | D111AP | iPhone9,2 | 物理基板の厳密な対応は未確認 | iPhone9,4 | iPhone9,4 | 記載なし | 記載なし | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
-基板ID | D11AP | iPhone9,4 | 物理基板の厳密な対応は未確認 | iPhone9,2 | iPhone9,2 | 記載なし | D11グループ: iPhone9,2 / iPhone9,4 | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
-基板ID | J417AP | iPad8,10 | 物理基板の厳密な対応は未確認 | iPad8,9 | iPad8,9 | 記載なし | J417グループ: iPad8,10 / iPad8,9 | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
-基板ID | J418AP | iPad8,9 | 物理基板の厳密な対応は未確認 | iPad8,10 | iPad8,10 | 記載なし | 記載なし | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
-SoC | Apple Watch 12 (46mm) Cellular | S10 | S11 | S11 | 記載なし | 記載なし | 記載なし | 誤登録・未修正 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
-SoC | Apple Watch 12 (42mm) Cellular | S10 | S11 | S11 | 記載なし | 記載なし | 記載なし | 誤登録・未修正 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+基板ID | N66AP | iPhone8,2 | 物理基板の厳密な対応は未確認 | iPhone8,2 | iPhone8,2 | 記載なし | N66グループ: iPhone8,2 | 修正済み | 1062の登録値: iPhone8,1。基板文字列自体が残る既存記録のみ補正し、解決済みIDだけから元の基板は推測しない。容量は変更しない。
+基板ID | N66mAP | iPhone8,2 | 物理基板の厳密な対応は未確認 | iPhone8,2 | iPhone8,2 | 記載なし | 記載なし | 修正済み | 1062の登録値: iPhone8,1。基板文字列自体が残る既存記録のみ補正し、解決済みIDだけから元の基板は推測しない。容量は変更しない。
+基板ID | N71AP | iPhone8,1 | 物理基板の厳密な対応は未確認 | iPhone8,1 | iPhone8,1 | 記載なし | N71グループ: iPhone8,1 | 修正済み | 1062の登録値: iPhone8,2。基板文字列自体が残る既存記録のみ補正し、解決済みIDだけから元の基板は推測しない。容量は変更しない。
+基板ID | N71mAP | iPhone8,1 | 物理基板の厳密な対応は未確認 | iPhone8,1 | iPhone8,1 | 記載なし | 記載なし | 修正済み | 1062の登録値: iPhone8,2。基板文字列自体が残る既存記録のみ補正し、解決済みIDだけから元の基板は推測しない。容量は変更しない。
+基板ID | D111AP | iPhone9,4 | 物理基板の厳密な対応は未確認 | iPhone9,4 | iPhone9,4 | 記載なし | 記載なし | 修正済み | 1062の登録値: iPhone9,2。基板文字列自体が残る既存記録のみ補正し、解決済みIDだけから元の基板は推測しない。容量は変更しない。
+基板ID | D11AP | iPhone9,2 | 物理基板の厳密な対応は未確認 | iPhone9,2 | iPhone9,2 | 記載なし | D11グループ: iPhone9,2 / iPhone9,4 | 修正済み | 1062の登録値: iPhone9,4。基板文字列自体が残る既存記録のみ補正し、解決済みIDだけから元の基板は推測しない。容量は変更しない。
+基板ID | J417AP | iPad8,9 | 物理基板の厳密な対応は未確認 | iPad8,9 | iPad8,9 | 記載なし | J417グループ: iPad8,10 / iPad8,9 | 修正済み | 1062の登録値: iPad8,10。基板文字列自体が残る既存記録のみ補正し、解決済みIDだけから元の基板は推測しない。容量は変更しない。
+基板ID | J418AP | iPad8,10 | 物理基板の厳密な対応は未確認 | iPad8,10 | iPad8,10 | 記載なし | 記載なし | 修正済み | 1062の登録値: iPad8,9。基板文字列自体が残る既存記録のみ補正し、解決済みIDだけから元の基板は推測しない。容量は変更しない。
+SoC | Apple Watch 12 (46mm) Cellular | S11 | S11 | S11 | 記載なし | 記載なし | 記載なし | 修正済み | 1062の登録値: S10。SoCはライブラリから表示するため既存記録にも反映。ユーザー定義プロファイルは維持。
+SoC | Apple Watch 12 (42mm) Cellular | S11 | S11 | S11 | 記載なし | 記載なし | 記載なし | 修正済み | 1062の登録値: S10。SoCはライブラリから表示するため既存記録にも反映。ユーザー定義プロファイルは維持。
 容量(mAh) | iPhone Duo | 4883 | 4883 | 記載なし | 記載なし | 記載なし | 記載なし | 修正済み | 旧4700mAhから4883mAhへ修正済み。4.0.0 (1062)。ユーザー指定によりマイグレーションなし。
 容量(mAh) | iPhone 18 Pro Max | 5567 | 5391 | 記載なし | 記載なし | 記載なし | 記載なし | 地域差・登録済み | esim: 5567mAh / physicalSIM: 5391mAh。EU定格は既存の物理SIM値と一致。
 容量(mAh) | iPhone 18 Pro | 4288 | 4056 | 記載なし | 記載なし | 記載なし | 記載なし | 地域差・登録済み | esim: 4288mAh / physicalSIM: 4056mAh。EU定格は既存の物理SIM値と一致。
@@ -47,7 +47,7 @@ SoC | Apple Watch 12 (42mm) Cellular | S10 | S11 | S11 | 記載なし | 記載�
 地域の判定 | 物理SIM/eSIMの自動選択 | CH/A・ZP/Aのみ物理SIM。それ以外・情報なしはeSIM。 | EU物理SIMモデルが存在 | 記載なし | 記載なし | 記載なし | 記載なし | 判定範囲・要確認 | 容量表自体の誤りとは別。EUなどの物理SIMモデルを自動選択できるか確認が必要。
 
 全照合: 605項目
-分類 | 対象 | 現在値(1062) | Apple公開資料 | AppleDB | libirecovery | DeviceKit | Xcode | 判定 | 補足
+分類 | 対象 | 現在値 4.0.0 (1063) | Apple公開資料 | AppleDB | libirecovery | DeviceKit | Xcode | 判定 | 補足
 機種ID | iPhone8,1 | iPhone 6s | 内部IDは公開資料で未確認 | iPhone 6s | iPhone 6s | iPhone 6s | iPhone 6s | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
 機種ID | iPhone8,2 | iPhone 6s Plus | 内部IDは公開資料で未確認 | iPhone 6s Plus | iPhone 6s Plus | iPhone 6s Plus | iPhone 6s Plus | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
 機種ID | iPhone8,4 | iPhone SE (第1世代) | 内部IDは公開資料で未確認 | iPhone SE (第1世代) | iPhone SE (1st gen) | iPhone SE | iPhone SE (第1世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
@@ -192,8 +192,8 @@ SoC | Apple Watch 12 (42mm) Cellular | S10 | S11 | S11 | 記載なし | 記載�
 機種ID | Watch3,3 | Apple Watch 3 (38mm) | 内部IDは公開資料で未確認 | Apple Watch 3 (38mm) | Apple Watch 3 (38mm) | Apple Watch 3 (38mm) | Apple Watch 3 (38mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
 機種ID | Watch3,4 | Apple Watch 3 (42mm) | 内部IDは公開資料で未確認 | Apple Watch 3 (42mm) | Apple Watch 3 (42mm) | Apple Watch 3 (42mm) | Apple Watch 3 (42mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
 機種ID | Watch4,1 | Apple Watch 4 (40mm) | 内部IDは公開資料で未確認 | Apple Watch 4 (40mm) | Apple Watch 4 (40mm) | Apple Watch 4 (40mm) | Apple Watch 4 (40mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
-機種ID | Watch4,2 | Apple Watch 4 (40mm) | 内部IDは公開資料で未確認 | Apple Watch 4 (44mm) | Apple Watch 4 (44mm) | Apple Watch 4 (44mm) | Apple Watch 4 (44mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
-機種ID | Watch4,3 | Apple Watch 4 (44mm) | 内部IDは公開資料で未確認 | Apple Watch 4 (40mm) | Apple Watch 4 (40mm) | Apple Watch 4 (40mm) | Apple Watch 4 (40mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
+機種ID | Watch4,2 | Apple Watch 4 (44mm) | 内部IDは公開資料で未確認 | Apple Watch 4 (44mm) | Apple Watch 4 (44mm) | Apple Watch 4 (44mm) | Apple Watch 4 (44mm) | 修正済み | 1062の登録値: Apple Watch 4 (40mm)。標準ライブラリを修正。既存Watchの選択名を保ち、旧代表IDのみ一方向に補正。容量は変更しない。
+機種ID | Watch4,3 | Apple Watch 4 (40mm) | 内部IDは公開資料で未確認 | Apple Watch 4 (40mm) | Apple Watch 4 (40mm) | Apple Watch 4 (40mm) | Apple Watch 4 (40mm) | 修正済み | 1062の登録値: Apple Watch 4 (44mm)。標準ライブラリを修正。既存Watchの選択名を保ち、旧代表IDのみ一方向に補正。容量は変更しない。
 機種ID | Watch4,4 | Apple Watch 4 (44mm) | 内部IDは公開資料で未確認 | Apple Watch 4 (44mm) | Apple Watch 4 (44mm) | Apple Watch 4 (44mm) | Apple Watch 4 (44mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
 機種ID | Watch5,1 | Apple Watch 5 (40mm) | 内部IDは公開資料で未確認 | Apple Watch 5 (40mm) | Apple Watch 5 (40mm) | Apple Watch 5 (40mm) | Apple Watch 5 (40mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
 機種ID | Watch5,2 | Apple Watch 5 (44mm) | 内部IDは公開資料で未確認 | Apple Watch 5 (44mm) | Apple Watch 5 (44mm) | Apple Watch 5 (44mm) | Apple Watch 5 (44mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
@@ -211,14 +211,14 @@ SoC | Apple Watch 12 (42mm) Cellular | S10 | S11 | S11 | 記載なし | 記載�
 機種ID | Watch6,7 | Apple Watch 7 (45mm) | 内部IDは公開資料で未確認 | Apple Watch 7 (45mm) | Apple Watch 7 (45mm) | Apple Watch 7 (45mm) | Apple Watch 7 (45mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
 機種ID | Watch6,8 | Apple Watch 7 (41mm) | 内部IDは公開資料で未確認 | Apple Watch 7 (41mm) | Apple Watch 7 (41mm) | Apple Watch 7 (41mm) | Apple Watch 7 (41mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
 機種ID | Watch6,9 | Apple Watch 7 (45mm) | 内部IDは公開資料で未確認 | Apple Watch 7 (45mm) | Apple Watch 7 (45mm) | Apple Watch 7 (45mm) | Apple Watch 7 (45mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
-機種ID | Watch6,10 | Apple Watch 8 (41mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
-機種ID | Watch6,11 | Apple Watch 8 (45mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
-機種ID | Watch6,12 | Apple Watch 8 (41mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
-機種ID | Watch6,13 | Apple Watch 8 (45mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
-機種ID | Watch6,14 | Apple Watch SE (第2世代) (40mm) | 内部IDは公開資料で未確認 | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
-機種ID | Watch6,15 | Apple Watch SE (第2世代) (44mm) | 内部IDは公開資料で未確認 | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
-機種ID | Watch6,16 | Apple Watch SE (第2世代) (40mm) | 内部IDは公開資料で未確認 | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
-機種ID | Watch6,17 | Apple Watch SE (第2世代) (44mm) | 内部IDは公開資料で未確認 | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
+機種ID | Watch6,10 | Apple Watch SE (第2世代) (40mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | 修正済み | 1062の登録値: Apple Watch 8 (41mm)。標準ライブラリを修正。既存Watchの選択名を保ち、旧代表IDのみ一方向に補正。容量は変更しない。
+機種ID | Watch6,11 | Apple Watch SE (第2世代) (44mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | 修正済み | 1062の登録値: Apple Watch 8 (45mm)。標準ライブラリを修正。既存Watchの選択名を保ち、旧代表IDのみ一方向に補正。容量は変更しない。
+機種ID | Watch6,12 | Apple Watch SE (第2世代) (40mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | 修正済み | 1062の登録値: Apple Watch 8 (41mm)。標準ライブラリを修正。既存Watchの選択名を保ち、旧代表IDのみ一方向に補正。容量は変更しない。
+機種ID | Watch6,13 | Apple Watch SE (第2世代) (44mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | 修正済み | 1062の登録値: Apple Watch 8 (45mm)。標準ライブラリを修正。既存Watchの選択名を保ち、旧代表IDのみ一方向に補正。容量は変更しない。
+機種ID | Watch6,14 | Apple Watch 8 (41mm) | 内部IDは公開資料で未確認 | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | 修正済み | 1062の登録値: Apple Watch SE (第2世代) (40mm)。標準ライブラリを修正。既存Watchの選択名を保ち、旧代表IDのみ一方向に補正。容量は変更しない。
+機種ID | Watch6,15 | Apple Watch 8 (45mm) | 内部IDは公開資料で未確認 | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | 修正済み | 1062の登録値: Apple Watch SE (第2世代) (44mm)。標準ライブラリを修正。既存Watchの選択名を保ち、旧代表IDのみ一方向に補正。容量は変更しない。
+機種ID | Watch6,16 | Apple Watch 8 (41mm) | 内部IDは公開資料で未確認 | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | 修正済み | 1062の登録値: Apple Watch SE (第2世代) (40mm)。標準ライブラリを修正。既存Watchの選択名を保ち、旧代表IDのみ一方向に補正。容量は変更しない。
+機種ID | Watch6,17 | Apple Watch 8 (45mm) | 内部IDは公開資料で未確認 | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | 修正済み | 1062の登録値: Apple Watch SE (第2世代) (44mm)。標準ライブラリを修正。既存Watchの選択名を保ち、旧代表IDのみ一方向に補正。容量は変更しない。
 機種ID | Watch6,18 | Apple Watch Ultra (第1世代) | 内部IDは公開資料で未確認 | Apple Watch Ultra (第1世代) | Apple Watch Ultra (第1世代) | Apple Watch Ultra (第1世代) | Apple Watch Ultra (第1世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
 機種ID | Watch7,1 | Apple Watch 9 (41mm) | 内部IDは公開資料で未確認 | Apple Watch 9 (41mm) | Apple Watch 9 (41mm) | Apple Watch 9 (41mm) | Apple Watch 9 (41mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
 機種ID | Watch7,2 | Apple Watch 9 (45mm) | 内部IDは公開資料で未確認 | Apple Watch 9 (45mm) | Apple Watch 9 (45mm) | Apple Watch 9 (45mm) | Apple Watch 9 (45mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
@@ -244,16 +244,16 @@ SoC | Apple Watch 12 (42mm) Cellular | S10 | S11 | S11 | 記載なし | 記載�
 機種ID | Watch8,4 | Apple Watch 12 (42mm) Cellular | 内部IDは公開資料で未確認 | Apple Watch 12 (42mm) Cellular | Apple Watch 12 (42mm) Cellular | Apple Watch 12 (42mm) | Apple Watch 12 (42mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
 機種ID | Watch8,5 | Apple Watch 12 (46mm) Cellular | 内部IDは公開資料で未確認 | Apple Watch 12 (46mm) Cellular | Apple Watch 12 (46mm) Cellular | Apple Watch 12 (46mm) | Apple Watch 12 (46mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
 機種ID | A3385 | iPhone Air MagSafeバッテリー | 内部IDは公開資料で未確認 | iPhone Air MagSafeバッテリー | 記載なし | 記載なし | iPhone Air MagSafe Battery | 公式モデル番号で一致 | アクセサリーA3385の公式製品情報で照合。
-基板ID | N66AP | iPhone8,1 | 物理基板の厳密な対応は未確認 | iPhone8,2 | iPhone8,2 | 記載なし | N66グループ: iPhone8,2 | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
-基板ID | N66mAP | iPhone8,1 | 物理基板の厳密な対応は未確認 | iPhone8,2 | iPhone8,2 | 記載なし | 記載なし | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
-基板ID | N71AP | iPhone8,2 | 物理基板の厳密な対応は未確認 | iPhone8,1 | iPhone8,1 | 記載なし | N71グループ: iPhone8,1 | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
-基板ID | N71mAP | iPhone8,2 | 物理基板の厳密な対応は未確認 | iPhone8,1 | iPhone8,1 | 記載なし | 記載なし | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | N66AP | iPhone8,2 | 物理基板の厳密な対応は未確認 | iPhone8,2 | iPhone8,2 | 記載なし | N66グループ: iPhone8,2 | 修正済み | 1062の登録値: iPhone8,1。基板文字列自体が残る既存記録のみ補正し、解決済みIDだけから元の基板は推測しない。容量は変更しない。
+基板ID | N66mAP | iPhone8,2 | 物理基板の厳密な対応は未確認 | iPhone8,2 | iPhone8,2 | 記載なし | 記載なし | 修正済み | 1062の登録値: iPhone8,1。基板文字列自体が残る既存記録のみ補正し、解決済みIDだけから元の基板は推測しない。容量は変更しない。
+基板ID | N71AP | iPhone8,1 | 物理基板の厳密な対応は未確認 | iPhone8,1 | iPhone8,1 | 記載なし | N71グループ: iPhone8,1 | 修正済み | 1062の登録値: iPhone8,2。基板文字列自体が残る既存記録のみ補正し、解決済みIDだけから元の基板は推測しない。容量は変更しない。
+基板ID | N71mAP | iPhone8,1 | 物理基板の厳密な対応は未確認 | iPhone8,1 | iPhone8,1 | 記載なし | 記載なし | 修正済み | 1062の登録値: iPhone8,2。基板文字列自体が残る既存記録のみ補正し、解決済みIDだけから元の基板は推測しない。容量は変更しない。
 基板ID | N69AP | iPhone8,4 | 物理基板の厳密な対応は未確認 | iPhone8,4 | iPhone8,4 | 記載なし | N69グループ: iPhone8,4 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
 基板ID | N69uAP | iPhone8,4 | 物理基板の厳密な対応は未確認 | iPhone8,4 | iPhone8,4 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
 基板ID | D10AP | iPhone9,1 | 物理基板の厳密な対応は未確認 | iPhone9,1 | iPhone9,1 | 記載なし | D10グループ: iPhone9,1 / iPhone9,3 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
 基板ID | D101AP | iPhone9,3 | 物理基板の厳密な対応は未確認 | iPhone9,3 | iPhone9,3 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
-基板ID | D111AP | iPhone9,2 | 物理基板の厳密な対応は未確認 | iPhone9,4 | iPhone9,4 | 記載なし | 記載なし | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
-基板ID | D11AP | iPhone9,4 | 物理基板の厳密な対応は未確認 | iPhone9,2 | iPhone9,2 | 記載なし | D11グループ: iPhone9,2 / iPhone9,4 | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D111AP | iPhone9,4 | 物理基板の厳密な対応は未確認 | iPhone9,4 | iPhone9,4 | 記載なし | 記載なし | 修正済み | 1062の登録値: iPhone9,2。基板文字列自体が残る既存記録のみ補正し、解決済みIDだけから元の基板は推測しない。容量は変更しない。
+基板ID | D11AP | iPhone9,2 | 物理基板の厳密な対応は未確認 | iPhone9,2 | iPhone9,2 | 記載なし | D11グループ: iPhone9,2 / iPhone9,4 | 修正済み | 1062の登録値: iPhone9,4。基板文字列自体が残る既存記録のみ補正し、解決済みIDだけから元の基板は推測しない。容量は変更しない。
 基板ID | D201AP | iPhone10,4 | 物理基板の厳密な対応は未確認 | iPhone10,4 | iPhone10,4 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
 基板ID | D20AP | iPhone10,1 | 物理基板の厳密な対応は未確認 | iPhone10,1 | iPhone10,1 | 記載なし | D20グループ: iPhone10,1 / iPhone10,4 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
 基板ID | D211AP | iPhone10,5 | 物理基板の厳密な対応は未確認 | iPhone10,5 | iPhone10,5 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
@@ -331,8 +331,8 @@ SoC | Apple Watch 12 (42mm) Cellular | S10 | S11 | S11 | 記載なし | 記載�
 基板ID | J218AP | iPad11,4 | 物理基板の厳密な対応は未確認 | iPad11,4 | iPad11,4 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
 基板ID | J171AP | iPad7,11 | 物理基板の厳密な対応は未確認 | iPad7,11 | iPad7,11 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
 基板ID | J172AP | iPad7,12 | 物理基板の厳密な対応は未確認 | iPad7,12 | iPad7,12 | 記載なし | J172グループ: iPad7,11 / iPad7,12 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
-基板ID | J417AP | iPad8,10 | 物理基板の厳密な対応は未確認 | iPad8,9 | iPad8,9 | 記載なし | J417グループ: iPad8,10 / iPad8,9 | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
-基板ID | J418AP | iPad8,9 | 物理基板の厳密な対応は未確認 | iPad8,10 | iPad8,10 | 記載なし | 記載なし | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J417AP | iPad8,9 | 物理基板の厳密な対応は未確認 | iPad8,9 | iPad8,9 | 記載なし | J417グループ: iPad8,10 / iPad8,9 | 修正済み | 1062の登録値: iPad8,10。基板文字列自体が残る既存記録のみ補正し、解決済みIDだけから元の基板は推測しない。容量は変更しない。
+基板ID | J418AP | iPad8,10 | 物理基板の厳密な対応は未確認 | iPad8,10 | iPad8,10 | 記載なし | 記載なし | 修正済み | 1062の登録値: iPad8,9。基板文字列自体が残る既存記録のみ補正し、解決済みIDだけから元の基板は推測しない。容量は変更しない。
 基板ID | J420AP | iPad8,11 | 物理基板の厳密な対応は未確認 | iPad8,11 | iPad8,11 | 記載なし | J420グループ: iPad8,11 / iPad8,12 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
 基板ID | J421AP | iPad8,12 | 物理基板の厳密な対応は未確認 | iPad8,12 | iPad8,12 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
 基板ID | J171aAP | iPad11,6 | 物理基板の厳密な対応は未確認 | iPad11,6 | iPad11,6 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
@@ -477,8 +477,8 @@ SoC | iPod touch (第6世代) | A8 | A8 / M8 | A8 | 記載なし | 記載なし 
 SoC | Apple Watch Ultra (第4世代) | S11 | S11 | S11 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
 SoC | Apple Watch 12 (46mm) | S11 | S11 | S11 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
 SoC | Apple Watch 12 (42mm) | S11 | S11 | S11 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
-SoC | Apple Watch 12 (46mm) Cellular | S10 | S11 | S11 | 記載なし | 記載なし | 記載なし | 誤登録・未修正 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
-SoC | Apple Watch 12 (42mm) Cellular | S10 | S11 | S11 | 記載なし | 記載なし | 記載なし | 誤登録・未修正 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch 12 (46mm) Cellular | S11 | S11 | S11 | 記載なし | 記載なし | 記載なし | 修正済み | 1062の登録値: S10。SoCはライブラリから表示するため既存記録にも反映。ユーザー定義プロファイルは維持。
+SoC | Apple Watch 12 (42mm) Cellular | S11 | S11 | S11 | 記載なし | 記載なし | 記載なし | 修正済み | 1062の登録値: S10。SoCはライブラリから表示するため既存記録にも反映。ユーザー定義プロファイルは維持。
 SoC | Apple Watch Ultra (第3世代) | S10 | S10 | S10 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
 SoC | Apple Watch Ultra (第2世代) | S9 | S9 | S9 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
 SoC | Apple Watch Ultra (第1世代) | S8 | S8 | S8 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
