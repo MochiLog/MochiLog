@@ -11,9 +11,9 @@ struct CreativeCopy {
 
 let messages = [
   "ja": CreativeCopy(
-    header: "電池の変化を、記録に。", headline: "電池の変化を、\nひと目で。", detail: "容量と充放電回数を、見える記録に。"),
+    header: "電池の変化を、記録に。", headline: "電池のこと、\nもっと知ろう。", detail: "容量と充放電回数の変化が見える。"),
   "en-US": CreativeCopy(
-    header: "Know your battery. Over time.", headline: "Battery health.\nOver time.",
+    header: "Know your battery. Over time.", headline: "Know your\nbattery.",
     detail: "See capacity and cycle trends."),
 ]
 
@@ -137,32 +137,32 @@ func render(kind: String, locale: String, copy: CreativeCopy, analytics: NSImage
   background(canvas)
   if kind == "header" {
     // Official 3840×1646 template: centered art-safe area (1097,493,1646,661).
-    drawIcon(box(1180, 638, 360, 360, canvas))
+    drawIcon(box(1130, 590, 460, 460, canvas))
     text(
-      "MochiLog", box(1620, 661, 1040, 240, canvas), size: 178, weight: .bold,
+      "MochiLog", box(1660, 628, 1040, 280, canvas), size: 214, weight: .bold,
       color: ink(0xF7FBF8))
     text(
-      copy.header, box(1627, 900, 1040, 92, canvas), size: locale == "ja" ? 66 : 59,
+      copy.header, box(1667, 925, 1040, 92, canvas), size: locale == "ja" ? 66 : 59,
       weight: .medium, color: ink(0xB6CDBF))
     ink(0x46D477).setFill()
     NSBezierPath(
-      roundedRect: box(1632, 1030, 100, 7, canvas), xRadius: 3.5, yRadius: 3.5
+      roundedRect: box(1672, 1050, 100, 7, canvas), xRadius: 3.5, yRadius: 3.5
     ).fill()
   } else {
     // Official 3840×2560 template: centered art-safe area (836,765,2168,1030).
-    drawIcon(box(956, 890, 122, 122, canvas))
+    drawIcon(box(916, 861, 122, 122, canvas))
     text(
-      "MochiLog", box(1115, 908, 820, 110, canvas), size: 77, weight: .semibold,
+      "MochiLog", box(1075, 879, 820, 110, canvas), size: 77, weight: .semibold,
       color: ink(0xE6F1EA))
     text(
-      copy.headline, box(950, 1087, 1060, 400, canvas), size: locale == "ja" ? 125 : 128,
+      copy.headline, box(890, 1092, 1060, 490, canvas), size: locale == "ja" ? 150 : 190,
       weight: .bold, color: ink(0xF7FBF8), spacing: 12)
     text(
-      copy.detail, box(956, 1493, 1020, 150, canvas), size: locale == "ja" ? 48 : 53,
+      copy.detail, box(916, 1650, 1020, 110, canvas), size: locale == "ja" ? 49 : 57,
       weight: .medium, color: ink(0xB6CDBF))
     // The first chart sits inside the art-safe area, while the full screen
     // provides context in placements that expose more of the canvas.
-    let card = box(2040, 350, 900, 900 * analytics.size.height / analytics.size.width, canvas)
+    let card = box(1950, 195, 1040, 1040 * analytics.size.height / analytics.size.width, canvas)
     NSGraphicsContext.saveGraphicsState()
     let shadow = NSShadow()
     shadow.shadowColor = ink(0x000000, 0.46)

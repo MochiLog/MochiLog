@@ -123,10 +123,39 @@ begin
       end
       placements = all(api, "/appAssetLibraryImages/#{id}/placements", "limit" => "200", "include" => "appStoreVersionLocalization")
       placement = placements.find { |x| x.dig("attributes", "placementType") == placement_type && x.dig("attributes", "placementGroup") == group && x.dig("relationships", "appStoreVersionLocalization", "data", "id") == localization }
-      placement ||= api.post("/appAssetLibraryPlacements", data: {type: "appAssetLibraryPlacements", attributes: {
-        placementType: placement_type, placementGroup: group}, relationships: {
-        image: {data: {type: "appAssetLibraryImages", id: id}},
-        appStoreVersionLocalization: {data: {type: "appStoreVersionLocalizations", id: localization}}}}).fetch("data")
+      unless placement
+        replaced = []
+        if creative
+          # A creative surface allows only one image. Once the replacement has
+          # finished processing, detach only this draft's same-surface reference.
+          # Keep the old library image so an unsuccessful replacement can restore it.
+          current = all(api, "/appStoreVersionLocalizations/#{localization}/placements", "limit" => "200", "include" => "image")
+          replaced = current.select { |row| row.dig("attributes", "placementType") == placement_type && row.dig("attributes", "placementGroup") == group }
+          replaced.each { |row| api.delete("/appAssetLibraryPlacements/#{row.fetch('id')}") }
+        end
+        begin
+          placement = api.post("/appAssetLibraryPlacements", data: {type: "appAssetLibraryPlacements", attributes: {
+            placementType: placement_type, placementGroup: group}, relationships: {
+            image: {data: {type: "appAssetLibraryImages", id: id}},
+            appStoreVersionLocalization: {data: {type: "appStoreVersionLocalizations", id: localization}}}}).fetch("data")
+        rescue => error
+          # Resolve an uncertain POST before restoring the previous draft image.
+          current = all(api, "/appStoreVersionLocalizations/#{localization}/placements", "limit" => "200", "include" => "image")
+            .select { |row| row.dig("attributes", "placementType") == placement_type && row.dig("attributes", "placementGroup") == group }
+          placement = current.find { |row| row.dig("relationships", "image", "data", "id") == id }
+          unless placement
+            if current.empty?
+              replaced.each do |old|
+                api.post("/appAssetLibraryPlacements", data: {type: "appAssetLibraryPlacements", attributes: {
+                  placementType: placement_type, placementGroup: group}, relationships: {
+                  image: {data: old.dig("relationships", "image", "data")},
+                  appStoreVersionLocalization: {data: {type: "appStoreVersionLocalizations", id: localization}}}})
+              end
+            end
+            raise error
+          end
+        end
+      end
       saved_placement = nil
       30.times do
         saved_placement = api.get("/appAssetLibraryPlacements/#{placement.fetch('id')}", "include" => "appStoreVersionLocalization,image").fetch("data")
