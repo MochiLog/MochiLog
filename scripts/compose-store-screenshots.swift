@@ -126,15 +126,17 @@ func drawText(
 func drawArtwork(source: NSImage, kind: String, message: Message, index: Int, destination: URL)
   throws
 {
-  let canvas = expectedSizes[kind]!
-  guard source.size == canvas else {
+  let expected = expectedSizes[kind]!
+  let landscapeDuo = kind == "duo_inner" && source.size == CGSize(width: 2853, height: 2007)
+  guard source.size == expected || landscapeDuo else {
     throw NSError(
       domain: "ScreenshotDesign", code: 1,
       userInfo: [NSLocalizedDescriptionKey: "Unexpected \(kind) input size: \(source.size)"])
   }
+  let canvas = source.size
   let isWatch = kind == "watch"
   let isDuo = kind.hasPrefix("duo_")
-  let scale: CGFloat = isWatch ? 1 : (isDuo ? canvas.width / 1320 : (kind == "ipad" ? 1.55 : 1))
+  let scale: CGFloat = isWatch ? 1 : (landscapeDuo ? 1.5 : (isDuo ? canvas.width / 1320 : (kind == "ipad" ? 1.55 : 1)))
   let accent = color(0x46D477)
   let bitmap = NSBitmapImageRep(
     bitmapDataPlanes: nil, pixelsWide: Int(canvas.width),
@@ -188,6 +190,18 @@ func drawArtwork(source: NSImage, kind: String, message: Message, index: Int, de
     let bar = rectFromTop(margin, 132, 34, 3, canvas: canvas)
     accent.setFill()
     NSBezierPath(roundedRect: bar, xRadius: 2, yRadius: 2).fill()
+  } else if landscapeDuo {
+    drawText(
+      message.headline, x: margin, y: 410, width: 820, height: 300,
+      size: 92, weight: .bold, ink: color(0xF7FBF8), canvas: canvas, lineSpacing: 12)
+    drawText(
+      message.detail, x: margin, y: 760, width: 800, height: 190,
+      size: 36, weight: .regular, ink: color(0xA8B9B0), canvas: canvas, lineSpacing: 8)
+    color(0x4A6A5A, alpha: 0.75).setFill()
+    NSBezierPath(roundedRect: rectFromTop(margin, 1020, 800, 3, canvas: canvas), xRadius: 1, yRadius: 1).fill()
+    drawText(
+      message.category, x: margin, y: 1055, width: 800, height: 65,
+      size: 38, weight: .semibold, ink: accent, canvas: canvas)
   } else {
     let headlineY: CGFloat = isDuo ? 120 * scale : (kind == "ipad" ? 193 : 211)
     let headlineSize: CGFloat = isDuo ? 70 * scale : (kind == "ipad" ? 106 : 98)
@@ -216,14 +230,14 @@ func drawArtwork(source: NSImage, kind: String, message: Message, index: Int, de
       ink: accent, canvas: canvas)
   }
 
-  let screenshotY: CGFloat = isWatch ? 155 : (isDuo ? 470 * scale : (kind == "ipad" ? 720 : 765))
+  let screenshotY: CGFloat = landscapeDuo ? 400 : (isWatch ? 155 : (isDuo ? 470 * scale : (kind == "ipad" ? 720 : 765)))
   let screenshotWidth =
-    (isDuo || isWatch)
+    landscapeDuo ? 1720 : (isDuo || isWatch)
     ? min(
       canvas.width - (isWatch ? 40 : 120 * scale),
       (canvas.height - screenshotY - (isWatch ? 20 : 70 * scale)) * canvas.width / canvas.height)
     : canvas.width - 2 * (isWatch ? 20 : (kind == "ipad" ? 115 : 93))
-  let screenshotX = (canvas.width - screenshotWidth) / 2
+  let screenshotX = landscapeDuo ? canvas.width - margin - screenshotWidth : (canvas.width - screenshotWidth) / 2
   let screenshotHeight = screenshotWidth * canvas.height / canvas.width
   let screenshotRect = rectFromTop(
     screenshotX, screenshotY, screenshotWidth, screenshotHeight, canvas: canvas)

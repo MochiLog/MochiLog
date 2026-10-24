@@ -205,7 +205,10 @@ def export(label):
                 "duo_outer": (1398, 2034),
                 "duo_inner": (2007, 2853),
             }[label]
-            if dimensions != expected:
+            valid_sizes = [expected]
+            if label == "duo_inner":
+                valid_sizes.append((2853, 2007))
+            if dimensions not in valid_sizes:
                 raise RuntimeError(
                     f"{label}: unexpected screenshot dimensions {dimensions}, expected {expected}"
                 )

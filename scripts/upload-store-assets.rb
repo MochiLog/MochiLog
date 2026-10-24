@@ -9,7 +9,7 @@ version = ENV.fetch("STORE_VERSION", "4.0.0")
 device = ENV.fetch("STORE_DEVICE", "duo")
 groups = {"duo" => "IPHONE_DUO_PROFILE", "iphone" => "IPHONE_DYNAMIC_ISLAND_LARGE_PROFILE", "ipad" => "IPAD_13_PROFILE", "watch" => "WATCH_SERIES_10_PROFILE"}
 group = groups.fetch(device)
-dimensions = {"duo" => [[1398,2034],[2007,2853]], "iphone" => [[1320,2868]], "ipad" => [[2064,2752]], "watch" => [[416,496]]}.fetch(device)
+dimensions = {"duo" => [[1398,2034],[2034,1398],[2007,2853],[2853,2007]], "iphone" => [[1320,2868]], "ipad" => [[2064,2752]], "watch" => [[416,496]]}.fetch(device)
 result_path = File.expand_path("../build/store-asset-inventory/#{device}-upload.json", __dir__)
 FileUtils.mkdir_p(File.dirname(result_path))
 results = []
@@ -84,6 +84,7 @@ begin
   # happens concurrently rather than adding a separate wait for every file.
   processing_deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + 20 * 60
   uploads.each do |locale, localization, file, id|
+      image = nil
       240.times do |attempt|
         image = api.get("/appAssetLibraryImages/#{id}").fetch("data")
         File.write(File.join(File.dirname(result_path), "#{device}-latest-image.json"), JSON.pretty_generate(image))
