@@ -500,7 +500,7 @@ struct DeviceLibrary {
   // MARK: - 設計容量（機種名からmAhを取得）
   static let designCapacities: [String: Int] = [
     // iPhone
-    "iPhone Duo": 4700,
+    "iPhone Duo": 4883,
     "iPhone 18 Pro Max": 5567,
     "iPhone 18 Pro": 4288,
     "iPhone 17 Pro Max": 5088,

@@ -1,0 +1,646 @@
+MochiLog DeviceLibrary / Apple公式データ照合一覧
+調査日: 2026-10-25
+変更: iPhone Duoの基準容量のみ4700→4883mAh。ユーザー指定によりマイグレーションなし。
+それ以外の修正・マイグレーションクラス実装は行っていません。
+公式公開仕様とApple署名付きXcode/CoreSimulator同梱資料を使用。
+定格容量と診断ログのDesignCapacityは別概念。差分だけで旧記録を一括補正しない。
+詳細な証拠URL・ハッシュ・全項目は同名の.jsonに記録。
+
+容量: 全118件
+機種 | アプリの設計容量mAh | 公式の定格mAh | 公式Wh | 判定
+iPhone Duo | 4883 | 4883 | 未確認 | 公式定格mAhと一致
+iPhone 18 Pro Max | 5567 | 5391 | 未確認 | 既存の物理SIM別容量と一致
+iPhone 18 Pro | 4288 | 4056 | 未確認 | 既存の物理SIM別容量と一致
+iPhone 17 Pro Max | 5088 | 4823 | 未確認 | 既存の物理SIM別容量と一致
+iPhone Air | 3149 | 3149 | 未確認 | 公式定格mAhと一致
+iPhone 17 Pro | 4252 | 3988 | 未確認 | 既存の物理SIM別容量と一致
+iPhone 17 | 3692 | 3692 | 未確認 | 公式定格mAhと一致
+iPhone 17e | 4005 | 4005 | 未確認 | 公式定格mAhと一致
+iPhone 16e | 4005 | 4005 | 未確認 | 公式定格mAhと一致
+iPhone 16 Pro Max | 4685 | 4685 | 未確認 | 公式定格mAhと一致
+iPhone 16 Plus | 4674 | 4674 | 未確認 | 公式定格mAhと一致
+iPhone 16 Pro | 3582 | 3582 | 未確認 | 公式定格mAhと一致
+iPhone 16 | 3561 | 3561 | 未確認 | 公式定格mAhと一致
+iPhone 15 Pro Max | 4422 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone 15 Plus | 4383 | 4383 | 未確認 | 公式定格mAhと一致
+iPhone 15 Pro | 3274 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone 15 | 3349 | 3349 | 未確認 | 公式定格mAhと一致
+iPhone 14 Pro Max | 4323 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone 14 Plus | 4325 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone 14 Pro | 3200 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone 14 | 3279 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone 13 Pro Max | 4352 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone 13 Pro | 3095 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone 13 mini | 2406 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone 13 | 3227 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone 12 Pro Max | 3687 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone 12 Pro | 2815 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone 12 mini | 2227 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone 12 | 2815 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone 11 Pro Max | 3969 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone 11 Pro | 3046 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone 11 | 3110 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone XS Max | 3174 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone XS | 2658 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone XR | 2942 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone X | 2700 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone SE (第3世代) | 2018 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone SE (第2世代) | 1821 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone SE (第1世代) | 1624 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone 8 Plus | 2675 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone 8 | 1821 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone 7 Plus | 2906 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone 7 | 1960 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone 6s Plus | 2705 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone 6s | 1715 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPad Pro 13 (M5) | 10340 | 10209 | 38.99 | 公式定格mAhと差分。設計容量との定義差を要確認
+iPad Pro 13 (M4) | 10340 | 10209 | 38.99 | 公式定格mAhと差分。設計容量との定義差を要確認
+iPad Pro 12.9 (第6世代) | 10758 | 未確認 | 40.88 | Whのみ確認。mAhへ換算せず
+iPad Pro 12.9 (第5世代) | 10533 | 未確認 | 40.88 | Whのみ確認。mAhへ換算せず
+iPad Pro 12.9 (第4世代) | 9720 | 未確認 | 36.71 | Whのみ確認。mAhへ換算せず
+iPad Pro 12.9 (第3世代) | 9720 | 未確認 | 36.71 | Whのみ確認。mAhへ換算せず
+iPad Pro 12.9 (第2世代) | 10850 | 未確認 | 41 | Whのみ確認。mAhへ換算せず
+iPad Pro 12.9 (第1世代) | 10307 | 未確認 | 38.5 | Whのみ確認。mAhへ換算せず
+iPad Pro 11 (M5) | 8340 | 8160 | 31.29 | 公式定格mAhと差分。設計容量との定義差を要確認
+iPad Pro 11 (M4) | 8340 | 8160 | 31.29 | 公式定格mAhと差分。設計容量との定義差を要確認
+iPad Pro 11 (第4世代) | 7538 | 未確認 | 28.65 | Whのみ確認。mAhへ換算せず
+iPad Pro 11 (第3世代) | 7538 | 未確認 | 28.65 | Whのみ確認。mAhへ換算せず
+iPad Pro 11 (第2世代) | 7600 | 未確認 | 28.65 | Whのみ確認。mAhへ換算せず
+iPad Pro 11 (第1世代) | 7812 | 未確認 | 29.37 | Whのみ確認。mAhへ換算せず
+iPad Pro 10.5 | 8134 | 未確認 | 30.4 | Whのみ確認。mAhへ換算せず
+iPad Pro 9.7 | 7306 | 未確認 | 27.5 | Whのみ確認。mAhへ換算せず
+iPad mini (A17 Pro) | 5124 | 5034 | 19.3 | 公式定格mAhと差分。設計容量との定義差を要確認
+iPad mini (第6世代) | 5124 | 未確認 | 19.3 | Whのみ確認。mAhへ換算せず
+iPad mini (第5世代) | 5124 | 未確認 | 19.1 | Whのみ確認。mAhへ換算せず
+iPad mini (第4世代) | 5124 | 未確認 | 19.1 | Whのみ確認。mAhへ換算せず
+iPad (A16) | 7698 | 7606 | 28.93 | 公式定格mAhと差分。設計容量との定義差を要確認
+iPad (第10世代) | 7606 | 未確認 | 28.6 | Whのみ確認。mAhへ換算せず
+iPad (第9世代) | 8686 | 未確認 | 32.4 | Whのみ確認。mAhへ換算せず
+iPad (第8世代) | 8686 | 未確認 | 32.4 | Whのみ確認。mAhへ換算せず
+iPad (第7世代) | 8827 | 未確認 | 32.4 | Whのみ確認。mAhへ換算せず
+iPad (第6世代) | 8827 | 未確認 | 32.4 | Whのみ確認。mAhへ換算せず
+iPad (第5世代) | 8827 | 未確認 | 32.4 | Whのみ確認。mAhへ換算せず
+iPad Air 13 (M4) | 9705 | 9720 | 36.59 | 公式定格mAhと差分。設計容量との定義差を要確認
+iPad Air 11 (M4) | 7606 | 7606 | 28.93 | 公式定格mAhと一致
+iPad Air 13 (M3) | 9705 | 9720 | 36.59 | 公式定格mAhと差分。設計容量との定義差を要確認
+iPad Air 11 (M3) | 7606 | 7606 | 28.93 | 公式定格mAhと一致
+iPad Air 13 (M2) | 9705 | 未確認 | 36.59 | Whのみ確認。mAhへ換算せず
+iPad Air 11 (M2) | 7606 | 未確認 | 28.93 | Whのみ確認。mAhへ換算せず
+iPad Air (第5世代) | 7526 | 未確認 | 28.6 | Whのみ確認。mAhへ換算せず
+iPad Air (第4世代) | 7606 | 未確認 | 28.6 | Whのみ確認。mAhへ換算せず
+iPad Air (第3世代) | 8134 | 未確認 | 30.2 | Whのみ確認。mAhへ換算せず
+iPad Air (第2世代) | 7340 | 未確認 | 27.3 | Whのみ確認。mAhへ換算せず
+iPad Air (第1世代) | 7340 | 未確認 | 32.4 | Whのみ確認。mAhへ換算せず
+iPod touch (第7世代) | 1043 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPod touch (第6世代) | 1043 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch Ultra (第4世代) | 633 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch 12 (46mm) | 378 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch 12 (42mm) | 327 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch Ultra (第3世代) | 599 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch Ultra (第2世代) | 564 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch Ultra (第1世代) | 542 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch SE (第3世代) (44mm) | 330 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch SE (第3世代) (40mm) | 263 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch SE (第2世代) (44mm) | 296 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch SE (第2世代) (40mm) | 245 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch SE (第1世代) (44mm) | 296 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch SE (第1世代) (40mm) | 245 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch 11 (46mm) | 363 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch 11 (42mm) | 322 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch 10 (46mm) | 327 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch 10 (42mm) | 308 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch 9 (45mm) | 308 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch 9 (41mm) | 282 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch 8 (45mm) | 308 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch 8 (41mm) | 282 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch 7 (45mm) | 308 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch 7 (41mm) | 284 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch 6 (44mm) | 303 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch 6 (40mm) | 265 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch 5 (44mm) | 296 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch 5 (40mm) | 245 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch 4 (44mm) | 291 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch 4 (40mm) | 224 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch 3 (42mm) Cellular | 352 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch 3 (42mm) | 342 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch 3 (38mm) Cellular | 279 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+Apple Watch 3 (38mm) | 262 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+iPhone Air MagSafeバッテリー | 3149 | 未確認 | 未確認 | 確認した公式資料にmAh記載なし
+
+機種IDと機種名: 全196件
+ID | アプリ | Apple資料での機種名 | 判定
+iPhone8,1 | iPhone 6s | iPhone 6s | 一致
+iPhone8,2 | iPhone 6s Plus | iPhone 6s Plus | 一致
+iPhone8,4 | iPhone SE (第1世代) | iPhone SE (第1世代) | 一致
+iPhone9,1 | iPhone 7 | iPhone 7 | 一致
+iPhone9,3 | iPhone 7 | iPhone 7 | 一致
+iPhone9,2 | iPhone 7 Plus | iPhone 7 Plus | 一致
+iPhone9,4 | iPhone 7 Plus | iPhone 7 Plus | 一致
+iPhone10,1 | iPhone 8 | iPhone 8 | 一致
+iPhone10,4 | iPhone 8 | iPhone 8 | 一致
+iPhone10,2 | iPhone 8 Plus | iPhone 8 Plus | 一致
+iPhone10,5 | iPhone 8 Plus | iPhone 8 Plus | 一致
+iPhone10,3 | iPhone X | iPhone X | 一致
+iPhone10,6 | iPhone X | iPhone X | 一致
+iPhone11,8 | iPhone XR | iPhone XR | 一致
+iPhone11,2 | iPhone XS | iPhone XS | 一致
+iPhone11,4 | iPhone XS Max | iPhone XS Max | 一致
+iPhone11,6 | iPhone XS Max | iPhone XS Max | 一致
+iPhone12,1 | iPhone 11 | iPhone 11 | 一致
+iPhone12,3 | iPhone 11 Pro | iPhone 11 Pro | 一致
+iPhone12,5 | iPhone 11 Pro Max | iPhone 11 Pro Max | 一致
+iPhone12,8 | iPhone SE (第2世代) | iPhone SE (第2世代) | 一致
+iPhone13,1 | iPhone 12 mini | iPhone 12 mini | 一致
+iPhone13,2 | iPhone 12 | iPhone 12 | 一致
+iPhone13,3 | iPhone 12 Pro | iPhone 12 Pro | 一致
+iPhone13,4 | iPhone 12 Pro Max | iPhone 12 Pro Max | 一致
+iPhone14,4 | iPhone 13 mini | iPhone 13 mini | 一致
+iPhone14,5 | iPhone 13 | iPhone 13 | 一致
+iPhone14,2 | iPhone 13 Pro | iPhone 13 Pro | 一致
+iPhone14,3 | iPhone 13 Pro Max | iPhone 13 Pro Max | 一致
+iPhone14,6 | iPhone SE (第3世代) | iPhone SE (第3世代) | 一致
+iPhone14,7 | iPhone 14 | iPhone 14 | 一致
+iPhone14,8 | iPhone 14 Plus | iPhone 14 Plus | 一致
+iPhone15,2 | iPhone 14 Pro | iPhone 14 Pro | 一致
+iPhone15,3 | iPhone 14 Pro Max | iPhone 14 Pro Max | 一致
+iPhone15,4 | iPhone 15 | iPhone 15 | 一致
+iPhone15,5 | iPhone 15 Plus | iPhone 15 Plus | 一致
+iPhone16,1 | iPhone 15 Pro | iPhone 15 Pro | 一致
+iPhone16,2 | iPhone 15 Pro Max | iPhone 15 Pro Max | 一致
+iPhone17,1 | iPhone 16 Pro | iPhone 16 Pro | 一致
+iPhone17,2 | iPhone 16 Pro Max | iPhone 16 Pro Max | 一致
+iPhone17,3 | iPhone 16 | iPhone 16 | 一致
+iPhone17,4 | iPhone 16 Plus | iPhone 16 Plus | 一致
+iPhone17,5 | iPhone 16e | iPhone 16e | 一致
+iPhone18,1 | iPhone 17 Pro | iPhone 17 Pro | 一致
+iPhone18,2 | iPhone 17 Pro Max | iPhone 17 Pro Max | 一致
+iPhone18,3 | iPhone 17 | iPhone 17 | 一致
+iPhone18,4 | iPhone Air | iPhone Air | 一致
+iPhone18,5 | iPhone 17e | iPhone 17e | 一致
+iPhone19,2 | iPhone 18 Pro | iPhone 18 Pro | 一致
+iPhone19,3 | iPhone 18 Pro Max | iPhone 18 Pro Max | 一致
+iPhone19,4 | iPhone Duo | iPhone Duo | 一致
+iPhone19,7 | iPhone 18 Pro Max | iPhone 18 Pro Max | 一致
+iPad4,1 | iPad Air (第1世代) | 内部IDの対応は未確認 | 製品名は公式で確認。内部IDは同梱資料で未確認
+iPad4,2 | iPad Air (第1世代) | 内部IDの対応は未確認 | 製品名は公式で確認。内部IDは同梱資料で未確認
+iPad4,3 | iPad Air (第1世代) | 内部IDの対応は未確認 | 製品名は公式で確認。内部IDは同梱資料で未確認
+iPad5,1 | iPad mini (第4世代) | iPad mini (第4世代) | 一致
+iPad5,2 | iPad mini (第4世代) | iPad mini (第4世代) | 一致
+iPad5,3 | iPad Air (第2世代) | iPad Air (第2世代) | 一致
+iPad5,4 | iPad Air (第2世代) | iPad Air (第2世代) | 一致
+iPad6,3 | iPad Pro 9.7 | iPad Pro 9.7 | 一致
+iPad6,4 | iPad Pro 9.7 | iPad Pro 9.7 | 一致
+iPad6,7 | iPad Pro 12.9 (第1世代) | iPad Pro 12.9 (第1世代) | 一致
+iPad6,8 | iPad Pro 12.9 (第1世代) | iPad Pro 12.9 (第1世代) | 一致
+iPad6,11 | iPad (第5世代) | iPad (第5世代) | 一致
+iPad6,12 | iPad (第5世代) | iPad (第5世代) | 一致
+iPad7,1 | iPad Pro 12.9 (第2世代) | iPad Pro 12.9 (第2世代) | 一致
+iPad7,2 | iPad Pro 12.9 (第2世代) | iPad Pro 12.9 (第2世代) | 一致
+iPad7,3 | iPad Pro 10.5 | iPad Pro 10.5 | 一致
+iPad7,4 | iPad Pro 10.5 | iPad Pro 10.5 | 一致
+iPad7,5 | iPad (第6世代) | iPad (第6世代) | 一致
+iPad7,6 | iPad (第6世代) | iPad (第6世代) | 一致
+iPad7,11 | iPad (第7世代) | iPad (第7世代) | 一致
+iPad7,12 | iPad (第7世代) | iPad (第7世代) | 一致
+iPad8,1 | iPad Pro 11 (第1世代) | iPad Pro 11 (第1世代) | 一致
+iPad8,2 | iPad Pro 11 (第1世代) | iPad Pro 11 (第1世代) | 一致
+iPad8,3 | iPad Pro 11 (第1世代) | iPad Pro 11 (第1世代) | 一致
+iPad8,4 | iPad Pro 11 (第1世代) | iPad Pro 11 (第1世代) | 一致
+iPad8,5 | iPad Pro 12.9 (第3世代) | iPad Pro 12.9 (第3世代) | 一致
+iPad8,6 | iPad Pro 12.9 (第3世代) | iPad Pro 12.9 (第3世代) | 一致
+iPad8,7 | iPad Pro 12.9 (第3世代) | iPad Pro 12.9 (第3世代) | 一致
+iPad8,8 | iPad Pro 12.9 (第3世代) | iPad Pro 12.9 (第3世代) | 一致
+iPad8,9 | iPad Pro 11 (第2世代) | iPad Pro 11 (第2世代) | 一致
+iPad8,10 | iPad Pro 11 (第2世代) | iPad Pro 11 (第2世代) | 一致
+iPad8,11 | iPad Pro 12.9 (第4世代) | iPad Pro 12.9 (第4世代) | 一致
+iPad8,12 | iPad Pro 12.9 (第4世代) | iPad Pro 12.9 (第4世代) | 一致
+iPad11,1 | iPad mini (第5世代) | iPad mini (第5世代) | 一致
+iPad11,2 | iPad mini (第5世代) | iPad mini (第5世代) | 一致
+iPad11,3 | iPad Air (第3世代) | iPad Air (第3世代) | 一致
+iPad11,4 | iPad Air (第3世代) | iPad Air (第3世代) | 一致
+iPad11,6 | iPad (第8世代) | iPad (第8世代) | 一致
+iPad11,7 | iPad (第8世代) | iPad (第8世代) | 一致
+iPad12,1 | iPad (第9世代) | iPad (第9世代) | 一致
+iPad12,2 | iPad (第9世代) | iPad (第9世代) | 一致
+iPad13,1 | iPad Air (第4世代) | iPad Air (第4世代) | 一致
+iPad13,2 | iPad Air (第4世代) | iPad Air (第4世代) | 一致
+iPad13,4 | iPad Pro 11 (第3世代) | iPad Pro 11 (第3世代) | 一致
+iPad13,5 | iPad Pro 11 (第3世代) | iPad Pro 11 (第3世代) | 一致
+iPad13,6 | iPad Pro 11 (第3世代) | iPad Pro 11 (第3世代) | 一致
+iPad13,7 | iPad Pro 11 (第3世代) | iPad Pro 11 (第3世代) | 一致
+iPad13,8 | iPad Pro 12.9 (第5世代) | iPad Pro 12.9 (第5世代) | 一致
+iPad13,9 | iPad Pro 12.9 (第5世代) | iPad Pro 12.9 (第5世代) | 一致
+iPad13,10 | iPad Pro 12.9 (第5世代) | iPad Pro 12.9 (第5世代) | 一致
+iPad13,11 | iPad Pro 12.9 (第5世代) | iPad Pro 12.9 (第5世代) | 一致
+iPad13,16 | iPad Air (第5世代) | iPad Air (第5世代) | 一致
+iPad13,17 | iPad Air (第5世代) | iPad Air (第5世代) | 一致
+iPad13,18 | iPad (第10世代) | iPad (第10世代) | 一致
+iPad13,19 | iPad (第10世代) | iPad (第10世代) | 一致
+iPad14,1 | iPad mini (第6世代) | iPad mini (第6世代) | 一致
+iPad14,2 | iPad mini (第6世代) | iPad mini (第6世代) | 一致
+iPad14,3 | iPad Pro 11 (第4世代) | iPad Pro 11 (第4世代) | 一致
+iPad14,4 | iPad Pro 11 (第4世代) | iPad Pro 11 (第4世代) | 一致
+iPad14,5 | iPad Pro 12.9 (第6世代) | iPad Pro 12.9 (第6世代) | 一致
+iPad14,6 | iPad Pro 12.9 (第6世代) | iPad Pro 12.9 (第6世代) | 一致
+iPad14,8 | iPad Air 11 (M2) | iPad Air 11 (M2) | 一致
+iPad14,9 | iPad Air 11 (M2) | iPad Air 11 (M2) | 一致
+iPad14,10 | iPad Air 13 (M2) | iPad Air 13 (M2) | 一致
+iPad14,11 | iPad Air 13 (M2) | iPad Air 13 (M2) | 一致
+iPad15,3 | iPad Air 11 (M3) | iPad Air 11 (M3) | 一致
+iPad15,4 | iPad Air 11 (M3) | iPad Air 11 (M3) | 一致
+iPad15,5 | iPad Air 13 (M3) | iPad Air 13 (M3) | 一致
+iPad15,6 | iPad Air 13 (M3) | iPad Air 13 (M3) | 一致
+iPad15,7 | iPad (A16) | iPad (A16) | 一致
+iPad15,8 | iPad (A16) | iPad (A16) | 一致
+iPad16,1 | iPad mini (A17 Pro) | iPad mini (A17 Pro) | 一致
+iPad16,2 | iPad mini (A17 Pro) | iPad mini (A17 Pro) | 一致
+iPad16,3 | iPad Pro 11 (M4) | iPad Pro 11 (M4) | 一致
+iPad16,4 | iPad Pro 11 (M4) | iPad Pro 11 (M4) | 一致
+iPad16,5 | iPad Pro 13 (M4) | iPad Pro 13 (M4) | 一致
+iPad16,6 | iPad Pro 13 (M4) | iPad Pro 13 (M4) | 一致
+iPad16,8 | iPad Air 11 (M4) | iPad Air 11 (M4) | 一致
+iPad16,9 | iPad Air 11 (M4) | iPad Air 11 (M4) | 一致
+iPad16,10 | iPad Air 13 (M4) | iPad Air 13 (M4) | 一致
+iPad16,11 | iPad Air 13 (M4) | iPad Air 13 (M4) | 一致
+iPad17,1 | iPad Pro 11 (M5) | iPad Pro 11 (M5) | 一致
+iPad17,2 | iPad Pro 11 (M5) | iPad Pro 11 (M5) | 一致
+iPad17,3 | iPad Pro 13 (M5) | iPad Pro 13 (M5) | 一致
+iPad17,4 | iPad Pro 13 (M5) | iPad Pro 13 (M5) | 一致
+iPod7,1 | iPod touch (第6世代) | 内部IDの対応は未確認 | 製品名は公式で確認。内部IDは同梱資料で未確認
+iPod9,1 | iPod touch (第7世代) | iPod touch (第7世代) | 一致
+Watch3,1 | Apple Watch 3 (38mm) Cellular | Apple Watch 3 (38mm) | 一致
+Watch3,2 | Apple Watch 3 (42mm) Cellular | Apple Watch 3 (42mm) | 一致
+Watch3,3 | Apple Watch 3 (38mm) | Apple Watch 3 (38mm) | 一致
+Watch3,4 | Apple Watch 3 (42mm) | Apple Watch 3 (42mm) | 一致
+Watch4,1 | Apple Watch 4 (40mm) | Apple Watch 4 (40mm) | 一致
+Watch4,2 | Apple Watch 4 (40mm) | Apple Watch 4 (44mm) | 相違
+Watch4,3 | Apple Watch 4 (44mm) | Apple Watch 4 (40mm) | 相違
+Watch4,4 | Apple Watch 4 (44mm) | Apple Watch 4 (44mm) | 一致
+Watch5,1 | Apple Watch 5 (40mm) | Apple Watch 5 (40mm) | 一致
+Watch5,2 | Apple Watch 5 (44mm) | Apple Watch 5 (44mm) | 一致
+Watch5,3 | Apple Watch 5 (40mm) | Apple Watch 5 (40mm) | 一致
+Watch5,4 | Apple Watch 5 (44mm) | Apple Watch 5 (44mm) | 一致
+Watch5,9 | Apple Watch SE (第1世代) (40mm) | Apple Watch SE (第1世代) (40mm) | 一致
+Watch5,10 | Apple Watch SE (第1世代) (44mm) | Apple Watch SE (第1世代) (44mm) | 一致
+Watch5,11 | Apple Watch SE (第1世代) (40mm) | Apple Watch SE (第1世代) (40mm) | 一致
+Watch5,12 | Apple Watch SE (第1世代) (44mm) | Apple Watch SE (第1世代) (44mm) | 一致
+Watch6,1 | Apple Watch 6 (40mm) | Apple Watch 6 (40mm) | 一致
+Watch6,2 | Apple Watch 6 (44mm) | Apple Watch 6 (44mm) | 一致
+Watch6,3 | Apple Watch 6 (40mm) | Apple Watch 6 (40mm) | 一致
+Watch6,4 | Apple Watch 6 (44mm) | Apple Watch 6 (44mm) | 一致
+Watch6,6 | Apple Watch 7 (41mm) | Apple Watch 7 (41mm) | 一致
+Watch6,7 | Apple Watch 7 (45mm) | Apple Watch 7 (45mm) | 一致
+Watch6,8 | Apple Watch 7 (41mm) | Apple Watch 7 (41mm) | 一致
+Watch6,9 | Apple Watch 7 (45mm) | Apple Watch 7 (45mm) | 一致
+Watch6,10 | Apple Watch 8 (41mm) | Apple Watch SE (第2世代) (40mm) | 相違
+Watch6,11 | Apple Watch 8 (45mm) | Apple Watch SE (第2世代) (44mm) | 相違
+Watch6,12 | Apple Watch 8 (41mm) | Apple Watch SE (第2世代) (40mm) | 相違
+Watch6,13 | Apple Watch 8 (45mm) | Apple Watch SE (第2世代) (44mm) | 相違
+Watch6,14 | Apple Watch SE (第2世代) (40mm) | Apple Watch 8 (41mm) | 相違
+Watch6,15 | Apple Watch SE (第2世代) (44mm) | Apple Watch 8 (45mm) | 相違
+Watch6,16 | Apple Watch SE (第2世代) (40mm) | Apple Watch 8 (41mm) | 相違
+Watch6,17 | Apple Watch SE (第2世代) (44mm) | Apple Watch 8 (45mm) | 相違
+Watch6,18 | Apple Watch Ultra (第1世代) | Apple Watch Ultra (第1世代) | 一致
+Watch7,1 | Apple Watch 9 (41mm) | Apple Watch 9 (41mm) | 一致
+Watch7,2 | Apple Watch 9 (45mm) | Apple Watch 9 (45mm) | 一致
+Watch7,3 | Apple Watch 9 (41mm) | Apple Watch 9 (41mm) | 一致
+Watch7,4 | Apple Watch 9 (45mm) | Apple Watch 9 (45mm) | 一致
+Watch7,5 | Apple Watch Ultra (第2世代) | Apple Watch Ultra (第2世代) | 一致
+Watch7,8 | Apple Watch 10 (42mm) | Apple Watch 10 (42mm) | 一致
+Watch7,9 | Apple Watch 10 (46mm) | Apple Watch 10 (46mm) | 一致
+Watch7,10 | Apple Watch 10 (42mm) | Apple Watch 10 (42mm) | 一致
+Watch7,11 | Apple Watch 10 (46mm) | Apple Watch 10 (46mm) | 一致
+Watch7,13 | Apple Watch SE (第3世代) (40mm) | Apple Watch SE (第3世代) (40mm) | 一致
+Watch7,14 | Apple Watch SE (第3世代) (44mm) | Apple Watch SE (第3世代) (44mm) | 一致
+Watch7,15 | Apple Watch SE (第3世代) (40mm) | Apple Watch SE (第3世代) (40mm) | 一致
+Watch7,16 | Apple Watch SE (第3世代) (44mm) | Apple Watch SE (第3世代) (44mm) | 一致
+Watch7,17 | Apple Watch 11 (42mm) | Apple Watch 11 (42mm) | 一致
+Watch7,18 | Apple Watch 11 (46mm) | Apple Watch 11 (46mm) | 一致
+Watch7,19 | Apple Watch 11 (42mm) | Apple Watch 11 (42mm) | 一致
+Watch7,20 | Apple Watch 11 (46mm) | Apple Watch 11 (46mm) | 一致
+Watch7,12 | Apple Watch Ultra (第3世代) | Apple Watch Ultra (第3世代) | 一致
+Watch8,1 | Apple Watch Ultra (第4世代) | Apple Watch Ultra (第4世代) | 一致
+Watch8,2 | Apple Watch 12 (42mm) | Apple Watch 12 (42mm) | 一致
+Watch8,3 | Apple Watch 12 (46mm) | Apple Watch 12 (46mm) | 一致
+Watch8,4 | Apple Watch 12 (42mm) Cellular | Apple Watch 12 (42mm) | 一致
+Watch8,5 | Apple Watch 12 (46mm) Cellular | Apple Watch 12 (46mm) | 一致
+A3385 | iPhone Air MagSafeバッテリー | iPhone Air MagSafe Battery | 公式のアクセサリ型番で確認
+
+チップ: 全119件
+機種 | アプリ | Apple公式 | 判定
+iPhone Duo | A20 Pro | A20 Pro | 一致
+iPhone 18 Pro Max | A20 Pro | A20 Pro | 一致
+iPhone 18 Pro | A20 Pro | A20 Pro | 一致
+iPhone 17 Pro Max | A19 Pro | A19 Pro | 一致
+iPhone Air | A19 Pro | A19 Pro | 一致
+iPhone 17 Pro | A19 Pro | A19 Pro | 一致
+iPhone 17 | A19 | A19 | 一致
+iPhone 17e | A19 | A19 | 一致
+iPhone 16e | A18 | A18 | 一致
+iPhone 16 Pro Max | A18 Pro | A18 Pro | 一致
+iPhone 16 Plus | A18 | A18 | 一致
+iPhone 16 Pro | A18 Pro | A18 Pro | 一致
+iPhone 16 | A18 | A18 | 一致
+iPhone 15 Pro Max | A17 Pro | A17 Pro | 一致
+iPhone 15 Plus | A16 Bionic | A16 | 一致
+iPhone 15 Pro | A17 Pro | A17 Pro | 一致
+iPhone 15 | A16 Bionic | A16 | 一致
+iPhone 14 Pro Max | A16 Bionic | A16 | 一致
+iPhone 14 Plus | A15 Bionic | A15 | 一致
+iPhone 14 Pro | A16 Bionic | A16 | 一致
+iPhone 14 | A15 Bionic | A15 | 一致
+iPhone 13 Pro Max | A15 Bionic | A15 | 一致
+iPhone 13 Pro | A15 Bionic | A15 | 一致
+iPhone 13 mini | A15 Bionic | A15 | 一致
+iPhone 13 | A15 Bionic | A15 | 一致
+iPhone 12 Pro Max | A14 Bionic | A14 | 一致
+iPhone 12 Pro | A14 Bionic | A14 | 一致
+iPhone 12 mini | A14 Bionic | A14 | 一致
+iPhone 12 | A14 Bionic | A14 | 一致
+iPhone 11 Pro Max | A13 Bionic | A13 | 一致
+iPhone 11 Pro | A13 Bionic | A13 | 一致
+iPhone 11 | A13 Bionic | A13 | 一致
+iPhone XS Max | A12 Bionic | A12 | 一致
+iPhone XS | A12 Bionic | A12 | 一致
+iPhone XR | A12 Bionic | A12 | 一致
+iPhone X | A11 Bionic | A11,M11 | 一致
+iPhone SE (第3世代) | A15 Bionic | A15 | 一致
+iPhone SE (第2世代) | A13 Bionic | A13 | 一致
+iPhone SE (第1世代) | A9 | A9,M9 | 一致
+iPhone 8 Plus | A11 Bionic | A11 | 一致
+iPhone 8 | A11 Bionic | A11 | 一致
+iPhone 7 Plus | A10 Fusion | A10 | 一致
+iPhone 7 | A10 Fusion | A10 | 一致
+iPhone 6s Plus | A9 | A9,M9 | 一致
+iPhone 6s | A9 | A9,M9 | 一致
+iPad Pro 13 (M5) | M5 | M5 | 一致
+iPad Pro 13 (M4) | M4 | M4 | 一致
+iPad Pro 12.9 (第6世代) | M2 | M2 | 一致
+iPad Pro 12.9 (第5世代) | M1 | M1 | 一致
+iPad Pro 12.9 (第4世代) | A12Z Bionic | A12Z | 一致
+iPad Pro 12.9 (第3世代) | A12X Bionic | A12X,M12 | 一致
+iPad Pro 12.9 (第2世代) | A10X Fusion | A10X,M10 | 一致
+iPad Pro 12.9 (第1世代) | A9X | A9X,M9 | 一致
+iPad Pro 11 (M5) | M5 | M5 | 一致
+iPad Pro 11 (M4) | M4 | M4 | 一致
+iPad Pro 11 (第4世代) | M2 | M2 | 一致
+iPad Pro 11 (第3世代) | M1 | M1 | 一致
+iPad Pro 11 (第2世代) | A12Z Bionic | A12Z | 一致
+iPad Pro 11 (第1世代) | A12X Bionic | A12X,M12 | 一致
+iPad Pro 10.5 | A10X Fusion | A10X,M10 | 一致
+iPad Pro 9.7 | A9X | A9X,M9 | 一致
+iPad mini (A17 Pro) | A17 Pro | A17 Pro | 一致
+iPad mini (第6世代) | A15 Bionic | A15 | 一致
+iPad mini (第5世代) | A12 Bionic | A12 | 一致
+iPad mini (第4世代) | A8 | A8,M8 | 一致
+iPad (A16) | A16 Bionic | A16 | 一致
+iPad (第10世代) | A14 Bionic | A14 | 一致
+iPad (第9世代) | A13 Bionic | A13 | 一致
+iPad (第8世代) | A12 Bionic | A12 | 一致
+iPad (第7世代) | A10 Fusion | A10,M10 | 一致
+iPad (第6世代) | A10 Fusion | A10,M10 | 一致
+iPad (第5世代) | A9 | A9,M9 | 一致
+iPad Air 13 (M4) | M4 | M4 | 一致
+iPad Air 11 (M4) | M4 | M4 | 一致
+iPad Air 13 (M3) | M3 | M3 | 一致
+iPad Air 11 (M3) | M3 | M3 | 一致
+iPad Air 13 (M2) | M2 | M2 | 一致
+iPad Air 11 (M2) | M2 | M2 | 一致
+iPad Air (第5世代) | M1 | M1 | 一致
+iPad Air (第4世代) | A14 Bionic | A14 | 一致
+iPad Air (第3世代) | A12 Bionic | A12,M12 | 一致
+iPad Air (第2世代) | A8X | A8X,M8 | 一致
+iPad Air (第1世代) | A7 | A7,M7 | 一致
+iPod touch (第7世代) | A10 Fusion | A10 | 一致
+iPod touch (第6世代) | A8 | A8,M8 | 一致
+Apple Watch Ultra (第4世代) | S11 | S11 | 一致
+Apple Watch 12 (46mm) | S11 | S11 | 一致
+Apple Watch 12 (42mm) | S11 | S11 | 一致
+Apple Watch 12 (46mm) Cellular | S10 | S11 | 相違
+Apple Watch 12 (42mm) Cellular | S10 | S11 | 相違
+Apple Watch Ultra (第3世代) | S10 | S10 | 一致
+Apple Watch Ultra (第2世代) | S9 | S9 | 一致
+Apple Watch Ultra (第1世代) | S8 | S8 | 一致
+Apple Watch SE (第3世代) (44mm) | S10 | S10 | 一致
+Apple Watch SE (第3世代) (40mm) | S10 | S10 | 一致
+Apple Watch SE (第2世代) (44mm) | S8 | S8 | 一致
+Apple Watch SE (第2世代) (40mm) | S8 | S8 | 一致
+Apple Watch SE (第1世代) (44mm) | S5 | S5 | 一致
+Apple Watch SE (第1世代) (40mm) | S5 | S5 | 一致
+Apple Watch 11 (46mm) | S10 | S10 | 一致
+Apple Watch 11 (42mm) | S10 | S10 | 一致
+Apple Watch 10 (46mm) | S10 | S10 | 一致
+Apple Watch 10 (42mm) | S10 | S10 | 一致
+Apple Watch 9 (45mm) | S9 | S9 | 一致
+Apple Watch 9 (41mm) | S9 | S9 | 一致
+Apple Watch 8 (45mm) | S8 | S8 | 一致
+Apple Watch 8 (41mm) | S8 | S8 | 一致
+Apple Watch 7 (45mm) | S7 | S7 | 一致
+Apple Watch 7 (41mm) | S7 | S7 | 一致
+Apple Watch 6 (44mm) | S6 | S6 | 一致
+Apple Watch 6 (40mm) | S6 | S6 | 一致
+Apple Watch 5 (44mm) | S5 | S5 | 一致
+Apple Watch 5 (40mm) | S5 | S5 | 一致
+Apple Watch 4 (44mm) | S4 | S4 | 一致
+Apple Watch 4 (40mm) | S4 | S4 | 一致
+Apple Watch 3 (42mm) Cellular | S3 | S3 | 一致
+Apple Watch 3 (42mm) | S3 | S3 | 一致
+Apple Watch 3 (38mm) Cellular | S3 | S3 | 一致
+Apple Watch 3 (38mm) | S3 | S3 | 一致
+
+型番: 全12グループ
+区分 | 対象 | アプリの型番 | 公式で製品・サイズとの対応を確認
+modelNumbers | iPhone Duo | A3447,A3719,A3720,A3721 | はい
+modelNumbers | iPhone 18 Pro | A3472,A3713,A3714,A3715 | はい
+modelNumbers | iPhone 18 Pro Max | A3473,A3716,A3717,A3718 | はい
+modelNumbersByIdentifier | iPhone19,2 | A3472,A3713,A3714,A3715 | はい
+modelNumbersByIdentifier | iPhone19,3 | A3473 | はい
+modelNumbersByIdentifier | iPhone19,4 | A3447,A3719,A3720,A3721 | はい
+modelNumbersByIdentifier | iPhone19,7 | A3716,A3717,A3718 | はい
+modelNumbersByIdentifier | Watch8,1 | A3579,A3580 | はい
+modelNumbersByIdentifier | Watch8,2 | A3581,A3583 | はい
+modelNumbersByIdentifier | Watch8,3 | A3584,A3585 | はい
+modelNumbersByIdentifier | Watch8,4 | A3582,A3586 | はい
+modelNumbersByIdentifier | Watch8,5 | A3587,A3588 | はい
+注: 公式の型番一覧は、すべての内部識別子と地域型番の厳密な対応までは公開していません。
+
+物理SIM/eSIM別容量: 全12値
+機種 | 区分 | アプリmAh | 公式EU物理SIM mAh | 判定
+iPhone 17 | esim | 3692 | 3692 | eSIM値は今回の公式資料で直接確認できず
+iPhone 17 | physicalSIM | 3692 | 3692 | 物理SIM値と一致
+iPhone 17e | esim | 4005 | 4005 | eSIM値は今回の公式資料で直接確認できず
+iPhone 17e | physicalSIM | 4005 | 4005 | 物理SIM値と一致
+iPhone 17 Pro | esim | 4252 | 3988 | eSIM値は今回の公式資料で直接確認できず
+iPhone 17 Pro | physicalSIM | 3988 | 3988 | 物理SIM値と一致
+iPhone 17 Pro Max | esim | 5088 | 4823 | eSIM値は今回の公式資料で直接確認できず
+iPhone 17 Pro Max | physicalSIM | 4823 | 4823 | 物理SIM値と一致
+iPhone 18 Pro | esim | 4288 | 4056 | eSIM値は今回の公式資料で直接確認できず
+iPhone 18 Pro | physicalSIM | 4056 | 4056 | 物理SIM値と一致
+iPhone 18 Pro Max | esim | 5567 | 5391 | eSIM値は今回の公式資料で直接確認できず
+iPhone 18 Pro Max | physicalSIM | 5391 | 5391 | 物理SIM値と一致
+地域差は既存の物理SIM/eSIM区分を維持する。
+別途確認事項: 現在CH/A・ZP/Aのみ物理SIMを選ぶ実装。欧州等の物理SIM機も含めたモデル・地域判定を見直す必要がある。容量表の4件は誤りに数えない。
+
+容量の参照先: 全2件
+機種 | 参照先 | 判定
+Apple Watch 12 (42mm) Cellular | Apple Watch 12 (42mm) | 同世代・同サイズ。GPS/Cellular間のmAh一致は公式資料で未確認
+Apple Watch 12 (46mm) Cellular | Apple Watch 12 (46mm) | 同世代・同サイズ。GPS/Cellular間のmAh一致は公式資料で未確認
+
+基板ID: 全145件
+基板ID | アプリの識別子 | Xcodeの代表機種グループ | 判定
+N66AP | iPhone8,1 | iPhone8,2 | 公式資料で基板IDの厳密な対応は未確認。Xcodeのグループとも矛盾
+N66mAP | iPhone8,1 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+N71AP | iPhone8,2 | iPhone8,1 | 公式資料で基板IDの厳密な対応は未確認。Xcodeのグループとも矛盾
+N71mAP | iPhone8,2 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+N69AP | iPhone8,4 | iPhone8,4 | 公式資料で基板IDの厳密な対応は未確認
+N69uAP | iPhone8,4 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+D10AP | iPhone9,1 | iPhone9,1,iPhone9,3 | 公式資料で基板IDの厳密な対応は未確認
+D101AP | iPhone9,3 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+D111AP | iPhone9,2 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+D11AP | iPhone9,4 | iPhone9,2,iPhone9,4 | 公式資料で基板IDの厳密な対応は未確認
+D201AP | iPhone10,4 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+D20AP | iPhone10,1 | iPhone10,1,iPhone10,4 | 公式資料で基板IDの厳密な対応は未確認
+D211AP | iPhone10,5 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+D21AP | iPhone10,2 | iPhone10,2,iPhone10,5 | 公式資料で基板IDの厳密な対応は未確認
+D221AP | iPhone10,6 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+D22AP | iPhone10,3 | iPhone10,3,iPhone10,6 | 公式資料で基板IDの厳密な対応は未確認
+D321AP | iPhone11,2 | iPhone11,2 | 公式資料で基板IDの厳密な対応は未確認
+D331AP | iPhone11,4 | iPhone11,4,iPhone11,6 | 公式資料で基板IDの厳密な対応は未確認
+D331pAP | iPhone11,6 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+N841AP | iPhone11,8 | iPhone11,8 | 公式資料で基板IDの厳密な対応は未確認
+N104AP | iPhone12,1 | iPhone12,1 | 公式資料で基板IDの厳密な対応は未確認
+D421AP | iPhone12,3 | iPhone12,3 | 公式資料で基板IDの厳密な対応は未確認
+D431AP | iPhone12,5 | iPhone12,5 | 公式資料で基板IDの厳密な対応は未確認
+D79AP | iPhone12,8 | iPhone12,8 | 公式資料で基板IDの厳密な対応は未確認
+D52gAP | iPhone13,1 | iPhone13,1 | 公式資料で基板IDの厳密な対応は未確認
+D53gAP | iPhone13,2 | iPhone13,2 | 公式資料で基板IDの厳密な対応は未確認
+D53pAP | iPhone13,3 | iPhone13,3 | 公式資料で基板IDの厳密な対応は未確認
+D54pAP | iPhone13,4 | iPhone13,4 | 公式資料で基板IDの厳密な対応は未確認
+D16AP | iPhone14,4 | iPhone14,4 | 公式資料で基板IDの厳密な対応は未確認
+D17AP | iPhone14,5 | iPhone14,5 | 公式資料で基板IDの厳密な対応は未確認
+D63AP | iPhone14,2 | iPhone14,2 | 公式資料で基板IDの厳密な対応は未確認
+D64AP | iPhone14,3 | iPhone14,3 | 公式資料で基板IDの厳密な対応は未確認
+D49AP | iPhone14,6 | iPhone14,6 | 公式資料で基板IDの厳密な対応は未確認
+D27AP | iPhone14,7 | iPhone14,7 | 公式資料で基板IDの厳密な対応は未確認
+D28AP | iPhone14,8 | iPhone14,8 | 公式資料で基板IDの厳密な対応は未確認
+D73AP | iPhone15,2 | iPhone15,2 | 公式資料で基板IDの厳密な対応は未確認
+D74AP | iPhone15,3 | iPhone15,3 | 公式資料で基板IDの厳密な対応は未確認
+D37AP | iPhone15,4 | iPhone15,4 | 公式資料で基板IDの厳密な対応は未確認
+D38AP | iPhone15,5 | iPhone15,5 | 公式資料で基板IDの厳密な対応は未確認
+D83AP | iPhone16,1 | iPhone16,1 | 公式資料で基板IDの厳密な対応は未確認
+D84AP | iPhone16,2 | iPhone16,2 | 公式資料で基板IDの厳密な対応は未確認
+D47AP | iPhone17,3 | iPhone17,3 | 公式資料で基板IDの厳密な対応は未確認
+D48AP | iPhone17,4 | iPhone17,4 | 公式資料で基板IDの厳密な対応は未確認
+D93AP | iPhone17,1 | iPhone17,1 | 公式資料で基板IDの厳密な対応は未確認
+D94AP | iPhone17,2 | iPhone17,2 | 公式資料で基板IDの厳密な対応は未確認
+V59AP | iPhone17,5 | iPhone17,5 | 公式資料で基板IDの厳密な対応は未確認
+V57AP | iPhone18,3 | iPhone18,3 | 公式資料で基板IDの厳密な対応は未確認
+D23AP | iPhone18,4 | iPhone18,4 | 公式資料で基板IDの厳密な対応は未確認
+V53AP | iPhone18,1 | iPhone18,1 | 公式資料で基板IDの厳密な対応は未確認
+V54AP | iPhone18,2 | iPhone18,2 | 公式資料で基板IDの厳密な対応は未確認
+V159AP | iPhone18,5 | iPhone18,5 | 公式資料で基板IDの厳密な対応は未確認
+V63AP | iPhone19,2 | iPhone19,2 | 公式資料で基板IDの厳密な対応は未確認
+V64AP | iPhone19,3 | iPhone19,3,iPhone19,7 | 公式資料で基板IDの厳密な対応は未確認
+V68AP | iPhone19,4 | iPhone19,4 | 公式資料で基板IDの厳密な対応は未確認
+V64sAP | iPhone19,7 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J81AP | iPad5,3 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J82AP | iPad5,4 | iPad5,3,iPad5,4 | 公式資料で基板IDの厳密な対応は未確認
+J96AP | iPad5,1 | iPad5,1,iPad5,2 | 公式資料で基板IDの厳密な対応は未確認
+J97AP | iPad5,2 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J98aAP | iPad6,7 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J99aAP | iPad6,8 | iPad6,7,iPad6,8 | 公式資料で基板IDの厳密な対応は未確認
+J127AP | iPad6,3 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J128AP | iPad6,4 | iPad6,3,iPad6,4 | 公式資料で基板IDの厳密な対応は未確認
+J71sAP | iPad6,11 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J71tAP | iPad6,11 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J72sAP | iPad6,12 | iPad6,11,iPad6,12 | 公式資料で基板IDの厳密な対応は未確認
+J72tAP | iPad6,12 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J207AP | iPad7,3 | iPad7,3,iPad7,4 | 公式資料で基板IDの厳密な対応は未確認
+J208AP | iPad7,4 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J120AP | iPad7,1 | iPad7,1,iPad7,2 | 公式資料で基板IDの厳密な対応は未確認
+J121AP | iPad7,2 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J71bAP | iPad7,5 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J72bAP | iPad7,6 | iPad7,5,iPad7,6 | 公式資料で基板IDの厳密な対応は未確認
+J317AP | iPad8,1 | iPad8,1,iPad8,2,iPad8,3,iPad8,4 | 公式資料で基板IDの厳密な対応は未確認
+J317xAP | iPad8,2 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J318AP | iPad8,3 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J318xAP | iPad8,4 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J320AP | iPad8,5 | iPad8,5,iPad8,6,iPad8,7,iPad8,8 | 公式資料で基板IDの厳密な対応は未確認
+J320xAP | iPad8,6 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J321AP | iPad8,7 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J321xAP | iPad8,8 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J210AP | iPad11,1 | iPad11,1,iPad11,2 | 公式資料で基板IDの厳密な対応は未確認
+J211AP | iPad11,2 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J217AP | iPad11,3 | iPad11,3,iPad11,4 | 公式資料で基板IDの厳密な対応は未確認
+J218AP | iPad11,4 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J171AP | iPad7,11 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J172AP | iPad7,12 | iPad7,11,iPad7,12 | 公式資料で基板IDの厳密な対応は未確認
+J417AP | iPad8,10 | iPad8,10,iPad8,9 | 公式資料で基板IDの厳密な対応は未確認
+J418AP | iPad8,9 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J420AP | iPad8,11 | iPad8,11,iPad8,12 | 公式資料で基板IDの厳密な対応は未確認
+J421AP | iPad8,12 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J171aAP | iPad11,6 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J172aAP | iPad11,7 | iPad11,6,iPad11,7 | 公式資料で基板IDの厳密な対応は未確認
+J307AP | iPad13,1 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J308AP | iPad13,2 | iPad13,1,iPad13,2 | 公式資料で基板IDの厳密な対応は未確認
+J517AP | iPad13,4 | iPad13,4,iPad13,5,iPad13,6,iPad13,7 | 公式資料で基板IDの厳密な対応は未確認
+J517xAP | iPad13,5 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J518AP | iPad13,6 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J518xAP | iPad13,7 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J523AP | iPad13,10 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J523xAP | iPad13,11 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J522AP | iPad13,8 | iPad13,10,iPad13,11,iPad13,8,iPad13,9 | 公式資料で基板IDの厳密な対応は未確認
+J522xAP | iPad13,9 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J310AP | iPad14,1 | iPad14,1,iPad14,2 | 公式資料で基板IDの厳密な対応は未確認
+J311AP | iPad14,2 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J181AP | iPad12,1 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J182AP | iPad12,2 | iPad12,1,iPad12,2 | 公式資料で基板IDの厳密な対応は未確認
+J407AP | iPad13,16 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J408AP | iPad13,17 | iPad13,16,iPad13,17 | 公式資料で基板IDの厳密な対応は未確認
+J617AP | iPad14,3 | iPad14,3,iPad14,4 | 公式資料で基板IDの厳密な対応は未確認
+J618AP | iPad14,4 | iPad14,3,iPad14,4 | 公式資料で基板IDの厳密な対応は未確認
+J620AP | iPad14,5 | iPad14,5,iPad14,6 | 公式資料で基板IDの厳密な対応は未確認
+J621AP | iPad14,6 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J271AP | iPad13,18 | iPad13,18,iPad13,19 | 公式資料で基板IDの厳密な対応は未確認
+J272AP | iPad13,19 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J717AP | iPad16,3 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J718AP | iPad16,4 | iPad16,3,iPad16,4 | 公式資料で基板IDの厳密な対応は未確認
+J720AP | iPad16,5 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J721AP | iPad16,6 | iPad16,5,iPad16,6 | 公式資料で基板IDの厳密な対応は未確認
+J507AP | iPad14,8 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J508AP | iPad14,9 | iPad14,8,iPad14,9 | 公式資料で基板IDの厳密な対応は未確認
+J537AP | iPad14,10 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J538AP | iPad14,11 | iPad14,10,iPad14,11 | 公式資料で基板IDの厳密な対応は未確認
+J410AP | iPad16,1 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J411AP | iPad16,2 | iPad16,1,iPad16,2 | 公式資料で基板IDの厳密な対応は未確認
+J607AP | iPad15,3 | iPad15,3,iPad15,4 | 公式資料で基板IDの厳密な対応は未確認
+J608AP | iPad15,4 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J637AP | iPad15,5 | iPad15,5,iPad15,6 | 公式資料で基板IDの厳密な対応は未確認
+J638AP | iPad15,6 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J481AP | iPad15,7 | iPad15,7,iPad15,8 | 公式資料で基板IDの厳密な対応は未確認
+J482AP | iPad15,8 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J707AP | iPad16,8 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J708AP | iPad16,9 | iPad16,8,iPad16,9 | 公式資料で基板IDの厳密な対応は未確認
+J737AP | iPad16,10 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J738AP | iPad16,11 | iPad16,10,iPad16,11 | 公式資料で基板IDの厳密な対応は未確認
+J817AP | iPad17,1 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J818AP | iPad17,2 | iPad17,1,iPad17,2 | 公式資料で基板IDの厳密な対応は未確認
+J820AP | iPad17,3 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+J821AP | iPad17,4 | iPad17,3,iPad17,4 | 公式資料で基板IDの厳密な対応は未確認
+N112AP | iPod9,1 | iPod9,1 | 公式資料で基板IDの厳密な対応は未確認
+N240AP | Watch8,1 | Watch8,1 | 公式資料で基板IDの厳密な対応は未確認
+N237sAP | Watch8,2 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+N237bAP | Watch8,3 | Watch8,3,Watch8,5 | 公式資料で基板IDの厳密な対応は未確認
+N238sAP | Watch8,4 | Watch8,2,Watch8,4 | 公式資料で基板IDの厳密な対応は未確認
+N238bAP | Watch8,5 | 未掲載 | 公式資料で基板IDの厳密な対応は未確認
+XcodeのproductClassは複数のGSM/CDMA・メモリ・接続方式を代表する場合があるため、末尾にAPを付けて実機基板IDの確定資料として扱っていません。
+libirecovery/AppleDBで確認した基板対応の8件は、Apple公式だけでの確認とは区別しています。
+
+Xcode由来データの調査
+Apple署名付き端末プロファイル130件・plist260件を確認。130件すべての封印リソース署名を検証。
+実機の設計容量・定格容量mAhの定数は、確認したplist/JSON/deviceinfoには見つかりませんでした。
+gas-gauge-batteryはシミュレーターの機能フラグであり、実機容量として使いません。
+
+今後のマイグレーション構成（未実装）
+DeviceLibrary専用の補正ルールクラスをMigrationsに置き、iOS 16のCoreData・iOS 17以降のSwiftData用処理から利用する。
+Duoは対象外。手動設定・実測値・記録ID・個体IDを保護し、遅れて届くiCloud同期やインポートにも二重適用しない設計にする。
