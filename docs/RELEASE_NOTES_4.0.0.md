@@ -7,7 +7,6 @@
 ・Mac／Windowsと連携して、iPhone・iPadのバッテリーログを自動で取り込めるようになりました。これまでの手動読み込みも、PCなしで引き続き使えます。
 ・iPhoneに保存されたApple Watchのログも取り込めます。複数のWatchを使っている場合や、まだMochiLogに登録していないWatchにも対応しました。
 ・複数のMac／Windowsを登録できるようになりました。QRコードと確認コードで接続し、不要になったPCや端末は個別に解除できます。
-・複数のPCから同じログを受け取った場合や、iCloud同期で記録が届いた場合の重複を防ぎます。
 ・同じApple Accountで双方のiCloud同期がオンの場合、ほかの端末のログと現在のバッテリー情報もPC経由で受け取れます。
 ・PCとの接続状態、転送の進み具合、取り込み結果を確認しやすくしました。「今すぐ受信」やPCからの手動送信も利用できます。
 ・接続が途切れた後の再接続や、低速回線での転送を改善しました。複数のPCを利用しているときも、それぞれから受信しやすくなりました。
@@ -26,12 +25,8 @@
 ・複数のPCから届く同じバッテリー情報はまとめ、異なる値だけを比較できるようにしました。機種番号の代わりに機種名を表示します。
 ・同じ機種を複数台使っている場合も、端末ごとに記録を区別しやすくしました。書き出し・読み込みやiCloud同期でも引き継げます。
 ・iPhone・iPad・Apple Watchの記録が別の端末として表示される問題を修正しました。
-・完全に同じ重複記録を起動時に確認し、候補を見てから整理できるようにしました。iCloudで同期する複数端末でも、残した記録を保護します。
+・完全に同じ重複記録を起動時に確認し、候補を見てから整理できるようにしました。
 ・ホームのバッテリー記録を複数選択・全選択して削除できるようになりました。
-・iCloudの診断画面で、アカウントの状態と同期先の記録件数を確認できるようになりました。
-・動作ログを「設定 → デバッグ」にまとめました。スマホと受信したPCのログを日付・機能ごとに表示、コピー、共有できます。保存日数の設定や削除にも対応します。
-・エラーログの日付別一覧、検索、ページ切り替えを追加しました。iPadでは一覧と詳細を並べて表示し、大きなログも開きやすくしました。
-・サポートへの問い合わせ時に発生日時を選べるようになりました。当日と前2日分のスマホ・PC双方の診断情報を添付できます。
 ・PCにログの保管庫を追加しました。保存期間・容量の設定、削除、書き出し、手動での再送ができ、未転送のログは保護されます。
 ・PC版はログイン時起動、メニューバー／タスクトレイ常駐、ウィンドウを閉じた後の動作設定、自動更新の確認に対応しました。
 ・PCとの通信の安全性を強化しました。これまでのペアリング設定も引き続き利用できます。
@@ -48,7 +43,6 @@
 • Automatically import iPhone and iPad battery logs with the new Mac and Windows apps. Manual import remains available without a PC.
 • Import Apple Watch logs saved on your iPhone, including multiple Watches and Watches not yet registered in MochiLog.
 • Pair multiple Macs and Windows PCs using QR codes and confirmation codes. Remove individual pairings when no longer needed.
-• Avoid duplicate records when the same logs arrive from multiple PCs or through iCloud sync.
 • Receive other devices' logs and current battery information through a PC when both devices enable iCloud sync with the same Apple Account.
 • See connection status, transfer progress and import results. Use Receive Now or send manually from your PC.
 • Improved reconnection, slow-network transfers and receiving from multiple PCs.
@@ -67,12 +61,8 @@
 • Combine matching readings from multiple PCs, compare differences and display friendly model names.
 • Distinguish records from devices of the same model, including after export, import and iCloud sync.
 • Fixed records being attributed to the wrong iPhone, iPad or Apple Watch.
-• Review exact duplicates at launch and choose which to remove, while protecting retained records across synced devices.
+• Review exact duplicates at launch and choose which to remove.
 • Select multiple battery records, or all records, for deletion from Home.
-• Check iCloud account status and synced record counts in the diagnostics screen.
-• Find mobile and received PC logs in Settings → Debug, organized by date and feature, with copy, share, retention and cleanup controls.
-• Browse dated error logs, search and switch pages. Improved large-log loading and the iPad list/detail layout.
-• Select an incident date for support and attach mobile and PC diagnostics for that day and the two preceding days.
 • Manage PC log storage with retention and size limits, delete, export or resend files, and protect unsent logs.
 • PC apps support startup at login, menu bar/system tray operation, close-behavior settings and optional update checks.
 • Improved PC connection security while retaining existing pairings.

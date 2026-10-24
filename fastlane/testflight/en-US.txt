@@ -3,7 +3,6 @@
 • Automatically import iPhone and iPad battery logs with the new Mac and Windows apps. Manual import remains available without a PC.
 • Import Apple Watch logs saved on your iPhone, including multiple Watches and Watches not yet registered in MochiLog.
 • Pair multiple Macs and Windows PCs using QR codes and confirmation codes. Remove individual pairings when no longer needed.
-• Avoid duplicate records when the same logs arrive from multiple PCs or through iCloud sync.
 • Receive other devices' logs and current battery information through a PC when both devices enable iCloud sync with the same Apple Account.
 • See connection status, transfer progress and import results. Use Receive Now or send manually from your PC.
 • Improved reconnection, slow-network transfers and receiving from multiple PCs.
@@ -22,12 +21,8 @@
 • Combine matching readings from multiple PCs, compare differences and display friendly model names.
 • Distinguish records from devices of the same model, including after export, import and iCloud sync.
 • Fixed records being attributed to the wrong iPhone, iPad or Apple Watch.
-• Review exact duplicates at launch and choose which to remove, while protecting retained records across synced devices.
+• Review exact duplicates at launch and choose which to remove.
 • Select multiple battery records, or all records, for deletion from Home.
-• Check iCloud account status and synced record counts in the diagnostics screen.
-• Find mobile and received PC logs in Settings → Debug, organized by date and feature, with copy, share, retention and cleanup controls.
-• Browse dated error logs, search and switch pages. Improved large-log loading and the iPad list/detail layout.
-• Select an incident date for support and attach mobile and PC diagnostics for that day and the two preceding days.
 • Manage PC log storage with retention and size limits, delete, export or resend files, and protect unsent logs.
 • PC apps support startup at login, menu bar/system tray operation, close-behavior settings and optional update checks.
 • Improved PC connection security while retaining existing pairings.
