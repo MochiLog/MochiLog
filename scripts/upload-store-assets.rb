@@ -34,7 +34,7 @@ begin
   selected = all(api, "/apps/#{app}/appStoreVersions", "limit" => "50").find { |x| x.dig("attributes", "platform") == "IOS" && x.dig("attributes", "versionString") == version }
   raise "Store version #{version} does not exist; no version is created automatically" unless selected
   editable = %w[PREPARE_FOR_SUBMISSION DEVELOPER_REJECTED REJECTED METADATA_REJECTED].include?(selected.dig("attributes", "appStoreState"))
-  puts "Store version #{version} is #{selected.dig('attributes', 'appStoreState')}; saving images to the library only" unless editable
+  raise "Store version #{version} is not editable; create an editable version before registering screenshots" unless editable
   locales = all(api, "/appStoreVersions/#{selected.fetch('id')}/appStoreVersionLocalizations", "limit" => "200").to_h { |x| [x.dig("attributes", "locale"), x.fetch("id")] }
   existing = all(api, "/appAssetLibraries/#{library}/images", "limit" => "200")
   %w[ja en-US].each do |locale|
@@ -115,6 +115,12 @@ if editable
       saved = all(api, "/appStoreVersionLocalizations/#{localization}/placements", "limit" => "200", "sort" => "placementGroupPosition")
         .select { |x| x.dig("attributes", "placementType") == "APP_SCREENSHOT" && x.dig("attributes", "placementGroup") == group }
       raise "Screenshot order or placement did not persist" unless saved.first(selected_ids.size).map { |x| x.fetch("id") } == selected_ids
+      # Only this draft version's same-device references are replaced. Library
+      # images and all placements on the public version remain untouched.
+      extra_ids.each { |id| api.delete("/appAssetLibraryPlacements/#{id}") }
+      final = all(api, "/appStoreVersionLocalizations/#{localization}/placements", "limit" => "200", "sort" => "placementGroupPosition")
+        .select { |x| x.dig("attributes", "placementType") == "APP_SCREENSHOT" && x.dig("attributes", "placementGroup") == group }
+      raise "Final screenshot set differs" unless final.map { |x| x.fetch("id") } == selected_ids
       puts "Verified #{locale}: #{selected_ids.size} #{device} screenshots on #{version} in display order"
     end
 end

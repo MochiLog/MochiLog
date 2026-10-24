@@ -27,6 +27,7 @@ class AppStoreConnect
   def get(path, params = {}) = request("GET", path, params)
   def post(path, body) = request("POST", path, {}, body)
   def patch(path, body) = request("PATCH", path, {}, body)
+  def delete(path) = request("DELETE", path)
 
   def request(method, path, params = {}, body = nil)
     uri = URI("https://api.appstoreconnect.apple.com/v1#{path}")

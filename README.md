@@ -1,5 +1,9 @@
 # MochiLog
 
+4.0.0はApp Storeへの審査提出準備中です。新しいPC連携はiOS/iPadOS 27以降で利用でき、[Mac](https://github.com/MochiLog/MochiLog-Mac/releases)・[Windows](https://github.com/MochiLog/MochiLog-Windows/releases)のコンパニオンと暗号化してログを受け渡します。従来の手動取り込みはiOS/iPadOS 16以降で引き続き利用できます。
+
+設定の「自動ログ収集」でPC連携と任意の端末内取得を設定できます。現在のバッテリー表示は高度な設定で有効にできます。詳しくは[自動ログ収集ガイド](docs/automatic-log-collection.md)と[4.0.0の更新内容](docs/RELEASE_NOTES_4.0.0.md)をご覧ください。現時点で4.0.0を試す場合は[TestFlight](https://testflight.apple.com/join/vnHYsRgN)を利用できます。
+
 **今日のバッテリー。その先の変化も。**
 
 iPhone・iPadの解析ログから容量と充放電回数を記録し、履歴をグラフで振り返るアプリです。iCloud同期は任意で利用でき、ペアリングしたApple Watchでも記録を閲覧できます。PCを使わず、スマホだけでログを手動読み込みできます。
