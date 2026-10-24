@@ -85,7 +85,7 @@ module AppStoreReviewSubmission
   end
 
   def self.items(api, review_id)
-    response = api.get("/reviewSubmissions/#{review_id}/items", "limit" => "200")
+    response = api.get("/reviewSubmissions/#{review_id}/items", "limit" => "200", "include" => "appStoreVersion")
     raise "Unexpected review item pagination" if response.dig("links", "next")
     response.fetch("data")
   end

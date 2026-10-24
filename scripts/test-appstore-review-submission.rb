@@ -14,7 +14,7 @@ class AppStoreReviewSubmissionTest < Minitest::Test
       @build_reads = 0
     end
 
-    def get(path, _params = {})
+    def get(path, params = {})
       case path
       when "/appStoreVersions/version/build"
         @build_reads += 1
@@ -25,6 +25,7 @@ class AppStoreReviewSubmissionTest < Minitest::Test
       when "/reviewSubmissions"
         {"data" => @reviews}
       when %r{\A/reviewSubmissions/[^/]+/items\z}
+        raise "Request the version relationship explicitly" unless params["include"] == "appStoreVersion"
         {"data" => @rows}
       when "/reviewSubmissions/review"
         {"data" => {"id" => "review", "attributes" => {"state" => @submitted ? "WAITING_FOR_REVIEW" : "READY_FOR_REVIEW"}}}
