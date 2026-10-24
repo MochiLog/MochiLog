@@ -221,12 +221,28 @@ if not re.match(r"Xcode 27\.(?:[1-9]|[1-9][0-9])(?:\n|\.)", version):
         "Select Xcode 27.1 or newer (or set DEVELOPER_DIR) before store capture.\n" + version
     )
 runtimes = json_command("xcrun", "simctl", "list", "runtimes", "-j")["runtimes"]
-phone_runtime = next((r["identifier"] for r in runtimes if r["isAvailable"] and r["identifier"].endswith("iOS-27-1")), "com.apple.CoreSimulator.SimRuntime.iOS-27-0")
+
+
+def compatible_runtime(device_type, platform="iOS"):
+    identifier = "com.apple.CoreSimulator.SimDeviceType." + device_type
+    compatible = [
+        runtime for runtime in runtimes
+        if runtime["isAvailable"]
+        and runtime["identifier"].startswith("com.apple.CoreSimulator.SimRuntime." + platform + "-27-")
+        and any(device.get("identifier") == identifier for device in runtime.get("supportedDeviceTypes", []))
+    ]
+    if not compatible:
+        raise RuntimeError(f"No installed {platform} 27 runtime supports {device_type}; Duo-only runtimes cannot run other devices.")
+    selected_runtime = max(compatible, key=lambda runtime: tuple(int(part) for part in runtime["version"].split(".")))
+    print(f"{device_type}: {selected_runtime['identifier']}", flush=True)
+    return selected_runtime["identifier"]
+
+
 phone = (
     simulator(
         "MochiLog Store iPhone 17 Pro Max",
         "iPhone-17-Pro-Max",
-        phone_runtime,
+        compatible_runtime("iPhone-17-Pro-Max"),
     )
     if {"iphone", "watch"} & selected
     else None
@@ -235,7 +251,7 @@ pad = (
     simulator(
         "MochiLog Store iPad Pro 13",
         "iPad-Pro-13-inch-M5-12GB",
-        phone_runtime,
+        compatible_runtime("iPad-Pro-13-inch-M5-12GB"),
     )
     if "ipad" in selected
     else None
@@ -244,14 +260,14 @@ watch = (
     simulator(
         "MochiLog Store Watch 46mm",
         "Apple-Watch-Series-11-46mm",
-        "com.apple.CoreSimulator.SimRuntime.watchOS-27-0",
+        compatible_runtime("Apple-Watch-Series-11-46mm", "watchOS"),
     )
     if "watch" in selected
     else None
 )
 duo = (
     simulator(
-        "MochiLog Store iPhone Duo", "iPhone-Duo", "com.apple.CoreSimulator.SimRuntime.iOS-27-1"
+        "MochiLog Store iPhone Duo", "iPhone-Duo", compatible_runtime("iPhone-Duo")
     )
     if "duo" in selected
     else None
