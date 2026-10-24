@@ -8,7 +8,7 @@ on:
         options: [duo, iphone, ipad, watch, all]
       duo_screen:
         type: choice
-        default: inner
+        default: outer
         options: [inner, outer]
 permissions:
   contents: read
@@ -49,4 +49,5 @@ jobs:
             build/store-screenshots/*/artwork/
             build/store-screenshots/*/capture.json
             build/store-screenshots/*/*.log
+            build/store-screenshots/*/*-attachments/
           retention-days: 7
