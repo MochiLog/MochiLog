@@ -779,8 +779,13 @@ final class LanguageAndLayoutTests: XCTestCase {
       if watchHeader.isHittable { watchHeader.tap() }
     }
     let phoneRecord: XCUIElement
-    if UIDevice.current.userInterfaceIdiom == .pad {
-      // Wide cards omit the repeated device name; choose a visible card under its column header.
+    let namedPhoneRecord = app.buttons.matching(
+      NSPredicate(
+        format: "identifier BEGINSWITH %@ AND label CONTAINS %@", "home.record.", "iPhone 14")
+    ).firstMatch
+    if UIDevice.current.userInterfaceIdiom == .pad || !namedPhoneRecord.exists {
+      // Wide cards, including an open Duo, omit the repeated device name.
+      // Choose the actual visible card under the device's column header.
       let header = app.buttons.matching(NSPredicate(format: "label == %@", "iPhone 14")).firstMatch
       XCTAssertTrue(header.waitForExistence(timeout: 10), app.debugDescription)
       let cards = app.buttons.matching(
@@ -797,12 +802,7 @@ final class LanguageAndLayoutTests: XCTestCase {
       }
       phoneRecord = card
     } else {
-      phoneRecord =
-        app.buttons.matching(
-          NSPredicate(
-            format:
-              "identifier BEGINSWITH %@ AND label CONTAINS %@", "home.record.", "iPhone 14")
-        ).firstMatch
+      phoneRecord = namedPhoneRecord
     }
     XCTAssertTrue(phoneRecord.waitForExistence(timeout: 10), app.debugDescription)
     Thread.sleep(forTimeInterval: 2)

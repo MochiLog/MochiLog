@@ -37,6 +37,7 @@ begin
   raise "Store version #{version} is not editable; create an editable version before registering screenshots" unless editable
   locales = all(api, "/appStoreVersions/#{selected.fetch('id')}/appStoreVersionLocalizations", "limit" => "200").to_h { |x| [x.dig("attributes", "locale"), x.fetch("id")] }
   existing = all(api, "/appAssetLibraries/#{library}/images", "limit" => "200")
+  uploads = []
   %w[ja en-US].each do |locale|
     localization = locales.fetch(locale)
     files = Dir[File.expand_path("../fastlane/store-assets/#{device}/#{locale}/#{device}_*.png", __dir__)].sort
@@ -76,13 +77,20 @@ begin
         end
         api.patch("/appAssetLibraryImages/#{image.fetch('id')}", data: {type: "appAssetLibraryImages", id: image.fetch("id"), attributes: {uploaded: true}})
       end
-      id = image.fetch("id")
-      120.times do |attempt|
+      uploads << [locale, localization, file, image.fetch("id")]
+    end
+  end
+  # Queue every locale before waiting, so Apple's asynchronous image processing
+  # happens concurrently rather than adding a separate wait for every file.
+  processing_deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + 20 * 60
+  uploads.each do |locale, localization, file, id|
+      240.times do |attempt|
         image = api.get("/appAssetLibraryImages/#{id}").fetch("data")
         File.write(File.join(File.dirname(result_path), "#{device}-latest-image.json"), JSON.pretty_generate(image))
         # Apple's deployed API can briefly report COMPLETE before attaching
         # the image specification. It is still processing, not ready to place.
         break unless %w[AWAITING_UPLOAD UPLOAD_COMPLETE COMPLETE].include?(image.dig("attributes", "state"))
+        raise "Store image processing exceeded the run deadline; reservations are retained for retry" if Process.clock_gettime(Process::CLOCK_MONOTONIC) >= processing_deadline
         puts "Waiting for #{locale}/#{File.basename(file)} processing: #{image.dig('attributes', 'state')}" if (attempt % 10).zero?
         sleep 3
       end
@@ -118,7 +126,6 @@ begin
       results << result.merge(placementID: placement.fetch("id"), placementState: saved_placement.dig("attributes", "state"))
       puts "Registered #{locale}/#{File.basename(file)} (#{state})"
       File.write(result_path, JSON.pretty_generate(results))
-    end
   end
 ensure
   File.write(result_path, JSON.pretty_generate(results))
