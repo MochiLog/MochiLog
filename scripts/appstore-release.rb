@@ -2,6 +2,7 @@
 # Authentication stays in CI secrets. Inspection never changes a store version.
 require_relative "app-store-connect-client"
 require "fileutils"
+require "digest"
 
 api = AppStoreConnect.new
 app = "6756904240"
@@ -129,7 +130,23 @@ if mode == "verify"
       report[:locales][locale][device] = filenames
       puts "Verified #{version} #{locale}: #{device}, #{rows.size} ordered screenshots"
     end
+    {"header.png" => "PRODUCT_PAGE_HEADER_ASSET", "search.png" => "APP_STORE_SEARCH_RESULTS_ASSET"}.each do |filename, placement_type|
+      rows = placements.fetch("data").select do |item|
+        item.dig("attributes", "placementType") == placement_type && item.dig("attributes", "placementGroup") == "DEFAULT_PROFILE"
+      end
+      raise "#{locale}: expected one #{placement_type}, got #{rows.size}" unless rows.size == 1
+      placement = rows.first
+      raise "#{locale}: creative is not active" unless %w[ACTIVE PARENT_PREPARE_FOR_SUBMISSION].include?(placement.dig("attributes", "state"))
+      raise "#{locale}: wrong creative localization" unless placement.dig("relationships", "appStoreVersionLocalization", "data", "id") == localization.fetch("id")
+      image = images.fetch(placement.dig("relationships", "image", "data", "id"))
+      file = File.expand_path("../fastlane/store-assets/creative/#{locale}/#{filename}", __dir__)
+      checksum = Digest::SHA256.file(file).hexdigest[0,16]
+      expected_reference = "MochiLog #{version} creative #{locale} #{filename} #{checksum}"
+      raise "#{locale}: creative differs from the committed image" unless image.dig("attributes", "referenceName") == expected_reference && image.dig("attributes", "fileName") == filename
+      report[:locales][locale][placement_type] = filename
+      puts "Verified #{version} #{locale}: #{placement_type} matches committed artwork"
+    end
   end
   File.write(File.join(output, "verified-release.json"), JSON.pretty_generate(report))
-  puts "Verified build, localized metadata and all device groups, including Duo. NO review submitted."
+  puts "Verified build, localized metadata, all device groups, header and search assets. NO review submitted."
 end

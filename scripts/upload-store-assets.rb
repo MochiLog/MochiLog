@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-# Register verified screenshots on an editable store version. Never submits review.
+# Register verified screenshots or creative assets on a draft. Never submits review.
 require_relative "app-store-connect-client"
 require "digest"
 require "fileutils"
@@ -7,9 +7,12 @@ api = AppStoreConnect.new
 app = "6756904240"
 version = ENV.fetch("STORE_VERSION", "4.0.0")
 device = ENV.fetch("STORE_DEVICE", "duo")
-groups = {"duo" => "IPHONE_DUO_PROFILE", "iphone" => "IPHONE_DYNAMIC_ISLAND_LARGE_PROFILE", "ipad" => "IPAD_13_PROFILE", "watch" => "WATCH_SERIES_10_PROFILE"}
+groups = {"duo" => "IPHONE_DUO_PROFILE", "iphone" => "IPHONE_DYNAMIC_ISLAND_LARGE_PROFILE", "ipad" => "IPAD_13_PROFILE", "watch" => "WATCH_SERIES_10_PROFILE", "creative" => "DEFAULT_PROFILE"}
 group = groups.fetch(device)
-dimensions = {"duo" => [[1398,2034],[2034,1398],[2007,2853],[2853,2007]], "iphone" => [[1320,2868]], "ipad" => [[2064,2752]], "watch" => [[416,496]]}.fetch(device)
+creative = device == "creative"
+creative_types = {"header.png" => "PRODUCT_PAGE_HEADER_ASSET", "search.png" => "APP_STORE_SEARCH_RESULTS_ASSET"}
+creative_specs = {"header.png" => "1eb43b80-e0b7-4d96-bd32-47a42a8c5fed", "search.png" => "d2ffa3b7-6c55-5cdf-8512-229d92791333"}
+dimensions = {"duo" => [[1398,2034],[2034,1398],[2007,2853],[2853,2007]], "iphone" => [[1320,2868]], "ipad" => [[2064,2752]], "watch" => [[416,496]], "creative" => [[3840,1646],[3840,2560]]}.fetch(device)
 result_path = File.expand_path("../build/store-asset-inventory/#{device}-upload.json", __dir__)
 FileUtils.mkdir_p(File.dirname(result_path))
 results = []
@@ -40,9 +43,14 @@ begin
   uploads = []
   %w[ja en-US].each do |locale|
     localization = locales.fetch(locale)
-    files = Dir[File.expand_path("../fastlane/store-assets/#{device}/#{locale}/#{device}_*.png", __dir__)].sort
-    raise "Missing complete #{device} screenshot set for #{locale}" unless files.size.between?(4, 10)
-    (device == "watch" ? %w[01_devices 02_logs 03_health 04_metrics] : %w[01_home 02_details 03_analytics 04_settings]).each { |screen| raise "Missing #{screen}" unless files.any? { |f| f.end_with?("#{screen}.png") } }
+    pattern = creative ? "*.png" : "#{device}_*.png"
+    files = Dir[File.expand_path("../fastlane/store-assets/#{device}/#{locale}/#{pattern}", __dir__)].sort
+    if creative
+      raise "Missing header/search pair for #{locale}" unless files.map { |file| File.basename(file) } == creative_types.keys
+    else
+      raise "Missing complete #{device} screenshot set for #{locale}" unless files.size.between?(4, 10)
+      (device == "watch" ? %w[01_devices 02_logs 03_health 04_metrics] : %w[01_home 02_details 03_analytics 04_settings]).each { |screen| raise "Missing #{screen}" unless files.any? { |f| f.end_with?("#{screen}.png") } }
+    end
     if device == "duo"
       %w[inner outer].each do |pose|
         %w[01_home 02_details 03_analytics 04_settings].each do |screen|
@@ -55,12 +63,16 @@ begin
       raise "Invalid PNG" unless bytes.start_with?("\x89PNG\r\n\x1a\n".b)
       width, height = bytes[16, 8].unpack("NN")
       raise "Unexpected #{device} dimensions" unless dimensions.include?([width,height])
+      if creative
+        expected_size = File.basename(file) == "header.png" ? [3840,1646] : [3840,2560]
+        raise "Wrong creative aspect ratio" unless [width,height] == expected_size
+      end
       raise "Screenshot must be RGB, without alpha" unless bytes.getbyte(25) == 2
       reference = "MochiLog #{version} #{device} #{locale} #{File.basename(file)} #{Digest::SHA256.hexdigest(bytes)[0,16]}"
       image = existing.find { |x| x.dig("attributes", "referenceName") == reference }
       unless image
         image = api.post("/appAssetLibraryImages", data: {type: "appAssetLibraryImages", attributes: {
-          category: "APP_SCREENSHOTS_AND_PREVIEWS", fileName: File.basename(file), fileSize: bytes.bytesize, referenceName: reference},
+          category: creative ? "CREATIVE_ASSETS" : "APP_SCREENSHOTS_AND_PREVIEWS", fileName: File.basename(file), fileSize: bytes.bytesize, referenceName: reference},
           relationships: {assetLibrary: {data: {type: "appAssetLibraries", id: library}}}}).fetch("data")
         existing << image
       end
@@ -98,7 +110,11 @@ begin
       state = image.dig("attributes", "state")
       ready_states = %w[PREPARE_FOR_SUBMISSION READY_FOR_REVIEW WAITING_FOR_REVIEW IN_REVIEW ACCEPTED APPROVED]
       raise "Image #{File.basename(file)} is not ready: #{state}" unless ready_states.include?(state)
-      result = {device: device, group: group, locale: locale, filename: File.basename(file), imageID: id, imageState: state, targetVersion: version}
+      placement_type = creative ? creative_types.fetch(File.basename(file)) : "APP_SCREENSHOT"
+      if creative
+        raise "Creative was classified for another surface" unless image.dig("attributes", "specId") == creative_specs.fetch(File.basename(file))
+      end
+      result = {device: device, group: group, placementType: placement_type, locale: locale, filename: File.basename(file), imageID: id, imageState: state, targetVersion: version}
       unless editable
         results << result.merge(placementState: "WAITING_FOR_EDITABLE_VERSION")
         File.write(result_path, JSON.pretty_generate(results))
@@ -106,9 +122,9 @@ begin
         next
       end
       placements = all(api, "/appAssetLibraryImages/#{id}/placements", "limit" => "200", "include" => "appStoreVersionLocalization")
-      placement = placements.find { |x| x.dig("attributes", "placementGroup") == group && x.dig("relationships", "appStoreVersionLocalization", "data", "id") == localization }
+      placement = placements.find { |x| x.dig("attributes", "placementType") == placement_type && x.dig("attributes", "placementGroup") == group && x.dig("relationships", "appStoreVersionLocalization", "data", "id") == localization }
       placement ||= api.post("/appAssetLibraryPlacements", data: {type: "appAssetLibraryPlacements", attributes: {
-        placementType: "APP_SCREENSHOT", placementGroup: group}, relationships: {
+        placementType: placement_type, placementGroup: group}, relationships: {
         image: {data: {type: "appAssetLibraryImages", id: id}},
         appStoreVersionLocalization: {data: {type: "appStoreVersionLocalizations", id: localization}}}}).fetch("data")
       saved_placement = nil
@@ -119,6 +135,7 @@ begin
         sleep 3
       end
       raise "Placement has wrong device group" unless saved_placement.dig("attributes", "placementGroup") == group
+      raise "Placement has wrong surface" unless saved_placement.dig("attributes", "placementType") == placement_type
       raise "Placement has wrong store localization" unless saved_placement.dig("relationships", "appStoreVersionLocalization", "data", "id") == localization
       # The deployed API can return ACTIVE while newer API documentation uses
       # PARENT_PREPARE_FOR_SUBMISSION. Both require the verified editable parent,
@@ -131,7 +148,23 @@ begin
 ensure
   File.write(result_path, JSON.pretty_generate(results))
 end
-if editable
+if editable && creative
+  %w[ja en-US].each do |locale|
+    localization = locales.fetch(locale)
+    current = all(api, "/appStoreVersionLocalizations/#{localization}/placements", "limit" => "200")
+    creative_types.each_value do |placement_type|
+      expected = results.find { |row| row[:locale] == locale && row[:placementType] == placement_type }.fetch(:placementID)
+      same_surface = current.select { |row| row.dig("attributes", "placementType") == placement_type && row.dig("attributes", "placementGroup") == group }
+      # Header and search share DEFAULT_PROFILE. Never replace the entire group,
+      # which would remove the other surface (or any screenshot references).
+      same_surface.reject { |row| row.fetch("id") == expected }.each { |row| api.delete("/appAssetLibraryPlacements/#{row.fetch('id')}") }
+      final = all(api, "/appStoreVersionLocalizations/#{localization}/placements", "limit" => "200")
+        .select { |row| row.dig("attributes", "placementType") == placement_type && row.dig("attributes", "placementGroup") == group }
+      raise "Creative placement differs" unless final.map { |row| row.fetch("id") } == [expected]
+      puts "Verified #{locale}: #{placement_type} on #{version}"
+    end
+  end
+elsif editable
     %w[ja en-US].each do |locale|
       localization = locales.fetch(locale)
       selected_ids = results.select { |x| x[:locale] == locale }.map { |x| x.fetch(:placementID) }
