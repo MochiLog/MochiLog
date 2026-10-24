@@ -1,7 +1,19 @@
-MochiLog 4.0.0 beta (1059)
+4.0.0
 
-This maintenance build improves the readability and consistency of the internal source code. Swift indentation, long conditions and argument lists now follow consistent formatting, making future changes easier to review. Source syntax was compared before and after formatting. Existing tests covered importing, record deletion, physical device identity, PC pairing, multi-device sharing and Watch-record compatibility. Installation and launch were verified on a physical iPhone.
+Automatic log collection
+• Pair with MochiLog Mac or Windows. After initial trust setup and QR pairing, receive encrypted iPhone, iPad and Apple Watch analytics files collected by your computer. Analysis and record creation happen on the mobile device.
+• Configure PC Transfer and On-device Collection independently in Settings → Automatic Log Collection. Manual import remains available.
+• Optional experimental on-device collection supports iOS/iPadOS 17 and later with a compatible VPN and OS pairing. Initial pairing entirely on the device requires 27 or later and Developer Mode. Background collection is attempted only when the OS allows it.
 
-The Home multi-select and deletion feature from 1058 remains available. Tap Select, choose records and confirm the count before deleting. Record IDs and contents are checked again before deletion to protect records changed on another device. With iCloud sync enabled, deletion also applies to synced devices.
+Live Battery
+• An optional tab displays current cycle count, capacities and other available readings, with the last acquisition time. It is off by default. Readings are not saved to history or iCloud.
+• Matching readings from multiple computers are grouped, with differences available for comparison. Eligible logs and current readings can be shared through a paired computer only between devices with iCloud sync enabled on the same Apple Account.
 
-The 4.0.0 beta features, including PC pairing, on-device collection and current battery information, remain available. Existing records and pairings are retained; this update does not require pairing again. Mac 0.2.34 is also being distributed. Unlock the device when collecting daily Analytics logs.
+Records and usability
+• Individual device identities now work with export/import, synchronization and duplicate review.
+• Select and delete multiple battery records from Home. Records changed on another device while you confirm are protected.
+• Browse activity and error logs by date and feature. Support attachments can be selected around an incident date.
+• Improved iPad and iPhone Duo layouts, sharing stability and multilingual text.
+• Diagnostic retries verify existing bytes and save only the missing portion. Existing pairings continue to work.
+
+PC Transfer requires iOS/iPadOS 27 or later and macOS 27 or later, or Windows 11. Collecting daily analytics requires an unlocked device and generated analytics data. VPN communication follows your network configuration and communication permissions.

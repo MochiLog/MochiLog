@@ -1,30 +1,19 @@
-3.2.1
-• Added distribution-aware in-app purchase handling for AltStore PAL. In-app donations remain available in the App Store version.
-• Fixed the iPad layout.
+4.0.0
 
-3.2.0
-• Added “MochiLog (Multiple Files),” which allows you to import multiple analysis logs at once. In the Share Sheet, “MochiLog” and “MochiLog (Multiple Files)” are now available separately in the Actions section rather than the app row.
+Automatic log collection
+• Pair with MochiLog Mac or Windows. After initial trust setup and QR pairing, receive encrypted iPhone, iPad and Apple Watch analytics files collected by your computer. Analysis and record creation happen on the mobile device.
+• Configure PC Transfer and On-device Collection independently in Settings → Automatic Log Collection. Manual import remains available.
+• Optional experimental on-device collection supports iOS/iPadOS 17 and later with a compatible VPN and OS pairing. Initial pairing entirely on the device requires 27 or later and Developer Mode. Background collection is attempted only when the OS allows it.
 
-• Added preliminary support for iPhone 18 Pro, iPhone 18 Pro Max, and iPhone Duo.
+Live Battery
+• An optional tab displays current cycle count, capacities and other available readings, with the last acquisition time. It is off by default. Readings are not saved to history or iCloud.
+• Matching readings from multiple computers are grouped, with differences available for comparison. Eligible logs and current readings can be shared through a paired computer only between devices with iCloud sync enabled on the same Apple Account.
 
-• Added preliminary support for Apple Watch Series 12 and Apple Watch Ultra 4. Provisional battery design capacities are set to 327mAh for Series 12 (42mm), 378mAh for Series 12 (46mm), and 633mAh for Ultra 4. GPS and GPS + Cellular models use the same capacities. These values are not confirmed and may change in a future update.
+Records and usability
+• Individual device identities now work with export/import, synchronization and duplicate review.
+• Select and delete multiple battery records from Home. Records changed on another device while you confirm are protected.
+• Browse activity and error logs by date and feature. Support attachments can be selected around an incident date.
+• Improved iPad and iPhone Duo layouts, sharing stability and multilingual text.
+• Diagnostic retries verify existing bytes and save only the missing portion. Existing pairings continue to work.
 
-• Improved battery capacity handling for iPhone models where eSIM and physical SIM variants (including Hong Kong models) have different battery capacities.
-
-• Added support for adding, editing, and restoring device information to default values. Device parameters can now be reviewed and edited, and changes can also be applied to existing logs.
-
-• If the displayed battery capacity appears to be incorrect, you can now easily report it to support by email from within the app.
-
-• Completely redesigned and improved the Home, Log Details, Analysis, and Settings screens on iPhone and iPad. On the Log Details screen, you can now choose whether to show or hide the information “i” icons.
-
-• Improved graphs and statistical displays. On iPad, the display ranges for Maximum Capacity and Cycle Count can now be configured independently. The Analysis tab has also been optimized to reduce processing load.
-
-• Improved log display across multiple devices synced with iCloud, along with better handling of synchronization and conflict resolution.
-
-• Reduced rendering load on devices with lower-performance CPUs or GPUs, improving log processing and screen responsiveness.
-
-• Improved language settings and Apple Watch displays, and fixed several missing translations.
-
-• Fixed multiple issues, including crashes at launch, log import errors, and display problems in Light Mode.
-
-• This version is built with Xcode 27.
+PC Transfer requires iOS/iPadOS 27 or later and macOS 27 or later, or Windows 11. Collecting daily analytics requires an unlocked device and generated analytics data. VPN communication follows your network configuration and communication permissions.

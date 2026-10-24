@@ -275,7 +275,7 @@ final class MacTransferManager: ObservableObject {
         "Daily collection condition met for \(day): own-device log and \(receipt.watchSources.count) Watch source(s)"
       )
     } else if receipt.hostReceived,
-      (!previous.hostReceived || receipt.watchSources.count > previous.watchSources.count)
+      !previous.hostReceived || receipt.watchSources.count > previous.watchSources.count
     {
       let expected = expectedWatchCount().map(String.init) ?? "unknown"
       Self.appendDebugEvent(
@@ -762,7 +762,10 @@ final class MacTransferManager: ObservableObject {
 
   private func beginDiscovery() {
     guard isRunning, let pairing else { return }
-    guard networkPermitsTransfer else { pauseForNetwork(); return }
+    guard networkPermitsTransfer else {
+      pauseForNetwork()
+      return
+    }
     if !manualReceive {
       if let wait = automaticWait() {
         let reason =
@@ -776,8 +779,10 @@ final class MacTransferManager: ObservableObject {
           )
           lastAutomaticHold = key
         }
-        browser?.cancel(); browser = nil
-        connection?.cancel(); connection = nil
+        browser?.cancel()
+        browser = nil
+        connection?.cancel()
+        connection = nil
         isReceiving = false
         scheduleReconnect(after: wait, interruptActive: true)
         return
@@ -873,7 +878,7 @@ final class MacTransferManager: ObservableObject {
           if let tailnet = record["tailnet"],
             let port = (record["tailnetPort"] ?? record["port"]).flatMap(UInt16.init),
             Self.tailnetRoute(address: tailnet, port: port) != nil,
-            (updated.tailnetAddress != tailnet || updated.tailnetPort != port)
+            updated.tailnetAddress != tailnet || updated.tailnetPort != port
           {
             updated.tailnetAddress = tailnet
             updated.tailnetPort = port
@@ -942,7 +947,10 @@ final class MacTransferManager: ObservableObject {
 
   private func scheduleReconnect(after seconds: UInt64, interruptActive: Bool = false) {
     guard isRunning else { return }
-    guard AppSettings.shared.pcAutomaticCollectionEnabled || manualReceive else { stop(); return }
+    guard AppSettings.shared.pcAutomaticCollectionEnabled || manualReceive else {
+      stop()
+      return
+    }
     reconnectTask?.cancel()
     if seconds > 300 {
       Self.appendDebugEvent(
@@ -977,7 +985,8 @@ final class MacTransferManager: ObservableObject {
 
   func stop() {
     isRunning = false
-    cloudPolicyTask?.cancel(); cloudPolicyTask = nil
+    cloudPolicyTask?.cancel()
+    cloudPolicyTask = nil
     revocationTimer?.invalidate()
     revocationTimer = nil
     reconnectTask?.cancel()
@@ -1058,7 +1067,10 @@ final class MacTransferManager: ObservableObject {
         connection.send(
           content: payload + Data([10]),
           completion: .contentProcessed { error in
-            if error != nil { finish(); return }
+            if error != nil {
+              finish()
+              return
+            }
             connection.receive(minimumIncompleteLength: 1, maximumLength: 1) { _, _, _, _ in
               finish()
             }
@@ -1175,7 +1187,10 @@ final class MacTransferManager: ObservableObject {
   /// A valid old-PC response disables further probes for this foreground session.
   private func refreshCloudPolicies() async {
     guard isRunning, networkPermitsTransfer else { return }
-    if cloudPolicyBusy { cloudPolicyDirty = true; return }
+    if cloudPolicyBusy {
+      cloudPolicyDirty = true
+      return
+    }
     cloudPolicyBusy = true
     defer {
       cloudPolicyBusy = false
@@ -1514,12 +1529,16 @@ final class MacTransferManager: ObservableObject {
 
   private func finish(_ bytes: Data, connection: NWConnection) {
     defer {
-      connection.cancel(); self.connection = nil
-      activeRequestNonce = nil; activePauseUntil = nil; activeResume = false
+      connection.cancel()
+      self.connection = nil
+      activeRequestNonce = nil
+      activePauseUntil = nil
+      activeResume = false
     }
     guard let pairing, let requestNonce = activeRequestNonce, bytes.count >= 4 else {
       if tryLegacyFallback() { return }
-      status = MacTransferStatus.text("mt_s_06"); isReceiving = false
+      status = MacTransferStatus.text("mt_s_06")
+      isReceiving = false
       connectionPhase = .retrying
       scheduleRetry()
       return
@@ -1528,7 +1547,8 @@ final class MacTransferManager: ObservableObject {
     guard length == bytes.count - 4 else {
       if tryLegacyFallback() { return }
       Self.appendDebugEvent("Transfer: frame length \(length), received \(bytes.count - 4)")
-      status = MacTransferStatus.text("mt_s_07"); isReceiving = false
+      status = MacTransferStatus.text("mt_s_07")
+      isReceiving = false
       connectionPhase = .retrying
       scheduleRetry()
       return
@@ -1583,8 +1603,8 @@ final class MacTransferManager: ObservableObject {
           let digest = offer["sha256"], digest.count == 64,
           digest.allSatisfy({ $0.isHexDigit }),
           token.count <= 1024,
-          (token.hasPrefix("Host::") || token.hasPrefix("Watch::") || token.hasPrefix("Analytics-")
-            || CloudSharedLogToken.parse(token) != nil)
+          token.hasPrefix("Host::") || token.hasPrefix("Watch::") || token.hasPrefix("Analytics-")
+            || CloudSharedLogToken.parse(token) != nil
         {
           if let previous = activeFileOffer, previous.hostID == pairing.hostID {
             Self.appendDebugEvent(
@@ -1668,7 +1688,10 @@ final class MacTransferManager: ObservableObject {
           Self.appendDebugEvent(
             "Automatic collection paused by computer \(pairing.hostID.uuidString) until \(Self.localTime(Date(timeIntervalSince1970: TimeInterval(control["until"] ?? "") ?? 0))); receipt confirmed"
           )
-          if !AppSettings.shared.pcAutomaticCollectionEnabled { stop(); return }
+          if !AppSettings.shared.pcAutomaticCollectionEnabled {
+            stop()
+            return
+          }
           if let wait = automaticWait() { scheduleReconnect(after: wait) } else { advancePairing() }
           return
         }
@@ -1752,7 +1775,10 @@ final class MacTransferManager: ObservableObject {
           return
         }
         debugSyncBurst = 0
-        if !AppSettings.shared.pcAutomaticCollectionEnabled { stop(); return }
+        if !AppSettings.shared.pcAutomaticCollectionEnabled {
+          stop()
+          return
+        }
         if activePauseUntil != nil {
           Self.appendDebugEvent("Computer did not acknowledge automatic pause")
         } else if dailyComplete(dailyReceipt),
@@ -2486,14 +2512,16 @@ final class MacTransferManager: ObservableObject {
         at: directory,
         withIntermediateDirectories: true)
       let url = directory.appendingPathComponent("\(day).log")
-      if !FileManager.default.fileExists(atPath: url.path) {
-        FileManager.default.createFile(atPath: url.path, contents: nil)
+      let result = try DiagnosticArchiveChunk.append(bytes, offset: offset, to: url)
+      switch result {
+      case .duplicate: return
+      case .rejected:
+        appendDebugEvent(
+          "Debug archive sync: computer chunk rejected; computer=\(hostID.uuidString), day=\(day), offset=\(offset); conflicting bytes or missing earlier data"
+        )
+        return
+      case .appended: break
       }
-      let handle = try FileHandle(forUpdating: url)
-      defer { try? handle.close() }
-      let size = try handle.seekToEnd()
-      guard size == UInt64(offset) else { return }
-      try handle.write(contentsOf: bytes)
       try FileManager.default.setAttributes(
         [.posixPermissions: 0o600],
         ofItemAtPath: url.path)
@@ -2698,7 +2726,10 @@ private enum PairingTransport {
       connection.receive(minimumIncompleteLength: 1, maximumLength: 8_192) {
         data, _, complete, error in
         if let data { response.append(data) }
-        if response.count > 16_384 { finish(TransferError.invalidPayload); return }
+        if response.count > 16_384 {
+          finish(TransferError.invalidPayload)
+          return
+        }
         if let error { finish(error) } else if complete { finish() } else { receive() }
       }
     }

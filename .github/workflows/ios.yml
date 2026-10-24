@@ -42,6 +42,9 @@ jobs:
       - name: Verify safe selected record deletion
         run: bash scripts/test-selected-record-deletion.sh
 
+      - name: Verify idempotent diagnostic archive retries
+        run: bash scripts/test-diagnostic-archive-chunks.sh
+
       - name: Verify diagnostic and error log viewer
         run: bash scripts/test-diagnostic-log-viewer.sh
 
