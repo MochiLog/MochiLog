@@ -1,11 +1,12 @@
-name: Prepare App Store release (no submission)
+name: Manage App Store release
 on:
   workflow_dispatch:
     inputs:
       mode:
         type: choice
         default: inspect
-        options: [inspect, withdraw, prepare, verify]
+        options: [inspect, withdraw, prepare, verify, submit]
+        description: 'Submit only with explicit authorization, after external TestFlight distribution'
       marketing_version:
         type: string
         default: '4.0.0'
@@ -24,7 +25,9 @@ jobs:
         with:
           ruby-version: '3.3'
       - run: gem install jwt --no-document
-      - name: Inspect, prepare or verify the selected version without submitting
+      - name: Verify submission safeguards
+        run: ruby scripts/test-appstore-review-submission.rb
+      - name: Manage the selected version using the explicitly requested mode
         env:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}

@@ -57,9 +57,11 @@ For a changed creative image, the uploader waits until Apple's processing has
 finished before replacing the draft's old reference. It retains the old library
 image and restores its reference if the new placement request fails.
 
-Run **Prepare App Store release (no submission)** in `verify` mode. It checks the
+Run **Manage App Store release** in `verify` mode. It checks the
 selected build and metadata, all 40 screenshots including both Duo poses, and the
 four creative placements against the committed image hashes. In App Store
 Connect, use Preview for both locales and both surfaces to check actual cropping
 and legibility. Uploading and verifying these assets never submits an App Review
-or a TestFlight review. The user presses the review submission button.
+or a TestFlight review. Use `submit` only when the user explicitly authorizes App
+Review submission; this separate mode requires external TestFlight availability
+and verifies the selected build, metadata and all artwork before submitting.

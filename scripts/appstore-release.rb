@@ -4,13 +4,14 @@ require_relative "app-store-connect-client"
 require "fileutils"
 require "digest"
 require_relative "cancel-appstore-review"
+require_relative "submit-appstore-review"
 
 api = AppStoreConnect.new
 app = "6756904240"
 mode = ENV.fetch("RELEASE_MODE", "inspect")
 version = ENV.fetch("MARKETING_VERSION", "4.0.0")
 build = ENV.fetch("BUILD_NUMBER", "1061")
-raise "Unknown mode" unless %w[inspect withdraw prepare verify].include?(mode)
+raise "Unknown mode" unless %w[inspect withdraw prepare verify submit].include?(mode)
 output = File.expand_path("../build/appstore-release", __dir__)
 FileUtils.mkdir_p(output)
 versions = api.get("/apps/#{app}/appStoreVersions", "limit" => "50")
@@ -37,8 +38,8 @@ if selected
     File.write(File.join(output, "placements-#{locale.dig('attributes', 'locale')}.json"), JSON.pretty_generate(placements))
   end
 end
-# Preparing metadata never creates/submits a review request. The user presses
-# the review submission button after checking the completed version in ASC.
+# Preparation never submits a review request. The separate submit mode requires
+# explicit authorization and verifies the selected build, metadata and artwork.
 if mode == "withdraw"
   AppStoreReviewWithdrawal.cancel(api, app: app, version: selected, output: output)
 end
@@ -82,7 +83,7 @@ if mode == "prepare"
   puts "Prepared #{version}; NO review submission was created or submitted"
 end
 
-if mode == "verify"
+if %w[verify submit].include?(mode)
   raise "No #{version} draft exists" unless selected
   state = selected.dig("attributes", "appVersionState") || selected.dig("attributes", "appStoreState")
   raise "Version is not editable: #{state}" unless AppStoreReviewWithdrawal::EDITABLE_STATES.include?(state)
@@ -154,4 +155,8 @@ if mode == "verify"
   end
   File.write(File.join(output, "verified-release.json"), JSON.pretty_generate(report))
   puts "Verified build, localized metadata, all device groups, header and search assets. NO review submitted."
+end
+
+if mode == "submit"
+  AppStoreReviewSubmission.submit(api, app: app, version: selected, build: build, output: output)
 end
