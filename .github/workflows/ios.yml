@@ -1,11 +1,8 @@
 name: iOS Build
 
 on:
-  push:
-    tags:
-      - 'v*'
-      # Source beta releases point to an already uploaded TestFlight build.
-      - '!v*-beta.*'
+  # Build once by dispatch, then publish the verified commit/artifact. A source
+  # release tag must not silently upload a different build to App Store Connect.
   workflow_dispatch:
     inputs:
       build_number:

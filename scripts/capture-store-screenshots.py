@@ -220,11 +220,13 @@ if not re.match(r"Xcode 27\.(?:[1-9]|[1-9][0-9])(?:\n|\.)", version):
     raise RuntimeError(
         "Select Xcode 27.1 or newer (or set DEVELOPER_DIR) before store capture.\n" + version
     )
+runtimes = json_command("xcrun", "simctl", "list", "runtimes", "-j")["runtimes"]
+phone_runtime = next((r["identifier"] for r in runtimes if r["isAvailable"] and r["identifier"].endswith("iOS-27-1")), "com.apple.CoreSimulator.SimRuntime.iOS-27-0")
 phone = (
     simulator(
         "MochiLog Store iPhone 17 Pro Max",
         "iPhone-17-Pro-Max",
-        "com.apple.CoreSimulator.SimRuntime.iOS-27-0",
+        phone_runtime,
     )
     if {"iphone", "watch"} & selected
     else None
@@ -233,7 +235,7 @@ pad = (
     simulator(
         "MochiLog Store iPad Pro 13",
         "iPad-Pro-13-inch-M5-12GB",
-        "com.apple.CoreSimulator.SimRuntime.iOS-27-0",
+        phone_runtime,
     )
     if "ipad" in selected
     else None
