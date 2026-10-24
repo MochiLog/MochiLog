@@ -1,11 +1,11 @@
-name: Prepare and submit App Store release
+name: Prepare App Store release (no submission)
 on:
   workflow_dispatch:
     inputs:
       mode:
         type: choice
         default: inspect
-        options: [inspect, prepare, submit]
+        options: [inspect, prepare]
       marketing_version:
         type: string
         default: '4.0.0'

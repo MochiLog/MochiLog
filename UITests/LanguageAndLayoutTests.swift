@@ -1,5 +1,5 @@
-import XCTest
 import UIKit
+import XCTest
 
 final class LanguageAndLayoutTests: XCTestCase {
   private var app: XCUIApplication!
@@ -45,12 +45,14 @@ final class LanguageAndLayoutTests: XCTestCase {
       ]
       app.launch()
       let begin = app.buttons["home.selection.begin"]
-      XCTAssertTrue(begin.waitForExistence(timeout: 15), app.debugDescription); begin.tap()
+      XCTAssertTrue(begin.waitForExistence(timeout: 15), app.debugDescription)
+      begin.tap()
       let rows = ids.map { app.buttons["home.record.\($0)"] }
       for row in rows { XCTAssertTrue(row.waitForExistence(timeout: 5), app.debugDescription) }
       let deleteSelection = app.buttons["home.selection.delete"]
       XCTAssertTrue(deleteSelection.exists && !deleteSelection.isEnabled)
-      rows[0].tap(); rows[2].tap()
+      rows[0].tap()
+      rows[2].tap()
       XCTAssertTrue(deleteSelection.isEnabled)
       XCTAssertTrue(app.staticTexts["home.selection.count"].label.contains("2"))
       screenshot("Home selected records \(language)")
@@ -66,7 +68,8 @@ final class LanguageAndLayoutTests: XCTestCase {
       XCTAssertTrue(begin.exists, app.debugDescription)
       begin.tap()
       XCTAssertTrue(app.staticTexts["home.selection.count"].label.contains("0"))
-      rows[0].tap(); rows[2].tap()
+      rows[0].tap()
+      rows[2].tap()
       XCTAssertTrue(
         app.staticTexts["home.selection.count"].label.contains("2"), app.debugDescription)
       XCTAssertTrue(deleteSelection.isEnabled, app.debugDescription)
@@ -75,7 +78,8 @@ final class LanguageAndLayoutTests: XCTestCase {
       XCTAssertTrue(confirmation.waitForExistence(timeout: 5), app.debugDescription)
       confirmation.buttons[delete[language]!].tap()
       XCTAssertTrue(begin.waitForExistence(timeout: 10), app.debugDescription)
-      XCTAssertFalse(rows[0].exists); XCTAssertFalse(rows[2].exists)
+      XCTAssertFalse(rows[0].exists)
+      XCTAssertFalse(rows[2].exists)
       XCTAssertTrue(rows[1].exists, "Unselected records with identical values are preserved")
       begin.tap()
       app.buttons["home.selection.selectAll"].tap()
@@ -156,14 +160,22 @@ final class LanguageAndLayoutTests: XCTestCase {
       ]
       app.launch()
       let settings = app.buttons[settingsTitles[language]!].firstMatch
-      XCTAssertTrue(settings.waitForExistence(timeout: 15)); settings.tap()
+      XCTAssertTrue(settings.waitForExistence(timeout: 15))
+      settings.tap()
       if UIDevice.current.userInterfaceIdiom == .pad {
         let debug = app.buttons["settings.category.debug"]
-        for _ in 0..<8 { if debug.isHittable { break }; app.swipeUp() }
-        XCTAssertTrue(debug.waitForExistence(timeout: 5)); debug.tap()
+        for _ in 0..<8 {
+          if debug.isHittable { break }
+          app.swipeUp()
+        }
+        XCTAssertTrue(debug.waitForExistence(timeout: 5))
+        debug.tap()
       }
       let logs = app.buttons["settings.diagnosticLogs"]
-      for _ in 0..<8 { if logs.isHittable { break }; app.swipeUp() }
+      for _ in 0..<8 {
+        if logs.isHittable { break }
+        app.swipeUp()
+      }
       XCTAssertTrue(logs.exists && logs.isHittable, app.debugDescription)
       XCTAssertEqual(logs.label.contains(titles[language]!), true)
       logs.tap()
@@ -206,15 +218,24 @@ final class LanguageAndLayoutTests: XCTestCase {
       ]
       app.launch()
       let settings = app.buttons[settingsTitles[language]!].firstMatch
-      XCTAssertTrue(settings.waitForExistence(timeout: 15)); settings.tap()
+      XCTAssertTrue(settings.waitForExistence(timeout: 15))
+      settings.tap()
       if UIDevice.current.userInterfaceIdiom == .pad {
         let debug = app.buttons["settings.category.debug"]
-        for _ in 0..<8 { if debug.isHittable { break }; app.swipeUp() }
-        XCTAssertTrue(debug.waitForExistence(timeout: 5)); debug.tap()
+        for _ in 0..<8 {
+          if debug.isHittable { break }
+          app.swipeUp()
+        }
+        XCTAssertTrue(debug.waitForExistence(timeout: 5))
+        debug.tap()
       }
       let link = app.buttons["settings.errorLogs"]
-      for _ in 0..<8 { if link.isHittable { break }; app.swipeUp() }
-      XCTAssertTrue(link.exists && link.isHittable, app.debugDescription); link.tap()
+      for _ in 0..<8 {
+        if link.isHittable { break }
+        app.swipeUp()
+      }
+      XCTAssertTrue(link.exists && link.isHittable, app.debugDescription)
+      link.tap()
       let fixture = app.staticTexts["Large log UI fixture"].firstMatch
       XCTAssertTrue(fixture.waitForExistence(timeout: 15), app.debugDescription)
       fixture.tap()
@@ -276,12 +297,16 @@ final class LanguageAndLayoutTests: XCTestCase {
       ]
       app.launch()
       let settings = app.buttons[settingsTitles[language]!].firstMatch
-      XCTAssertTrue(settings.waitForExistence(timeout: 15)); settings.tap()
+      XCTAssertTrue(settings.waitForExistence(timeout: 15))
+      settings.tap()
       let collection =
         UIDevice.current.userInterfaceIdiom == .pad
         ? app.buttons["settings.category.automaticCollection"]
         : app.buttons["settings.automaticCollection"]
-      for _ in 0..<10 { if collection.isHittable { break }; app.swipeUp() }
+      for _ in 0..<10 {
+        if collection.isHittable { break }
+        app.swipeUp()
+      }
       XCTAssertTrue(collection.waitForExistence(timeout: 10), app.debugDescription)
       collection.tap()
       XCTAssertTrue(app.navigationBars[title].waitForExistence(timeout: 10), app.debugDescription)
@@ -293,9 +318,13 @@ final class LanguageAndLayoutTests: XCTestCase {
       }
       screenshot("Automatic collection \(language)")
       let local = app.buttons["autoCollection.localSettings"]
-      XCTAssertTrue(local.waitForExistence(timeout: 5)); local.tap()
+      XCTAssertTrue(local.waitForExistence(timeout: 5))
+      local.tap()
       let start = app.buttons["localPairing.start"]
-      for _ in 0..<4 { if start.isHittable { break }; app.swipeUp() }
+      for _ in 0..<4 {
+        if start.isHittable { break }
+        app.swipeUp()
+      }
       XCTAssertTrue(start.exists, "On-device setup must be available without a PC pairing")
       let requirement = app.descendants(matching: .any)["localPairing.developerRequired"].firstMatch
       XCTAssertTrue(requirement.exists, "Developer Mode must be explained before starting")
@@ -323,7 +352,8 @@ final class LanguageAndLayoutTests: XCTestCase {
       tapSwitch(battery)
       let values = app.buttons["localBattery.values"]
       revealLocalControl(values)
-      XCTAssertTrue(values.isEnabled); values.tap()
+      XCTAssertTrue(values.isEnabled)
+      values.tap()
       XCTAssertTrue(app.navigationBars[batteryTitles[language]!].waitForExistence(timeout: 5))
       XCTAssertEqual(
         app.navigationBars.count, 1,
@@ -371,30 +401,38 @@ final class LanguageAndLayoutTests: XCTestCase {
     let settings =
       UIDevice.current.userInterfaceIdiom == .pad
       ? app.staticTexts["Settings"].firstMatch : app.buttons["Settings"].firstMatch
-    XCTAssertTrue(settings.waitForExistence(timeout: 15), app.debugDescription); settings.tap()
+    XCTAssertTrue(settings.waitForExistence(timeout: 15), app.debugDescription)
+    settings.tap()
     let collection =
       UIDevice.current.userInterfaceIdiom == .pad
       ? app.buttons["settings.category.automaticCollection"]
       : app.buttons["settings.automaticCollection"]
-    for _ in 0..<10 { if collection.isHittable { break }; app.swipeUp() }
-    XCTAssertTrue(collection.waitForExistence(timeout: 10)); collection.tap()
+    for _ in 0..<10 {
+      if collection.isHittable { break }
+      app.swipeUp()
+    }
+    XCTAssertTrue(collection.waitForExistence(timeout: 10))
+    collection.tap()
     XCTAssertTrue(app.switches["autoCollection.localToggle"].waitForExistence(timeout: 5))
     XCTAssertFalse(app.switches["autoCollection.pcToggle"].exists)
     let local = app.buttons["autoCollection.localSettings"]
-    XCTAssertTrue(local.exists); local.tap()
+    XCTAssertTrue(local.exists)
+    local.tap()
     for _ in 0..<4 {
       if app.otherElements["localPairing.importRequired"].isHittable
         || app.staticTexts["localPairing.importRequired"].isHittable
       {
         break
-      }; app.swipeUp()
+      }
+      app.swipeUp()
     }
     XCTAssertTrue(app.descendants(matching: .any)["localPairing.importRequired"].firstMatch.exists)
     XCTAssertFalse(app.buttons["localPairing.start"].exists)
     XCTAssertTrue(app.descendants(matching: .any)["localPairing.refreshNote"].firstMatch.exists)
     let battery = app.switches["localBattery.enable"]
     for _ in 0..<6 {
-      if battery.isHittable && app.buttons["localBattery.receive"].exists { break }; app.swipeUp()
+      if battery.isHittable && app.buttons["localBattery.receive"].exists { break }
+      app.swipeUp()
     }
     XCTAssertTrue(battery.exists)
     XCTAssertFalse(app.buttons["localBattery.receive"].isEnabled)
@@ -414,12 +452,17 @@ final class LanguageAndLayoutTests: XCTestCase {
     ]
     app.launch()
     let settings = app.buttons["Settings"].firstMatch
-    XCTAssertTrue(settings.waitForExistence(timeout: 15)); settings.tap()
+    XCTAssertTrue(settings.waitForExistence(timeout: 15))
+    settings.tap()
     let advanced =
       UIDevice.current.userInterfaceIdiom == .pad
       ? app.buttons["settings.category.advanced"] : app.buttons["settings.advanced"]
-    for _ in 0..<10 { if advanced.isHittable { break }; app.swipeUp() }
-    XCTAssertTrue(advanced.waitForExistence(timeout: 10)); advanced.tap()
+    for _ in 0..<10 {
+      if advanced.isHittable { break }
+      app.swipeUp()
+    }
+    XCTAssertTrue(advanced.waitForExistence(timeout: 10))
+    advanced.tap()
     let toggle = app.switches["settings.liveBattery"]
     XCTAssertTrue(toggle.waitForExistence(timeout: 10))
     let tab = app.buttons["Live Battery"].firstMatch
@@ -452,7 +495,10 @@ final class LanguageAndLayoutTests: XCTestCase {
     XCTAssertEqual(app.staticTexts["live.Voltage"].label, "4010 mV")
     XCTAssertFalse(app.staticTexts["18446744073709551615"].exists)
     let details = app.buttons["live.details"]
-    for _ in 0..<6 { if details.isHittable { break }; app.swipeUp() }
+    for _ in 0..<6 {
+      if details.isHittable { break }
+      app.swipeUp()
+    }
     XCTAssertTrue(details.isHittable)
     details.tap()
     let batteryGroup = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "BatteryData"))
@@ -486,12 +532,18 @@ final class LanguageAndLayoutTests: XCTestCase {
     XCTAssertEqual(app.staticTexts["live.diff.Voltage.Windows"].label, "3990 mV")
     XCTAssertFalse(app.staticTexts["18446744073709551615"].exists)
     let details = app.buttons["live.details"]
-    for _ in 0..<8 { if details.isHittable { break }; app.swipeUp() }
+    for _ in 0..<8 {
+      if details.isHittable { break }
+      app.swipeUp()
+    }
     XCTAssertTrue(details.isHittable)
     details.tap()
     let group = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "BatteryData"))
       .firstMatch
-    for _ in 0..<4 { if group.isHittable { break }; app.swipeUp() }
+    for _ in 0..<4 {
+      if group.isHittable { break }
+      app.swipeUp()
+    }
     XCTAssertTrue(group.isHittable)
     group.tap()
     XCTAssertEqual(
@@ -524,12 +576,16 @@ final class LanguageAndLayoutTests: XCTestCase {
     XCTAssertFalse(app.alerts.firstMatch.exists)
     XCTAssertFalse(app.staticTexts["18446744073709551615"].exists)
     let details = app.buttons["live.details"]
-    for _ in 0..<6 { if details.isHittable { break }; app.swipeUp() }
+    for _ in 0..<6 {
+      if details.isHittable { break }
+      app.swipeUp()
+    }
     XCTAssertTrue(details.isHittable)
     details.tap()
     let group = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "BatteryData"))
       .firstMatch
-    XCTAssertTrue(group.waitForExistence(timeout: 5)); group.tap()
+    XCTAssertTrue(group.waitForExistence(timeout: 5))
+    group.tap()
     XCTAssertTrue(app.staticTexts["18446744073709551615"].waitForExistence(timeout: 5))
     screenshot("Live Battery encrypted PC response")
   }
@@ -664,6 +720,37 @@ final class LanguageAndLayoutTests: XCTestCase {
   }
 
   // Store capture uses the real sample-data UI, without changing user records.
+  func testNativeDuoDarkOverview() {
+    let previousAppearance = XCUIDevice.shared.appearance
+    XCUIDevice.shared.appearance = .dark
+    defer { XCUIDevice.shared.appearance = previousAppearance }
+    verifyOverview(size: "UICTContentSizeCategoryL")
+  }
+
+  func testNativeDuoDetailRotationAndSharing() {
+    app.launch()
+    let sample = app.buttons["View Sample Data"]
+    if sample.waitForExistence(timeout: 5) { sample.tap() }
+    let record = app.buttons.matching(
+      NSPredicate(format: "identifier BEGINSWITH %@", "home.record.")
+    ).firstMatch
+    XCTAssertTrue(record.waitForExistence(timeout: 15))
+    record.tap()
+    let detail = app.navigationBars["Details"]
+    XCTAssertTrue(detail.waitForExistence(timeout: 10))
+    screenshot("Native Duo detail portrait")
+    for orientation in [UIDeviceOrientation.landscapeLeft, .landscapeRight, .portrait] {
+      XCUIDevice.shared.orientation = orientation
+      XCTAssertTrue(detail.waitForExistence(timeout: 10), "Rotation must preserve the selected log")
+      let share = app.buttons["record.share"].firstMatch
+      XCTAssertTrue(share.isHittable, "Share must remain reachable beside the system bars")
+      screenshot("Native Duo detail orientation \(orientation.rawValue)")
+    }
+    app.buttons["record.share"].firstMatch.tap()
+    XCTAssertTrue(app.otherElements["ActivityListView"].waitForExistence(timeout: 15))
+    screenshot("Native Duo share sheet")
+  }
+
   func testStoreScreenshotsEnglish() { captureStoreScreens(language: "en", locale: "en_US") }
   func testStoreScreenshotsJapanese() { captureStoreScreens(language: "ja", locale: "ja_JP") }
 
@@ -704,7 +791,10 @@ final class LanguageAndLayoutTests: XCTestCase {
           $0.isHittable && abs($0.frame.midX - header.frame.midX) < 10
             && $0.frame.minY >= header.frame.maxY
         })
-      else { XCTFail("No visible iPhone 14 card: \(app.debugDescription)"); return }
+      else {
+        XCTFail("No visible iPhone 14 card: \(app.debugDescription)")
+        return
+      }
       phoneRecord = card
     } else {
       phoneRecord =
@@ -733,7 +823,8 @@ final class LanguageAndLayoutTests: XCTestCase {
     Thread.sleep(forTimeInterval: 1)
     screenshot("store_\(locale)_02_details")
     // Relaunch to dismiss both iPhone's sheet and iPad's pushed detail consistently.
-    app.terminate(); app.launch()
+    app.terminate()
+    app.launch()
     if sample.waitForExistence(timeout: 3) { sample.tap() }
     for (index, title) in [
       ("03_analytics", japanese ? "分析" : "Analytics"),
@@ -850,7 +941,8 @@ final class LanguageAndLayoutTests: XCTestCase {
     let advanced = app.buttons["settings.category.advanced"]
     XCTAssertTrue(advanced.waitForExistence(timeout: 10))
     let collection = app.buttons["settings.category.automaticCollection"]
-    XCTAssertTrue(collection.waitForExistence(timeout: 10)); collection.tap()
+    XCTAssertTrue(collection.waitForExistence(timeout: 10))
+    collection.tap()
     let macTransfer = app.buttons["settings.macTransfer"]
     XCTAssertTrue(macTransfer.waitForExistence(timeout: 10))
     macTransfer.tap()
@@ -936,9 +1028,11 @@ final class LanguageAndLayoutTests: XCTestCase {
     library.tap()
     let search = app.textFields["profiles.search"]
     XCTAssertTrue(search.waitForExistence(timeout: 10))
-    search.tap(); search.typeText("iPhone 15 Pro")
+    search.tap()
+    search.typeText("iPhone 15 Pro")
     let model = app.buttons["profiles.model.bundled:iPhone 15 Pro"]
-    XCTAssertTrue(model.waitForExistence(timeout: 5)); model.tap()
+    XCTAssertTrue(model.waitForExistence(timeout: 5))
+    model.tap()
     let capacity = app.textFields["profiles.capacity"]
     XCTAssertTrue(capacity.waitForExistence(timeout: 5))
     let original = capacity.value as! String
@@ -949,8 +1043,12 @@ final class LanguageAndLayoutTests: XCTestCase {
     app.swipeUp()
     func tap(_ identifier: String) {
       let button = app.buttons[identifier]
-      for _ in 0..<8 { if button.isHittable { break }; app.swipeUp() }
-      XCTAssertTrue(button.exists); button.tap()
+      for _ in 0..<8 {
+        if button.isHittable { break }
+        app.swipeUp()
+      }
+      XCTAssertTrue(button.exists)
+      button.tap()
     }
     tap("profiles.save")
     XCTAssertTrue(app.alerts.firstMatch.waitForExistence(timeout: 5))
@@ -967,7 +1065,10 @@ final class LanguageAndLayoutTests: XCTestCase {
     app.alerts.buttons["Apply Saved Values to Logs"].tap()
     XCTAssertTrue(app.alerts.buttons["OK"].waitForExistence(timeout: 10))
     app.alerts.buttons["OK"].tap()
-    for _ in 0..<8 { if capacity.isHittable { break }; app.swipeDown() }
+    for _ in 0..<8 {
+      if capacity.isHittable { break }
+      app.swipeDown()
+    }
     XCTAssertEqual(capacity.value as? String, original)
     screenshot("Profile Restored")
   }
@@ -979,22 +1080,36 @@ final class LanguageAndLayoutTests: XCTestCase {
     let analytics = app.descendants(matching: .any).matching(
       NSPredicate(format: "label == %@", "Analytics")
     ).firstMatch
-    XCTAssertTrue(analytics.waitForExistence(timeout: 10)); analytics.tap()
+    XCTAssertTrue(analytics.waitForExistence(timeout: 10))
+    analytics.tap()
     let health = app.buttons["chart.range"].firstMatch
-    XCTAssertTrue(health.waitForExistence(timeout: 10)); health.tap()
+    XCTAssertTrue(health.waitForExistence(timeout: 10))
+    health.tap()
     app.buttons["1m"].firstMatch.tap()
     let healthWindow = app.staticTexts["chart.window"].firstMatch.label
     let cycle = app.buttons["chart.cycle.range"].firstMatch
     if UIDevice.current.userInterfaceIdiom == .pad {
-      for _ in 0..<5 { if cycle.isHittable { break }; app.swipeUp() }
-      XCTAssertTrue(cycle.exists); cycle.tap(); app.buttons["1w"].firstMatch.tap()
+      for _ in 0..<5 {
+        if cycle.isHittable { break }
+        app.swipeUp()
+      }
+      XCTAssertTrue(cycle.exists)
+      cycle.tap()
+      app.buttons["1w"].firstMatch.tap()
       XCTAssertTrue(cycle.label.contains("1w"))
-      for _ in 0..<5 { if health.isHittable { break }; app.swipeDown() }
+      for _ in 0..<5 {
+        if health.isHittable { break }
+        app.swipeDown()
+      }
       XCTAssertTrue(health.label.contains("1m"))
       XCTAssertEqual(app.staticTexts["chart.window"].firstMatch.label, healthWindow)
-      health.tap(); app.buttons["Auto"].firstMatch.tap()
+      health.tap()
+      app.buttons["Auto"].firstMatch.tap()
       XCUIDevice.shared.orientation = .landscapeLeft
-      for _ in 0..<5 { if cycle.isHittable { break }; app.swipeUp() }
+      for _ in 0..<5 {
+        if cycle.isHittable { break }
+        app.swipeUp()
+      }
       XCTAssertTrue(
         cycle.label.contains("1w"), "Cycle range must survive health changes and rotation")
     } else {
@@ -1062,29 +1177,49 @@ final class LanguageAndLayoutTests: XCTestCase {
     let settings = app.descendants(matching: .any).matching(
       NSPredicate(format: "label == %@", "Settings")
     ).firstMatch
-    XCTAssertTrue(settings.waitForExistence(timeout: 10)); settings.tap()
+    XCTAssertTrue(settings.waitForExistence(timeout: 10))
+    settings.tap()
     let advanced =
       app.buttons["settings.category.advanced"].exists
       ? app.buttons["settings.category.advanced"] : app.buttons["settings.advanced"]
-    for _ in 0..<8 { if advanced.isHittable { break }; app.swipeUp() }
-    advanced.tap(); app.buttons["settings.deviceProfiles"].tap()
+    for _ in 0..<8 {
+      if advanced.isHittable { break }
+      app.swipeUp()
+    }
+    advanced.tap()
+    app.buttons["settings.deviceProfiles"].tap()
     XCTAssertTrue(app.buttons["profiles.addRow"].waitForExistence(timeout: 10))
     app.buttons["profiles.addRow"].tap()
     let name = "Manual Test " + UUID().uuidString.prefix(8)
     let identifier = "iPhone999," + String(Int(Date().timeIntervalSince1970))
     let field = app.textFields["profiles.name"]
-    XCTAssertTrue(field.waitForExistence(timeout: 5)); field.tap(); field.typeText(name)
-    app.textFields["profiles.capacity"].tap(); app.textFields["profiles.capacity"].typeText("4000")
+    XCTAssertTrue(field.waitForExistence(timeout: 5))
+    field.tap()
+    field.typeText(name)
+    app.textFields["profiles.capacity"].tap()
+    app.textFields["profiles.capacity"].typeText("4000")
     let ids = app.textViews["profiles.identifiers"]
-    for _ in 0..<4 { if ids.isHittable { break }; app.swipeUp() }
-    ids.tap(); ids.typeText(identifier)
+    for _ in 0..<4 {
+      if ids.isHittable { break }
+      app.swipeUp()
+    }
+    ids.tap()
+    ids.typeText(identifier)
     app.buttons["profiles.addSave"].tap()
     XCTAssertTrue(app.textFields["profiles.search"].waitForExistence(timeout: 5))
-    app.terminate(); app.launch(); settings.tap()
-    for _ in 0..<8 { if advanced.isHittable { break }; app.swipeUp() }
-    advanced.tap(); app.buttons["settings.deviceProfiles"].tap()
+    app.terminate()
+    app.launch()
+    settings.tap()
+    for _ in 0..<8 {
+      if advanced.isHittable { break }
+      app.swipeUp()
+    }
+    advanced.tap()
+    app.buttons["settings.deviceProfiles"].tap()
     let search = app.textFields["profiles.search"]
-    XCTAssertTrue(search.waitForExistence(timeout: 5)); search.tap(); search.typeText(name)
+    XCTAssertTrue(search.waitForExistence(timeout: 5))
+    search.tap()
+    search.typeText(name)
     XCTAssertTrue(app.staticTexts[name].firstMatch.waitForExistence(timeout: 5))
     screenshot("Manually Added Device")
   }
@@ -1095,7 +1230,8 @@ final class LanguageAndLayoutTests: XCTestCase {
     let settings = app.descendants(matching: .any).matching(
       NSPredicate(format: "label == %@", "Settings")
     ).firstMatch
-    XCTAssertTrue(settings.waitForExistence(timeout: 10)); settings.tap()
+    XCTAssertTrue(settings.waitForExistence(timeout: 10))
+    settings.tap()
     if app.buttons["settings.category.general"].exists {
       app.buttons["settings.category.general"].tap()
     }
@@ -1103,7 +1239,10 @@ final class LanguageAndLayoutTests: XCTestCase {
     let advanced =
       app.buttons["settings.category.advanced"].exists
       ? app.buttons["settings.category.advanced"] : app.buttons["settings.advanced"]
-    for _ in 0..<8 { if advanced.isHittable { break }; app.swipeUp() }
+    for _ in 0..<8 {
+      if advanced.isHittable { break }
+      app.swipeUp()
+    }
     advanced.tap()
     app.buttons["settings.deviceProfiles"].tap()
     XCTAssertTrue(app.textFields["profiles.search"].waitForExistence(timeout: 10))
@@ -1114,7 +1253,8 @@ final class LanguageAndLayoutTests: XCTestCase {
     }
     screenshot("Device Categories")
     let search = app.textFields["profiles.search"]
-    search.tap(); search.typeText("iPhone 15 Pro")
+    search.tap()
+    search.typeText("iPhone 15 Pro")
     XCTAssertTrue(app.buttons["profiles.model.bundled:iPhone 15 Pro"].waitForExistence(timeout: 5))
   }
 

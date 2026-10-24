@@ -8,7 +8,7 @@ app = "6756904240"
 mode = ENV.fetch("RELEASE_MODE", "inspect")
 version = ENV.fetch("MARKETING_VERSION", "4.0.0")
 build = ENV.fetch("BUILD_NUMBER", "1060")
-raise "Unknown mode" unless %w[inspect prepare submit].include?(mode)
+raise "Unknown mode" unless %w[inspect prepare].include?(mode)
 output = File.expand_path("../build/appstore-release", __dir__)
 FileUtils.mkdir_p(output)
 versions = api.get("/apps/#{app}/appStoreVersions", "limit" => "50")

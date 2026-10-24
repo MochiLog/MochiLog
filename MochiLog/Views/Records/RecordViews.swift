@@ -982,6 +982,8 @@ struct RecordDetailView: View {
           } else {
             Image(systemName: "square.and.arrow.up")
           }
+          .accessibilityLabel(L10n.string("share", table: "Common"))
+          .accessibilityIdentifier("record.share")
         }
         .accessibilityIdentifier("record.share")
       }
