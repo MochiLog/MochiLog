@@ -1,0 +1,655 @@
+MochiLog DeviceLibrary 全ソース統合差分表
+照合日: 2026-10-25 / 現在: 4.0.0 (1062)
+誤登録20項目は機種名10・基板対応8・SoC2。重複する端末があり、20台という意味ではない。
+定義差8項目は設計容量と公式定格容量の相違で、誤登録とはまだ断定しない。
+資料側の相違3項目はAppleDB 1・DeviceKit 2。MochiLogの現在値を維持。
+未記載・未確認は一致として数えない。XcodeにmAhの容量定数は見つからなかった。
+機種名は表記とGPS/Cellularのまとめ方を正規化。容量の同一性を意味しない。
+
+差分・注意点: 37項目
+分類 | 対象 | 現在値(1062) | Apple公開資料 | AppleDB | libirecovery | DeviceKit | Xcode | 判定 | 補足
+機種ID | Watch4,2 | Apple Watch 4 (40mm) | 内部IDは公開資料で未確認 | Apple Watch 4 (44mm) | Apple Watch 4 (44mm) | Apple Watch 4 (44mm) | Apple Watch 4 (44mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
+機種ID | Watch4,3 | Apple Watch 4 (44mm) | 内部IDは公開資料で未確認 | Apple Watch 4 (40mm) | Apple Watch 4 (40mm) | Apple Watch 4 (40mm) | Apple Watch 4 (40mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
+機種ID | Watch5,11 | Apple Watch SE (第1世代) (40mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第1世代) (44mm) | Apple Watch SE (第1世代) (40mm) | Apple Watch SE (第1世代) (40mm) | Apple Watch SE (第1世代) (40mm) | 資料側の相違 | AppleDBは44mm。Apple公式のA2353/A2355、Xcode、libirecovery、DeviceKitは40mm。現在値を維持。
+機種ID | Watch6,10 | Apple Watch 8 (41mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
+機種ID | Watch6,11 | Apple Watch 8 (45mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
+機種ID | Watch6,12 | Apple Watch 8 (41mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
+機種ID | Watch6,13 | Apple Watch 8 (45mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
+機種ID | Watch6,14 | Apple Watch SE (第2世代) (40mm) | 内部IDは公開資料で未確認 | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
+機種ID | Watch6,15 | Apple Watch SE (第2世代) (44mm) | 内部IDは公開資料で未確認 | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
+機種ID | Watch6,16 | Apple Watch SE (第2世代) (40mm) | 内部IDは公開資料で未確認 | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
+機種ID | Watch6,17 | Apple Watch SE (第2世代) (44mm) | 内部IDは公開資料で未確認 | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
+機種ID | Watch7,14 | Apple Watch SE (第3世代) (44mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第3世代) (44mm) | Apple Watch SE (第3世代) (44mm) | Apple Watch SE (第3世代) (40mm) | Apple Watch SE (第3世代) (44mm) | 資料側の相違 | DeviceKitのサイズがXcode・AppleDB・libirecoveryと相違。現在値を維持。
+機種ID | Watch7,15 | Apple Watch SE (第3世代) (40mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第3世代) (40mm) | Apple Watch SE (第3世代) (40mm) | Apple Watch SE (第3世代) (44mm) | Apple Watch SE (第3世代) (40mm) | 資料側の相違 | DeviceKitのサイズがXcode・AppleDB・libirecoveryと相違。現在値を維持。
+基板ID | N66AP | iPhone8,1 | 物理基板の厳密な対応は未確認 | iPhone8,2 | iPhone8,2 | 記載なし | N66グループ: iPhone8,2 | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | N66mAP | iPhone8,1 | 物理基板の厳密な対応は未確認 | iPhone8,2 | iPhone8,2 | 記載なし | 記載なし | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | N71AP | iPhone8,2 | 物理基板の厳密な対応は未確認 | iPhone8,1 | iPhone8,1 | 記載なし | N71グループ: iPhone8,1 | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | N71mAP | iPhone8,2 | 物理基板の厳密な対応は未確認 | iPhone8,1 | iPhone8,1 | 記載なし | 記載なし | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D111AP | iPhone9,2 | 物理基板の厳密な対応は未確認 | iPhone9,4 | iPhone9,4 | 記載なし | 記載なし | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D11AP | iPhone9,4 | 物理基板の厳密な対応は未確認 | iPhone9,2 | iPhone9,2 | 記載なし | D11グループ: iPhone9,2 / iPhone9,4 | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J417AP | iPad8,10 | 物理基板の厳密な対応は未確認 | iPad8,9 | iPad8,9 | 記載なし | J417グループ: iPad8,10 / iPad8,9 | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J418AP | iPad8,9 | 物理基板の厳密な対応は未確認 | iPad8,10 | iPad8,10 | 記載なし | 記載なし | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+SoC | Apple Watch 12 (46mm) Cellular | S10 | S11 | S11 | 記載なし | 記載なし | 記載なし | 誤登録・未修正 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch 12 (42mm) Cellular | S10 | S11 | S11 | 記載なし | 記載なし | 記載なし | 誤登録・未修正 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+容量(mAh) | iPhone Duo | 4883 | 4883 | 記載なし | 記載なし | 記載なし | 記載なし | 修正済み | 旧4700mAhから4883mAhへ修正済み。4.0.0 (1062)。ユーザー指定によりマイグレーションなし。
+容量(mAh) | iPhone 18 Pro Max | 5567 | 5391 | 記載なし | 記載なし | 記載なし | 記載なし | 地域差・登録済み | esim: 5567mAh / physicalSIM: 5391mAh。EU定格は既存の物理SIM値と一致。
+容量(mAh) | iPhone 18 Pro | 4288 | 4056 | 記載なし | 記載なし | 記載なし | 記載なし | 地域差・登録済み | esim: 4288mAh / physicalSIM: 4056mAh。EU定格は既存の物理SIM値と一致。
+容量(mAh) | iPhone 17 Pro Max | 5088 | 4823 | 記載なし | 記載なし | 記載なし | 記載なし | 地域差・登録済み | esim: 5088mAh / physicalSIM: 4823mAh。EU定格は既存の物理SIM値と一致。
+容量(mAh) | iPhone 17 Pro | 4252 | 3988 | 記載なし | 記載なし | 記載なし | 記載なし | 地域差・登録済み | esim: 4252mAh / physicalSIM: 3988mAh。EU定格は既存の物理SIM値と一致。
+容量(mAh) | iPad Pro 13 (M5) | 10340 | 10209 | 記載なし | 記載なし | 記載なし | 記載なし | 定義差・要確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Pro 13 (M4) | 10340 | 10209 | 記載なし | 記載なし | 記載なし | 記載なし | 定義差・要確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Pro 11 (M5) | 8340 | 8160 | 記載なし | 記載なし | 記載なし | 記載なし | 定義差・要確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Pro 11 (M4) | 8340 | 8160 | 記載なし | 記載なし | 記載なし | 記載なし | 定義差・要確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad mini (A17 Pro) | 5124 | 5034 | 記載なし | 記載なし | 記載なし | 記載なし | 定義差・要確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad (A16) | 7698 | 7606 | 記載なし | 記載なし | 記載なし | 記載なし | 定義差・要確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Air 13 (M4) | 9705 | 9720 | 記載なし | 記載なし | 記載なし | 記載なし | 定義差・要確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Air 13 (M3) | 9705 | 9720 | 記載なし | 記載なし | 記載なし | 記載なし | 定義差・要確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+地域の判定 | 物理SIM/eSIMの自動選択 | CH/A・ZP/Aのみ物理SIM。それ以外・情報なしはeSIM。 | EU物理SIMモデルが存在 | 記載なし | 記載なし | 記載なし | 記載なし | 判定範囲・要確認 | 容量表自体の誤りとは別。EUなどの物理SIMモデルを自動選択できるか確認が必要。
+
+全照合: 605項目
+分類 | 対象 | 現在値(1062) | Apple公開資料 | AppleDB | libirecovery | DeviceKit | Xcode | 判定 | 補足
+機種ID | iPhone8,1 | iPhone 6s | 内部IDは公開資料で未確認 | iPhone 6s | iPhone 6s | iPhone 6s | iPhone 6s | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone8,2 | iPhone 6s Plus | 内部IDは公開資料で未確認 | iPhone 6s Plus | iPhone 6s Plus | iPhone 6s Plus | iPhone 6s Plus | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone8,4 | iPhone SE (第1世代) | 内部IDは公開資料で未確認 | iPhone SE (第1世代) | iPhone SE (1st gen) | iPhone SE | iPhone SE (第1世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone9,1 | iPhone 7 | 内部IDは公開資料で未確認 | iPhone 7 | iPhone 7 (Global) | iPhone 7 | iPhone 7 | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone9,3 | iPhone 7 | 内部IDは公開資料で未確認 | iPhone 7 | iPhone 7 (GSM) | iPhone 7 | iPhone 7 | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone9,2 | iPhone 7 Plus | 内部IDは公開資料で未確認 | iPhone 7 Plus | iPhone 7 Plus (Global) | iPhone 7 Plus | iPhone 7 Plus | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone9,4 | iPhone 7 Plus | 内部IDは公開資料で未確認 | iPhone 7 Plus | iPhone 7 Plus (GSM) | iPhone 7 Plus | iPhone 7 Plus | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone10,1 | iPhone 8 | 内部IDは公開資料で未確認 | iPhone 8 | iPhone 8 (Global) | iPhone 8 | iPhone 8 | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone10,4 | iPhone 8 | 内部IDは公開資料で未確認 | iPhone 8 | iPhone 8 (GSM) | iPhone 8 | iPhone 8 | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone10,2 | iPhone 8 Plus | 内部IDは公開資料で未確認 | iPhone 8 Plus | iPhone 8 Plus (Global) | iPhone 8 Plus | iPhone 8 Plus | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone10,5 | iPhone 8 Plus | 内部IDは公開資料で未確認 | iPhone 8 Plus | iPhone 8 Plus (GSM) | iPhone 8 Plus | iPhone 8 Plus | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone10,3 | iPhone X | 内部IDは公開資料で未確認 | iPhone X | iPhone X (Global) | iPhone X | iPhone X | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone10,6 | iPhone X | 内部IDは公開資料で未確認 | iPhone X | iPhone X (GSM) | iPhone X | iPhone X | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone11,8 | iPhone XR | 内部IDは公開資料で未確認 | iPhone XR | iPhone XR | iPhone Xʀ | iPhone XR | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone11,2 | iPhone XS | 内部IDは公開資料で未確認 | iPhone XS | iPhone XS | iPhone Xs | iPhone XS | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone11,4 | iPhone XS Max | 内部IDは公開資料で未確認 | iPhone XS Max | iPhone XS Max (China) | iPhone Xs Max | iPhone XS Max | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone11,6 | iPhone XS Max | 内部IDは公開資料で未確認 | iPhone XS Max | iPhone XS Max | iPhone Xs Max | iPhone XS Max | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone12,1 | iPhone 11 | 内部IDは公開資料で未確認 | iPhone 11 | iPhone 11 | iPhone 11 | iPhone 11 | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone12,3 | iPhone 11 Pro | 内部IDは公開資料で未確認 | iPhone 11 Pro | iPhone 11 Pro | iPhone 11 Pro | iPhone 11 Pro | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone12,5 | iPhone 11 Pro Max | 内部IDは公開資料で未確認 | iPhone 11 Pro Max | iPhone 11 Pro Max | iPhone 11 Pro Max | iPhone 11 Pro Max | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone12,8 | iPhone SE (第2世代) | 内部IDは公開資料で未確認 | iPhone SE (第2世代) | iPhone SE (2nd gen) | iPhone SE (2nd generation) | iPhone SE (第2世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone13,1 | iPhone 12 mini | 内部IDは公開資料で未確認 | iPhone 12 mini | iPhone 12 mini | iPhone 12 mini | iPhone 12 mini | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone13,2 | iPhone 12 | 内部IDは公開資料で未確認 | iPhone 12 | iPhone 12 | iPhone 12 | iPhone 12 | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone13,3 | iPhone 12 Pro | 内部IDは公開資料で未確認 | iPhone 12 Pro | iPhone 12 Pro | iPhone 12 Pro | iPhone 12 Pro | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone13,4 | iPhone 12 Pro Max | 内部IDは公開資料で未確認 | iPhone 12 Pro Max | iPhone 12 Pro Max | iPhone 12 Pro Max | iPhone 12 Pro Max | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone14,4 | iPhone 13 mini | 内部IDは公開資料で未確認 | iPhone 13 mini | iPhone 13 mini | iPhone 13 mini | iPhone 13 mini | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone14,5 | iPhone 13 | 内部IDは公開資料で未確認 | iPhone 13 | iPhone 13 | iPhone 13 | iPhone 13 | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone14,2 | iPhone 13 Pro | 内部IDは公開資料で未確認 | iPhone 13 Pro | iPhone 13 Pro | iPhone 13 Pro | iPhone 13 Pro | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone14,3 | iPhone 13 Pro Max | 内部IDは公開資料で未確認 | iPhone 13 Pro Max | iPhone 13 Pro Max | iPhone 13 Pro Max | iPhone 13 Pro Max | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone14,6 | iPhone SE (第3世代) | 内部IDは公開資料で未確認 | iPhone SE (第3世代) | iPhone SE (3rd gen) | iPhone SE (3rd generation) | iPhone SE (第3世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone14,7 | iPhone 14 | 内部IDは公開資料で未確認 | iPhone 14 | iPhone 14 | iPhone 14 | iPhone 14 | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone14,8 | iPhone 14 Plus | 内部IDは公開資料で未確認 | iPhone 14 Plus | iPhone 14 Plus | iPhone 14 Plus | iPhone 14 Plus | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone15,2 | iPhone 14 Pro | 内部IDは公開資料で未確認 | iPhone 14 Pro | iPhone 14 Pro | iPhone 14 Pro | iPhone 14 Pro | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone15,3 | iPhone 14 Pro Max | 内部IDは公開資料で未確認 | iPhone 14 Pro Max | iPhone 14 Pro Max | iPhone 14 Pro Max | iPhone 14 Pro Max | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone15,4 | iPhone 15 | 内部IDは公開資料で未確認 | iPhone 15 | iPhone 15 | iPhone 15 | iPhone 15 | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone15,5 | iPhone 15 Plus | 内部IDは公開資料で未確認 | iPhone 15 Plus | iPhone 15 Plus | iPhone 15 Plus | iPhone 15 Plus | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone16,1 | iPhone 15 Pro | 内部IDは公開資料で未確認 | iPhone 15 Pro | iPhone 15 Pro | iPhone 15 Pro | iPhone 15 Pro | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone16,2 | iPhone 15 Pro Max | 内部IDは公開資料で未確認 | iPhone 15 Pro Max | iPhone 15 Pro Max | iPhone 15 Pro Max | iPhone 15 Pro Max | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone17,1 | iPhone 16 Pro | 内部IDは公開資料で未確認 | iPhone 16 Pro | iPhone 16 Pro | iPhone 16 Pro | iPhone 16 Pro | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone17,2 | iPhone 16 Pro Max | 内部IDは公開資料で未確認 | iPhone 16 Pro Max | iPhone 16 Pro Max | iPhone 16 Pro Max | iPhone 16 Pro Max | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone17,3 | iPhone 16 | 内部IDは公開資料で未確認 | iPhone 16 | iPhone 16 | iPhone 16 | iPhone 16 | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone17,4 | iPhone 16 Plus | 内部IDは公開資料で未確認 | iPhone 16 Plus | iPhone 16 Plus | iPhone 16 Plus | iPhone 16 Plus | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone17,5 | iPhone 16e | 内部IDは公開資料で未確認 | iPhone 16e | iPhone 16e | iPhone 16e | iPhone 16e | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone18,1 | iPhone 17 Pro | 内部IDは公開資料で未確認 | iPhone 17 Pro | iPhone 17 Pro | iPhone 17 Pro | iPhone 17 Pro | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone18,2 | iPhone 17 Pro Max | 内部IDは公開資料で未確認 | iPhone 17 Pro Max | iPhone 17 Pro Max | iPhone 17 Pro Max | iPhone 17 Pro Max | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone18,3 | iPhone 17 | 内部IDは公開資料で未確認 | iPhone 17 | iPhone 17 | iPhone 17 | iPhone 17 | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone18,4 | iPhone Air | 内部IDは公開資料で未確認 | iPhone Air | iPhone Air | iPhone Air | iPhone Air | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone18,5 | iPhone 17e | 内部IDは公開資料で未確認 | iPhone 17e | iPhone 17e | iPhone 17e | iPhone 17e | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone19,2 | iPhone 18 Pro | 内部IDは公開資料で未確認 | iPhone 18 Pro | iPhone 18 Pro | iPhone 18 Pro | iPhone 18 Pro | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone19,3 | iPhone 18 Pro Max | 内部IDは公開資料で未確認 | iPhone 18 Pro Max | iPhone 18 Pro Max (US) | iPhone 18 Pro Max | iPhone 18 Pro Max | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone19,4 | iPhone Duo | 内部IDは公開資料で未確認 | iPhone Duo | 記載なし | 記載なし | iPhone Duo | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPhone19,7 | iPhone 18 Pro Max | 内部IDは公開資料で未確認 | iPhone 18 Pro Max | iPhone 18 Pro Max (Global) | iPhone 18 Pro Max | iPhone 18 Pro Max | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad4,1 | iPad Air (第1世代) | 製品名確認・内部ID未記載 | iPad Air (第1世代) | iPad Air (WiFi) | iPad Air | 記載なし | 第三者資料で一致 | Apple公開資料では製品名を確認。内部IDは手元のXcodeに掲載なし。
+機種ID | iPad4,2 | iPad Air (第1世代) | 製品名確認・内部ID未記載 | iPad Air (第1世代) | iPad Air (Cellular) | iPad Air | 記載なし | 第三者資料で一致 | Apple公開資料では製品名を確認。内部IDは手元のXcodeに掲載なし。
+機種ID | iPad4,3 | iPad Air (第1世代) | 製品名確認・内部ID未記載 | iPad Air (第1世代) | iPad Air (China) | iPad Air | 記載なし | 第三者資料で一致 | Apple公開資料では製品名を確認。内部IDは手元のXcodeに掲載なし。
+機種ID | iPad5,1 | iPad mini (第4世代) | 内部IDは公開資料で未確認 | iPad mini (第4世代) | iPad mini 4 (WiFi) | iPad mini 4 | iPad mini (第4世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad5,2 | iPad mini (第4世代) | 内部IDは公開資料で未確認 | iPad mini (第4世代) | iPad mini 4 (Cellular) | iPad mini 4 | iPad mini (第4世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad5,3 | iPad Air (第2世代) | 内部IDは公開資料で未確認 | iPad Air (第2世代) | iPad Air 2 (WiFi) | iPad Air 2 | iPad Air (第2世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad5,4 | iPad Air (第2世代) | 内部IDは公開資料で未確認 | iPad Air (第2世代) | iPad Air 2 (Cellular) | iPad Air 2 | iPad Air (第2世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad6,3 | iPad Pro 9.7 | 内部IDは公開資料で未確認 | iPad Pro 9.7 | iPad Pro 9.7-inch (WiFi) | iPad Pro 9.7-inch | iPad Pro 9.7 | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad6,4 | iPad Pro 9.7 | 内部IDは公開資料で未確認 | iPad Pro 9.7 | iPad Pro 9.7-inch (Cellular) | iPad Pro 9.7-inch | iPad Pro 9.7 | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad6,7 | iPad Pro 12.9 (第1世代) | 内部IDは公開資料で未確認 | iPad Pro 12.9 (第1世代) | iPad Pro 12.9-inch (1st gen, WiFi) | iPad Pro 12-inch | iPad Pro 12.9 (第1世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad6,8 | iPad Pro 12.9 (第1世代) | 内部IDは公開資料で未確認 | iPad Pro 12.9 (第1世代) | iPad Pro 12.9-inch (1st gen, Cellular) | iPad Pro 12-inch | iPad Pro 12.9 (第1世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad6,11 | iPad (第5世代) | 内部IDは公開資料で未確認 | iPad (第5世代) | iPad (5th gen, WiFi) | iPad (5th generation) | iPad (第5世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad6,12 | iPad (第5世代) | 内部IDは公開資料で未確認 | iPad (第5世代) | iPad (5th gen, Cellular) | iPad (5th generation) | iPad (第5世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad7,1 | iPad Pro 12.9 (第2世代) | 内部IDは公開資料で未確認 | iPad Pro 12.9 (第2世代) | iPad Pro 12.9-inch (2nd gen, WiFi) | iPad Pro 12-inch (2nd generation) | iPad Pro 12.9 (第2世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad7,2 | iPad Pro 12.9 (第2世代) | 内部IDは公開資料で未確認 | iPad Pro 12.9 (第2世代) | iPad Pro 12.9-inch (2nd gen, Cellular) | iPad Pro 12-inch (2nd generation) | iPad Pro 12.9 (第2世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad7,3 | iPad Pro 10.5 | 内部IDは公開資料で未確認 | iPad Pro 10.5 | iPad Pro 10.5-inch (WiFi) | iPad Pro 10.5-inch | iPad Pro 10.5 | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad7,4 | iPad Pro 10.5 | 内部IDは公開資料で未確認 | iPad Pro 10.5 | iPad Pro 10.5-inch (Cellular) | iPad Pro 10.5-inch | iPad Pro 10.5 | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad7,5 | iPad (第6世代) | 内部IDは公開資料で未確認 | iPad (第6世代) | iPad (6th gen, WiFi) | iPad (6th generation) | iPad (第6世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad7,6 | iPad (第6世代) | 内部IDは公開資料で未確認 | iPad (第6世代) | iPad (6th gen, Cellular) | iPad (6th generation) | iPad (第6世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad7,11 | iPad (第7世代) | 内部IDは公開資料で未確認 | iPad (第7世代) | iPad (7th gen, WiFi) | iPad (7th generation) | iPad (第7世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad7,12 | iPad (第7世代) | 内部IDは公開資料で未確認 | iPad (第7世代) | iPad (7th gen, Cellular) | iPad (7th generation) | iPad (第7世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad8,1 | iPad Pro 11 (第1世代) | 内部IDは公開資料で未確認 | iPad Pro 11 (第1世代) | iPad Pro 11-inch (1st gen, WiFi) | iPad Pro 11-inch | iPad Pro 11 (第1世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad8,2 | iPad Pro 11 (第1世代) | 内部IDは公開資料で未確認 | iPad Pro 11 (第1世代) | iPad Pro 11-inch (1st gen, WiFi, 1TB) | iPad Pro 11-inch | iPad Pro 11 (第1世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad8,3 | iPad Pro 11 (第1世代) | 内部IDは公開資料で未確認 | iPad Pro 11 (第1世代) | iPad Pro 11-inch (1st gen, Cellular) | iPad Pro 11-inch | iPad Pro 11 (第1世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad8,4 | iPad Pro 11 (第1世代) | 内部IDは公開資料で未確認 | iPad Pro 11 (第1世代) | iPad Pro 11-inch (1st gen, Cellular, 1TB) | iPad Pro 11-inch | iPad Pro 11 (第1世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad8,5 | iPad Pro 12.9 (第3世代) | 内部IDは公開資料で未確認 | iPad Pro 12.9 (第3世代) | iPad Pro 12.9-inch (3rd gen, WiFi) | iPad Pro 12.9-inch (3rd generation) | iPad Pro 12.9 (第3世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad8,6 | iPad Pro 12.9 (第3世代) | 内部IDは公開資料で未確認 | iPad Pro 12.9 (第3世代) | iPad Pro 12.9-inch (3rd gen, WiFi, 1TB) | iPad Pro 12.9-inch (3rd generation) | iPad Pro 12.9 (第3世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad8,7 | iPad Pro 12.9 (第3世代) | 内部IDは公開資料で未確認 | iPad Pro 12.9 (第3世代) | iPad Pro 12.9-inch (3rd gen, Cellular) | iPad Pro 12.9-inch (3rd generation) | iPad Pro 12.9 (第3世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad8,8 | iPad Pro 12.9 (第3世代) | 内部IDは公開資料で未確認 | iPad Pro 12.9 (第3世代) | iPad Pro 12.9-inch (3rd gen, Cellular, 1TB) | iPad Pro 12.9-inch (3rd generation) | iPad Pro 12.9 (第3世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad8,9 | iPad Pro 11 (第2世代) | 内部IDは公開資料で未確認 | iPad Pro 11 (第2世代) | iPad Pro 11-inch (2nd gen, WiFi) | iPad Pro 11-inch (2nd generation) | iPad Pro 11 (第2世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad8,10 | iPad Pro 11 (第2世代) | 内部IDは公開資料で未確認 | iPad Pro 11 (第2世代) | iPad Pro 11-inch (2nd gen, Cellular) | iPad Pro 11-inch (2nd generation) | iPad Pro 11 (第2世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad8,11 | iPad Pro 12.9 (第4世代) | 内部IDは公開資料で未確認 | iPad Pro 12.9 (第4世代) | iPad Pro 12.9-inch (4th gen, WiFi) | iPad Pro 12.9-inch (4th generation) | iPad Pro 12.9 (第4世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad8,12 | iPad Pro 12.9 (第4世代) | 内部IDは公開資料で未確認 | iPad Pro 12.9 (第4世代) | iPad Pro 12.9-inch (4th gen, Cellular) | iPad Pro 12.9-inch (4th generation) | iPad Pro 12.9 (第4世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad11,1 | iPad mini (第5世代) | 内部IDは公開資料で未確認 | iPad mini (第5世代) | iPad mini (5th gen, WiFi) | iPad mini (5th generation) | iPad mini (第5世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad11,2 | iPad mini (第5世代) | 内部IDは公開資料で未確認 | iPad mini (第5世代) | iPad mini (5th gen, Cellular) | iPad mini (5th generation) | iPad mini (第5世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad11,3 | iPad Air (第3世代) | 内部IDは公開資料で未確認 | iPad Air (第3世代) | iPad Air (3rd gen, WiFi) | iPad Air (3rd generation) | iPad Air (第3世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad11,4 | iPad Air (第3世代) | 内部IDは公開資料で未確認 | iPad Air (第3世代) | iPad Air (3rd gen, Cellular) | iPad Air (3rd generation) | iPad Air (第3世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad11,6 | iPad (第8世代) | 内部IDは公開資料で未確認 | iPad (第8世代) | iPad (8th gen, WiFi) | iPad (8th generation) | iPad (第8世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad11,7 | iPad (第8世代) | 内部IDは公開資料で未確認 | iPad (第8世代) | iPad (8th gen, Cellular) | iPad (8th generation) | iPad (第8世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad12,1 | iPad (第9世代) | 内部IDは公開資料で未確認 | iPad (第9世代) | iPad (9th gen, WiFi) | iPad (9th generation) | iPad (第9世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad12,2 | iPad (第9世代) | 内部IDは公開資料で未確認 | iPad (第9世代) | iPad (9th gen, Cellular) | iPad (9th generation) | iPad (第9世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad13,1 | iPad Air (第4世代) | 内部IDは公開資料で未確認 | iPad Air (第4世代) | iPad Air (4th gen, WiFi) | iPad Air (4th generation) | iPad Air (第4世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad13,2 | iPad Air (第4世代) | 内部IDは公開資料で未確認 | iPad Air (第4世代) | iPad Air (4th gen, Cellular) | iPad Air (4th generation) | iPad Air (第4世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad13,4 | iPad Pro 11 (第3世代) | 内部IDは公開資料で未確認 | iPad Pro 11 (第3世代) | iPad Pro 11-inch (3rd gen, WiFi) | iPad Pro 11-inch (3rd generation) | iPad Pro 11 (第3世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad13,5 | iPad Pro 11 (第3世代) | 内部IDは公開資料で未確認 | iPad Pro 11 (第3世代) | iPad Pro 11-inch (3rd gen, WiFi, 2TB) | iPad Pro 11-inch (3rd generation) | iPad Pro 11 (第3世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad13,6 | iPad Pro 11 (第3世代) | 内部IDは公開資料で未確認 | iPad Pro 11 (第3世代) | iPad Pro 11-inch (3rd gen, Cellular) | iPad Pro 11-inch (3rd generation) | iPad Pro 11 (第3世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad13,7 | iPad Pro 11 (第3世代) | 内部IDは公開資料で未確認 | iPad Pro 11 (第3世代) | iPad Pro 11-inch (3rd gen, Cellular, 2TB) | iPad Pro 11-inch (3rd generation) | iPad Pro 11 (第3世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad13,8 | iPad Pro 12.9 (第5世代) | 内部IDは公開資料で未確認 | iPad Pro 12.9 (第5世代) | iPad Pro 12.9-inch (5th gen, WiFi) | iPad Pro 12.9-inch (5th generation) | iPad Pro 12.9 (第5世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad13,9 | iPad Pro 12.9 (第5世代) | 内部IDは公開資料で未確認 | iPad Pro 12.9 (第5世代) | iPad Pro 12.9-inch (5th gen, WiFi, 2TB) | iPad Pro 12.9-inch (5th generation) | iPad Pro 12.9 (第5世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad13,10 | iPad Pro 12.9 (第5世代) | 内部IDは公開資料で未確認 | iPad Pro 12.9 (第5世代) | iPad Pro 12.9-inch (5th gen, Cellular) | iPad Pro 12.9-inch (5th generation) | iPad Pro 12.9 (第5世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad13,11 | iPad Pro 12.9 (第5世代) | 内部IDは公開資料で未確認 | iPad Pro 12.9 (第5世代) | iPad Pro 12.9-inch (5th gen, Cellular, 2TB) | iPad Pro 12.9-inch (5th generation) | iPad Pro 12.9 (第5世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad13,16 | iPad Air (第5世代) | 内部IDは公開資料で未確認 | iPad Air (第5世代) | iPad Air (5th gen, WiFi) | iPad Air (5th generation) | iPad Air (第5世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad13,17 | iPad Air (第5世代) | 内部IDは公開資料で未確認 | iPad Air (第5世代) | iPad Air (5th gen, Cellular) | iPad Air (5th generation) | iPad Air (第5世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad13,18 | iPad (第10世代) | 内部IDは公開資料で未確認 | iPad (第10世代) | iPad (10th gen, WiFi) | iPad (10th generation) | iPad (第10世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad13,19 | iPad (第10世代) | 内部IDは公開資料で未確認 | iPad (第10世代) | iPad (10th gen, Cellular) | iPad (10th generation) | iPad (第10世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad14,1 | iPad mini (第6世代) | 内部IDは公開資料で未確認 | iPad mini (第6世代) | iPad mini (6th gen, WiFi) | iPad mini (6th generation) | iPad mini (第6世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad14,2 | iPad mini (第6世代) | 内部IDは公開資料で未確認 | iPad mini (第6世代) | iPad mini (6th gen, Cellular) | iPad mini (6th generation) | iPad mini (第6世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad14,3 | iPad Pro 11 (第4世代) | 内部IDは公開資料で未確認 | iPad Pro 11 (第4世代) | iPad Pro 11-inch (4th gen, WiFi) | iPad Pro 11-inch (4th generation) | iPad Pro 11 (第4世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad14,4 | iPad Pro 11 (第4世代) | 内部IDは公開資料で未確認 | iPad Pro 11 (第4世代) | iPad Pro 11-inch (4th gen, Cellular) | iPad Pro 11-inch (4th generation) | iPad Pro 11 (第4世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad14,5 | iPad Pro 12.9 (第6世代) | 内部IDは公開資料で未確認 | iPad Pro 12.9 (第6世代) | iPad Pro 12.9-inch (6th gen, WiFi) | iPad Pro 12.9-inch (6th generation) | iPad Pro 12.9 (第6世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad14,6 | iPad Pro 12.9 (第6世代) | 内部IDは公開資料で未確認 | iPad Pro 12.9 (第6世代) | iPad Pro 12.9-inch (6th gen, Cellular) | iPad Pro 12.9-inch (6th generation) | iPad Pro 12.9 (第6世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad14,8 | iPad Air 11 (M2) | 内部IDは公開資料で未確認 | iPad Air 11 (M2) | iPad Air 11-inch (M2, WiFi) | iPad Air 11-inch (M2) | iPad Air 11 (M2) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad14,9 | iPad Air 11 (M2) | 内部IDは公開資料で未確認 | iPad Air 11 (M2) | iPad Air 11-inch (M2, Cellular) | iPad Air 11-inch (M2) | iPad Air 11 (M2) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad14,10 | iPad Air 13 (M2) | 内部IDは公開資料で未確認 | iPad Air 13 (M2) | iPad Air 13-inch (M2, WiFi) | iPad Air 13-inch (M2) | iPad Air 13 (M2) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad14,11 | iPad Air 13 (M2) | 内部IDは公開資料で未確認 | iPad Air 13 (M2) | iPad Air 13-inch (M2, Cellular) | iPad Air 13-inch (M2) | iPad Air 13 (M2) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad15,3 | iPad Air 11 (M3) | 内部IDは公開資料で未確認 | iPad Air 11 (M3) | iPad Air 11-inch (M3, WiFi) | iPad Air 11-inch (M3) | iPad Air 11 (M3) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad15,4 | iPad Air 11 (M3) | 内部IDは公開資料で未確認 | iPad Air 11 (M3) | iPad Air 11-inch (M3, Cellular) | iPad Air 11-inch (M3) | iPad Air 11 (M3) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad15,5 | iPad Air 13 (M3) | 内部IDは公開資料で未確認 | iPad Air 13 (M3) | iPad Air 13-inch (M3, WiFi) | iPad Air 13-inch (M3) | iPad Air 13 (M3) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad15,6 | iPad Air 13 (M3) | 内部IDは公開資料で未確認 | iPad Air 13 (M3) | iPad Air 13-inch (M3, Cellular) | iPad Air 13-inch (M3) | iPad Air 13 (M3) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad15,7 | iPad (A16) | 内部IDは公開資料で未確認 | iPad (A16) | iPad (A16, WiFi) | iPad (A16) | iPad (A16) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad15,8 | iPad (A16) | 内部IDは公開資料で未確認 | iPad (A16) | iPad (A16, Cellular) | iPad (A16) | iPad (A16) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad16,1 | iPad mini (A17 Pro) | 内部IDは公開資料で未確認 | iPad mini (A17 Pro) | iPad mini (A17 Pro, WiFi) | iPad mini (A17 Pro) | iPad mini (A17 Pro) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad16,2 | iPad mini (A17 Pro) | 内部IDは公開資料で未確認 | iPad mini (A17 Pro) | iPad mini (A17 Pro, Cellular) | iPad mini (A17 Pro) | iPad mini (A17 Pro) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad16,3 | iPad Pro 11 (M4) | 内部IDは公開資料で未確認 | iPad Pro 11 (M4) | iPad Pro 11-inch (M4, WiFi) | iPad Pro 11-inch (M4) | iPad Pro 11 (M4) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad16,4 | iPad Pro 11 (M4) | 内部IDは公開資料で未確認 | iPad Pro 11 (M4) | iPad Pro 11-inch (M4, Cellular) | iPad Pro 11-inch (M4) | iPad Pro 11 (M4) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad16,5 | iPad Pro 13 (M4) | 内部IDは公開資料で未確認 | iPad Pro 13 (M4) | iPad Pro 13-inch (M4, WiFi) | iPad Pro 13-inch (M4) | iPad Pro 13 (M4) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad16,6 | iPad Pro 13 (M4) | 内部IDは公開資料で未確認 | iPad Pro 13 (M4) | iPad Pro 13-inch (M4, Cellular) | iPad Pro 13-inch (M4) | iPad Pro 13 (M4) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad16,8 | iPad Air 11 (M4) | 内部IDは公開資料で未確認 | iPad Air 11 (M4) | iPad Air 11-inch (M4, WiFi) | iPad Air 11-inch (M4) | iPad Air 11 (M4) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad16,9 | iPad Air 11 (M4) | 内部IDは公開資料で未確認 | iPad Air 11 (M4) | iPad Air 11-inch (M4, Cellular) | iPad Air 11-inch (M4) | iPad Air 11 (M4) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad16,10 | iPad Air 13 (M4) | 内部IDは公開資料で未確認 | iPad Air 13 (M4) | iPad Air 13-inch (M4, WiFi) | iPad Air 13-inch (M4) | iPad Air 13 (M4) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad16,11 | iPad Air 13 (M4) | 内部IDは公開資料で未確認 | iPad Air 13 (M4) | iPad Air 13-inch (M4, Cellular) | iPad Air 13-inch (M4) | iPad Air 13 (M4) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad17,1 | iPad Pro 11 (M5) | 内部IDは公開資料で未確認 | iPad Pro 11 (M5) | iPad Pro 11-inch (M5, WiFi) | iPad Pro 11-inch (M5) | iPad Pro 11 (M5) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad17,2 | iPad Pro 11 (M5) | 内部IDは公開資料で未確認 | iPad Pro 11 (M5) | iPad Pro 11-inch (M5, Cellular) | iPad Pro 11-inch (M5) | iPad Pro 11 (M5) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad17,3 | iPad Pro 13 (M5) | 内部IDは公開資料で未確認 | iPad Pro 13 (M5) | iPad Pro 13-inch (M5, WiFi) | iPad Pro 13-inch (M5) | iPad Pro 13 (M5) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPad17,4 | iPad Pro 13 (M5) | 内部IDは公開資料で未確認 | iPad Pro 13 (M5) | iPad Pro 13-inch (M5, Cellular) | iPad Pro 13-inch (M5) | iPad Pro 13 (M5) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | iPod7,1 | iPod touch (第6世代) | 製品名確認・内部ID未記載 | iPod touch (第6世代) | iPod Touch (6th gen) | iPod touch (6th generation) | 記載なし | 第三者資料で一致 | Apple公開資料では製品名を確認。内部IDは手元のXcodeに掲載なし。
+機種ID | iPod9,1 | iPod touch (第7世代) | 内部IDは公開資料で未確認 | iPod touch (第7世代) | iPod Touch (7th gen) | iPod touch (7th generation) | iPod touch (第7世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch3,1 | Apple Watch 3 (38mm) Cellular | 内部IDは公開資料で未確認 | Apple Watch 3 (38mm) Cellular | Apple Watch 3 (38mm) Cellular | Apple Watch 3 (38mm) | Apple Watch 3 (38mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch3,2 | Apple Watch 3 (42mm) Cellular | 内部IDは公開資料で未確認 | Apple Watch 3 (42mm) Cellular | Apple Watch 3 (42mm) Cellular | Apple Watch 3 (42mm) | Apple Watch 3 (42mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch3,3 | Apple Watch 3 (38mm) | 内部IDは公開資料で未確認 | Apple Watch 3 (38mm) | Apple Watch 3 (38mm) | Apple Watch 3 (38mm) | Apple Watch 3 (38mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch3,4 | Apple Watch 3 (42mm) | 内部IDは公開資料で未確認 | Apple Watch 3 (42mm) | Apple Watch 3 (42mm) | Apple Watch 3 (42mm) | Apple Watch 3 (42mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch4,1 | Apple Watch 4 (40mm) | 内部IDは公開資料で未確認 | Apple Watch 4 (40mm) | Apple Watch 4 (40mm) | Apple Watch 4 (40mm) | Apple Watch 4 (40mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch4,2 | Apple Watch 4 (40mm) | 内部IDは公開資料で未確認 | Apple Watch 4 (44mm) | Apple Watch 4 (44mm) | Apple Watch 4 (44mm) | Apple Watch 4 (44mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
+機種ID | Watch4,3 | Apple Watch 4 (44mm) | 内部IDは公開資料で未確認 | Apple Watch 4 (40mm) | Apple Watch 4 (40mm) | Apple Watch 4 (40mm) | Apple Watch 4 (40mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
+機種ID | Watch4,4 | Apple Watch 4 (44mm) | 内部IDは公開資料で未確認 | Apple Watch 4 (44mm) | Apple Watch 4 (44mm) | Apple Watch 4 (44mm) | Apple Watch 4 (44mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch5,1 | Apple Watch 5 (40mm) | 内部IDは公開資料で未確認 | Apple Watch 5 (40mm) | Apple Watch 5 (40mm) | Apple Watch 5 (40mm) | Apple Watch 5 (40mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch5,2 | Apple Watch 5 (44mm) | 内部IDは公開資料で未確認 | Apple Watch 5 (44mm) | Apple Watch 5 (44mm) | Apple Watch 5 (44mm) | Apple Watch 5 (44mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch5,3 | Apple Watch 5 (40mm) | 内部IDは公開資料で未確認 | Apple Watch 5 (40mm) | Apple Watch 5 (40mm) | Apple Watch 5 (40mm) | Apple Watch 5 (40mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch5,4 | Apple Watch 5 (44mm) | 内部IDは公開資料で未確認 | Apple Watch 5 (44mm) | Apple Watch 5 (44mm) | Apple Watch 5 (44mm) | Apple Watch 5 (44mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch5,9 | Apple Watch SE (第1世代) (40mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第1世代) (40mm) | Apple Watch SE (第1世代) (40mm) | Apple Watch SE (第1世代) (40mm) | Apple Watch SE (第1世代) (40mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch5,10 | Apple Watch SE (第1世代) (44mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第1世代) (44mm) | Apple Watch SE (第1世代) (44mm) | Apple Watch SE (第1世代) (44mm) | Apple Watch SE (第1世代) (44mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch5,11 | Apple Watch SE (第1世代) (40mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第1世代) (44mm) | Apple Watch SE (第1世代) (40mm) | Apple Watch SE (第1世代) (40mm) | Apple Watch SE (第1世代) (40mm) | 資料側の相違 | AppleDBは44mm。Apple公式のA2353/A2355、Xcode、libirecovery、DeviceKitは40mm。現在値を維持。
+機種ID | Watch5,12 | Apple Watch SE (第1世代) (44mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第1世代) (44mm) | Apple Watch SE (第1世代) (44mm) | Apple Watch SE (第1世代) (44mm) | Apple Watch SE (第1世代) (44mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch6,1 | Apple Watch 6 (40mm) | 内部IDは公開資料で未確認 | Apple Watch 6 (40mm) | Apple Watch 6 (40mm) | Apple Watch 6 (40mm) | Apple Watch 6 (40mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch6,2 | Apple Watch 6 (44mm) | 内部IDは公開資料で未確認 | Apple Watch 6 (44mm) | Apple Watch 6 (44mm) | Apple Watch 6 (44mm) | Apple Watch 6 (44mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch6,3 | Apple Watch 6 (40mm) | 内部IDは公開資料で未確認 | Apple Watch 6 (40mm) | Apple Watch 6 (40mm) | Apple Watch 6 (40mm) | Apple Watch 6 (40mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch6,4 | Apple Watch 6 (44mm) | 内部IDは公開資料で未確認 | Apple Watch 6 (44mm) | Apple Watch 6 (44mm) | Apple Watch 6 (44mm) | Apple Watch 6 (44mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch6,6 | Apple Watch 7 (41mm) | 内部IDは公開資料で未確認 | Apple Watch 7 (41mm) | Apple Watch 7 (41mm) | Apple Watch 7 (41mm) | Apple Watch 7 (41mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch6,7 | Apple Watch 7 (45mm) | 内部IDは公開資料で未確認 | Apple Watch 7 (45mm) | Apple Watch 7 (45mm) | Apple Watch 7 (45mm) | Apple Watch 7 (45mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch6,8 | Apple Watch 7 (41mm) | 内部IDは公開資料で未確認 | Apple Watch 7 (41mm) | Apple Watch 7 (41mm) | Apple Watch 7 (41mm) | Apple Watch 7 (41mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch6,9 | Apple Watch 7 (45mm) | 内部IDは公開資料で未確認 | Apple Watch 7 (45mm) | Apple Watch 7 (45mm) | Apple Watch 7 (45mm) | Apple Watch 7 (45mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch6,10 | Apple Watch 8 (41mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
+機種ID | Watch6,11 | Apple Watch 8 (45mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
+機種ID | Watch6,12 | Apple Watch 8 (41mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | Apple Watch SE (第2世代) (40mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
+機種ID | Watch6,13 | Apple Watch 8 (45mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | Apple Watch SE (第2世代) (44mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
+機種ID | Watch6,14 | Apple Watch SE (第2世代) (40mm) | 内部IDは公開資料で未確認 | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
+機種ID | Watch6,15 | Apple Watch SE (第2世代) (44mm) | 内部IDは公開資料で未確認 | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
+機種ID | Watch6,16 | Apple Watch SE (第2世代) (40mm) | 内部IDは公開資料で未確認 | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | Apple Watch 8 (41mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
+機種ID | Watch6,17 | Apple Watch SE (第2世代) (44mm) | 内部IDは公開資料で未確認 | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | Apple Watch 8 (45mm) | 誤登録・未修正 | Xcodeと第三者資料の機種名・サイズが一致。既存記録の扱いは専用マイグレーションで別途設計。
+機種ID | Watch6,18 | Apple Watch Ultra (第1世代) | 内部IDは公開資料で未確認 | Apple Watch Ultra (第1世代) | Apple Watch Ultra (第1世代) | Apple Watch Ultra (第1世代) | Apple Watch Ultra (第1世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch7,1 | Apple Watch 9 (41mm) | 内部IDは公開資料で未確認 | Apple Watch 9 (41mm) | Apple Watch 9 (41mm) | Apple Watch 9 (41mm) | Apple Watch 9 (41mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch7,2 | Apple Watch 9 (45mm) | 内部IDは公開資料で未確認 | Apple Watch 9 (45mm) | Apple Watch 9 (45mm) | Apple Watch 9 (45mm) | Apple Watch 9 (45mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch7,3 | Apple Watch 9 (41mm) | 内部IDは公開資料で未確認 | Apple Watch 9 (41mm) | Apple Watch 9 (41mm) | Apple Watch 9 (41mm) | Apple Watch 9 (41mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch7,4 | Apple Watch 9 (45mm) | 内部IDは公開資料で未確認 | Apple Watch 9 (45mm) | Apple Watch 9 (45mm) | Apple Watch 9 (45mm) | Apple Watch 9 (45mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch7,5 | Apple Watch Ultra (第2世代) | 内部IDは公開資料で未確認 | Apple Watch Ultra (第2世代) | Apple Watch Ultra (第2世代) | Apple Watch Ultra (第2世代) | Apple Watch Ultra (第2世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch7,8 | Apple Watch 10 (42mm) | 内部IDは公開資料で未確認 | Apple Watch 10 (42mm) | Apple Watch 10 (42mm) | Apple Watch 10 (42mm) | Apple Watch 10 (42mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch7,9 | Apple Watch 10 (46mm) | 内部IDは公開資料で未確認 | Apple Watch 10 (46mm) | Apple Watch 10 (46mm) | Apple Watch 10 (46mm) | Apple Watch 10 (46mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch7,10 | Apple Watch 10 (42mm) | 内部IDは公開資料で未確認 | Apple Watch 10 (42mm) | Apple Watch 10 (42mm) | Apple Watch 10 (42mm) | Apple Watch 10 (42mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch7,11 | Apple Watch 10 (46mm) | 内部IDは公開資料で未確認 | Apple Watch 10 (46mm) | Apple Watch 10 (46mm) | Apple Watch 10 (46mm) | Apple Watch 10 (46mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch7,13 | Apple Watch SE (第3世代) (40mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第3世代) (40mm) | Apple Watch SE (第3世代) (40mm) | Apple Watch SE (第3世代) (40mm) | Apple Watch SE (第3世代) (40mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch7,14 | Apple Watch SE (第3世代) (44mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第3世代) (44mm) | Apple Watch SE (第3世代) (44mm) | Apple Watch SE (第3世代) (40mm) | Apple Watch SE (第3世代) (44mm) | 資料側の相違 | DeviceKitのサイズがXcode・AppleDB・libirecoveryと相違。現在値を維持。
+機種ID | Watch7,15 | Apple Watch SE (第3世代) (40mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第3世代) (40mm) | Apple Watch SE (第3世代) (40mm) | Apple Watch SE (第3世代) (44mm) | Apple Watch SE (第3世代) (40mm) | 資料側の相違 | DeviceKitのサイズがXcode・AppleDB・libirecoveryと相違。現在値を維持。
+機種ID | Watch7,16 | Apple Watch SE (第3世代) (44mm) | 内部IDは公開資料で未確認 | Apple Watch SE (第3世代) (44mm) | Apple Watch SE (第3世代) (44mm) | Apple Watch SE (第3世代) (44mm) | Apple Watch SE (第3世代) (44mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch7,17 | Apple Watch 11 (42mm) | 内部IDは公開資料で未確認 | Apple Watch 11 (42mm) | Apple Watch 11 (42mm) | Apple Watch 11 (42mm) | Apple Watch 11 (42mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch7,18 | Apple Watch 11 (46mm) | 内部IDは公開資料で未確認 | Apple Watch 11 (46mm) | Apple Watch 11 (46mm) | Apple Watch 11 (46mm) | Apple Watch 11 (46mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch7,19 | Apple Watch 11 (42mm) | 内部IDは公開資料で未確認 | Apple Watch 11 (42mm) | Apple Watch 11 (42mm) | Apple Watch 11 (42mm) | Apple Watch 11 (42mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch7,20 | Apple Watch 11 (46mm) | 内部IDは公開資料で未確認 | Apple Watch 11 (46mm) | Apple Watch 11 (46mm) | Apple Watch 11 (46mm) | Apple Watch 11 (46mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch7,12 | Apple Watch Ultra (第3世代) | 内部IDは公開資料で未確認 | Apple Watch Ultra (第3世代) | Apple Watch Ultra (第3世代) | Apple Watch Ultra (第3世代) | Apple Watch Ultra (第3世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch8,1 | Apple Watch Ultra (第4世代) | 内部IDは公開資料で未確認 | Apple Watch Ultra (第4世代) | Apple Watch Ultra (第4世代) | Apple Watch Ultra (第4世代) | Apple Watch Ultra (第4世代) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch8,2 | Apple Watch 12 (42mm) | 内部IDは公開資料で未確認 | Apple Watch 12 (42mm) | Apple Watch 12 (42mm) | Apple Watch 12 (42mm) | Apple Watch 12 (42mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch8,3 | Apple Watch 12 (46mm) | 内部IDは公開資料で未確認 | Apple Watch 12 (46mm) | Apple Watch 12 (46mm) | Apple Watch 12 (46mm) | Apple Watch 12 (46mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch8,4 | Apple Watch 12 (42mm) Cellular | 内部IDは公開資料で未確認 | Apple Watch 12 (42mm) Cellular | Apple Watch 12 (42mm) Cellular | Apple Watch 12 (42mm) | Apple Watch 12 (42mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | Watch8,5 | Apple Watch 12 (46mm) Cellular | 内部IDは公開資料で未確認 | Apple Watch 12 (46mm) Cellular | Apple Watch 12 (46mm) Cellular | Apple Watch 12 (46mm) | Apple Watch 12 (46mm) | 一致 | 機種名の表記差とGPS/Cellularのまとめ方は正規化して比較。
+機種ID | A3385 | iPhone Air MagSafeバッテリー | 内部IDは公開資料で未確認 | iPhone Air MagSafeバッテリー | 記載なし | 記載なし | iPhone Air MagSafe Battery | 公式モデル番号で一致 | アクセサリーA3385の公式製品情報で照合。
+基板ID | N66AP | iPhone8,1 | 物理基板の厳密な対応は未確認 | iPhone8,2 | iPhone8,2 | 記載なし | N66グループ: iPhone8,2 | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | N66mAP | iPhone8,1 | 物理基板の厳密な対応は未確認 | iPhone8,2 | iPhone8,2 | 記載なし | 記載なし | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | N71AP | iPhone8,2 | 物理基板の厳密な対応は未確認 | iPhone8,1 | iPhone8,1 | 記載なし | N71グループ: iPhone8,1 | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | N71mAP | iPhone8,2 | 物理基板の厳密な対応は未確認 | iPhone8,1 | iPhone8,1 | 記載なし | 記載なし | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | N69AP | iPhone8,4 | 物理基板の厳密な対応は未確認 | iPhone8,4 | iPhone8,4 | 記載なし | N69グループ: iPhone8,4 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | N69uAP | iPhone8,4 | 物理基板の厳密な対応は未確認 | iPhone8,4 | iPhone8,4 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D10AP | iPhone9,1 | 物理基板の厳密な対応は未確認 | iPhone9,1 | iPhone9,1 | 記載なし | D10グループ: iPhone9,1 / iPhone9,3 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D101AP | iPhone9,3 | 物理基板の厳密な対応は未確認 | iPhone9,3 | iPhone9,3 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D111AP | iPhone9,2 | 物理基板の厳密な対応は未確認 | iPhone9,4 | iPhone9,4 | 記載なし | 記載なし | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D11AP | iPhone9,4 | 物理基板の厳密な対応は未確認 | iPhone9,2 | iPhone9,2 | 記載なし | D11グループ: iPhone9,2 / iPhone9,4 | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D201AP | iPhone10,4 | 物理基板の厳密な対応は未確認 | iPhone10,4 | iPhone10,4 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D20AP | iPhone10,1 | 物理基板の厳密な対応は未確認 | iPhone10,1 | iPhone10,1 | 記載なし | D20グループ: iPhone10,1 / iPhone10,4 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D211AP | iPhone10,5 | 物理基板の厳密な対応は未確認 | iPhone10,5 | iPhone10,5 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D21AP | iPhone10,2 | 物理基板の厳密な対応は未確認 | iPhone10,2 | iPhone10,2 | 記載なし | D21グループ: iPhone10,2 / iPhone10,5 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D221AP | iPhone10,6 | 物理基板の厳密な対応は未確認 | iPhone10,6 | iPhone10,6 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D22AP | iPhone10,3 | 物理基板の厳密な対応は未確認 | iPhone10,3 | iPhone10,3 | 記載なし | D22グループ: iPhone10,3 / iPhone10,6 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D321AP | iPhone11,2 | 物理基板の厳密な対応は未確認 | iPhone11,2 | iPhone11,2 | 記載なし | D321グループ: iPhone11,2 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D331AP | iPhone11,4 | 物理基板の厳密な対応は未確認 | iPhone11,4 | iPhone11,4 | 記載なし | D331グループ: iPhone11,4 / iPhone11,6 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D331pAP | iPhone11,6 | 物理基板の厳密な対応は未確認 | iPhone11,6 | iPhone11,6 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | N841AP | iPhone11,8 | 物理基板の厳密な対応は未確認 | iPhone11,8 | iPhone11,8 | 記載なし | N841グループ: iPhone11,8 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | N104AP | iPhone12,1 | 物理基板の厳密な対応は未確認 | iPhone12,1 | iPhone12,1 | 記載なし | N104グループ: iPhone12,1 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D421AP | iPhone12,3 | 物理基板の厳密な対応は未確認 | iPhone12,3 | iPhone12,3 | 記載なし | D421グループ: iPhone12,3 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D431AP | iPhone12,5 | 物理基板の厳密な対応は未確認 | iPhone12,5 | iPhone12,5 | 記載なし | D431グループ: iPhone12,5 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D79AP | iPhone12,8 | 物理基板の厳密な対応は未確認 | iPhone12,8 | iPhone12,8 | 記載なし | D79グループ: iPhone12,8 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D52gAP | iPhone13,1 | 物理基板の厳密な対応は未確認 | iPhone13,1 | iPhone13,1 | 記載なし | D52gグループ: iPhone13,1 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D53gAP | iPhone13,2 | 物理基板の厳密な対応は未確認 | iPhone13,2 | iPhone13,2 | 記載なし | D53gグループ: iPhone13,2 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D53pAP | iPhone13,3 | 物理基板の厳密な対応は未確認 | iPhone13,3 | iPhone13,3 | 記載なし | D53pグループ: iPhone13,3 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D54pAP | iPhone13,4 | 物理基板の厳密な対応は未確認 | iPhone13,4 | iPhone13,4 | 記載なし | D54pグループ: iPhone13,4 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D16AP | iPhone14,4 | 物理基板の厳密な対応は未確認 | iPhone14,4 | iPhone14,4 | 記載なし | D16グループ: iPhone14,4 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D17AP | iPhone14,5 | 物理基板の厳密な対応は未確認 | iPhone14,5 | iPhone14,5 | 記載なし | D17グループ: iPhone14,5 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D63AP | iPhone14,2 | 物理基板の厳密な対応は未確認 | iPhone14,2 | iPhone14,2 | 記載なし | D63グループ: iPhone14,2 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D64AP | iPhone14,3 | 物理基板の厳密な対応は未確認 | iPhone14,3 | iPhone14,3 | 記載なし | D64グループ: iPhone14,3 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D49AP | iPhone14,6 | 物理基板の厳密な対応は未確認 | iPhone14,6 | iPhone14,6 | 記載なし | D49グループ: iPhone14,6 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D27AP | iPhone14,7 | 物理基板の厳密な対応は未確認 | iPhone14,7 | iPhone14,7 | 記載なし | D27グループ: iPhone14,7 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D28AP | iPhone14,8 | 物理基板の厳密な対応は未確認 | iPhone14,8 | iPhone14,8 | 記載なし | D28グループ: iPhone14,8 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D73AP | iPhone15,2 | 物理基板の厳密な対応は未確認 | iPhone15,2 | iPhone15,2 | 記載なし | D73グループ: iPhone15,2 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D74AP | iPhone15,3 | 物理基板の厳密な対応は未確認 | iPhone15,3 | iPhone15,3 | 記載なし | D74グループ: iPhone15,3 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D37AP | iPhone15,4 | 物理基板の厳密な対応は未確認 | iPhone15,4 | iPhone15,4 | 記載なし | D37グループ: iPhone15,4 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D38AP | iPhone15,5 | 物理基板の厳密な対応は未確認 | iPhone15,5 | iPhone15,5 | 記載なし | D38グループ: iPhone15,5 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D83AP | iPhone16,1 | 物理基板の厳密な対応は未確認 | iPhone16,1 | iPhone16,1 | 記載なし | D83グループ: iPhone16,1 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D84AP | iPhone16,2 | 物理基板の厳密な対応は未確認 | iPhone16,2 | iPhone16,2 | 記載なし | D84グループ: iPhone16,2 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D47AP | iPhone17,3 | 物理基板の厳密な対応は未確認 | iPhone17,3 | iPhone17,3 | 記載なし | D47グループ: iPhone17,3 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D48AP | iPhone17,4 | 物理基板の厳密な対応は未確認 | iPhone17,4 | iPhone17,4 | 記載なし | D48グループ: iPhone17,4 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D93AP | iPhone17,1 | 物理基板の厳密な対応は未確認 | iPhone17,1 | iPhone17,1 | 記載なし | D93グループ: iPhone17,1 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D94AP | iPhone17,2 | 物理基板の厳密な対応は未確認 | iPhone17,2 | iPhone17,2 | 記載なし | D94グループ: iPhone17,2 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | V59AP | iPhone17,5 | 物理基板の厳密な対応は未確認 | iPhone17,5 | iPhone17,5 | 記載なし | V59グループ: iPhone17,5 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | V57AP | iPhone18,3 | 物理基板の厳密な対応は未確認 | iPhone18,3 | iPhone18,3 | 記載なし | V57グループ: iPhone18,3 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | D23AP | iPhone18,4 | 物理基板の厳密な対応は未確認 | iPhone18,4 | iPhone18,4 | 記載なし | D23グループ: iPhone18,4 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | V53AP | iPhone18,1 | 物理基板の厳密な対応は未確認 | iPhone18,1 | iPhone18,1 | 記載なし | V53グループ: iPhone18,1 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | V54AP | iPhone18,2 | 物理基板の厳密な対応は未確認 | iPhone18,2 | iPhone18,2 | 記載なし | V54グループ: iPhone18,2 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | V159AP | iPhone18,5 | 物理基板の厳密な対応は未確認 | iPhone18,5 | iPhone18,5 | 記載なし | V159グループ: iPhone18,5 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | V63AP | iPhone19,2 | 物理基板の厳密な対応は未確認 | iPhone19,2 | iPhone19,2 | 記載なし | V63グループ: iPhone19,2 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | V64AP | iPhone19,3 | 物理基板の厳密な対応は未確認 | iPhone19,3 | iPhone19,3 | 記載なし | V64グループ: iPhone19,3 / iPhone19,7 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | V68AP | iPhone19,4 | 物理基板の厳密な対応は未確認 | iPhone19,4 | 記載なし | 記載なし | V68グループ: iPhone19,4 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | V64sAP | iPhone19,7 | 物理基板の厳密な対応は未確認 | iPhone19,7 | iPhone19,7 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J81AP | iPad5,3 | 物理基板の厳密な対応は未確認 | iPad5,3 | iPad5,3 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J82AP | iPad5,4 | 物理基板の厳密な対応は未確認 | iPad5,4 | iPad5,4 | 記載なし | J82グループ: iPad5,3 / iPad5,4 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J96AP | iPad5,1 | 物理基板の厳密な対応は未確認 | iPad5,1 | iPad5,1 | 記載なし | J96グループ: iPad5,1 / iPad5,2 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J97AP | iPad5,2 | 物理基板の厳密な対応は未確認 | iPad5,2 | iPad5,2 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J98aAP | iPad6,7 | 物理基板の厳密な対応は未確認 | iPad6,7 | iPad6,7 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J99aAP | iPad6,8 | 物理基板の厳密な対応は未確認 | iPad6,8 | iPad6,8 | 記載なし | J99aグループ: iPad6,7 / iPad6,8 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J127AP | iPad6,3 | 物理基板の厳密な対応は未確認 | iPad6,3 | iPad6,3 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J128AP | iPad6,4 | 物理基板の厳密な対応は未確認 | iPad6,4 | iPad6,4 | 記載なし | J128グループ: iPad6,3 / iPad6,4 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J71sAP | iPad6,11 | 物理基板の厳密な対応は未確認 | iPad6,11 | iPad6,11 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J71tAP | iPad6,11 | 物理基板の厳密な対応は未確認 | iPad6,11 | iPad6,11 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J72sAP | iPad6,12 | 物理基板の厳密な対応は未確認 | iPad6,12 | iPad6,12 | 記載なし | J72sグループ: iPad6,11 / iPad6,12 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J72tAP | iPad6,12 | 物理基板の厳密な対応は未確認 | iPad6,12 | iPad6,12 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J207AP | iPad7,3 | 物理基板の厳密な対応は未確認 | iPad7,3 | iPad7,3 | 記載なし | J207グループ: iPad7,3 / iPad7,4 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J208AP | iPad7,4 | 物理基板の厳密な対応は未確認 | iPad7,4 | iPad7,4 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J120AP | iPad7,1 | 物理基板の厳密な対応は未確認 | iPad7,1 | iPad7,1 | 記載なし | J120グループ: iPad7,1 / iPad7,2 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J121AP | iPad7,2 | 物理基板の厳密な対応は未確認 | iPad7,2 | iPad7,2 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J71bAP | iPad7,5 | 物理基板の厳密な対応は未確認 | iPad7,5 | iPad7,5 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J72bAP | iPad7,6 | 物理基板の厳密な対応は未確認 | iPad7,6 | iPad7,6 | 記載なし | J72bグループ: iPad7,5 / iPad7,6 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J317AP | iPad8,1 | 物理基板の厳密な対応は未確認 | iPad8,1 | iPad8,1 | 記載なし | J317グループ: iPad8,1 / iPad8,2 / iPad8,3 / iPad8,4 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J317xAP | iPad8,2 | 物理基板の厳密な対応は未確認 | iPad8,2 | iPad8,2 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J318AP | iPad8,3 | 物理基板の厳密な対応は未確認 | iPad8,3 | iPad8,3 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J318xAP | iPad8,4 | 物理基板の厳密な対応は未確認 | iPad8,4 | iPad8,4 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J320AP | iPad8,5 | 物理基板の厳密な対応は未確認 | iPad8,5 | iPad8,5 | 記載なし | J320グループ: iPad8,5 / iPad8,6 / iPad8,7 / iPad8,8 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J320xAP | iPad8,6 | 物理基板の厳密な対応は未確認 | iPad8,6 | iPad8,6 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J321AP | iPad8,7 | 物理基板の厳密な対応は未確認 | iPad8,7 | iPad8,7 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J321xAP | iPad8,8 | 物理基板の厳密な対応は未確認 | iPad8,8 | iPad8,8 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J210AP | iPad11,1 | 物理基板の厳密な対応は未確認 | iPad11,1 | iPad11,1 | 記載なし | J210グループ: iPad11,1 / iPad11,2 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J211AP | iPad11,2 | 物理基板の厳密な対応は未確認 | iPad11,2 | iPad11,2 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J217AP | iPad11,3 | 物理基板の厳密な対応は未確認 | iPad11,3 | iPad11,3 | 記載なし | J217グループ: iPad11,3 / iPad11,4 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J218AP | iPad11,4 | 物理基板の厳密な対応は未確認 | iPad11,4 | iPad11,4 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J171AP | iPad7,11 | 物理基板の厳密な対応は未確認 | iPad7,11 | iPad7,11 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J172AP | iPad7,12 | 物理基板の厳密な対応は未確認 | iPad7,12 | iPad7,12 | 記載なし | J172グループ: iPad7,11 / iPad7,12 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J417AP | iPad8,10 | 物理基板の厳密な対応は未確認 | iPad8,9 | iPad8,9 | 記載なし | J417グループ: iPad8,10 / iPad8,9 | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J418AP | iPad8,9 | 物理基板の厳密な対応は未確認 | iPad8,10 | iPad8,10 | 記載なし | 記載なし | 誤登録・未修正 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J420AP | iPad8,11 | 物理基板の厳密な対応は未確認 | iPad8,11 | iPad8,11 | 記載なし | J420グループ: iPad8,11 / iPad8,12 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J421AP | iPad8,12 | 物理基板の厳密な対応は未確認 | iPad8,12 | iPad8,12 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J171aAP | iPad11,6 | 物理基板の厳密な対応は未確認 | iPad11,6 | iPad11,6 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J172aAP | iPad11,7 | 物理基板の厳密な対応は未確認 | iPad11,7 | iPad11,7 | 記載なし | J172aグループ: iPad11,6 / iPad11,7 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J307AP | iPad13,1 | 物理基板の厳密な対応は未確認 | iPad13,1 | iPad13,1 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J308AP | iPad13,2 | 物理基板の厳密な対応は未確認 | iPad13,2 | iPad13,2 | 記載なし | J308グループ: iPad13,1 / iPad13,2 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J517AP | iPad13,4 | 物理基板の厳密な対応は未確認 | iPad13,4 | iPad13,4 | 記載なし | J517グループ: iPad13,4 / iPad13,5 / iPad13,6 / iPad13,7 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J517xAP | iPad13,5 | 物理基板の厳密な対応は未確認 | iPad13,5 | iPad13,5 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J518AP | iPad13,6 | 物理基板の厳密な対応は未確認 | iPad13,6 | iPad13,6 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J518xAP | iPad13,7 | 物理基板の厳密な対応は未確認 | iPad13,7 | iPad13,7 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J523AP | iPad13,10 | 物理基板の厳密な対応は未確認 | iPad13,10 | iPad13,10 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J523xAP | iPad13,11 | 物理基板の厳密な対応は未確認 | iPad13,11 | iPad13,11 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J522AP | iPad13,8 | 物理基板の厳密な対応は未確認 | iPad13,8 | iPad13,8 | 記載なし | J522グループ: iPad13,10 / iPad13,11 / iPad13,8 / iPad13,9 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J522xAP | iPad13,9 | 物理基板の厳密な対応は未確認 | iPad13,9 | iPad13,9 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J310AP | iPad14,1 | 物理基板の厳密な対応は未確認 | iPad14,1 | iPad14,1 | 記載なし | J310グループ: iPad14,1 / iPad14,2 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J311AP | iPad14,2 | 物理基板の厳密な対応は未確認 | iPad14,2 | iPad14,2 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J181AP | iPad12,1 | 物理基板の厳密な対応は未確認 | iPad12,1 | iPad12,1 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J182AP | iPad12,2 | 物理基板の厳密な対応は未確認 | iPad12,2 | iPad12,2 | 記載なし | J182グループ: iPad12,1 / iPad12,2 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J407AP | iPad13,16 | 物理基板の厳密な対応は未確認 | iPad13,16 | iPad13,16 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J408AP | iPad13,17 | 物理基板の厳密な対応は未確認 | iPad13,17 | iPad13,17 | 記載なし | J408グループ: iPad13,16 / iPad13,17 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J617AP | iPad14,3 | 物理基板の厳密な対応は未確認 | iPad14,3 | iPad14,3 | 記載なし | J617グループ: iPad14,3 / iPad14,4 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J618AP | iPad14,4 | 物理基板の厳密な対応は未確認 | iPad14,4 | iPad14,4 | 記載なし | J618グループ: iPad14,3 / iPad14,4 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J620AP | iPad14,5 | 物理基板の厳密な対応は未確認 | iPad14,5 | iPad14,5 | 記載なし | J620グループ: iPad14,5 / iPad14,6 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J621AP | iPad14,6 | 物理基板の厳密な対応は未確認 | iPad14,6 | iPad14,6 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J271AP | iPad13,18 | 物理基板の厳密な対応は未確認 | iPad13,18 | iPad13,18 | 記載なし | J271グループ: iPad13,18 / iPad13,19 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J272AP | iPad13,19 | 物理基板の厳密な対応は未確認 | iPad13,19 | iPad13,19 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J717AP | iPad16,3 | 物理基板の厳密な対応は未確認 | iPad16,3 | iPad16,3 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J718AP | iPad16,4 | 物理基板の厳密な対応は未確認 | iPad16,4 | iPad16,4 | 記載なし | J718グループ: iPad16,3 / iPad16,4 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J720AP | iPad16,5 | 物理基板の厳密な対応は未確認 | iPad16,5 | iPad16,5 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J721AP | iPad16,6 | 物理基板の厳密な対応は未確認 | iPad16,6 | iPad16,6 | 記載なし | J721グループ: iPad16,5 / iPad16,6 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J507AP | iPad14,8 | 物理基板の厳密な対応は未確認 | iPad14,8 | iPad14,8 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J508AP | iPad14,9 | 物理基板の厳密な対応は未確認 | iPad14,9 | iPad14,9 | 記載なし | J508グループ: iPad14,8 / iPad14,9 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J537AP | iPad14,10 | 物理基板の厳密な対応は未確認 | iPad14,10 | iPad14,10 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J538AP | iPad14,11 | 物理基板の厳密な対応は未確認 | iPad14,11 | iPad14,11 | 記載なし | J538グループ: iPad14,10 / iPad14,11 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J410AP | iPad16,1 | 物理基板の厳密な対応は未確認 | iPad16,1 | iPad16,1 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J411AP | iPad16,2 | 物理基板の厳密な対応は未確認 | iPad16,2 | iPad16,2 | 記載なし | J411グループ: iPad16,1 / iPad16,2 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J607AP | iPad15,3 | 物理基板の厳密な対応は未確認 | iPad15,3 | iPad15,3 | 記載なし | J607グループ: iPad15,3 / iPad15,4 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J608AP | iPad15,4 | 物理基板の厳密な対応は未確認 | iPad15,4 | iPad15,4 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J637AP | iPad15,5 | 物理基板の厳密な対応は未確認 | iPad15,5 | iPad15,5 | 記載なし | J637グループ: iPad15,5 / iPad15,6 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J638AP | iPad15,6 | 物理基板の厳密な対応は未確認 | iPad15,6 | iPad15,6 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J481AP | iPad15,7 | 物理基板の厳密な対応は未確認 | iPad15,7 | iPad15,7 | 記載なし | J481グループ: iPad15,7 / iPad15,8 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J482AP | iPad15,8 | 物理基板の厳密な対応は未確認 | iPad15,8 | iPad15,8 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J707AP | iPad16,8 | 物理基板の厳密な対応は未確認 | iPad16,8 | iPad16,8 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J708AP | iPad16,9 | 物理基板の厳密な対応は未確認 | iPad16,9 | iPad16,9 | 記載なし | J708グループ: iPad16,8 / iPad16,9 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J737AP | iPad16,10 | 物理基板の厳密な対応は未確認 | iPad16,10 | iPad16,10 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J738AP | iPad16,11 | 物理基板の厳密な対応は未確認 | iPad16,11 | iPad16,11 | 記載なし | J738グループ: iPad16,10 / iPad16,11 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J817AP | iPad17,1 | 物理基板の厳密な対応は未確認 | iPad17,1 | iPad17,1 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J818AP | iPad17,2 | 物理基板の厳密な対応は未確認 | iPad17,2 | iPad17,2 | 記載なし | J818グループ: iPad17,1 / iPad17,2 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J820AP | iPad17,3 | 物理基板の厳密な対応は未確認 | iPad17,3 | iPad17,3 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | J821AP | iPad17,4 | 物理基板の厳密な対応は未確認 | iPad17,4 | iPad17,4 | 記載なし | J821グループ: iPad17,3 / iPad17,4 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | N112AP | iPod9,1 | 物理基板の厳密な対応は未確認 | iPod9,1 | iPod9,1 | 記載なし | N112グループ: iPod9,1 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | N240AP | Watch8,1 | 物理基板の厳密な対応は未確認 | Watch8,1 | Watch8,1 | 記載なし | N240グループ: Watch8,1 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | N237sAP | Watch8,2 | 物理基板の厳密な対応は未確認 | Watch8,2 | Watch8,2 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | N237bAP | Watch8,3 | 物理基板の厳密な対応は未確認 | Watch8,3 | Watch8,3 | 記載なし | N237bグループ: Watch8,3 / Watch8,5 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | N238sAP | Watch8,4 | 物理基板の厳密な対応は未確認 | Watch8,4 | Watch8,4 | 記載なし | N238sグループ: Watch8,2 / Watch8,4 | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+基板ID | N238bAP | Watch8,5 | 物理基板の厳密な対応は未確認 | Watch8,5 | Watch8,5 | 記載なし | 記載なし | 第三者資料で一致 | AppleDBとlibirecoveryの物理基板対応で照合。XcodeのproductClassは参考値で、厳密な基板対応の証拠にはしない。
+SoC | iPhone Duo | A20 Pro | A20 Pro | A20 Pro | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 18 Pro Max | A20 Pro | A20 Pro | A20 Pro | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 18 Pro | A20 Pro | A20 Pro | A20 Pro | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 17 Pro Max | A19 Pro | A19 Pro | A19 Pro | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone Air | A19 Pro | A19 Pro | A19 Pro | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 17 Pro | A19 Pro | A19 Pro | A19 Pro | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 17 | A19 | A19 | A19 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 17e | A19 | A19 | A19 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 16e | A18 | A18 | A18 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 16 Pro Max | A18 Pro | A18 Pro | A18 Pro | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 16 Plus | A18 | A18 | A18 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 16 Pro | A18 Pro | A18 Pro | A18 Pro | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 16 | A18 | A18 | A18 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 15 Pro Max | A17 Pro | A17 Pro | A17 Pro | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 15 Plus | A16 Bionic | A16 | A16 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 15 Pro | A17 Pro | A17 Pro | A17 Pro | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 15 | A16 Bionic | A16 | A16 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 14 Pro Max | A16 Bionic | A16 | A16 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 14 Plus | A15 Bionic | A15 | A15 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 14 Pro | A16 Bionic | A16 | A16 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 14 | A15 Bionic | A15 | A15 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 13 Pro Max | A15 Bionic | A15 | A15 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 13 Pro | A15 Bionic | A15 | A15 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 13 mini | A15 Bionic | A15 | A15 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 13 | A15 Bionic | A15 | A15 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 12 Pro Max | A14 Bionic | A14 | A14 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 12 Pro | A14 Bionic | A14 | A14 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 12 mini | A14 Bionic | A14 | A14 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 12 | A14 Bionic | A14 | A14 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 11 Pro Max | A13 Bionic | A13 | A13 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 11 Pro | A13 Bionic | A13 | A13 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 11 | A13 Bionic | A13 | A13 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone XS Max | A12 Bionic | A12 | A12 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone XS | A12 Bionic | A12 | A12 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone XR | A12 Bionic | A12 | A12 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone X | A11 Bionic | A11 / M11 | A11 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone SE (第3世代) | A15 Bionic | A15 | A15 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone SE (第2世代) | A13 Bionic | A13 | A13 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone SE (第1世代) | A9 | A9 / M9 | A9 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 8 Plus | A11 Bionic | A11 | A11 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 8 | A11 Bionic | A11 | A11 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 7 Plus | A10 Fusion | A10 | A10 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 7 | A10 Fusion | A10 | A10 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 6s Plus | A9 | A9 / M9 | A9 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPhone 6s | A9 | A9 / M9 | A9 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Pro 13 (M5) | M5 | M5 | M5 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Pro 13 (M4) | M4 | M4 | M4 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Pro 12.9 (第6世代) | M2 | M2 | M2 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Pro 12.9 (第5世代) | M1 | M1 | M1 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Pro 12.9 (第4世代) | A12Z Bionic | A12Z | A12Z | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Pro 12.9 (第3世代) | A12X Bionic | A12X / M12 | A12X | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Pro 12.9 (第2世代) | A10X Fusion | A10X / M10 | A10X | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Pro 12.9 (第1世代) | A9X | A9X / M9 | A9X | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Pro 11 (M5) | M5 | M5 | M5 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Pro 11 (M4) | M4 | M4 | M4 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Pro 11 (第4世代) | M2 | M2 | M2 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Pro 11 (第3世代) | M1 | M1 | M1 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Pro 11 (第2世代) | A12Z Bionic | A12Z | A12Z | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Pro 11 (第1世代) | A12X Bionic | A12X / M12 | A12X | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Pro 10.5 | A10X Fusion | A10X / M10 | A10X | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Pro 9.7 | A9X | A9X / M9 | A9X | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad mini (A17 Pro) | A17 Pro | A17 Pro | A17 Pro | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad mini (第6世代) | A15 Bionic | A15 | A15 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad mini (第5世代) | A12 Bionic | A12 | A12 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad mini (第4世代) | A8 | A8 / M8 | A8 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad (A16) | A16 Bionic | A16 | A16 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad (第10世代) | A14 Bionic | A14 | A14 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad (第9世代) | A13 Bionic | A13 | A13 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad (第8世代) | A12 Bionic | A12 | A12 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad (第7世代) | A10 Fusion | A10 / M10 | A10 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad (第6世代) | A10 Fusion | A10 / M10 | A10 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad (第5世代) | A9 | A9 / M9 | A9 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Air 13 (M4) | M4 | M4 | M4 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Air 11 (M4) | M4 | M4 | M4 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Air 13 (M3) | M3 | M3 | M3 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Air 11 (M3) | M3 | M3 | M3 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Air 13 (M2) | M2 | M2 | M2 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Air 11 (M2) | M2 | M2 | M2 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Air (第5世代) | M1 | M1 | M1 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Air (第4世代) | A14 Bionic | A14 | A14 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Air (第3世代) | A12 Bionic | A12 / M12 | A12 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Air (第2世代) | A8X | A8X / M8 | A8X | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPad Air (第1世代) | A7 | A7 / M7 | A7 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPod touch (第7世代) | A10 Fusion | A10 | A10 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | iPod touch (第6世代) | A8 | A8 / M8 | A8 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch Ultra (第4世代) | S11 | S11 | S11 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch 12 (46mm) | S11 | S11 | S11 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch 12 (42mm) | S11 | S11 | S11 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch 12 (46mm) Cellular | S10 | S11 | S11 | 記載なし | 記載なし | 記載なし | 誤登録・未修正 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch 12 (42mm) Cellular | S10 | S11 | S11 | 記載なし | 記載なし | 記載なし | 誤登録・未修正 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch Ultra (第3世代) | S10 | S10 | S10 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch Ultra (第2世代) | S9 | S9 | S9 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch Ultra (第1世代) | S8 | S8 | S8 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch SE (第3世代) (44mm) | S10 | S10 | S10 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch SE (第3世代) (40mm) | S10 | S10 | S10 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch SE (第2世代) (44mm) | S8 | S8 | S8 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch SE (第2世代) (40mm) | S8 | S8 | S8 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch SE (第1世代) (44mm) | S5 | S5 | S5 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch SE (第1世代) (40mm) | S5 | S5 | S5 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch 11 (46mm) | S10 | S10 | S10 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch 11 (42mm) | S10 | S10 | S10 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch 10 (46mm) | S10 | S10 | S10 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch 10 (42mm) | S10 | S10 | S10 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch 9 (45mm) | S9 | S9 | S9 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch 9 (41mm) | S9 | S9 | S9 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch 8 (45mm) | S8 | S8 | S8 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch 8 (41mm) | S8 | S8 | S8 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch 7 (45mm) | S7 | S7 | S7 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch 7 (41mm) | S7 | S7 | S7 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch 6 (44mm) | S6 | S6 | S6 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch 6 (40mm) | S6 | S6 | S6 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch 5 (44mm) | S5 | S5 | S5 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch 5 (40mm) | S5 | S5 | S5 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch 4 (44mm) | S4 | S4 | S4 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch 4 (40mm) | S4 | S4 | S4 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch 3 (42mm) Cellular | S3 | S3 | S3 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch 3 (42mm) | S3 | S3 | S3 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch 3 (38mm) Cellular | S3 | S3 | S3 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+SoC | Apple Watch 3 (38mm) | S3 | S3 | S3 | 記載なし | 記載なし | 記載なし | 一致 | libirecoveryのCPIDから製品名S10/S11などへの逆変換は推測で行わない。
+容量(mAh) | iPhone Duo | 4883 | 4883 | 記載なし | 記載なし | 記載なし | 記載なし | 修正済み | 旧4700mAhから4883mAhへ修正済み。4.0.0 (1062)。ユーザー指定によりマイグレーションなし。
+容量(mAh) | iPhone 18 Pro Max | 5567 | 5391 | 記載なし | 記載なし | 記載なし | 記載なし | 地域差・登録済み | esim: 5567mAh / physicalSIM: 5391mAh。EU定格は既存の物理SIM値と一致。
+容量(mAh) | iPhone 18 Pro | 4288 | 4056 | 記載なし | 記載なし | 記載なし | 記載なし | 地域差・登録済み | esim: 4288mAh / physicalSIM: 4056mAh。EU定格は既存の物理SIM値と一致。
+容量(mAh) | iPhone 17 Pro Max | 5088 | 4823 | 記載なし | 記載なし | 記載なし | 記載なし | 地域差・登録済み | esim: 5088mAh / physicalSIM: 4823mAh。EU定格は既存の物理SIM値と一致。
+容量(mAh) | iPhone Air | 3149 | 3149 | 記載なし | 記載なし | 記載なし | 記載なし | 定格値と一致 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 17 Pro | 4252 | 3988 | 記載なし | 記載なし | 記載なし | 記載なし | 地域差・登録済み | esim: 4252mAh / physicalSIM: 3988mAh。EU定格は既存の物理SIM値と一致。
+容量(mAh) | iPhone 17 | 3692 | 3692 | 記載なし | 記載なし | 記載なし | 記載なし | 定格値と一致 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 17e | 4005 | 4005 | 記載なし | 記載なし | 記載なし | 記載なし | 定格値と一致 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 16e | 4005 | 4005 | 記載なし | 記載なし | 記載なし | 記載なし | 定格値と一致 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 16 Pro Max | 4685 | 4685 | 記載なし | 記載なし | 記載なし | 記載なし | 定格値と一致 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 16 Plus | 4674 | 4674 | 記載なし | 記載なし | 記載なし | 記載なし | 定格値と一致 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 16 Pro | 3582 | 3582 | 記載なし | 記載なし | 記載なし | 記載なし | 定格値と一致 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 16 | 3561 | 3561 | 記載なし | 記載なし | 記載なし | 記載なし | 定格値と一致 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 15 Pro Max | 4422 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 15 Plus | 4383 | 4383 | 記載なし | 記載なし | 記載なし | 記載なし | 定格値と一致 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 15 Pro | 3274 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 15 | 3349 | 3349 | 記載なし | 記載なし | 記載なし | 記載なし | 定格値と一致 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 14 Pro Max | 4323 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 14 Plus | 4325 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 14 Pro | 3200 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 14 | 3279 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 13 Pro Max | 4352 | 記載なし | 4352 | 記載なし | 記載なし | 記載なし | AppleDBで一致・公式mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 13 Pro | 3095 | 記載なし | 3095 | 記載なし | 記載なし | 記載なし | AppleDBで一致・公式mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 13 mini | 2406 | 記載なし | 2406 | 記載なし | 記載なし | 記載なし | AppleDBで一致・公式mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 13 | 3227 | 記載なし | 3227 | 記載なし | 記載なし | 記載なし | AppleDBで一致・公式mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 12 Pro Max | 3687 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 12 Pro | 2815 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 12 mini | 2227 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 12 | 2815 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 11 Pro Max | 3969 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 11 Pro | 3046 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 11 | 3110 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone XS Max | 3174 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone XS | 2658 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone XR | 2942 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone X | 2700 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone SE (第3世代) | 2018 | 記載なし | 2018 | 記載なし | 記載なし | 記載なし | AppleDBで一致・公式mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone SE (第2世代) | 1821 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone SE (第1世代) | 1624 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 8 Plus | 2675 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 8 | 1821 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 7 Plus | 2906 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 7 | 1960 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 6s Plus | 2705 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone 6s | 1715 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Pro 13 (M5) | 10340 | 10209 | 記載なし | 記載なし | 記載なし | 記載なし | 定義差・要確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Pro 13 (M4) | 10340 | 10209 | 記載なし | 記載なし | 記載なし | 記載なし | 定義差・要確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Pro 12.9 (第6世代) | 10758 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Pro 12.9 (第5世代) | 10533 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Pro 12.9 (第4世代) | 9720 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Pro 12.9 (第3世代) | 9720 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Pro 12.9 (第2世代) | 10850 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Pro 12.9 (第1世代) | 10307 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Pro 11 (M5) | 8340 | 8160 | 記載なし | 記載なし | 記載なし | 記載なし | 定義差・要確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Pro 11 (M4) | 8340 | 8160 | 記載なし | 記載なし | 記載なし | 記載なし | 定義差・要確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Pro 11 (第4世代) | 7538 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Pro 11 (第3世代) | 7538 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Pro 11 (第2世代) | 7600 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Pro 11 (第1世代) | 7812 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Pro 10.5 | 8134 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Pro 9.7 | 7306 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad mini (A17 Pro) | 5124 | 5034 | 記載なし | 記載なし | 記載なし | 記載なし | 定義差・要確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad mini (第6世代) | 5124 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad mini (第5世代) | 5124 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad mini (第4世代) | 5124 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad (A16) | 7698 | 7606 | 記載なし | 記載なし | 記載なし | 記載なし | 定義差・要確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad (第10世代) | 7606 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad (第9世代) | 8686 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad (第8世代) | 8686 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad (第7世代) | 8827 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad (第6世代) | 8827 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad (第5世代) | 8827 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Air 13 (M4) | 9705 | 9720 | 記載なし | 記載なし | 記載なし | 記載なし | 定義差・要確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Air 11 (M4) | 7606 | 7606 | 記載なし | 記載なし | 記載なし | 記載なし | 定格値と一致 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Air 13 (M3) | 9705 | 9720 | 記載なし | 記載なし | 記載なし | 記載なし | 定義差・要確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Air 11 (M3) | 7606 | 7606 | 記載なし | 記載なし | 記載なし | 記載なし | 定格値と一致 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Air 13 (M2) | 9705 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Air 11 (M2) | 7606 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Air (第5世代) | 7526 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Air (第4世代) | 7606 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Air (第3世代) | 8134 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Air (第2世代) | 7340 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPad Air (第1世代) | 7340 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | Whのみ・mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPod touch (第7世代) | 1043 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPod touch (第6世代) | 1043 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch Ultra (第4世代) | 633 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch 12 (46mm) | 378 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch 12 (42mm) | 327 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch Ultra (第3世代) | 599 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch Ultra (第2世代) | 564 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch Ultra (第1世代) | 542 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch SE (第3世代) (44mm) | 330 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch SE (第3世代) (40mm) | 263 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch SE (第2世代) (44mm) | 296 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch SE (第2世代) (40mm) | 245 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch SE (第1世代) (44mm) | 296 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch SE (第1世代) (40mm) | 245 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch 11 (46mm) | 363 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch 11 (42mm) | 322 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch 10 (46mm) | 327 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch 10 (42mm) | 308 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch 9 (45mm) | 308 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch 9 (41mm) | 282 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch 8 (45mm) | 308 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch 8 (41mm) | 282 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch 7 (45mm) | 308 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch 7 (41mm) | 284 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch 6 (44mm) | 303 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch 6 (40mm) | 265 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch 5 (44mm) | 296 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch 5 (40mm) | 245 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch 4 (44mm) | 291 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch 4 (40mm) | 224 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch 3 (42mm) Cellular | 352 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch 3 (42mm) | 342 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch 3 (38mm) Cellular | 279 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | Apple Watch 3 (38mm) | 262 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+容量(mAh) | iPhone Air MagSafeバッテリー | 3149 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | mAh未確認 | Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。
+Aモデル番号 | modelNumbers/iPhone Duo | A3447 / A3719 / A3720 / A3721 | A3447 / A3719 / A3720 / A3721 | 記載なし | 記載なし | 記載なし | 記載なし | 製品グループ一致 | 公式製品グループに含まれることを確認。内部IDと地域別A番号の厳密な組は公式資料だけでは未確認。
+Aモデル番号 | modelNumbers/iPhone 18 Pro | A3472 / A3713 / A3714 / A3715 | A3472 / A3713 / A3714 / A3715 | 記載なし | 記載なし | 記載なし | 記載なし | 製品グループ一致 | 公式製品グループに含まれることを確認。内部IDと地域別A番号の厳密な組は公式資料だけでは未確認。
+Aモデル番号 | modelNumbers/iPhone 18 Pro Max | A3473 / A3716 / A3717 / A3718 | A3473 / A3716 / A3717 / A3718 | 記載なし | 記載なし | 記載なし | 記載なし | 製品グループ一致 | 公式製品グループに含まれることを確認。内部IDと地域別A番号の厳密な組は公式資料だけでは未確認。
+Aモデル番号 | modelNumbersByIdentifier/iPhone19,2 | A3472 / A3713 / A3714 / A3715 | A3472 / A3713 / A3714 / A3715 | A3472 / A3713 / A3714 / A3715 | 記載なし | 記載なし | 記載なし | 製品グループ一致 | 公式製品グループに含まれることを確認。内部IDと地域別A番号の厳密な組は公式資料だけでは未確認。
+Aモデル番号 | modelNumbersByIdentifier/iPhone19,3 | A3473 | A3473 / A3716 / A3717 / A3718 | A3473 | 記載なし | 記載なし | 記載なし | 製品グループ一致 | 公式製品グループに含まれることを確認。内部IDと地域別A番号の厳密な組は公式資料だけでは未確認。
+Aモデル番号 | modelNumbersByIdentifier/iPhone19,4 | A3447 / A3719 / A3720 / A3721 | A3447 / A3719 / A3720 / A3721 | A3447 / A3719 / A3720 / A3721 | 記載なし | 記載なし | 記載なし | 製品グループ一致 | 公式製品グループに含まれることを確認。内部IDと地域別A番号の厳密な組は公式資料だけでは未確認。
+Aモデル番号 | modelNumbersByIdentifier/iPhone19,7 | A3716 / A3717 / A3718 | A3473 / A3716 / A3717 / A3718 | A3716 / A3717 / A3718 | 記載なし | 記載なし | 記載なし | 製品グループ一致 | 公式製品グループに含まれることを確認。内部IDと地域別A番号の厳密な組は公式資料だけでは未確認。
+Aモデル番号 | modelNumbersByIdentifier/Watch8,1 | A3579 / A3580 | A3579 / A3580 | A3579 / A3580 | 記載なし | 記載なし | 記載なし | 製品グループ一致 | 公式製品グループに含まれることを確認。内部IDと地域別A番号の厳密な組は公式資料だけでは未確認。
+Aモデル番号 | modelNumbersByIdentifier/Watch8,2 | A3581 / A3583 | A3581 / A3583 | A3581 / A3583 | 記載なし | 記載なし | 記載なし | 製品グループ一致 | 公式製品グループに含まれることを確認。内部IDと地域別A番号の厳密な組は公式資料だけでは未確認。
+Aモデル番号 | modelNumbersByIdentifier/Watch8,3 | A3584 / A3585 | A3584 / A3585 | A3584 / A3585 | 記載なし | 記載なし | 記載なし | 製品グループ一致 | 公式製品グループに含まれることを確認。内部IDと地域別A番号の厳密な組は公式資料だけでは未確認。
+Aモデル番号 | modelNumbersByIdentifier/Watch8,4 | A3582 / A3586 | A3582 / A3586 | A3582 / A3586 | 記載なし | 記載なし | 記載なし | 製品グループ一致 | 公式製品グループに含まれることを確認。内部IDと地域別A番号の厳密な組は公式資料だけでは未確認。
+Aモデル番号 | modelNumbersByIdentifier/Watch8,5 | A3587 / A3588 | A3587 / A3588 | A3587 / A3588 | 記載なし | 記載なし | 記載なし | 製品グループ一致 | 公式製品グループに含まれることを確認。内部IDと地域別A番号の厳密な組は公式資料だけでは未確認。
+SIM別容量(mAh) | iPhone 17/esim | 3692 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | eSIM公式値未確認 | 物理SIMとeSIMは別の構成。EU物理SIMの定格値をeSIMへ流用しない。
+SIM別容量(mAh) | iPhone 17/physicalSIM | 3692 | 3692 | 記載なし | 記載なし | 記載なし | 記載なし | EU物理SIM値と一致 | 物理SIMとeSIMは別の構成。EU物理SIMの定格値をeSIMへ流用しない。
+SIM別容量(mAh) | iPhone 17e/esim | 4005 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | eSIM公式値未確認 | 物理SIMとeSIMは別の構成。EU物理SIMの定格値をeSIMへ流用しない。
+SIM別容量(mAh) | iPhone 17e/physicalSIM | 4005 | 4005 | 記載なし | 記載なし | 記載なし | 記載なし | EU物理SIM値と一致 | 物理SIMとeSIMは別の構成。EU物理SIMの定格値をeSIMへ流用しない。
+SIM別容量(mAh) | iPhone 17 Pro/esim | 4252 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | eSIM公式値未確認 | 物理SIMとeSIMは別の構成。EU物理SIMの定格値をeSIMへ流用しない。
+SIM別容量(mAh) | iPhone 17 Pro/physicalSIM | 3988 | 3988 | 記載なし | 記載なし | 記載なし | 記載なし | EU物理SIM値と一致 | 物理SIMとeSIMは別の構成。EU物理SIMの定格値をeSIMへ流用しない。
+SIM別容量(mAh) | iPhone 17 Pro Max/esim | 5088 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | eSIM公式値未確認 | 物理SIMとeSIMは別の構成。EU物理SIMの定格値をeSIMへ流用しない。
+SIM別容量(mAh) | iPhone 17 Pro Max/physicalSIM | 4823 | 4823 | 記載なし | 記載なし | 記載なし | 記載なし | EU物理SIM値と一致 | 物理SIMとeSIMは別の構成。EU物理SIMの定格値をeSIMへ流用しない。
+SIM別容量(mAh) | iPhone 18 Pro/esim | 4288 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | eSIM公式値未確認 | 物理SIMとeSIMは別の構成。EU物理SIMの定格値をeSIMへ流用しない。
+SIM別容量(mAh) | iPhone 18 Pro/physicalSIM | 4056 | 4056 | 記載なし | 記載なし | 記載なし | 記載なし | EU物理SIM値と一致 | 物理SIMとeSIMは別の構成。EU物理SIMの定格値をeSIMへ流用しない。
+SIM別容量(mAh) | iPhone 18 Pro Max/esim | 5567 | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | eSIM公式値未確認 | 物理SIMとeSIMは別の構成。EU物理SIMの定格値をeSIMへ流用しない。
+SIM別容量(mAh) | iPhone 18 Pro Max/physicalSIM | 5391 | 5391 | 記載なし | 記載なし | 記載なし | 記載なし | EU物理SIM値と一致 | 物理SIMとeSIMは別の構成。EU物理SIMの定格値をeSIMへ流用しない。
+容量の別名参照 | Apple Watch 12 (42mm) Cellular | Apple Watch 12 (42mm) | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | 等容量か未確認 | GPS/Cellularで同容量かどうかを確認した公式資料はない。
+容量の別名参照 | Apple Watch 12 (46mm) Cellular | Apple Watch 12 (46mm) | 記載なし | 記載なし | 記載なし | 記載なし | 記載なし | 等容量か未確認 | GPS/Cellularで同容量かどうかを確認した公式資料はない。
+地域の判定 | 物理SIM/eSIMの自動選択 | CH/A・ZP/Aのみ物理SIM。それ以外・情報なしはeSIM。 | EU物理SIMモデルが存在 | 記載なし | 記載なし | 記載なし | 記載なし | 判定範囲・要確認 | 容量表自体の誤りとは別。EUなどの物理SIMモデルを自動選択できるか確認が必要。
