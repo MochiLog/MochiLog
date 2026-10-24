@@ -76,7 +76,8 @@ begin
         sleep 3
       end
       state = image.dig("attributes", "state")
-      raise "Image #{File.basename(file)} is #{state}" if %w[FAILED AWAITING_UPLOAD UPLOAD_COMPLETE].include?(state)
+      ready_states = %w[PREPARE_FOR_SUBMISSION READY_FOR_REVIEW WAITING_FOR_REVIEW IN_REVIEW ACCEPTED APPROVED]
+      raise "Image #{File.basename(file)} is not ready: #{state}" unless ready_states.include?(state)
       result = {device: device, group: group, locale: locale, filename: File.basename(file), imageID: id, imageState: state, targetVersion: version}
       unless editable
         results << result.merge(placementState: "WAITING_FOR_EDITABLE_VERSION")
@@ -90,10 +91,16 @@ begin
         placementType: "APP_SCREENSHOT", placementGroup: group}, relationships: {
         image: {data: {type: "appAssetLibraryImages", id: id}},
         appStoreVersionLocalization: {data: {type: "appStoreVersionLocalizations", id: localization}}}}).fetch("data")
-      saved_placement = api.get("/appAssetLibraryPlacements/#{placement.fetch('id')}", "include" => "appStoreVersionLocalization,image").fetch("data")
+      saved_placement = nil
+      30.times do
+        saved_placement = api.get("/appAssetLibraryPlacements/#{placement.fetch('id')}", "include" => "appStoreVersionLocalization,image").fetch("data")
+        File.write(File.join(File.dirname(result_path), "#{device}-latest-placement.json"), JSON.pretty_generate(saved_placement))
+        break if saved_placement.dig("attributes", "state") == "PARENT_PREPARE_FOR_SUBMISSION"
+        sleep 3
+      end
       raise "Placement has wrong device group" unless saved_placement.dig("attributes", "placementGroup") == group
       raise "Placement has wrong store localization" unless saved_placement.dig("relationships", "appStoreVersionLocalization", "data", "id") == localization
-      raise "Placement has not finished processing" unless saved_placement.dig("attributes", "state") == "PARENT_PREPARE_FOR_SUBMISSION"
+      raise "Placement has not finished processing: #{saved_placement.dig('attributes', 'state')}" unless saved_placement.dig("attributes", "state") == "PARENT_PREPARE_FOR_SUBMISSION"
       results << result.merge(placementID: placement.fetch("id"), placementState: saved_placement.dig("attributes", "state"))
       puts "Registered #{locale}/#{File.basename(file)} (#{state})"
       File.write(result_path, JSON.pretty_generate(results))
