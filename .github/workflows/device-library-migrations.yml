@@ -26,8 +26,7 @@ jobs:
           bash scripts/build-local-diagnostics.sh
       - name: Create disposable test simulator
         run: |
-          runtime=$(xcrun simctl list runtimes -j | python3 -c 'import json,sys; r=[x for x in json.load(sys.stdin)["runtimes"] if x.get("isAvailable") and ".iOS-" in x["identifier"]]; print(max(r,key=lambda x:tuple(map(int,x["version"].split("."))))["identifier"])')
-          simulator=$(xcrun simctl create "MochiLog migration verification" com.apple.CoreSimulator.SimDeviceType.iPhone-17 "$runtime")
+          simulator=$(python3 scripts/create-migration-simulator.py)
           echo "MIGRATION_SIMULATOR=$simulator" >> "$GITHUB_ENV"
       - name: Verify real CoreData and SwiftData transactions
         run: |
