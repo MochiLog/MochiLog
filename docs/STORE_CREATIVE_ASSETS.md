@@ -53,6 +53,9 @@ specification, then places each image on the exact locale and surface.
 Both creative surfaces use `DEFAULT_PROFILE`. Replacements must be scoped to the
 individual placement type; deleting/reordering the entire group could remove the
 other image. Screenshot groups and public-version placements are left untouched.
+For a changed creative image, the uploader waits until Apple's processing has
+finished before replacing the draft's old reference. It retains the old library
+image and restores its reference if the new placement request fails.
 
 Run **Prepare App Store release (no submission)** in `verify` mode. It checks the
 selected build and metadata, all 40 screenshots including both Duo poses, and the
