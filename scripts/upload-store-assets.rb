@@ -70,9 +70,11 @@ begin
         api.patch("/appAssetLibraryImages/#{image.fetch('id')}", data: {type: "appAssetLibraryImages", id: image.fetch("id"), attributes: {uploaded: true}})
       end
       id = image.fetch("id")
-      30.times do
+      120.times do |attempt|
         image = api.get("/appAssetLibraryImages/#{id}").fetch("data")
+        File.write(File.join(File.dirname(result_path), "#{device}-latest-image.json"), JSON.pretty_generate(image))
         break unless %w[AWAITING_UPLOAD UPLOAD_COMPLETE].include?(image.dig("attributes", "state"))
+        puts "Waiting for #{locale}/#{File.basename(file)} processing: #{image.dig('attributes', 'state')}" if (attempt % 10).zero?
         sleep 3
       end
       state = image.dig("attributes", "state")
@@ -95,12 +97,15 @@ begin
       30.times do
         saved_placement = api.get("/appAssetLibraryPlacements/#{placement.fetch('id')}", "include" => "appStoreVersionLocalization,image").fetch("data")
         File.write(File.join(File.dirname(result_path), "#{device}-latest-placement.json"), JSON.pretty_generate(saved_placement))
-        break if saved_placement.dig("attributes", "state") == "PARENT_PREPARE_FOR_SUBMISSION"
+        break if %w[ACTIVE PARENT_PREPARE_FOR_SUBMISSION].include?(saved_placement.dig("attributes", "state"))
         sleep 3
       end
       raise "Placement has wrong device group" unless saved_placement.dig("attributes", "placementGroup") == group
       raise "Placement has wrong store localization" unless saved_placement.dig("relationships", "appStoreVersionLocalization", "data", "id") == localization
-      raise "Placement has not finished processing: #{saved_placement.dig('attributes', 'state')}" unless saved_placement.dig("attributes", "state") == "PARENT_PREPARE_FOR_SUBMISSION"
+      # The deployed API can return ACTIVE while newer API documentation uses
+      # PARENT_PREPARE_FOR_SUBMISSION. Both require the verified editable parent,
+      # ready image and exact localization/group relationships checked above.
+      raise "Placement has not finished processing: #{saved_placement.dig('attributes', 'state')}" unless %w[ACTIVE PARENT_PREPARE_FOR_SUBMISSION].include?(saved_placement.dig("attributes", "state"))
       results << result.merge(placementID: placement.fetch("id"), placementState: saved_placement.dig("attributes", "state"))
       puts "Registered #{locale}/#{File.basename(file)} (#{state})"
       File.write(result_path, JSON.pretty_generate(results))
