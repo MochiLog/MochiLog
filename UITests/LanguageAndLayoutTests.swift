@@ -1361,6 +1361,36 @@ final class LanguageAndLayoutTests: XCTestCase {
   }
 
   private func screenshot(_ name: String) {
+    if name.hasPrefix("store_"), UIDevice.current.userInterfaceIdiom == .phone,
+      app.frame.width > 600
+    {
+      // The open Duo can keep the outer screen as XCTest's primary display.
+      // Capture its actual active inner screen instead of an empty app crop.
+      let captures = XCUIScreen.screens.map { $0.screenshot() }
+      guard let capture = captures.first(where: { snapshot in
+        guard let image = snapshot.image.cgImage,
+          min(image.width, image.height) >= 2000,
+          max(image.width, image.height) >= 2800
+        else { return false }
+        var pixels = [UInt8](repeating: 0, count: 16 * 16 * 4)
+        guard let context = CGContext(
+          data: &pixels, width: 16, height: 16, bitsPerComponent: 8, bytesPerRow: 64,
+          space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
+        else { return false }
+        context.draw(image, in: CGRect(x: 0, y: 0, width: 16, height: 16))
+        return stride(from: 0, to: pixels.count, by: 4).contains {
+          max(pixels[$0], pixels[$0 + 1], pixels[$0 + 2]) > 20
+        }
+      }) else {
+        XCTFail("No readable inner Duo screenshot among \(captures.count) active displays")
+        return
+      }
+      let attachment = XCTAttachment(screenshot: capture)
+      attachment.name = name
+      attachment.lifetime = .keepAlways
+      add(attachment)
+      return
+    }
     let attachment = XCTAttachment(
       screenshot: name.hasPrefix("store_") ? app.screenshot() : XCUIScreen.main.screenshot())
     attachment.name = name
