@@ -8,7 +8,7 @@ app = "6756904240"
 mode = ENV.fetch("RELEASE_MODE", "inspect")
 version = ENV.fetch("MARKETING_VERSION", "4.0.0")
 build = ENV.fetch("BUILD_NUMBER", "1060")
-raise "Unknown mode" unless %w[inspect prepare].include?(mode)
+raise "Unknown mode" unless %w[inspect prepare verify].include?(mode)
 output = File.expand_path("../build/appstore-release", __dir__)
 FileUtils.mkdir_p(output)
 versions = api.get("/apps/#{app}/appStoreVersions", "limit" => "50")
@@ -55,7 +55,7 @@ if mode == "prepare"
     raise "Invalid note size" unless notes.length.between?(10, 4000)
     localization_id = item.fetch("id")
     api.patch("/appStoreVersionLocalizations/#{localization_id}", data: {type: "appStoreVersionLocalizations", id: localization_id, attributes: {whatsNew: notes, description: File.read(File.expand_path("../fastlane/metadata/#{locale}/description.txt", __dir__), encoding: "UTF-8").strip}})
-    puts "Saved #{locale} release notes; existing store description retained"
+    puts "Saved #{locale} release notes and description"
   end
   detail = api.get("/appStoreVersions/#{id}/appStoreReviewDetail").fetch("data")
   raise "No review contact details" unless detail
@@ -74,4 +74,57 @@ if mode == "prepare"
   end
   File.write(File.join(output, "prepared-version.json"), JSON.pretty_generate(api.get("/appStoreVersions/#{id}", "include" => "build,appStoreVersionLocalizations,appStoreReviewDetail")))
   puts "Prepared #{version}; NO review submission was created or submitted"
+end
+
+if mode == "verify"
+  raise "No #{version} draft exists" unless selected
+  state = selected.dig("attributes", "appVersionState") || selected.dig("attributes", "appStoreState")
+  raise "Version is no longer an unsubmitted draft: #{state}" unless state == "PREPARE_FOR_SUBMISSION"
+  selected_build = api.get("/appStoreVersions/#{selected.fetch('id')}/build").fetch("data")
+  unless selected_build&.dig("attributes", "version") == build && selected_build.dig("attributes", "processingState") == "VALID"
+    raise "Expected valid build #{build} is not selected"
+  end
+
+  groups = {
+    "duo" => "IPHONE_DUO_PROFILE",
+    "iphone" => "IPHONE_DYNAMIC_ISLAND_LARGE_PROFILE",
+    "ipad" => "IPAD_13_PROFILE",
+    "watch" => "WATCH_SERIES_10_PROFILE"
+  }
+  locales = api.get("/appStoreVersions/#{selected.fetch('id')}/appStoreVersionLocalizations", "limit" => "200").fetch("data")
+  report = {version: version, build: build, state: state, locales: {}}
+  %w[ja en-US].each do |locale|
+    localization = locales.find { |item| item.dig("attributes", "locale") == locale }
+    raise "Missing #{locale} localization" unless localization
+    {"whatsNew" => "release_notes.txt", "description" => "description.txt"}.each do |attribute, filename|
+      expected = File.read(File.expand_path("../fastlane/metadata/#{locale}/#{filename}", __dir__), encoding: "UTF-8").strip
+      raise "#{locale} #{attribute} differs from the committed metadata" unless localization.dig("attributes", attribute).to_s.strip == expected
+    end
+    placements = api.get("/appStoreVersionLocalizations/#{localization.fetch('id')}/placements",
+      "limit" => "200", "sort" => "placementGroupPosition", "include" => "image")
+    raise "Unexpected screenshot pagination" if placements.dig("links", "next")
+    images = placements.fetch("included", []).select { |item| item["type"] == "appAssetLibraryImages" }.to_h { |item| [item.fetch("id"), item] }
+    report[:locales][locale] = {}
+    groups.each do |device, group|
+      rows = placements.fetch("data").select do |item|
+        item.dig("attributes", "placementType") == "APP_SCREENSHOT" && item.dig("attributes", "placementGroup") == group
+      end
+      raise "#{locale} #{device}: expected four actual placements, got #{rows.size}" unless rows.size == 4
+      expected_order = device == "watch" ? %w[01_devices 02_logs 03_health 04_metrics] : %w[01_home 02_details 03_analytics 04_settings]
+      filenames = rows.zip(expected_order).map do |placement, screen|
+        raise "#{locale} #{device}: placement is not active" unless %w[ACTIVE PARENT_PREPARE_FOR_SUBMISSION].include?(placement.dig("attributes", "state"))
+        raise "#{locale} #{device}: wrong target localization" unless placement.dig("relationships", "appStoreVersionLocalization", "data", "id") == localization.fetch("id")
+        image = images.fetch(placement.dig("relationships", "image", "data", "id"))
+        name = image.dig("attributes", "fileName")
+        raise "#{locale} #{device}: wrong image order" unless name&.end_with?("#{screen}.png")
+        prefix = "MochiLog #{version} #{device} #{locale} "
+        raise "#{locale} #{device}: screenshots were inherited from another release" unless image.dig("attributes", "referenceName").to_s.start_with?(prefix)
+        name
+      end
+      report[:locales][locale][device] = filenames
+      puts "Verified #{version} #{locale}: #{device}, four ordered screenshots"
+    end
+  end
+  File.write(File.join(output, "verified-release.json"), JSON.pretty_generate(report))
+  puts "Verified build, localized metadata and all device groups, including Duo. NO review submitted."
 end

@@ -5,7 +5,7 @@ on:
       mode:
         type: choice
         default: inspect
-        options: [inspect, prepare]
+        options: [inspect, prepare, verify]
       marketing_version:
         type: string
         default: '4.0.0'
@@ -24,7 +24,7 @@ jobs:
         with:
           ruby-version: '3.3'
       - run: gem install jwt --no-document
-      - name: Inspect or publish the selected version
+      - name: Inspect, prepare or verify the selected version without submitting
         env:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
