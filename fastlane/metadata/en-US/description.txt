@@ -1,0 +1,19 @@
+MochiLog helps you record battery changes using analytics files from iPhone, iPad and Apple Watch.
+
+Review capacity, cycle count, temperature and other available log data in device-specific history and charts. Import multiple files, select and delete records, and export or import your data. Optional iCloud sync shares records between devices using the same Apple Account.
+
+Automatic log collection in 4.0.0
+Pair with the Mac or Windows companion to receive encrypted daily analytics files collected by your computer. Analysis and record creation happen on the mobile device. Apple Watch logs stored on an iPhone are supported. Manual import remains available without a computer.
+
+The optional Live Battery tab shows current capacity, cycle count and other available readings, with the last acquisition time. These values are not saved to history or iCloud.
+
+On-device Collection is an optional experimental feature requiring a compatible local VPN/reflector route and OS pairing. It can be enabled independently from PC Transfer. Background acquisition is attempted when permitted by the OS; execution time and frequency are not guaranteed.
+
+Requirements
+• Core record management: iOS/iPadOS 16 or later
+• iCloud sync: 17 or later
+• PC Transfer: 27 or later, with macOS 27 or later, or Windows 11
+• On-device Collection: 17 or later. Initial pairing entirely on the device requires 27 or later and Developer Mode
+• Daily log collection requires an unlocked device and generated analytics data
+
+Available in Japanese, English, Simplified Chinese, Traditional Chinese, Korean, Spanish, French and German. Tips are optional. Readings are informational and do not replace Apple diagnostics or repair and warranty guidance.

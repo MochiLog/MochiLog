@@ -5,10 +5,10 @@ on:
       mode:
         type: choice
         default: inspect
-        options: [inspect, upload-duo]
+        options: [inspect, upload-duo, upload-iphone, upload-ipad, upload-watch]
       store_version:
         type: string
-        default: '3.2.2'
+        default: '4.0.0'
 permissions:
   contents: read
 jobs:
@@ -29,7 +29,10 @@ jobs:
           APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
         run: |
           ruby scripts/inspect-store-assets.rb
-          if [ "$ASSET_MODE" = upload-duo ]; then ruby scripts/upload-duo-store-assets.rb; fi
+          if [[ "$ASSET_MODE" == upload-* ]]; then
+            export STORE_DEVICE="${ASSET_MODE#upload-}"
+            ruby scripts/upload-store-assets.rb
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:

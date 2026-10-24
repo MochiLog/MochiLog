@@ -1,0 +1,15 @@
+MochiLog 4.0.0 — App Review guide
+
+No account or login is required. On a fresh installation, open Sample Mode on Home to load sample records and inspect Home, Details, charts, settings, and the Watch companion. The main app supports iOS/iPadOS 16+, and optional iCloud synchronization requires 17+. Existing manual analytics-file import remains available without a computer or VPN.
+
+New optional integrations are disabled by default. Settings → Automatic Log Collection contains two independent methods:
+• PC Transfer: iOS/iPadOS 27+, with MochiLog Mac 1.0.0 (macOS 27+) or MochiLog Windows 1.0.0 (Windows 11). Free companion downloads are linked in the guide. Initial USB trust or existing OS pairing is required, followed by an app QR/confirmation-code pairing. The PC collects the user's generated analytics while the device is unlocked and sends files encrypted. Parsing and history storage occur on the mobile device.
+• Experimental On-device Collection: iOS/iPadOS 17+, a compatible local VPN/reflector route, and the user's OS pairing credentials. Credentials can be imported explicitly or transferred encrypted from a paired PC. Initial pairing entirely on the device requires iOS/iPadOS 27+ and Developer Mode, including restart and OS confirmation. OS trust confirmation cannot be bypassed. This method is optional; no VPN profile is installed by MochiLog. Background acquisition is attempted only when permitted by iOS, with the device unlocked and a compatible route available.
+
+Live Battery is also off by default. Enable its tab in Advanced Settings. Values are current readings, not a medical/service diagnostic, and are not retained as history or synchronized to iCloud. Standard encrypted communication, explicit sharing permission and device identities preserve the source of records. Neither pairing credentials nor analytics are sent to a developer server. Users can inspect diagnostics and choose support attachments.
+
+Downloads and support: https://mochilog.ryuya-dev.net/guide
+Mac: https://github.com/MochiLog/MochiLog-Mac/releases
+Windows: https://github.com/MochiLog/MochiLog-Windows/releases
+
+日本語: 初回はホームのサンプルモードで記録・詳細・分析・設定を確認できます。アカウントは不要です。新しいPC連携・端末内取得・現在のバッテリー表示は任意で、初期状態はオフです。従来の手動読み込みはPCやVPNなしで利用できます。PC連携はiOS/iPadOS 27以降、端末内取得は17以降に対応します。27以降の端末内初回ペアリングにはDeveloper Modeの有効化・再起動・OSの承認が必要です。日次ログの取得には解析データの生成と端末のロック解除が必要です。すべてアプリ内に手順と条件を記載しています。

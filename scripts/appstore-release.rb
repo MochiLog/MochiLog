@@ -29,6 +29,11 @@ if selected
     data = api.get("/appStoreVersions/#{id}/#{relationship}", relationship == "appStoreVersionLocalizations" ? {"limit" => "200"} : {})
     File.write(File.join(output, "#{relationship}.json"), JSON.pretty_generate(data))
   end
+  locales = api.get("/appStoreVersions/#{id}/appStoreVersionLocalizations", "limit" => "200").fetch("data")
+  locales.each do |locale|
+    placements = api.get("/appStoreVersionLocalizations/#{locale.fetch('id')}/placements", "limit" => "200", "sort" => "placementGroupPosition", "include" => "image")
+    File.write(File.join(output, "placements-#{locale.dig('attributes', 'locale')}.json"), JSON.pretty_generate(placements))
+  end
 end
 # Preparing metadata never creates/submits a review request. The user presses
 # the review submission button after checking the completed version in ASC.
@@ -49,9 +54,14 @@ if mode == "prepare"
     notes = File.read(File.expand_path("../fastlane/metadata/#{locale}/release_notes.txt", __dir__), encoding: "UTF-8").strip
     raise "Invalid note size" unless notes.length.between?(10, 4000)
     localization_id = item.fetch("id")
-    api.patch("/appStoreVersionLocalizations/#{localization_id}", data: {type: "appStoreVersionLocalizations", id: localization_id, attributes: {whatsNew: notes}})
+    api.patch("/appStoreVersionLocalizations/#{localization_id}", data: {type: "appStoreVersionLocalizations", id: localization_id, attributes: {whatsNew: notes, description: File.read(File.expand_path("../fastlane/metadata/#{locale}/description.txt", __dir__), encoding: "UTF-8").strip}})
     puts "Saved #{locale} release notes; existing store description retained"
   end
+  detail = api.get("/appStoreVersions/#{id}/appStoreReviewDetail").fetch("data")
+  raise "No review contact details" unless detail
+  detail_id = detail.fetch("id")
+  api.patch("/appStoreReviewDetails/#{detail_id}", data: {type: "appStoreReviewDetails", id: detail_id,
+    attributes: {notes: File.read(File.expand_path("../fastlane/review_notes.txt", __dir__), encoding: "UTF-8").strip}})
   uploaded = builds.fetch("data").find { |x| x.dig("attributes", "version") == build && x.dig("attributes", "processingState") == "VALID" }
   if uploaded
     prerelease_id = uploaded.dig("relationships", "preReleaseVersion", "data", "id")

@@ -27,3 +27,5 @@ Pods/
 *.moved-aside
 *.xccheckout
 *.xcscmblueprint
+# Generated Python bytecode
+__pycache__/
