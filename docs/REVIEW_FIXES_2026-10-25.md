@@ -104,7 +104,7 @@ The user presses the review-submission button after the replacement is verified.
 - Signed build/upload: [40115982768](https://github.com/MochiLog/MochiLog/actions/runs/40115982768), source `a126c4c`.
 - Japanese/English TestFlight notes and internal groups: [40116735836](https://github.com/MochiLog/MochiLog/actions/runs/40116735836), notes mode only (no beta review submission).
 - Store selection and localized notes: [40116897786](https://github.com/MochiLog/MochiLog/actions/runs/40116897786).
-- Final store verification: [40116940195](https://github.com/MochiLog/MochiLog/actions/runs/40116940195), 4.0.0 (1061) VALID and selected; `DEVELOPER_REJECTED`, not resubmitted.
+- Final store verification: [40116940195](https://github.com/MochiLog/MochiLog/actions/runs/40116940195), 4.0.0 (1061) VALID and selected; final state `PREPARE_FOR_SUBMISSION`, not resubmitted. The earlier withdrawal returned `DEVELOPER_REJECTED` before replacement selection.
 - Both locales retain 8 Duo screenshots (4 inner + 4 outer), 4 iPhone, 4 iPad and 4 Watch screenshots, plus the header and search assets.
 - IPA SHA-256: `5a078f5cf305e2da6af03c30cdc674483d9780a43f2cb46a1b407e170f1d284e`. Main app, extension and Watch all report 4.0.0 (1061). Both App Group profiles were checked; no XCTest bundle is in the IPA.
 - The disposable simulator and its derived build outputs were removed after verification. Screenshots, test results and the signed artifact remain under ignored `build/review-2026-10-25/`.
