@@ -218,10 +218,10 @@ func drawArtwork(source: NSImage, kind: String, message: Message, index: Int, de
 
   let screenshotY: CGFloat = isWatch ? 155 : (isDuo ? 470 * scale : (kind == "ipad" ? 720 : 765))
   let screenshotWidth =
-    isDuo
+    (isDuo || isWatch)
     ? min(
-      canvas.width - 120 * scale,
-      (canvas.height - screenshotY - 70 * scale) * canvas.width / canvas.height)
+      canvas.width - (isWatch ? 40 : 120 * scale),
+      (canvas.height - screenshotY - (isWatch ? 20 : 70 * scale)) * canvas.width / canvas.height)
     : canvas.width - 2 * (isWatch ? 20 : (kind == "ipad" ? 115 : 93))
   let screenshotX = (canvas.width - screenshotWidth) / 2
   let screenshotHeight = screenshotWidth * canvas.height / canvas.width
