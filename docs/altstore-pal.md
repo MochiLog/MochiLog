@@ -5,7 +5,7 @@
 - iOS: https://github.com/MochiLog/MochiLog （ローカル `/Users/ryuya/Documents/MochiLog`）
 - Web: `/Users/ryuya/Documents/MochiLog-Web` （origin は `git remote -v` で確認）
 - 共通source: https://github.com/ryuya0124/ryuya-altstore
-- sourceローカル: `/Users/ryuya/Documents/Codex/2026-09-21/https-github-com-ryuya0124-rytmica-https/work/ryuya-altstore`
+- sourceローカル: 共通sourceを任意の作業ディレクトリへcloneし、`git remote -v`で公開先を確認する。過去の一時作業パスには依存しない。
 - ポータル: https://altstore.ryuya-dev.net/
 - Source URL: https://altstore.ryuya-dev.net/altstore/source.json
 - Worker: `ryuya-altstore` / 非公開R2: `ryuya-altstore-packages`
@@ -26,12 +26,12 @@ SimulatorのDebugビルド限定で `MOCHI_TEST_DISTRIBUTOR=appStore|testFlight|
 
 ## 新規配信と更新手順
 
-1. 変更をテストし、App Storeと同じBundle IDで新バージョン/ビルドをXcode 27 stableでarchiveする。Duo専用作業だけXcode 27.1を使用。
+1. 変更をテストし、App Storeと同じBundle IDで新バージョン/ビルドをXcode 27.1 stable以降の提出可能なバージョンでarchiveする。Duoも同じリリースの画面撮影・配置確認に必ず含める。
 2. FastlaneでApp Store Connectへアップロードし、該当版のビルドと日英リリースノートを登録する。既存の説明やスクリーンショットを消さない。
 3. 通常のApp Review承認による自動公証を待つ。PALだけのNotarizationへ変更しない。
 4. Alternative Distribution Package IDを取得し、`https://api.altstore.io/adps/ADP_ID` を照会。通知による自動処理を待つ。自動処理が失敗した場合だけ、共通sourceの `docs/ADDING-ANOTHER-APP.md` に従い手動処理する。
 5. ADPをダウンロード・展開。manifest/署名/階層/内容を一切変更しない。App Store用IPAを代用しない。
-6. ADP内の全アプリ・拡張のEntitlementsと `*UsageDescription`、最低OS、version/build、variant実ファイルサイズとSHA-256を確認・記録する。現時点の空appPermissionsは未配信のプレースホルダーであり、公開versionを追加する前に必ず実ADPから埋める。
+6. ADP内の全アプリ・拡張のEntitlementsと `*UsageDescription`、最低OS、version/build、variant実ファイルサイズとSHA-256を確認・記録する。配信済みのappPermissionsを推測で増減しない。暗号化ADPから直接抽出できない場合は、AppleのsourceFileChecksumが完全一致した提出元IPAから全アプリ・拡張の権限を取得する（この代替照合はユーザー承認済み）。4.0.0は3.2.2から機能と拡張が増えているため、必ず再照合する。
 7. 共通sourceで `node scripts/upload-adp.mjs net.ryuya-dev.MochiLog VERSION-BUILD /absolute/ADP-root`。新規release keyを使い、配信済みR2オブジェクトを上書きしない。
 8. `src/source.json` のMochiLogだけを更新。新versionを先頭に追加し、downloadURLを `https://altstore.ryuya-dev.net/packages/net.ryuya-dev.MochiLog/VERSION-BUILD/manifest.json` にする。Rytmicaを含む他アプリを保持。
 9. `pnpm run check && pnpm run build && git diff --check` → commit/push → `pnpm run deploy`。source・manifestの公開応答を確認。
@@ -82,3 +82,13 @@ SimulatorのDebugビルド限定で `MOCHI_TEST_DISTRIBUTOR=appStore|testFlight|
 - R2の新しい`packages/net.ryuya-dev.MochiLog/3.2.2-1018/`に35ファイルをステージ。**同じrelease keyへ再アップロードしないこと。**
 - sourceの先頭に3.2.2 (1018)を追加し、3.2.1 (1015)は旧版として保持。ポータルの版表示も更新。公開source、manifestのSHA-256、全35ファイルのHTTP HEAD、variantのRange取得を確認。
 - ローカル証跡: `build/altstore-pal/3.2.2-1018/`。期限付きdownloadURLは保存していない。PAL実機でのインストール・起動・更新は未検証。
+
+
+## 2026-10-24: 4.0.0 (1060) の提出準備
+
+- mainへ開発内容を統合。Xcode 27.1で署名したApp Store用4.0.0 (1060)をアップロードし、App Store Connectの4.0.0へ選択済み。
+- 日英リリースノート・説明・審査メモを更新。審査提出ボタンはユーザーが押す運用のため、この段階でレビューは送信しない。
+- 公開PAL sourceの最新版は引き続き3.2.2 (1018)。4.0.0は承認後の公証ADP取得から進める。未承認版やApp Store用IPAをsourceへ追加しない。
+- Apple承認後、1060のsourceFileChecksumと提出IPAのSHA-256、ADP内manifestの版・Bundle ID、variantの実サイズ・SHA-256を再確認する。`4.0.0-1060`の新しいR2キーを使い、配信済みファイルを上書きしない。
+- 今回追加された診断・ネットワーク・端末内取得関連の権限とUsage Descriptionを、提出IPAの全アプリ・拡張から再取得する。旧版の一覧を無検証で流用しない。
+- 承認とADP確認が終わるまでWebやsourceを「PAL 4.0.0配信中」に変更しない。
