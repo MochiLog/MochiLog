@@ -18,7 +18,7 @@ iPhone・iPadの解析ログから容量と充放電回数を記録し、履歴�
 
 ログの生成や取得できる項目は機種とOSで異なります。値は参考情報で、Appleの公式診断や修理判断を代替しません。
 
-## 4.0.0ベータのPC連携
+## 4.0.0のPC連携
 
 [MochiLog Mac](https://github.com/MochiLog/MochiLog-Mac/releases)と[MochiLog Windows](https://github.com/MochiLog/MochiLog-Windows/releases)が日次のバッテリー解析ログを収集し、スマホでアプリを開いたときに暗号化して転送します。解析と記録はスマホ側で行います。スマホはiOS/iPadOS 27、MacはmacOS 27、WindowsはWindows 11が対象です。PC連携を設定しなくても通常の手動読み込みは使えます。
 
@@ -30,7 +30,7 @@ iPhone・iPadの解析ログから容量と充放電回数を記録し、履歴�
 
 **設定 → 自動ログ収集 → 端末内取得**を有効にすると、対応するVPN経路で自分の端末からログを取得できます。iOS/iPadOS 17以降に対応し、27以降ではDeveloper Modeを有効にして端末内で初回ペアリングも行えます。
 
-1050では、端末がロック解除されVPNが接続中なら、MochiLogを表示していない間もOSが許可したタイミングで取得を試みます。完成したファイルは次にアプリを開いた時に解析・記録します。時間切れでも取得済みファイルを引き継ぎ、既存の重複チェックを使います。実行時刻・間隔は保証されず、アプリを強制終了すると次の起動まで自動取得は止まります。PC連携とは独立して切り替えられます。
+端末がロック解除されVPNが接続中なら、MochiLogを表示していない間もOSが許可したタイミングで取得を試みます。完成したファイルは次にアプリを開いた時に解析・記録します。時間切れでも取得済みファイルを引き継ぎ、既存の重複チェックを使います。実行時刻・間隔は保証されず、アプリを強制終了すると次の起動まで自動取得は止まります。PC連携とは独立して切り替えられます。
 
 ## 言語と対応環境
 
@@ -42,9 +42,9 @@ iPhone・iPadの解析ログから容量と充放電回数を記録し、履歴�
 
 MochiLog turns imported iPhone and iPad Analytics files into battery records and trend charts. Manual import works without a computer. Optional iCloud sync and viewing records on a paired Apple Watch are also available.
 
-The 4.0.0 beta supports encrypted daily-log transfer from a Mac (macOS 27) or Windows 11 to mobile (iOS/iPadOS 27). An optional **Live Battery** tab shows current cycle count and capacity through your existing computer pairing. Enable it in Advanced Settings; it is off by default. It refreshes while open, displays friendly model names, combines identical readings from multiple computers and compares only differences. Each source retains its acquisition time, missing fields and outdated state. Current values are not saved to history, records or iCloud.
+MochiLog 4.0.0 supports encrypted daily-log transfer from a Mac (macOS 27) or Windows 11 to mobile (iOS/iPadOS 27). An optional **Live Battery** tab shows current cycle count and capacity through your existing computer pairing. Enable it in Advanced Settings; it is off by default. It refreshes while open, displays friendly model names, combines identical readings from multiple computers and compares only differences. Each source retains its acquisition time, missing fields and outdated state. Current values are not saved to history, records or iCloud.
 
-In the upcoming beta update, on-device collection and current readings target iOS/iPadOS 17+, while device-only initial pairing requires 27+. Earlier versions import a pairing file; 17.0–17.3 use Lockdown format and 17.4+ can use RPPairing. First-time OS approval and older-OS real-device validation remain pending. Computer collection still requires 27+.
+On-device collection and current readings target iOS/iPadOS 17+, while device-only initial pairing requires 27+. Earlier versions import a pairing file; 17.0–17.3 use Lockdown format and 17.4+ can use RPPairing. First-time OS approval is required; older-OS real-device validation remains pending. Computer collection still requires 27+.
 
 See the [live-value guide](docs/LIVE_BATTERY.md) and desktop user guides linked above. Build and test notes from the earlier development branch are preserved in [developer documentation](docs/README_20260908_DEVELOPMENT.md).
 
@@ -52,6 +52,6 @@ See the [live-value guide](docs/LIVE_BATTERY.md) and desktop user guides linked 
 
 Devices paired with the same PC can also receive each other’s logs when both have confirmed iCloud sync enabled on the same Apple Account. Records keep the original device identity. Disabled sync, different accounts and unconfirmed permissions prevent sharing. If the source app has not been opened for a while, sharing waits for renewed confirmation.
 
-idevice_pairからのペアリングファイル直接インストールは、次のベータで対応予定です。公式ツールへの登録は[PR #84](https://github.com/jkcoxson/idevice_pair/pull/84)で提案中で、採用・配布されるまでは公式版の一覧には表示されません。
+4.0.0ではMochiLog対応のidevice_pairからペアリングファイルを直接インストールできます。公式ツールへの登録は[PR #84](https://github.com/jkcoxson/idevice_pair/pull/84)で提案中で、採用・配布されるまでは公式版の一覧には表示されません。
 
 On-device collection supports iOS/iPadOS 17 and later. Initial pairing entirely on the device requires 27 or later and Developer Mode. From beta 1050, with this optional feature enabled, an unlocked device and a connected VPN can also collect while MochiLog is not displayed, whenever iOS allows execution. Complete files are analyzed and recorded on the next foreground activation through the existing duplicate checks. Timing and intervals are not guaranteed; force-quitting stops automatic collection until the next launch.
