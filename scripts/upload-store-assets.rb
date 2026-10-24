@@ -42,6 +42,13 @@ begin
     files = Dir[File.expand_path("../fastlane/store-assets/#{device}/#{locale}/#{device}_*.png", __dir__)].sort
     raise "Missing complete #{device} screenshot set for #{locale}" unless files.size.between?(4, 10)
     (device == "watch" ? %w[01_devices 02_logs 03_health 04_metrics] : %w[01_home 02_details 03_analytics 04_settings]).each { |screen| raise "Missing #{screen}" unless files.any? { |f| f.end_with?("#{screen}.png") } }
+    if device == "duo"
+      %w[inner outer].each do |pose|
+        %w[01_home 02_details 03_analytics 04_settings].each do |screen|
+          raise "Missing Duo #{pose} #{screen} for #{locale}" unless files.any? { |file| File.basename(file) == "duo_#{pose}_#{screen}.png" }
+        end
+      end
+    end
     files.each do |file|
       bytes = File.binread(file)
       raise "Invalid PNG" unless bytes.start_with?("\x89PNG\r\n\x1a\n".b)

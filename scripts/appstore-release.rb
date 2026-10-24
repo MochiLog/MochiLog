@@ -109,20 +109,25 @@ if mode == "verify"
       rows = placements.fetch("data").select do |item|
         item.dig("attributes", "placementType") == "APP_SCREENSHOT" && item.dig("attributes", "placementGroup") == group
       end
-      raise "#{locale} #{device}: expected four actual placements, got #{rows.size}" unless rows.size == 4
-      expected_order = device == "watch" ? %w[01_devices 02_logs 03_health 04_metrics] : %w[01_home 02_details 03_analytics 04_settings]
-      filenames = rows.zip(expected_order).map do |placement, screen|
+      screens = device == "watch" ? %w[01_devices 02_logs 03_health 04_metrics] : %w[01_home 02_details 03_analytics 04_settings]
+      expected_order = if device == "duo"
+        %w[inner outer].flat_map { |pose| screens.map { |screen| "duo_#{pose}_#{screen}.png" } }
+      else
+        screens.map { |screen| "#{device}_#{screen}.png" }
+      end
+      raise "#{locale} #{device}: expected #{expected_order.size} actual placements, got #{rows.size}" unless rows.size == expected_order.size
+      filenames = rows.zip(expected_order).map do |placement, expected_filename|
         raise "#{locale} #{device}: placement is not active" unless %w[ACTIVE PARENT_PREPARE_FOR_SUBMISSION].include?(placement.dig("attributes", "state"))
         raise "#{locale} #{device}: wrong target localization" unless placement.dig("relationships", "appStoreVersionLocalization", "data", "id") == localization.fetch("id")
         image = images.fetch(placement.dig("relationships", "image", "data", "id"))
         name = image.dig("attributes", "fileName")
-        raise "#{locale} #{device}: wrong image order" unless name&.end_with?("#{screen}.png")
+        raise "#{locale} #{device}: wrong image order" unless name == expected_filename
         prefix = "MochiLog #{version} #{device} #{locale} "
         raise "#{locale} #{device}: screenshots were inherited from another release" unless image.dig("attributes", "referenceName").to_s.start_with?(prefix)
         name
       end
       report[:locales][locale][device] = filenames
-      puts "Verified #{version} #{locale}: #{device}, four ordered screenshots"
+      puts "Verified #{version} #{locale}: #{device}, #{rows.size} ordered screenshots"
     end
   end
   File.write(File.join(output, "verified-release.json"), JSON.pretty_generate(report))
