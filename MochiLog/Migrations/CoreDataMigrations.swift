@@ -18,12 +18,10 @@ struct CoreDataMigrationRunner {
   private static func runAsync(viewContext: NSManagedObjectContext) async {
     await runV2MagSafeMigration(viewContext: viewContext)
     await viewContext.perform {
-      guard !UserDefaults.standard.bool(forKey: Migration_v3_WatchSeries3Capacity.coreDataKey)
-      else { return }
       do {
-        try Migration_v3_WatchSeries3Capacity.migrate(viewContext: viewContext)
+        try DeviceLibraryMigrations.runPending(in: viewContext)
       } catch {
-        print("[CoreDataMigration] Watch reference migration failed: \(error)")
+        print("[CoreDataMigration] Device library migration failed: \(error)")
       }
     }
   }

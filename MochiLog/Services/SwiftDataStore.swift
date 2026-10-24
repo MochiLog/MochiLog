@@ -335,7 +335,7 @@ final class SwiftDataStore: DataStore {
       sortBy: [SortDescriptor(\.logDate, order: .reverse)]
     )
     let sdRecords = (try? modelContext.fetch(descriptor)) ?? []
-    Migration_v3_WatchSeries3Capacity.repairIfNeeded(sdRecords, in: modelContext)
+    DeviceLibraryMigrations.repairIfNeeded(sdRecords, in: modelContext)
     // Repair only content-derived imported records with an authenticated origin.
     // Preserve IDs, dates, measurements and cloud objects across all replicas.
     var identityRepairEvents: [String] = []

@@ -1,0 +1,50 @@
+name: Device library migration verification
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  migrations:
+    runs-on: xcode-27
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify catalog corrections and manual overrides
+        run: |
+          bash scripts/test-device-library.sh
+          bash scripts/test-device-profiles.sh
+      - name: Build maintained diagnostics dependency
+        env:
+          CARGO_BUILD_JOBS: '1'
+        run: |
+          export PATH="$HOME/.cargo/bin:$PATH"
+          if ! command -v rustup >/dev/null; then curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y; fi
+          rustup update stable
+          bash scripts/build-local-diagnostics.sh
+      - name: Create disposable test simulator
+        run: |
+          runtime=$(xcrun simctl list runtimes -j | python3 -c 'import json,sys; r=[x for x in json.load(sys.stdin)["runtimes"] if x.get("isAvailable") and ".iOS-" in x["identifier"]]; print(max(r,key=lambda x:tuple(map(int,x["version"].split("."))))["identifier"])')
+          simulator=$(xcrun simctl create "MochiLog migration verification" com.apple.CoreSimulator.SimDeviceType.iPhone-17 "$runtime")
+          echo "MIGRATION_SIMULATOR=$simulator" >> "$GITHUB_ENV"
+      - name: Verify real CoreData and SwiftData transactions
+        run: |
+          set -o pipefail
+          mkdir -p build
+          bash scripts/test-record-migrations.sh "$MIGRATION_SIMULATOR" 2>&1 | tee build/device-library-migrations.log
+      - name: Remove test simulator and build output
+        if: always()
+        run: |
+          if [ -n "${MIGRATION_SIMULATOR:-}" ]; then
+            xcrun simctl shutdown "$MIGRATION_SIMULATOR" || true
+            xcrun simctl delete "$MIGRATION_SIMULATOR"
+          fi
+          rm -rf build/record-migrations-derived build/record-migrations-*.xcresult
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: device-library-migration-failure-log
+          path: build/device-library-migrations.log
+          retention-days: 2

@@ -1,130 +1,63 @@
-# マイグレーションシステム
+# マイグレーション
 
-## 概要
+通常の保存・検索処理には補正ロジックを置かず、このディレクトリから呼び出す。
+iOS 16はCoreData、iOS 17以降はSwiftDataの実行経路を持つ。
 
-このディレクトリには、MochiLogアプリのデータベースマイグレーション機能が含まれています。マイグレーションシステムは、アプリのバージョンアップ時に既存データを自動的に修正・更新するために使用されます。
-
-## ファイル構成
-
-```
+```text
 Migrations/
-├── README.md                              # このファイル
-├── Migration.swift                        # マイグレーションプロトコル定義
-├── MigrationManager.swift                 # マイグレーション管理クラス
-└── Migration_v1_iPhone16e_AvgTemp.swift  # v1マイグレーション実装
+├── CoreDataMigrations.swift
+├── SwiftDataMigrations.swift
+├── Migration.swift
+├── MigrationManager.swift
+├── Migration_v1_iPhone16e_AvgTemp.swift
+└── DeviceLibrary/
+    ├── DeviceLibraryMigrations.swift
+    ├── DeviceLibraryCoreDataMigrations.swift
+    ├── DeviceLibrarySwiftDataMigrations.swift
+    ├── Migration_v3_WatchSeries3Capacity.swift
+    └── Migration_v4_DeviceLibraryIdentity.swift
 ```
 
-## 使い方
+## DeviceLibraryの補正
 
-### 新しいマイグレーションの追加方法
+`DeviceLibrary/`に、機種ライブラリのデータ補正を版ごとに追加する。
+共通の判定は永続化層から独立させ、CoreDataとSwiftDataのアダプターが利用する。
+既存のv3もこのフォルダへ移した。処理内容・完了フラグは従来のまま。
 
-1. **新しいマイグレーションファイルを作成**
+`DeviceLibraryMigrations.runPending(in:)`を各ストアの初期マイグレーションから呼ぶ。
+`repairIfNeeded(_:in:)`は読み出し時にも呼び、遅れたインポートや旧端末からの同期に対応する。
+完了フラグだけで補正を止めず、補正前の値に一致するかで再実行を安全にする。
+保存に失敗した場合はロールバックし、完了フラグを設定しない。
+Macで動かすiOSアプリは既存の閲覧用方針に合わせ、データの補正書き込みを行わない。
 
-```swift
-import Foundation
-import SwiftData
+## v4 機種ID・基板ID・SoC
 
-struct Migration_v2_YourFeature: Migration {
-  static let version = "v2_YourFeature"
-  static let description = "あなたのマイグレーションの説明"
+2026-10-25の照合結果に基づき、標準ライブラリの機種名10項目・基板対応8項目・SoC2項目を修正した。
+容量テーブル、SIM別容量、容量の別名参照、SIMの地域判定は今回変更していない。
+Duoの4883mAhへの修正は1062で適用済みで、マイグレーション対象外。
 
-  static func migrate(modelContext: ModelContext) throws {
-    print("[Migration \(version)] Starting migration: \(description)")
+Watchの既存記録では、登録済みまたは選択した機種名が保存され、モデルコードはその名前の代表IDとして付与されていた。
+この経路で付いた旧代表IDと保存名の組が一致する5パターンのみ、名前を保ったまま代表IDを更新する。
+これでGPS/Cellularなどの実機構成を特定したことにはならない。
+IDだけを根拠にSeries 8とSE第2世代を入れ替えず、非代表ID・不明な名前・不整合なOS名は自動補正しない。
 
-    // マイグレーション処理をここに記述
-    let descriptor = FetchDescriptor<BatteryRecord>()
-    let records = try modelContext.fetch(descriptor)
+基板から解決済みの古い内部IDだけでは、元の基板を復元できない。
+`N66AP`などの基板文字列そのものが残り、標準設定と整合する場合のみ、確定した内部IDと機種名へ更新する。
+基板の証拠がない既存のiPhone/iPad記録は推測で書き換えない。
 
-    for record in records {
-      // データの修正処理
-      // ...
-    }
+SoCは記録に保存せず機種ライブラリから表示するため、標準ライブラリの修正だけで反映される。
+ユーザーが保存した機種プロファイルと、その変更履歴に関係する記録は自動補正から除外する。
+プロファイルの変更は従来の競合確認画面からユーザーが選択できる。
+記録ID・個体ID・日時・容量・実測値・診断結果はv4では変更しない。
 
-    print("[Migration \(version)] Completed.")
-  }
-}
+## 検証
+
+```sh
+bash scripts/test-device-library.sh
+bash scripts/test-device-profiles.sh
+bash scripts/test-record-migrations.sh SIMULATOR_UDID
 ```
 
-2. **MigrationManager.swiftに登録**
-
-```swift
-private static let migrations: [Migration.Type] = [
-  Migration_v1_iPhone16e_AvgTemp.self,
-  Migration_v2_YourFeature.self,  // ← 追加
-]
-```
-
-### バージョンベースのマイグレーション
-
-特定のバージョンからのアップデート時のみマイグレーションを実行したい場合：
-
-```swift
-// アプリバージョンを取得
-let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-let previousVersion = UserDefaults.standard.string(forKey: "LastKnownAppVersion")
-
-// バージョン比較してマイグレーション実行を判定
-if shouldMigrate(from: previousVersion, to: currentVersion) {
-  // マイグレーション処理
-}
-
-// 現在のバージョンを保存（次回起動時のため）
-UserDefaults.standard.set(currentVersion, forKey: "LastKnownAppVersion")
-```
-
-## マイグレーションの実行タイミング
-
-マイグレーションは、アプリ起動時に`MochiLogApp.swift`の`.task`モディファイアで自動実行されます：
-
-```swift
-.task {
-  MigrationManager.runPendingMigrations(modelContext: container.mainContext)
-}
-```
-
-**重要**: マイグレーションは**バックグラウンドスレッド**で実行されるため、UIをブロックしません。大量のデータがある場合でも、アプリはスムーズに起動します。
-
-## 実装済みマイグレーション
-
-### v1: iPhone 16e容量修正 & avgTemp修正
-
-**ファイル**: `Migration_v1_iPhone16e_AvgTemp.swift`
-
-**実行条件**:
-- **iPhone 16e容量修正**: 常に実行（designCapacity が 3961 の場合のみ）
-- **avgTemp修正**: バージョン2.0.0以下からのアップデート時のみ実行
-
-**変更内容**:
-1. iPhone 16eの設計容量を 3961mAh → 4005mAh に修正
-2. avgTempが10°C未満の場合、10倍に修正（2.5°C → 25.0°C）
-
-## デバッグ機能
-
-### マイグレーションの再実行
-
-```swift
-// 特定のマイグレーションを再実行
-MigrationManager.rerunMigration(version: "v1_iPhone16e_AvgTemp", modelContext: context)
-```
-
-### 全マイグレーションフラグのリセット
-
-```swift
-// 全てのマイグレーションフラグをリセット（開発用）
-MigrationManager.resetAllMigrations()
-```
-
-## 注意事項
-
-- マイグレーションは**一度だけ実行**されます（UserDefaultsでフラグ管理）
-- マイグレーションの順序は`MigrationManager.swift`の配列順で実行されます
-- エラーが発生した場合、そのマイグレーションはスキップされ、次のマイグレーションが実行されます
-- バージョンベースのマイグレーションは、`LastKnownAppVersion`キーで管理されます
-- マイグレーションは**バックグラウンドスレッド**で実行されるため、UIに影響を与えません
-
-## ベストプラクティス
-
-1. **マイグレーションは冪等性を保つ**: 同じマイグレーションを複数回実行しても安全であること
-2. **条件チェックを行う**: 既に修正済みのデータをスキップする（例: `designCapacity == 3961`の場合のみ修正）
-3. **ログを充実させる**: マイグレーション実行状況を詳細にログ出力する
-4. **バージョン管理を明確に**: マイグレーションファイル名とバージョン番号を一致させる
+`Device library migration verification`ワークフローでも同じ検証を実行できる。
+一時的なシミュレーターは終了後に削除し、ストアやTestFlightにはアップロードしない。
+標準参照20項目、手動プロファイル、再実行、旧同期データの再到着、容量と実測値の保持、保存失敗時のロールバックを確認する。

@@ -17,6 +17,7 @@
 		4EFB3E572F2CE3CA001F2930 /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4EFB3E562F2CE3CA001F2930 /* WatchConnectivity.framework */; };
 		4EFB42BB2F2CF31B001F2930 /* MochiLog Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 4EFB3AB82F2CD92B001F2930 /* MochiLog Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		56DE4912A4B8A8CF0819942E /* WatchCapacityMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 684672AB092DEB40E655AE23 /* WatchCapacityMigrationTests.swift */; };
+		A41025202600000000000001 /* DeviceLibraryIdentityMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A41025202600000000000002 /* DeviceLibraryIdentityMigrationTests.swift */; };
 		5FFA23F6F4D59D08E21C8753 /* SharedLogInbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D8C814CBAFF65585952FD2 /* SharedLogInbox.swift */; };
 		88CBFD3AFCCF64C53B6C6E83 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CBE4A6AE2BE55404293C347 /* Foundation.framework */; };
 		A10000000000000000000001 /* idevice.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = A10000000000000000000002 /* idevice.xcframework */; };
@@ -99,6 +100,7 @@
 		4EFB3AB82F2CD92B001F2930 /* MochiLog Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "MochiLog Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4EFB3E562F2CE3CA001F2930 /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = System/Library/Frameworks/WatchConnectivity.framework; sourceTree = SDKROOT; };
 		684672AB092DEB40E655AE23 /* WatchCapacityMigrationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchCapacityMigrationTests.swift; sourceTree = "<group>"; };
+		A41025202600000000000002 /* DeviceLibraryIdentityMigrationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DeviceLibraryIdentityMigrationTests.swift; sourceTree = "<group>"; };
 		A10000000000000000000002 /* idevice.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Build/LocalDiagnostics/idevice.xcframework; sourceTree = SOURCE_ROOT; };
 		C37CF0035BF454EBC2FDAB9C /* MochiLogMigrationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MochiLogMigrationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8E24672B82B6C4854EA9BCE /* MochiLogUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MochiLogUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -222,6 +224,7 @@
 			isa = PBXGroup;
 			children = (
 				684672AB092DEB40E655AE23 /* WatchCapacityMigrationTests.swift */,
+				A41025202600000000000002 /* DeviceLibraryIdentityMigrationTests.swift */,
 			);
 			name = MigrationTests;
 			path = Tests/Migrations;
@@ -537,6 +540,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				56DE4912A4B8A8CF0819942E /* WatchCapacityMigrationTests.swift in Sources */,
+				A41025202600000000000001 /* DeviceLibraryIdentityMigrationTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

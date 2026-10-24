@@ -307,7 +307,7 @@ final class CoreDataStore: DataStore {
     let request = NSFetchRequest<CDBatteryRecord>(entityName: "CDBatteryRecord")
     request.sortDescriptors = [NSSortDescriptor(key: "logDate", ascending: false)]
     let cdRecords = (try? viewContext.fetch(request)) ?? []
-    Migration_v3_WatchSeries3Capacity.repairIfNeeded(cdRecords, in: viewContext)
+    DeviceLibraryMigrations.repairIfNeeded(cdRecords, in: viewContext)
     let records = cdRecords.map { $0.toBatteryRecord() }
     updateCachedRecords(records)
   }

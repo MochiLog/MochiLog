@@ -16,12 +16,10 @@ struct SwiftDataMigrationRunner {
     Task { @MainActor in
       runV1Migration(modelContext: modelContext)
       runV2MagSafeMigration(modelContext: modelContext)
-      if !UserDefaults.standard.bool(forKey: Migration_v3_WatchSeries3Capacity.swiftDataKey) {
-        do {
-          try Migration_v3_WatchSeries3Capacity.migrate(modelContext: modelContext)
-        } catch {
-          print("[SwiftDataMigration] Watch reference migration failed: \(error)")
-        }
+      do {
+        try DeviceLibraryMigrations.runPending(in: modelContext)
+      } catch {
+        print("[SwiftDataMigration] Device library migration failed: \(error)")
       }
       onComplete()
     }
