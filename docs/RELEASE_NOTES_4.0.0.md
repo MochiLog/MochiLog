@@ -28,6 +28,7 @@
 ・記録に個体IDを導入し、新規取り込み、既存記録との対応、エクスポート／インポート、iCloud同期で端末を区別できるようにしました。
 ・共有ログでiPhone・iPadやWatchを取り違える問題を修正しました。確認できた過去の記録は、日付・記録ID・実測値を保持して訂正します。
 ・完全一致の重複記録を起動時に確認し、候補を見てバックアップ後に整理できます。複数端末からの削除で残す記録まで消さないよう保護します。
+・iCloudの診断画面でアカウント状態とサーバー上の記録件数を読み取り専用で確認できます。
 ・ホームの記録を複数選択・全選択して削除できます。確認中に他端末で変更された記録を保護し、保存失敗時は変更を戻します。
 ・動作ログを「設定 → デバッグ」に集約しました。端末と受信したPCのログを日付・機能別に確認、コピー、共有できます。保存日数とストレージ整理も設定できます。
 ・エラーログに日付別一覧、メッセージ検索、ページ切り替え、先頭・末尾への移動を追加しました。iPadは一覧と詳細を並べ、大きなログの読み込み負荷を軽減しました。
@@ -48,9 +49,9 @@
 
 4.0.0
 
-• Encrypted Mac/Windows log transfer. Parsing stays on mobile; PC-free manual import remains.
+• Encrypted Mac/Windows transfer; mobile parsing and PC-free manual import.
 • Watch logs from iPhone use the shared import flow, including unregistered/multiple Watches.
-• Pair multiple PCs by QR/code, verify OS trust and unpair with remote revocation.
+• Multi-PC QR/code pairing, OS trust checks and remote revocation.
 • Check hashes and existing records before transfer; analyze after receipt and PC acknowledgement. Avoid multi-PC/iCloud duplicates.
 • Share logs/readings only with confirmed iCloud sync on both devices and the same Apple Account; retain source identity.
 • Connection/app-presence status, progress/results, Receive Now and manual PC actions.
@@ -72,6 +73,7 @@
 • Device identities support records, imports, export/import and iCloud sync.
 • Fix source-device mix-ups; repair verified old records without changing dates, IDs or measurements.
 • Review exact duplicates at launch with lists/backup; protect retained records across synced deletions.
+• Read-only iCloud account/record-count diagnostics.
 • Multi-select/select-all deletion protects concurrent edits and rolls back failed saves.
 • Debug settings groups mobile/PC logs by date/feature, with copy/share, retention and cleanup.
 • Search dated errors, page large logs, jump to first/last; iPad list/detail layout and lighter loading.
@@ -79,7 +81,7 @@
 • Versioned daily/feature logs trace background wakes, timings, stops and retries. Verify repeated chunks; save only missing bytes.
 • PC log vault: export/delete/resend, 500 MB/one-month defaults and protected unsent files.
 • PC startup, tray/menu bar, close behavior, opt-in updates and hidden-UI memory release.
-• Public-key QR, protected keys, encrypted requests/diagnostics and tamper/replay/downgrade protection; retain existing pairings during staged upgrades.
+• Public-key QR, protected keys and encrypted requests/diagnostics with tamper/replay/downgrade defense. Existing pairings survive staged updates.
 • Improve iPad settings/navigation, device management and QR orientation; add Duo layouts.
 • Fix Mac-hosted mobile launch, iCloud and language/tip displays; hide PC controls there.
 • Fix sharing crashes, localized charts and recurring Watch results.
