@@ -207,7 +207,10 @@ def export(label):
             }[label]
             valid_sizes = [expected]
             if label == "duo_inner":
-                valid_sizes.append((2853, 2007))
+                # XCTest may encode a rotated inner-display snapshot with a
+                # one-pixel edge crop. Artwork normalizes EXIF orientation and
+                # preserves its aspect ratio on the exact store canvas.
+                valid_sizes.extend([(2853, 2007), (2006, 2852), (2852, 2006)])
             if dimensions not in valid_sizes:
                 raise RuntimeError(
                     f"{label}: unexpected screenshot dimensions {dimensions}, expected {expected}"

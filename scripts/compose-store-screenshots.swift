@@ -1,7 +1,7 @@
-#!/usr/bin/env swift
-// Render localized App Store artwork around unmodified simulator screenshots.
+#!/usr/bin/env swift  // Render localized App Store artwork around unmodified simulator screenshots.
 import AppKit
 import Foundation
+import ImageIO
 
 struct Message {
   let headline: String
@@ -127,16 +127,21 @@ func drawArtwork(source: NSImage, kind: String, message: Message, index: Int, de
   throws
 {
   let expected = expectedSizes[kind]!
-  let landscapeDuo = kind == "duo_inner" && source.size == CGSize(width: 2853, height: 2007)
-  guard source.size == expected || landscapeDuo else {
+  func matchesDuo(_ size: CGSize) -> Bool {
+    kind == "duo_inner" && abs(source.size.width - size.width) <= 1
+      && abs(source.size.height - size.height) <= 1
+  }
+  let landscapeDuo = matchesDuo(CGSize(width: 2853, height: 2007))
+  guard source.size == expected || landscapeDuo || matchesDuo(expected) else {
     throw NSError(
       domain: "ScreenshotDesign", code: 1,
       userInfo: [NSLocalizedDescriptionKey: "Unexpected \(kind) input size: \(source.size)"])
   }
-  let canvas = source.size
+  let canvas = landscapeDuo ? CGSize(width: 2853, height: 2007) : expected
   let isWatch = kind == "watch"
   let isDuo = kind.hasPrefix("duo_")
-  let scale: CGFloat = isWatch ? 1 : (landscapeDuo ? 1.5 : (isDuo ? canvas.width / 1320 : (kind == "ipad" ? 1.55 : 1)))
+  let scale: CGFloat =
+    isWatch ? 1 : (landscapeDuo ? 1.5 : (isDuo ? canvas.width / 1320 : (kind == "ipad" ? 1.55 : 1)))
   let accent = color(0x46D477)
   let bitmap = NSBitmapImageRep(
     bitmapDataPlanes: nil, pixelsWide: Int(canvas.width),
@@ -198,7 +203,9 @@ func drawArtwork(source: NSImage, kind: String, message: Message, index: Int, de
       message.detail, x: margin, y: 760, width: 800, height: 190,
       size: 36, weight: .regular, ink: color(0xA8B9B0), canvas: canvas, lineSpacing: 8)
     color(0x4A6A5A, alpha: 0.75).setFill()
-    NSBezierPath(roundedRect: rectFromTop(margin, 1020, 800, 3, canvas: canvas), xRadius: 1, yRadius: 1).fill()
+    NSBezierPath(
+      roundedRect: rectFromTop(margin, 1020, 800, 3, canvas: canvas), xRadius: 1, yRadius: 1
+    ).fill()
     drawText(
       message.category, x: margin, y: 1055, width: 800, height: 65,
       size: 38, weight: .semibold, ink: accent, canvas: canvas)
@@ -230,15 +237,19 @@ func drawArtwork(source: NSImage, kind: String, message: Message, index: Int, de
       ink: accent, canvas: canvas)
   }
 
-  let screenshotY: CGFloat = landscapeDuo ? 400 : (isWatch ? 155 : (isDuo ? 470 * scale : (kind == "ipad" ? 720 : 765)))
+  let screenshotY: CGFloat =
+    landscapeDuo ? 400 : (isWatch ? 155 : (isDuo ? 470 * scale : (kind == "ipad" ? 720 : 765)))
   let screenshotWidth =
-    landscapeDuo ? 1720 : (isDuo || isWatch)
-    ? min(
-      canvas.width - (isWatch ? 40 : 120 * scale),
-      (canvas.height - screenshotY - (isWatch ? 20 : 70 * scale)) * canvas.width / canvas.height)
-    : canvas.width - 2 * (isWatch ? 20 : (kind == "ipad" ? 115 : 93))
-  let screenshotX = landscapeDuo ? canvas.width - margin - screenshotWidth : (canvas.width - screenshotWidth) / 2
-  let screenshotHeight = screenshotWidth * canvas.height / canvas.width
+    landscapeDuo
+    ? 1720
+    : (isDuo || isWatch)
+      ? min(
+        canvas.width - (isWatch ? 40 : 120 * scale),
+        (canvas.height - screenshotY - (isWatch ? 20 : 70 * scale)) * canvas.width / canvas.height)
+      : canvas.width - 2 * (isWatch ? 20 : (kind == "ipad" ? 115 : 93))
+  let screenshotX =
+    landscapeDuo ? canvas.width - margin - screenshotWidth : (canvas.width - screenshotWidth) / 2
+  let screenshotHeight = screenshotWidth * source.size.height / source.size.width
   let screenshotRect = rectFromTop(
     screenshotX, screenshotY, screenshotWidth, screenshotHeight, canvas: canvas)
   let radius: CGFloat = isWatch ? 40 : (kind == "ipad" ? 73 : 92)
@@ -251,7 +262,7 @@ func drawArtwork(source: NSImage, kind: String, message: Message, index: Int, de
   NSGraphicsContext.saveGraphicsState()
   NSBezierPath(roundedRect: screenshotRect, xRadius: radius, yRadius: radius).addClip()
   source.draw(
-    in: screenshotRect, from: NSRect(origin: .zero, size: canvas),
+    in: screenshotRect, from: NSRect(origin: .zero, size: source.size),
     operation: .copy, fraction: 1, respectFlipped: false, hints: nil)
   NSGraphicsContext.restoreGraphicsState()
 
@@ -263,11 +274,15 @@ func drawArtwork(source: NSImage, kind: String, message: Message, index: Int, de
     bitmapDataPlanes: nil, pixelsWide: Int(canvas.width),
     pixelsHigh: Int(canvas.height), bitsPerSample: 8, samplesPerPixel: 3,
     hasAlpha: false, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)!
-  let input = bitmap.bitmapData!, output = rgb.bitmapData!
+  let input = bitmap.bitmapData!
+  let output = rgb.bitmapData!
   for y in 0..<Int(canvas.height) {
     for x in 0..<Int(canvas.width) {
-      let src = y * bitmap.bytesPerRow + x * 4, dst = y * rgb.bytesPerRow + x * 3
-      output[dst] = input[src]; output[dst + 1] = input[src + 1]; output[dst + 2] = input[src + 2]
+      let src = y * bitmap.bytesPerRow + x * 4
+      let dst = y * rgb.bytesPerRow + x * 3
+      output[dst] = input[src]
+      output[dst + 1] = input[src + 1]
+      output[dst + 2] = input[src + 2]
     }
   }
   guard let data = rgb.representation(using: .png, properties: [:]) else {
@@ -287,10 +302,26 @@ for locale in ["ja", "en-US"] {
       let filename = "\(kind)_\(screenName).png"
       let input = sourceRoot.appendingPathComponent(locale).appendingPathComponent(filename)
       guard fileManager.fileExists(atPath: input.path) else { continue }
-      guard let screenshot = NSImage(contentsOf: input) else {
+      guard var screenshot = NSImage(contentsOf: input) else {
         throw NSError(
           domain: "ScreenshotDesign", code: 4,
           userInfo: [NSLocalizedDescriptionKey: "Cannot read \(input.path)"])
+      }
+      if kind == "duo_inner",
+        let imageSource = CGImageSourceCreateWithURL(input as CFURL, nil),
+        let oriented = CGImageSourceCreateThumbnailAtIndex(
+          imageSource, 0,
+          [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceThumbnailMaxPixelSize: 2853,
+          ] as CFDictionary)
+      {
+        // XCTest can encode the active inner display with EXIF rotation and
+        // one fewer edge pixel. Keep the UI intact; normalize its orientation
+        // and fit it proportionally within an exact App Store canvas.
+        screenshot = NSImage(
+          cgImage: oriented, size: CGSize(width: oriented.width, height: oriented.height))
       }
       let folder = outputRoot.appendingPathComponent(locale, isDirectory: true)
       try fileManager.createDirectory(at: folder, withIntermediateDirectories: true)
