@@ -5,7 +5,7 @@ on:
       mode:
         type: choice
         default: inspect
-        options: [inspect, prepare, verify]
+        options: [inspect, withdraw, prepare, verify]
       marketing_version:
         type: string
         default: '4.0.0'

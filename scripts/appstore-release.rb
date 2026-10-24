@@ -3,13 +3,14 @@
 require_relative "app-store-connect-client"
 require "fileutils"
 require "digest"
+require_relative "cancel-appstore-review"
 
 api = AppStoreConnect.new
 app = "6756904240"
 mode = ENV.fetch("RELEASE_MODE", "inspect")
 version = ENV.fetch("MARKETING_VERSION", "4.0.0")
 build = ENV.fetch("BUILD_NUMBER", "1060")
-raise "Unknown mode" unless %w[inspect prepare verify].include?(mode)
+raise "Unknown mode" unless %w[inspect withdraw prepare verify].include?(mode)
 output = File.expand_path("../build/appstore-release", __dir__)
 FileUtils.mkdir_p(output)
 versions = api.get("/apps/#{app}/appStoreVersions", "limit" => "50")
@@ -38,6 +39,10 @@ if selected
 end
 # Preparing metadata never creates/submits a review request. The user presses
 # the review submission button after checking the completed version in ASC.
+if mode == "withdraw"
+  AppStoreReviewWithdrawal.cancel(api, app: app, version: selected, output: output)
+end
+
 if mode == "prepare"
   unless selected
     selected = api.post("/appStoreVersions", data: {
@@ -80,7 +85,7 @@ end
 if mode == "verify"
   raise "No #{version} draft exists" unless selected
   state = selected.dig("attributes", "appVersionState") || selected.dig("attributes", "appStoreState")
-  raise "Version is no longer an unsubmitted draft: #{state}" unless state == "PREPARE_FOR_SUBMISSION"
+  raise "Version is not editable: #{state}" unless AppStoreReviewWithdrawal::EDITABLE_STATES.include?(state)
   selected_build = api.get("/appStoreVersions/#{selected.fetch('id')}/build").fetch("data")
   unless selected_build&.dig("attributes", "version") == build && selected_build.dig("attributes", "processingState") == "VALID"
     raise "Expected valid build #{build} is not selected"
