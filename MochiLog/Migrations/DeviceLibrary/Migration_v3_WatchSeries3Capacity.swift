@@ -27,14 +27,6 @@ struct Migration_v3_WatchSeries3Capacity {
     return correction.corrected
   }
 
-  private static func diagnostic(rawCapacity: Int, designCapacity: Int) -> String {
-    let percent = Double(rawCapacity) / Double(designCapacity) * 100
-    return L10n.string(
-      percent < 80
-        ? "diag_replace_recommended"
-        : percent < 90 ? "diag_slightly_degraded" : "diag_normal",
-      table: "Records")
-  }
 }
 
 #if os(iOS)
@@ -57,7 +49,7 @@ struct Migration_v3_WatchSeries3Capacity {
         else { continue }
         record.designCapacity = Int64(capacity)
         if record.rawCapacity > 0 {
-          record.diagnosticResult = diagnostic(
+          record.diagnosticResult = DeviceLibraryMigrations.diagnostic(
             rawCapacity: Int(record.rawCapacity), designCapacity: capacity)
         }
         count += 1
@@ -108,7 +100,7 @@ struct Migration_v3_WatchSeries3Capacity {
         else { continue }
         record.designCapacity = capacity
         if record.rawCapacity > 0 {
-          record.diagnosticResult = diagnostic(
+          record.diagnosticResult = DeviceLibraryMigrations.diagnostic(
             rawCapacity: record.rawCapacity, designCapacity: capacity)
         }
         count += 1

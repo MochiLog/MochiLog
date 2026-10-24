@@ -11,6 +11,9 @@
       if !UserDefaults.standard.bool(forKey: Migration_v4_DeviceLibraryIdentity.coreDataKey) {
         try Migration_v4_DeviceLibraryIdentity.migrate(viewContext: context)
       }
+      if !UserDefaults.standard.bool(forKey: Migration_v5_iPadReferenceCapacity.coreDataKey) {
+        try Migration_v5_iPadReferenceCapacity.migrate(viewContext: context)
+      }
     }
 
     /// Late imports and old cloud replicas must be checked even after a
@@ -22,7 +25,10 @@
       guard Migration_v3_WatchSeries3Capacity.repairIfNeeded(records, in: context) else {
         return false
       }
-      return Migration_v4_DeviceLibraryIdentity.repairIfNeeded(records, in: context)
+      guard Migration_v4_DeviceLibraryIdentity.repairIfNeeded(records, in: context) else {
+        return false
+      }
+      return Migration_v5_iPadReferenceCapacity.repairIfNeeded(records, in: context)
     }
   }
 
@@ -46,6 +52,47 @@
       do {
         try context.save()
         DeviceLibraryMigrations.logCorrections(count, version: version, storage: "CoreData")
+        return true
+      } catch {
+        context.rollback()
+        Task { @MainActor in ICloudSyncManager.shared.handleSaveError(error) }
+        print("[Migration \(version)] CoreData save failed; rolled back: \(error)")
+        return false
+      }
+    }
+
+    static func migrate(viewContext: NSManagedObjectContext) throws {
+      guard !ProcessInfo.processInfo.isiOSAppOnMac else { return }
+      let records = try viewContext.fetch(
+        NSFetchRequest<CDBatteryRecord>(entityName: "CDBatteryRecord"))
+      guard repairIfNeeded(records, in: viewContext) else { throw Failure.saveFailed }
+      UserDefaults.standard.set(true, forKey: coreDataKey)
+    }
+  }
+
+  extension Migration_v5_iPadReferenceCapacity {
+    @discardableResult
+    static func repairIfNeeded(_ records: [CDBatteryRecord], in context: NSManagedObjectContext)
+      -> Bool
+    {
+      guard !ProcessInfo.processInfo.isiOSAppOnMac else { return true }
+      var count = 0
+      for record in records {
+        guard
+          let capacity = correctedDesignCapacity(
+            for: record.deviceName, storedCapacity: Int(record.designCapacity))
+        else { continue }
+        record.designCapacity = Int64(capacity)
+        if record.rawCapacity > 0 {
+          record.diagnosticResult = DeviceLibraryMigrations.diagnostic(
+            rawCapacity: Int(record.rawCapacity), designCapacity: capacity)
+        }
+        count += 1
+      }
+      guard count > 0 else { return true }
+      do {
+        try context.save()
+        DeviceLibraryMigrations.logCapacityCorrections(count, version: version, storage: "CoreData")
         return true
       } catch {
         context.rollback()

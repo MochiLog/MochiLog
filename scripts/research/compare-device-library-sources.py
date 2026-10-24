@@ -126,7 +126,12 @@ def combine(snapshot_dir):
         "names": {r["key"]: r["officialNames"][0] for r in official["identifiers"] if r["status"] == "difference"},
         "boards": {r["key"]: r["reference"][0] for r in appledb["boards"] if r["status"] == "difference"},
         "soc": {r["name"]: r["official"][0] for r in official["soc"] if r["status"] == "difference"},
-        "capacities": {},
+        "capacities": {
+            "iPad Pro 13 (M5)": 10209, "iPad Pro 13 (M4)": 10209,
+            "iPad Pro 11 (M5)": 8160, "iPad Pro 11 (M4)": 8160,
+            "iPad mini (A17 Pro)": 5034, "iPad (A16)": 7606,
+            "iPad Air 13 (M4)": 9720, "iPad Air 13 (M3)": 9720,
+        },
     }
     for table, actual, snapshot_key, value_key in [
         ("names", names, "identifiers", "current"),
@@ -218,6 +223,10 @@ def combine(snapshot_dir):
         note = "Apple公式は定格容量。アプリは設計容量の基準値。WhからmAhへの換算は行っていない。"
         if key == "iPhone Duo":
             status, note = "修正済み", "旧4700mAhから4883mAhへ修正済み。4.0.0 (1062)。ユーザー指定によりマイグレーションなし。"
+        elif key in approved["capacities"] and capacities[key] == approved["capacities"][key]:
+            assert capacities[key] in item["officialRatedCapacitymAh"]
+            status = "修正済み"
+            note = f"ユーザー承認によりApple EU公式定格値へ統一: {item['currentDesignCapacitymAh']}→{capacities[key]}mAh。保存名と旧基準値が一致する既存記録をv5で一方向に補正。実測値と手動プロファイルは維持。"
         elif status == "地域差・登録済み":
             variants = [r for r in official["capacityVariants"] if r["name"] == key]
             note = " / ".join(f"{r['configuration']}: {r['currentCapacitymAh']}mAh" for r in variants) + "。EU定格は既存の物理SIM値と一致。"
@@ -253,7 +262,7 @@ def combine(snapshot_dir):
     counts = Counter(row["status"] for row in rows)
     differences = [row for row in rows if row["difference"]]
     assert len(rows) == 605
-    assert counts["誤登録・未修正"] + counts["修正済み"] == 21
+    assert counts["誤登録・未修正"] + counts["修正済み"] + counts["定義差・要確認"] == 29
     assert counts["資料側の相違"] == 3
     assert len(differences) == 37
     assert len({row["id"] for row in rows}) == len(rows)
@@ -267,7 +276,7 @@ def combine(snapshot_dir):
         "summary": {"allRows": len(rows), "differenceRows": len(differences), "statusCounts": dict(counts)},
         "definitions": [
             "照合で判明した誤登録20項目は機種名10・基板対応8・SoC2。重複する端末があり、20台という意味ではない。修正済みにはDuo容量1項目も含む。",
-            "定義差8項目は設計容量と公式定格容量の相違で、誤登録とはまだ断定しない。",
+            "iPad容量8項目はユーザー承認によりApple EU公式定格値へ統一。v5は保存名と旧基準値が一致する記録のみ補正し、実測値・手動設定は維持。iPhone容量とSIM別容量・地域判定は今回の容量修正の対象外。",
             "資料側の相違3項目はAppleDB 1・DeviceKit 2。MochiLogの現在値を維持。",
             "未記載・未確認は一致として数えない。XcodeにmAhの容量定数は見つからなかった。",
             "機種名は表記とGPS/Cellularのまとめ方を正規化。容量の同一性を意味しない。",

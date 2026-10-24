@@ -27,6 +27,6 @@
 • Improved iPad settings, navigation, device management and QR camera orientation; added larger iPhone Duo display support.
 • Fixed sharing crashes, chart display issues and recurring Apple Watch import results.
 • Clarified how to import multiple logs from the share menu and improved when the import action appears.
-• Corrected capacity references for Apple Watch Series 3 Cellular, including capacity displays in existing records.
+• Corrected incorrect values in some battery and device information.
 • Updated eight languages, illustrated introductions, setup guides, troubleshooting and PC download links.
 • PC collection requires iOS/iPadOS 27+ and macOS 27+ or Windows 11. On-device collection requires iOS/iPadOS 17+. Daily logs require generated analytics and an unlocked device.

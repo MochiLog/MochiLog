@@ -14,6 +14,7 @@ struct MigrationManager {
     Migration_v1_iPhone16e_AvgTemp.self,
     Migration_v3_WatchSeries3Capacity.self,
     Migration_v4_DeviceLibraryIdentity.self,
+    Migration_v5_iPadReferenceCapacity.self,
     // 新しいマイグレーションをここに追加
     // 例: Migration_v2_NewFeature.self,
   ]

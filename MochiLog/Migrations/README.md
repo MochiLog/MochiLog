@@ -15,7 +15,8 @@ Migrations/
     ├── DeviceLibraryCoreDataMigrations.swift
     ├── DeviceLibrarySwiftDataMigrations.swift
     ├── Migration_v3_WatchSeries3Capacity.swift
-    └── Migration_v4_DeviceLibraryIdentity.swift
+    ├── Migration_v4_DeviceLibraryIdentity.swift
+    └── Migration_v5_iPadReferenceCapacity.swift
 ```
 
 ## DeviceLibraryの補正
@@ -33,7 +34,7 @@ Macで動かすiOSアプリは既存の閲覧用方針に合わせ、データ�
 ## v4 機種ID・基板ID・SoC
 
 2026-10-25の照合結果に基づき、標準ライブラリの機種名10項目・基板対応8項目・SoC2項目を修正した。
-容量テーブル、SIM別容量、容量の別名参照、SIMの地域判定は今回変更していない。
+v4は容量を変更しない。容量については下記v5に分離する。
 Duoの4883mAhへの修正は1062で適用済みで、マイグレーション対象外。
 
 Watchの既存記録では、登録済みまたは選択した機種名が保存され、モデルコードはその名前の代表IDとして付与されていた。
@@ -50,6 +51,33 @@ SoCは記録に保存せず機種ライブラリから表示するため、標�
 プロファイルの変更は従来の競合確認画面からユーザーが選択できる。
 記録ID・個体ID・日時・容量・実測値・診断結果はv4では変更しない。
 
+## v5 iPadの基準容量
+
+Apple EUのProduct Information Sheetにある定格容量 `Crated [mAh]` を採用する。
+元の公式資料と取得時点の値は `docs/audits/device-library-2026-10-25.json`、
+現在値との照合は `docs/audits/device-library-combined-2026-10-25.json` に残す。
+
+| 保存された機種名 | 旧基準 (mAh) | 新基準 (mAh) |
+| --- | ---: | ---: |
+| iPad Pro 13 (M5) | 10340 | 10209 |
+| iPad Pro 13 (M4) | 10340 | 10209 |
+| iPad Pro 11 (M5) | 8340 | 8160 |
+| iPad Pro 11 (M4) | 8340 | 8160 |
+| iPad mini (A17 Pro) | 5124 | 5034 |
+| iPad (A16) | 7698 | 7606 |
+| iPad Air 13 (M4) | 9705 | 9720 |
+| iPad Air 13 (M3) | 9705 | 9720 |
+
+保存名と旧基準容量が両方一致し、標準プロファイルである記録だけを補正する。
+容量だけから機種を推測しない。Air 13 (M2)や旧世代miniなど、同容量の別機種は対象外。
+手動プロファイルは変更前の名前・識別子の履歴も含めて保護する。
+基準容量を更新した記録は、その基準から導く診断結果も再計算する。実測値がなければ既存の診断結果を保つ。
+充放電回数・実測容量・公称容量・温度・電圧・日時・記録ID・個体IDは変更しない。
+補正後の値は旧値に一致しないため、再実行や複数端末からの同期で元に戻らない。
+旧値が後から同期・インポートされた場合も、共通入口から同じ補正を適用する。
+CoreData・SwiftDataとも保存成功後のみ完了フラグを設定し、失敗時は補正をロールバックして次回再試行する。
+データモデルの属性追加はなく、CloudKitスキーマの変更は不要。
+
 ## 検証
 
 ```sh
@@ -60,4 +88,4 @@ bash scripts/test-record-migrations.sh SIMULATOR_UDID
 
 `Device library migration verification`ワークフローでも同じ検証を実行できる。
 一時的なシミュレーターは終了後に削除し、ストアやTestFlightにはアップロードしない。
-標準参照20項目、手動プロファイル、再実行、旧同期データの再到着、容量と実測値の保持、保存失敗時のロールバックを確認する。
+標準参照20項目、iPad容量8項目、手動プロファイル、再実行、旧同期データの再到着、実測値の保持、保存失敗時のロールバックを確認する。

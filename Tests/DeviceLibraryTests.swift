@@ -14,6 +14,7 @@ final class AppSettings {
 struct DeviceLibraryTests {
   static func main() throws {
     try verifyIdentityCorrections()
+    try verifyIPadCapacityCorrections()
     let suite = "MochiLog.DeviceLibraryTests." + UUID().uuidString
     let defaults = UserDefaults(suiteName: suite)!
     defer { defaults.removePersistentDomain(forName: suite) }
@@ -49,6 +50,65 @@ struct DeviceLibraryTests {
     precondition(
       correction(cellular42, 279) == nil, "Even a matching explicit override stays manual")
     print("PASS: all four Series 3 variants, legacy corrections, idempotency and manual overrides")
+  }
+
+  private static func verifyIPadCapacityCorrections() throws {
+    let suite = "MochiLog.IPadCapacityTests." + UUID().uuidString
+    let defaults = UserDefaults(suiteName: suite)!
+    defer { defaults.removePersistentDomain(forName: suite) }
+    let profiles = DeviceProfileStore(defaults: defaults)
+    let cases = [
+      ("iPad Pro 13 (M5)", 10340, 10209),
+      ("iPad Pro 13 (M4)", 10340, 10209),
+      ("iPad Pro 11 (M5)", 8340, 8160),
+      ("iPad Pro 11 (M4)", 8340, 8160),
+      ("iPad mini (A17 Pro)", 5124, 5034),
+      ("iPad (A16)", 7698, 7606),
+      ("iPad Air 13 (M4)", 9705, 9720),
+      ("iPad Air 13 (M3)", 9705, 9720),
+    ]
+    func correction(_ name: String, _ capacity: Int) -> Int? {
+      Migration_v5_iPadReferenceCapacity.correctedDesignCapacity(
+        for: name, storedCapacity: capacity, profiles: profiles)
+    }
+    for (name, previous, corrected) in cases {
+      precondition(profiles.capacity(name) == corrected)
+      precondition(correction(name, previous) == corrected)
+      precondition(correction(name, corrected) == nil, "A corrected value must never flip back")
+      precondition(
+        correction(name, previous + 1) == nil, "Custom reference capacities are retained")
+    }
+    let untouched = [
+      ("iPad Air 13 (M2)", 9705), ("iPad mini (第6世代)", 5124),
+      ("iPad mini (第5世代)", 5124), ("iPad mini (第4世代)", 5124),
+      ("iPhone 17 Pro", 4252), ("iPhone Duo", 4883),
+    ]
+    for (name, capacity) in untouched {
+      precondition(profiles.capacity(name) == capacity)
+      precondition(correction(name, capacity) == nil)
+    }
+    for name in DeviceLibrary.designCapacities.keys where name.hasPrefix("iPhone") {
+      for (_, oldCapacity, _) in cases {
+        precondition(
+          correction(name, oldCapacity) == nil, "A capacity alone never identifies a model")
+      }
+    }
+
+    var customized = profiles.profiles.first { $0.name == "iPad Pro 11 (M4)" }!
+    customized.capacity = 9000
+    try profiles.save(customized)
+    precondition(correction(customized.name, 8340) == nil)
+    customized.capacity = 8160
+    try profiles.save(customized)
+    precondition(
+      correction(customized.name, 8340) == nil, "Matching manual overrides stay user-owned")
+    customized.name = "My iPad"
+    try profiles.save(customized)
+    precondition(correction("iPad Pro 11 (M4)", 8340) == nil, "Profile rename history is protected")
+    precondition(correction(customized.name, 8340) == nil)
+    print(
+      "PASS: eight iPad capacities, one-way repairs, unaffected references and manual profile history"
+    )
   }
 
   private static func verifyIdentityCorrections() throws {

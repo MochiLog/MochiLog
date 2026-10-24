@@ -12,6 +12,9 @@
       if !UserDefaults.standard.bool(forKey: Migration_v4_DeviceLibraryIdentity.swiftDataKey) {
         try Migration_v4_DeviceLibraryIdentity.migrate(modelContext: context)
       }
+      if !UserDefaults.standard.bool(forKey: Migration_v5_iPadReferenceCapacity.swiftDataKey) {
+        try Migration_v5_iPadReferenceCapacity.migrate(modelContext: context)
+      }
     }
 
     @discardableResult
@@ -21,7 +24,10 @@
       guard Migration_v3_WatchSeries3Capacity.repairIfNeeded(records, in: context) else {
         return false
       }
-      return Migration_v4_DeviceLibraryIdentity.repairIfNeeded(records, in: context)
+      guard Migration_v4_DeviceLibraryIdentity.repairIfNeeded(records, in: context) else {
+        return false
+      }
+      return Migration_v5_iPadReferenceCapacity.repairIfNeeded(records, in: context)
     }
   }
 
@@ -46,6 +52,48 @@
       do {
         try context.save()
         DeviceLibraryMigrations.logCorrections(count, version: version, storage: "SwiftData")
+        return true
+      } catch {
+        context.rollback()
+        ICloudSyncManager.shared.handleSaveError(error)
+        print("[Migration \(version)] SwiftData save failed; rolled back: \(error)")
+        return false
+      }
+    }
+
+    static func migrate(modelContext: ModelContext) throws {
+      guard !ProcessInfo.processInfo.isiOSAppOnMac else { return }
+      let records = try modelContext.fetch(FetchDescriptor<CurrentBatterySchema.BatteryRecord>())
+      guard repairIfNeeded(records, in: modelContext) else { throw Failure.saveFailed }
+      UserDefaults.standard.set(true, forKey: swiftDataKey)
+    }
+  }
+
+  @available(iOS 17, *)
+  extension Migration_v5_iPadReferenceCapacity: Migration {
+    @discardableResult
+    static func repairIfNeeded(
+      _ records: [CurrentBatterySchema.BatteryRecord], in context: ModelContext
+    ) -> Bool {
+      guard !ProcessInfo.processInfo.isiOSAppOnMac else { return true }
+      var count = 0
+      for record in records {
+        guard
+          let capacity = correctedDesignCapacity(
+            for: record.deviceName, storedCapacity: record.designCapacity)
+        else { continue }
+        record.designCapacity = capacity
+        if record.rawCapacity > 0 {
+          record.diagnosticResult = DeviceLibraryMigrations.diagnostic(
+            rawCapacity: record.rawCapacity, designCapacity: capacity)
+        }
+        count += 1
+      }
+      guard count > 0 else { return true }
+      do {
+        try context.save()
+        DeviceLibraryMigrations.logCapacityCorrections(
+          count, version: version, storage: "SwiftData")
         return true
       } catch {
         context.rollback()
