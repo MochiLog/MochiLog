@@ -8,7 +8,7 @@
 ・iPhoneに保存されたApple Watchのログも取り込めます。複数のWatchを使っている場合や、まだMochiLogに登録していないWatchにも対応しました。
 ・複数のMac／Windowsを登録できるようになりました。QRコードと確認コードで接続し、不要になったPCや端末は個別に解除できます。
 ・同じApple Accountで双方のiCloud同期がオンの場合、ほかの端末のログと現在のバッテリー情報もPC経由で受け取れます。
-・PCとの接続状態、転送の進み具合、取り込み結果を確認しやすくしました。「今すぐ受信」やPCからの手動送信も利用できます。
+・PCとの接続状態、転送の進み具合、取り込み結果を確認しやすくしました。「今すぐ受信」も利用できます。
 ・接続が途切れた後の再接続や、低速回線での転送を改善しました。複数のPCを利用しているときも、それぞれから受信しやすくなりました。
 ・手動でのIPアドレス指定と、モバイル通信のオン・オフ設定を追加しました。外出先からの通信にはTailscaleなどの対応VPNが必要です。
 ・必要なログを受け取った後の不要な通信を減らし、バッテリー消費を抑えるようにしました。
@@ -27,11 +27,8 @@
 ・iPhone・iPad・Apple Watchの記録が別の端末として表示される問題を修正しました。
 ・完全に同じ重複記録を起動時に確認し、候補を見てから整理できるようにしました。
 ・ホームのバッテリー記録を複数選択・全選択して削除できるようになりました。
-・PCにログの保管庫を追加しました。保存期間・容量の設定、削除、書き出し、手動での再送ができ、未転送のログは保護されます。
-・PC版はログイン時起動、メニューバー／タスクトレイ常駐、ウィンドウを閉じた後の動作設定、自動更新の確認に対応しました。
 ・PCとの通信の安全性を強化しました。これまでのペアリング設定も引き続き利用できます。
 ・iPadの設定画面、戻る操作、デバイス情報の管理、QR読み取り時のカメラの向きを改善しました。iPhone Duoの大きな画面にも対応しました。
-・Macで使うiPhone／iPad版の起動、iCloud同期、表示言語、寄付画面を改善しました。
 ・共有画面でのクラッシュ、分析グラフの表示不具合、Apple Watchの処理結果が繰り返し表示される問題を修正しました。
 ・8言語の画面と案内を更新しました。図解付きの機能紹介、設定手順、困ったときのヘルプ、PC版へのダウンロード案内も追加しました。
 ・PC連携はiOS／iPadOS 27以降とmacOS 27以降またはWindows 11、端末内取得はiOS／iPadOS 17以降が対象です。日次ログの取得には、解析データの生成と端末のロック解除が必要です。
@@ -44,7 +41,7 @@
 • Import Apple Watch logs saved on your iPhone, including multiple Watches and Watches not yet registered in MochiLog.
 • Pair multiple Macs and Windows PCs using QR codes and confirmation codes. Remove individual pairings when no longer needed.
 • Receive other devices' logs and current battery information through a PC when both devices enable iCloud sync with the same Apple Account.
-• See connection status, transfer progress and import results. Use Receive Now or send manually from your PC.
+• See connection status, transfer progress and import results. Use Receive Now to import on demand.
 • Improved reconnection, slow-network transfers and receiving from multiple PCs.
 • Added manual IP addresses and cellular controls. Remote access requires a compatible VPN such as Tailscale.
 • Reduced unnecessary communication after daily logs arrive to help save battery.
@@ -63,11 +60,8 @@
 • Fixed records being attributed to the wrong iPhone, iPad or Apple Watch.
 • Review exact duplicates at launch and choose which to remove.
 • Select multiple battery records, or all records, for deletion from Home.
-• Manage PC log storage with retention and size limits, delete, export or resend files, and protect unsent logs.
-• PC apps support startup at login, menu bar/system tray operation, close-behavior settings and optional update checks.
 • Improved PC connection security while retaining existing pairings.
 • Improved iPad settings, navigation, device management and QR camera orientation; added larger iPhone Duo display support.
-• Improved launch, iCloud sync, language and tip screens when running the mobile app on Mac.
 • Fixed sharing crashes, chart display issues and recurring Apple Watch import results.
 • Updated eight languages, illustrated introductions, setup guides, troubleshooting and PC download links.
 • PC collection requires iOS/iPadOS 27+ and macOS 27+ or Windows 11. On-device collection requires iOS/iPadOS 17+. Daily logs require generated analytics and an unlocked device.

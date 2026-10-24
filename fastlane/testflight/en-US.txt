@@ -4,7 +4,7 @@
 • Import Apple Watch logs saved on your iPhone, including multiple Watches and Watches not yet registered in MochiLog.
 • Pair multiple Macs and Windows PCs using QR codes and confirmation codes. Remove individual pairings when no longer needed.
 • Receive other devices' logs and current battery information through a PC when both devices enable iCloud sync with the same Apple Account.
-• See connection status, transfer progress and import results. Use Receive Now or send manually from your PC.
+• See connection status, transfer progress and import results. Use Receive Now to import on demand.
 • Improved reconnection, slow-network transfers and receiving from multiple PCs.
 • Added manual IP addresses and cellular controls. Remote access requires a compatible VPN such as Tailscale.
 • Reduced unnecessary communication after daily logs arrive to help save battery.
@@ -23,11 +23,8 @@
 • Fixed records being attributed to the wrong iPhone, iPad or Apple Watch.
 • Review exact duplicates at launch and choose which to remove.
 • Select multiple battery records, or all records, for deletion from Home.
-• Manage PC log storage with retention and size limits, delete, export or resend files, and protect unsent logs.
-• PC apps support startup at login, menu bar/system tray operation, close-behavior settings and optional update checks.
 • Improved PC connection security while retaining existing pairings.
 • Improved iPad settings, navigation, device management and QR camera orientation; added larger iPhone Duo display support.
-• Improved launch, iCloud sync, language and tip screens when running the mobile app on Mac.
 • Fixed sharing crashes, chart display issues and recurring Apple Watch import results.
 • Updated eight languages, illustrated introductions, setup guides, troubleshooting and PC download links.
 • PC collection requires iOS/iPadOS 27+ and macOS 27+ or Windows 11. On-device collection requires iOS/iPadOS 17+. Daily logs require generated analytics and an unlocked device.
