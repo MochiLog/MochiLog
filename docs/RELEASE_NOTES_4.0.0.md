@@ -30,6 +30,8 @@
 ・PCとの通信の安全性を強化しました。これまでのペアリング設定も引き続き利用できます。
 ・iPadの設定画面、戻る操作、デバイス情報の管理、QR読み取り時のカメラの向きを改善しました。iPhone Duoの大きな画面にも対応しました。
 ・共有画面でのクラッシュ、分析グラフの表示不具合、Apple Watchの処理結果が繰り返し表示される問題を修正しました。
+・複数ログの共有メニューの案内を分かりやすくし、共有項目の表示を改善しました。
+・Apple Watch Series 3 Cellularの容量表示を修正しました。これまでの記録の容量表示も補正されます。
 ・8言語の画面と案内を更新しました。図解付きの機能紹介、設定手順、困ったときのヘルプ、PC版へのダウンロード案内も追加しました。
 ・PC連携はiOS／iPadOS 27以降とmacOS 27以降またはWindows 11、端末内取得はiOS／iPadOS 17以降が対象です。日次ログの取得には、解析データの生成と端末のロック解除が必要です。
 
@@ -63,5 +65,7 @@
 • Improved PC connection security while retaining existing pairings.
 • Improved iPad settings, navigation, device management and QR camera orientation; added larger iPhone Duo display support.
 • Fixed sharing crashes, chart display issues and recurring Apple Watch import results.
+• Clarified how to import multiple logs from the share menu and improved when the import action appears.
+• Corrected capacity references for Apple Watch Series 3 Cellular, including capacity displays in existing records.
 • Updated eight languages, illustrated introductions, setup guides, troubleshooting and PC download links.
 • PC collection requires iOS/iPadOS 27+ and macOS 27+ or Windows 11. On-device collection requires iOS/iPadOS 17+. Daily logs require generated analytics and an unlocked device.

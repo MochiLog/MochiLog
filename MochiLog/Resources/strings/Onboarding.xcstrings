@@ -2816,49 +2816,49 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tippe auf Teilen und wähle MochiLog. Das Protokoll wird automatisch importiert."
+            "value" : "Für ein Protokoll wähle MochiLog. Scrolle bei mehreren im Teilen-Menü nach unten zu den Aktionen und wähle „MochiLog (Multiple Files)“. Tippe auf Done und öffne danach MochiLog."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tap the Share button and select MochiLog.\nThe log will be automatically imported."
+            "value" : "For one log, select MochiLog. For several, scroll down the share sheet to the actions and choose “MochiLog (Multiple Files)”. Tap Done, then open MochiLog to import them together."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pulsa Compartir y selecciona MochiLog. El registro se importará automáticamente."
+            "value" : "Para un registro, selecciona MochiLog. Para varios, baja a las acciones del menú Compartir y elige «MochiLog (Multiple Files)». Pulsa Done y abre MochiLog para importarlos juntos."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Touchez Partager et sélectionnez MochiLog. Le journal sera importé automatiquement."
+            "value" : "Pour un journal, choisissez MochiLog. Pour plusieurs, faites défiler le menu de partage jusqu’aux actions et choisissez « MochiLog (Multiple Files) ». Touchez Done, puis ouvrez MochiLog."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "共有ボタンをタップして、MochiLogを選択します。\nログが自動的にインポートされます。"
+            "value" : "1件なら共有先の「MochiLog」を選びます。複数件は共有メニューを下へスクロールし、アクション一覧の「MochiLog（複数ファイル）」を選んでください。「完了」を押してからMochiLogを開くと、まとめて取り込みます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "공유 버튼을 누르고 MochiLog를 선택하세요. 로그가 자동으로 가져와집니다."
+            "value" : "로그 1개는 공유 대상에서 MochiLog를 선택하세요. 여러 개는 공유 메뉴 아래의 동작 목록에서 “MochiLog (Multiple Files)”를 선택하세요. Done을 누른 뒤 MochiLog를 열면 함께 가져옵니다."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "点击共享按钮并选择MochiLog。日志将自动导入。"
+            "value" : "单个日志请选择共享目标“MochiLog”。多个日志请向下滚动共享菜单，在操作列表中选择“MochiLog (Multiple Files)”。点击Done后打开MochiLog，即可批量导入。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "點選分享按鈕並選擇MochiLog。日誌將自動匯入。"
+            "value" : "單個日誌請選擇分享對象「MochiLog」。多個日誌請向下捲動分享選單，在動作列表中選擇「MochiLog (Multiple Files)」。點按Done後開啟MochiLog，即可一併匯入。"
           }
         }
       }

@@ -89,9 +89,9 @@ class DataStore: ObservableObject {
     fatalError("Subclass must override refreshRecords()")
   }
 
-  /// マイグレーションを実行（iOS 17+ のみ）
+  /// OSごとの保存形式に対応する専用マイグレーションを実行
   func runMigrations() {
-    // デフォルト実装: 何もしない（CoreDataStore用）
+    // デフォルト実装: 何もしない
   }
 
   // MARK: - キャッシュ更新ヘルパー

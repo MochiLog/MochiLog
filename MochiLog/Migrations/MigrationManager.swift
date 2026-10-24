@@ -11,7 +11,8 @@ struct MigrationManager {
   /// 登録されたマイグレーションのリスト
   /// 新しいマイグレーションはこのリストに追加してください
   private static let migrations: [Migration.Type] = [
-    Migration_v1_iPhone16e_AvgTemp.self
+    Migration_v1_iPhone16e_AvgTemp.self,
+    Migration_v3_WatchSeries3Capacity.self,
     // 新しいマイグレーションをここに追加
     // 例: Migration_v2_NewFeature.self,
   ]

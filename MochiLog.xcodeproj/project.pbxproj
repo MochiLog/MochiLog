@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-        A10000000000000000000001 /* idevice.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = A10000000000000000000002 /* idevice.xcframework */; };
 		0A6A2C78B16444A1327B1454 /* MochiLogShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 203587808C3FC8825D39A12D /* MochiLogShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		127EAC3B627051340D274793 /* LanguageAndLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28577E54F8F793BF56F606D7 /* LanguageAndLayoutTests.swift */; };
 		2B72203E33BF09F62F1AC558 /* WatchLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF473DDFC0446BB61C4CE9 /* WatchLayoutTests.swift */; };
@@ -17,7 +16,10 @@
 		4E2E3D712F41D3910041E83C /* Yams in Frameworks */ = {isa = PBXBuildFile; productRef = 4E2E3D702F41D3910041E83C /* Yams */; };
 		4EFB3E572F2CE3CA001F2930 /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4EFB3E562F2CE3CA001F2930 /* WatchConnectivity.framework */; };
 		4EFB42BB2F2CF31B001F2930 /* MochiLog Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 4EFB3AB82F2CD92B001F2930 /* MochiLog Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		5FFA23F6F4D59D08E21C8753 /* Shared/SharedLogInbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D8C814CBAFF65585952FD2 /* Shared/SharedLogInbox.swift */; };
+		56DE4912A4B8A8CF0819942E /* WatchCapacityMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 684672AB092DEB40E655AE23 /* WatchCapacityMigrationTests.swift */; };
+		5FFA23F6F4D59D08E21C8753 /* SharedLogInbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D8C814CBAFF65585952FD2 /* SharedLogInbox.swift */; };
+		88CBFD3AFCCF64C53B6C6E83 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CBE4A6AE2BE55404293C347 /* Foundation.framework */; };
+		A10000000000000000000001 /* idevice.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = A10000000000000000000002 /* idevice.xcframework */; };
 		B2BB2236F959178D04D12387 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 129EAD9F001E904356A4AC73 /* Foundation.framework */; };
 /* End PBXBuildFile section */
 
@@ -35,6 +37,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 4EFB3AB72F2CD92B001F2930;
 			remoteInfo = "MochiLog Watch App";
+		};
+		7E0A41FA74E9CE558B61EEFF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4E0CF1372EF9542800307800 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4E0CF13E2EF9542800307800;
+			remoteInfo = MochiLog;
 		};
 		8D0CC62613013A22A7A638C1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -78,17 +87,20 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-        A10000000000000000000002 /* idevice.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Build/LocalDiagnostics/idevice.xcframework; sourceTree = SOURCE_ROOT; };
 		129EAD9F001E904356A4AC73 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		203587808C3FC8825D39A12D /* MochiLogShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; path = MochiLogShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		28577E54F8F793BF56F606D7 /* LanguageAndLayoutTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LanguageAndLayoutTests.swift; sourceTree = "<group>"; };
 		2CBF473DDFC0446BB61C4CE9 /* WatchLayoutTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchLayoutTests.swift; sourceTree = "<group>"; };
-		30D8C814CBAFF65585952FD2 /* Shared/SharedLogInbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shared/SharedLogInbox.swift; sourceTree = SOURCE_ROOT; };
+		30D8C814CBAFF65585952FD2 /* SharedLogInbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shared/SharedLogInbox.swift; sourceTree = SOURCE_ROOT; };
+		3CBE4A6AE2BE55404293C347 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		4E0537A93051706B00EC12CE /* MochiLog.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = MochiLog.xcodeproj; sourceTree = SOURCE_ROOT; };
 		4E0CF13F2EF9542800307800 /* MochiLog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MochiLog.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E15D8EA2F024BBF00D6C3FE /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		4EFB3AB82F2CD92B001F2930 /* MochiLog Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "MochiLog Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4EFB3E562F2CE3CA001F2930 /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = System/Library/Frameworks/WatchConnectivity.framework; sourceTree = SDKROOT; };
+		684672AB092DEB40E655AE23 /* WatchCapacityMigrationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchCapacityMigrationTests.swift; sourceTree = "<group>"; };
+		A10000000000000000000002 /* idevice.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Build/LocalDiagnostics/idevice.xcframework; sourceTree = SOURCE_ROOT; };
+		C37CF0035BF454EBC2FDAB9C /* MochiLogMigrationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MochiLogMigrationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8E24672B82B6C4854EA9BCE /* MochiLogUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MochiLogUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F51ED240CA3B1C0EF9D69525 /* MochiLogWatchUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MochiLogWatchUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FB77B6B1AD1AB85D5C9A4320 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS11.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
@@ -114,6 +126,8 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		4E0CF1412EF9542800307800 /* MochiLog */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = MochiLog;
 			sourceTree = "<group>";
 		};
@@ -127,6 +141,8 @@
 		};
 		A02700000000000000000001 /* Shared */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Shared;
 			sourceTree = "<group>";
 		};
@@ -175,6 +191,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BE7DF2F1ADEEC9B4BA8E2E48 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				88CBFD3AFCCF64C53B6C6E83 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CDE3FEE744DDBD3D6F9320FB /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -189,12 +213,24 @@
 			isa = PBXGroup;
 			children = (
 				129EAD9F001E904356A4AC73 /* Foundation.framework */,
+				3CBE4A6AE2BE55404293C347 /* Foundation.framework */,
 			);
 			name = iOS;
 			sourceTree = "<group>";
 		};
+		4866C3DA453BF589EDB19063 /* MigrationTests */ = {
+			isa = PBXGroup;
+			children = (
+				684672AB092DEB40E655AE23 /* WatchCapacityMigrationTests.swift */,
+			);
+			name = MigrationTests;
+			path = Tests/Migrations;
+			sourceTree = "<group>";
+		};
 		4E0537AA3051706B00EC12CE /* Products */ = {
 			isa = PBXGroup;
+			children = (
+			);
 			name = Products;
 			sourceTree = "<group>";
 		};
@@ -202,7 +238,7 @@
 			isa = PBXGroup;
 			children = (
 				DD5881846D1CC29CC197951E /* MochiLogShareExtension */,
-				30D8C814CBAFF65585952FD2 /* Shared/SharedLogInbox.swift */,
+				30D8C814CBAFF65585952FD2 /* SharedLogInbox.swift */,
 				4E0537A93051706B00EC12CE /* MochiLog.xcodeproj */,
 				4E0CF1412EF9542800307800 /* MochiLog */,
 				A02700000000000000000001 /* Shared */,
@@ -212,6 +248,7 @@
 				4EFB3E552F2CE3CA001F2930 /* Frameworks */,
 				B54E76302BA49A688379A442 /* UITests */,
 				E8CC1BDEA89997DD7CD05E51 /* WatchUITests */,
+				4866C3DA453BF589EDB19063 /* MigrationTests */,
 			);
 			sourceTree = "<group>";
 		};
@@ -223,6 +260,7 @@
 				4EFB3AB82F2CD92B001F2930 /* MochiLog Watch App.app */,
 				D8E24672B82B6C4854EA9BCE /* MochiLogUITests.xctest */,
 				F51ED240CA3B1C0EF9D69525 /* MochiLogWatchUITests.xctest */,
+				C37CF0035BF454EBC2FDAB9C /* MochiLogMigrationTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -332,6 +370,24 @@
 			productReference = F51ED240CA3B1C0EF9D69525 /* MochiLogWatchUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		7F0A6C4395602F531C3E97C3 /* MochiLogMigrationTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BAC66E1459B4A2CDF54A6966 /* Build configuration list for PBXNativeTarget "MochiLogMigrationTests" */;
+			buildPhases = (
+				4A31551BDBDF444E6E1BA3E4 /* Sources */,
+				BE7DF2F1ADEEC9B4BA8E2E48 /* Frameworks */,
+				E15CECA89B37CE90A0A495EA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1C5B8FC3D025A9072E22B6C2 /* PBXTargetDependency */,
+			);
+			name = MochiLogMigrationTests;
+			productName = MochiLogMigrationTests;
+			productReference = C37CF0035BF454EBC2FDAB9C /* MochiLogMigrationTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		A5918E8A36F977E807E66D34 /* MochiLogShareExtension */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3D197162F82F4110B0BC96C0 /* Build configuration list for PBXNativeTarget "MochiLogShareExtension" */;
@@ -424,6 +480,7 @@
 				4EFB3AB72F2CD92B001F2930 /* MochiLog Watch App */,
 				C819A3180A9451A2CD7D5371 /* MochiLogUITests */,
 				5C4282754B1AB116B058EA58 /* MochiLogWatchUITests */,
+				7F0A6C4395602F531C3E97C3 /* MochiLogMigrationTests */,
 			);
 		};
 /* End PBXProject section */
@@ -465,9 +522,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E15CECA89B37CE90A0A495EA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		4A31551BDBDF444E6E1BA3E4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				56DE4912A4B8A8CF0819942E /* WatchCapacityMigrationTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4E0CF13B2EF9542800307800 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -502,13 +574,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5FFA23F6F4D59D08E21C8753 /* Shared/SharedLogInbox.swift in Sources */,
+				5FFA23F6F4D59D08E21C8753 /* SharedLogInbox.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		1C5B8FC3D025A9072E22B6C2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = MochiLog;
+			target = 4E0CF13E2EF9542800307800 /* MochiLog */;
+			targetProxy = 7E0A41FA74E9CE558B61EEFF /* PBXContainerItemProxy */;
+		};
 		26B9118E56065C6686B0EF7F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = A5918E8A36F977E807E66D34 /* MochiLogShareExtension */;
@@ -558,7 +636,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1060;
+				CURRENT_PROJECT_VERSION = 1061;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = FZ35ZF3CZV;
@@ -592,12 +670,12 @@
 				OTHER_LDFLAGS = (
 					"-weak_framework",
 					SwiftData,
-                    "-lresolv",
-                    "-liconv",
-                    "-framework",
-                    Security,
-                    "-framework",
-                    SystemConfiguration,
+					"-lresolv",
+					"-liconv",
+					"-framework",
+					Security,
+					"-framework",
+					SystemConfiguration,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "net.ryuya-dev.MochiLog";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -627,7 +705,7 @@
 				CODE_SIGN_ENTITLEMENTS = MochiLog/Resources/MochiLog.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution: ryuya watanabe (FZ35ZF3CZV)";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1060;
+				CURRENT_PROJECT_VERSION = 1061;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = FZ35ZF3CZV;
@@ -661,12 +739,12 @@
 				OTHER_LDFLAGS = (
 					"-weak_framework",
 					SwiftData,
-                    "-lresolv",
-                    "-liconv",
-                    "-framework",
-                    Security,
-                    "-framework",
-                    SystemConfiguration,
+					"-lresolv",
+					"-liconv",
+					"-framework",
+					Security,
+					"-framework",
+					SystemConfiguration,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "net.ryuya-dev.MochiLog";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -817,7 +895,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1060;
+				CURRENT_PROJECT_VERSION = 1061;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=watchos*]" = FZ35ZF3CZV;
 				ENABLE_PREVIEWS = YES;
@@ -856,7 +934,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1060;
+				CURRENT_PROJECT_VERSION = 1061;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=watchos*]" = FZ35ZF3CZV;
 				ENABLE_PREVIEWS = YES;
@@ -895,7 +973,7 @@
 				CODE_SIGN_ENTITLEMENTS = MochiLogShareExtension/Share.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1060;
+				CURRENT_PROJECT_VERSION = 1061;
 				DEVELOPMENT_TEAM = FZ35ZF3CZV;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MochiLogShareExtension/Info.plist;
@@ -918,6 +996,23 @@
 			};
 			name = Release;
 		};
+		A0D1C9AD77C80D3619E81BD0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "net.ryuya-dev.MochiLog.MigrationTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MochiLog.app/MochiLog";
+			};
+			name = Debug;
+		};
 		A1621B9C0A098DDDA1AE5CD5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -933,13 +1028,31 @@
 			};
 			name = Release;
 		};
+		A477AEA93C71B789F01226DA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "net.ryuya-dev.MochiLog.MigrationTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MochiLog.app/MochiLog";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		BE8E6E8B0DF101091E1C7EA5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = MochiLogShareExtension/Share.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1060;
+				CURRENT_PROJECT_VERSION = 1061;
 				DEVELOPMENT_TEAM = FZ35ZF3CZV;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MochiLogShareExtension/Info.plist;
@@ -1047,6 +1160,15 @@
 			buildConfigurations = (
 				A1621B9C0A098DDDA1AE5CD5 /* Release */,
 				0C3FF5B228EF0DF7CCFE6354 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BAC66E1459B4A2CDF54A6966 /* Build configuration list for PBXNativeTarget "MochiLogMigrationTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A477AEA93C71B789F01226DA /* Release */,
+				A0D1C9AD77C80D3619E81BD0 /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

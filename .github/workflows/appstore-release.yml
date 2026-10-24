@@ -11,7 +11,7 @@ on:
         default: '4.0.0'
       build_number:
         type: string
-        default: '1060'
+        default: '1061'
 permissions:
   contents: read
 jobs:

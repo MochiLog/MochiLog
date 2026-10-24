@@ -150,10 +150,10 @@ struct DeviceLibrary {
     "iPod9,1": "iPod touch (第7世代)",
 
     // Apple Watch
-    "Watch3,1": "Apple Watch 3 (38mm)",
-    "Watch3,2": "Apple Watch 3 (38mm) Cellular",
-    "Watch3,3": "Apple Watch 3 (42mm)",
-    "Watch3,4": "Apple Watch 3 (42mm) Cellular",
+    "Watch3,1": "Apple Watch 3 (38mm) Cellular",
+    "Watch3,2": "Apple Watch 3 (42mm) Cellular",
+    "Watch3,3": "Apple Watch 3 (38mm)",
+    "Watch3,4": "Apple Watch 3 (42mm)",
     "Watch4,1": "Apple Watch 4 (40mm)",
     "Watch4,2": "Apple Watch 4 (40mm)",
     "Watch4,3": "Apple Watch 4 (44mm)",
@@ -620,9 +620,11 @@ struct DeviceLibrary {
     "Apple Watch 5 (40mm)": 245,
     "Apple Watch 4 (44mm)": 291,
     "Apple Watch 4 (40mm)": 224,
-    "Apple Watch 3 (42mm) Cellular": 279,
+    // Series 3 has different GPS and Cellular cells (A1850 / A1848).
+    // https://www.ifixit.com/products/apple-watch-42-mm-series-3-cellular-replacement-battery
+    "Apple Watch 3 (42mm) Cellular": 352,
     "Apple Watch 3 (42mm)": 342,
-    "Apple Watch 3 (38mm) Cellular": 262,
+    "Apple Watch 3 (38mm) Cellular": 279,
     "Apple Watch 3 (38mm)": 262,
 
     // Accessories

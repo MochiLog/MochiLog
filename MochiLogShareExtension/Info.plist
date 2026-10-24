@@ -30,7 +30,7 @@
 		<dict>
 			<key>NSExtensionActivationRule</key>
 			<dict>
-				<key>NSExtensionActivationRuleVersion</key>
+				<key>NSExtensionActivationDictionaryVersion</key>
 				<integer>2</integer>
 				<key>NSExtensionActivationSupportsFileWithMaxCount</key>
 				<integer>100</integer>

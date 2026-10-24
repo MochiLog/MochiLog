@@ -201,6 +201,7 @@ struct DeveloperOptionsView: View {
           UserDefaults.standard.removeObject(forKey: "Migration_Completed_v2_MagSafe_Battery")
           UserDefaults.standard.removeObject(
             forKey: "CoreDataMigration_Completed_v2_MagSafe_Battery")
+          UserDefaults.standard.removeObject(forKey: Migration_v3_WatchSeries3Capacity.coreDataKey)
         }
       } message: {
         Text("全てのマイグレーションフラグをリセットします。次回起動時に再実行されます。")
@@ -222,10 +223,15 @@ struct DeveloperOptionsView: View {
   }
 
   private func getMigrationStatuses() -> [MigrationStatus] {
-    let migrationVersions = ["v1_iPhone16e_AvgTemp", "v2_MagSafe_Battery"]
+    let migrationVersions = [
+      "v1_iPhone16e_AvgTemp", "v2_MagSafe_Battery", Migration_v3_WatchSeries3Capacity.version,
+    ]
 
     return migrationVersions.map { version in
-      let key = "Migration_Completed_\(version)"
+      let key =
+        version == Migration_v3_WatchSeries3Capacity.version
+          && ProcessInfo.processInfo.operatingSystemVersion.majorVersion < 17
+        ? Migration_v3_WatchSeries3Capacity.coreDataKey : "Migration_Completed_\(version)"
       let completed = UserDefaults.standard.bool(forKey: key)
       return MigrationStatus(version: version, completed: completed)
     }
