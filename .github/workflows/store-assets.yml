@@ -38,3 +38,4 @@ jobs:
         with:
           name: store-asset-inventory
           path: build/store-asset-inventory/
+          retention-days: 7

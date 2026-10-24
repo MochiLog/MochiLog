@@ -73,7 +73,9 @@ begin
       120.times do |attempt|
         image = api.get("/appAssetLibraryImages/#{id}").fetch("data")
         File.write(File.join(File.dirname(result_path), "#{device}-latest-image.json"), JSON.pretty_generate(image))
-        break unless %w[AWAITING_UPLOAD UPLOAD_COMPLETE].include?(image.dig("attributes", "state"))
+        # Apple's deployed API can briefly report COMPLETE before attaching
+        # the image specification. It is still processing, not ready to place.
+        break unless %w[AWAITING_UPLOAD UPLOAD_COMPLETE COMPLETE].include?(image.dig("attributes", "state"))
         puts "Waiting for #{locale}/#{File.basename(file)} processing: #{image.dig('attributes', 'state')}" if (attempt % 10).zero?
         sleep 3
       end
