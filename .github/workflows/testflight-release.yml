@@ -4,8 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       marketing_version:
-        description: 'Version, such as 3.2.1'
+        description: 'Beta version, such as 4.1.0'
         required: true
+        default: '4.1.0'
         type: string
       build_number:
         description: 'Uploaded build number'
