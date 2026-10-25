@@ -38,12 +38,17 @@ def build_for(api, marketing_version, build_number, wait:)
   end
 end
 
-def publish_localizations(api, build_id)
-  existing = api.get("/builds/#{build_id}/betaBuildLocalizations", "limit" => "200")
-    .fetch("data", []).to_h { |item| [item.dig("attributes", "locale"), item] }
+def publish_localizations(api, build_id, marketing_version)
+  notes = {}
   { "ja" => "ja.txt", "en-US" => "en-US.txt" }.each do |locale, filename|
     text = File.read(File.expand_path("../fastlane/testflight/#{filename}", __dir__), encoding: "UTF-8").strip
     raise "#{locale} note exceeds 4,000 characters" if text.length > 4_000
+    raise "#{locale} note targets a different marketing version" unless text.lines.first&.strip == marketing_version
+    notes[locale] = text
+  end
+  existing = api.get("/builds/#{build_id}/betaBuildLocalizations", "limit" => "200")
+    .fetch("data", []).to_h { |item| [item.dig("attributes", "locale"), item] }
+  notes.each do |locale, text|
     if (item = existing[locale])
       api.patch("/betaBuildLocalizations/#{item.fetch('id')}",
         data: { type: "betaBuildLocalizations", id: item.fetch("id"), attributes: { whatsNew: text } })
@@ -141,7 +146,7 @@ build_id = build.fetch("id")
 puts "Found #{marketing_version} (#{build_number}), processing #{build.dig('attributes', 'processingState')}."
 report_distribution(api, build) if mode == "inspect"
 if mode != "inspect"
-  publish_localizations(api, build_id)
+  publish_localizations(api, build_id, marketing_version)
   publish_beta_test_information(api)
   enable_auto_notify(api, build_id)
   if mode == "publish"
