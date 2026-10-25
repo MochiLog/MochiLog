@@ -16,7 +16,8 @@ review continues with the previously submitted build.
 4. After the signed build/upload succeeds, verify the resulting Release IPA and
    run **Publish TestFlight notes and groups** with mode `publish`, marketing
    version `4.1.0` and the same build number. This uses the existing tester groups
-   and submits external beta review if Apple requires it.
+   and submits external beta review if Apple requires it. The workflow's version
+   field defaults to `4.1.0`; keep the build number specific to the uploaded build.
 5. Confirm VALID processing, note languages, internal/external states and group
    assignment. Report an external review wait as pending, not as availability.
 
@@ -30,4 +31,9 @@ Heavy builds stay on CI to avoid adding local simulator/build caches.
 
 ## Confirmed distribution
 
-Results are recorded here after build processing and distribution verification.
+- [Signed build/upload 40198618051](https://github.com/MochiLog/MochiLog/actions/runs/40198618051) succeeded from `4b9c785eae8ae186aa3732c532e1022827e3c613`, using Xcode 27.1. All normal build-workflow regression checks passed.
+- The Release IPA is 16,106,930 bytes, SHA-256 `da28af2477ca9e2ae1de741a547924885c7b1a4db1a43f346739bada90ac2cb8`. Deep/strict signature verification passed. Main app, share extension and Watch app all report 4.1.0 (1064). Distribution profiles disable `get-task-allow`, no test bundles are present, and the main app's signed CloudKit entitlement targets Production.
+- [TestFlight publishing 40199637603](https://github.com/MochiLog/MochiLog/actions/runs/40199637603) succeeded. Apple processing is `VALID`, `expired=false`, internal state `IN_BETA_TESTING`. Existing internal `iOS16` and `iCloud同期` groups and external `main` group are assigned; notifications are enabled.
+- Japanese/English build notes were published (117/231 characters). The first build is the baseline for upcoming 4.1.0 improvements.
+- External beta review was submitted successfully. Apple's confirmed state is **`WAITING_FOR_BETA_REVIEW`**, so external availability remains pending Apple's review.
+- [Read-only store verification 40199733645](https://github.com/MochiLog/MochiLog/actions/runs/40199733645) confirmed that App Store 4.0.0 remains `WAITING_FOR_REVIEW`, selects build 1063 with `expired=false`, and retains the exact committed Japanese/English store notes. No App Store 4.1.0 version was created.
