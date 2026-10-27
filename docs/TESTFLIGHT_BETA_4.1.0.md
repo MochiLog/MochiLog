@@ -37,3 +37,16 @@ Heavy builds stay on CI to avoid adding local simulator/build caches.
 - Japanese/English build notes were published (117/231 characters). The first build is the baseline for upcoming 4.1.0 improvements.
 - External beta review was submitted successfully. Apple's confirmed state is **`WAITING_FOR_BETA_REVIEW`**, so external availability remains pending Apple's review.
 - [Read-only store verification 40199733645](https://github.com/MochiLog/MochiLog/actions/runs/40199733645) confirmed that App Store 4.0.0 remains `WAITING_FOR_REVIEW`, selects build 1063 with `expired=false`, and retains the exact committed Japanese/English store notes. No App Store 4.1.0 version was created.
+
+## Xcode 27.2 update — 2026-10-27
+
+- Build **4.1.0 (1065)** was built locally from `c1f5db9` using Xcode 27.2 RC (27B48). Product functionality is unchanged; version/build metadata and Japanese/English testing notes were updated.
+- The iPhone 17 and iPad Pro M4 simulators, both on iOS/iPadOS 27.2 (24B114), passed the live-battery opt-in/layout and localized-record sharing UI checks: four successful test runs. Device-library regression checks, multi-file share-extension registration and bundled license checks also passed.
+- The signed Release archive and fastlane IPA export succeeded. All three bundles (main, share extension and Watch app) report 4.1.0 (1065), `DTXcode=2720`, distribution signing and `get-task-allow=false`. The main app's signed CloudKit entitlement is Production. Deep/strict signature verification passed; no test bundles are included.
+- IPA size: **16,139,054 bytes**. SHA-256: `bc1fb1cc4c61e448794e2278aacfe9e77d2a9b386d35fadb61681d623114cf91`.
+- fastlane uploaded the verified IPA. Apple processing is **VALID**, `expired=false`. Japanese and English TestFlight notes were saved (87/173 characters).
+- Existing internal groups `iOS16` and `iCloud同期` and external group `main` all have confirmed build access. Automatic notifications are enabled. The external beta-review request succeeded and Apple's resulting state is **IN_BETA_TESTING**; internal state is also **IN_BETA_TESTING**.
+- Debug simulator windows were shown through Xcode 27.2's Device Hub after its first-launch system-component installation was authorized. Both simulator apps were left running for inspection.
+- Local build/test/export/upload/verification evidence is under ignored `build/testflight-1065/`. Credentials and raw device data are not part of the repository. App Store release metadata and review submission were not changed.
+
+For a local export from an existing signed archive, fastlane's `build_app` action uses `skip_build_archive:true`, `export_method:app-store` and an explicit export-options plist. Set the plist method to `app-store-connect` and include all three bundle IDs in `provisioningProfiles`; automatic profile detection alone found only the share extension in this environment. Keep `manageAppVersionAndBuildNumber=false` so Apple receives the verified build numbers.
