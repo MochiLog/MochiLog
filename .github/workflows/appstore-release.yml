@@ -9,10 +9,10 @@ on:
         description: 'Submit only with explicit authorization, after external TestFlight distribution'
       marketing_version:
         type: string
-        default: '4.0.0'
+        default: '4.0.1'
       build_number:
         type: string
-        default: '1061'
+        default: '1066'
 permissions:
   contents: read
 jobs:
@@ -26,7 +26,9 @@ jobs:
           ruby-version: '3.3'
       - run: gem install jwt --no-document
       - name: Verify submission safeguards
-        run: ruby scripts/test-appstore-review-submission.rb
+        run: |
+          ruby scripts/test-appstore-review-submission.rb
+          ruby scripts/test-app-store-asset-slots.rb
       - name: Manage the selected version using the explicitly requested mode
         env:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}

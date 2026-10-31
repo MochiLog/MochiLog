@@ -3,9 +3,10 @@
 require_relative "app-store-connect-client"
 require "digest"
 require "fileutils"
+require_relative "app-store-asset-slots"
 api = AppStoreConnect.new
 app = "6756904240"
-version = ENV.fetch("STORE_VERSION", "4.0.0")
+version = ENV.fetch("STORE_VERSION", "4.0.1")
 device = ENV.fetch("STORE_DEVICE", "duo")
 groups = {"duo" => "IPHONE_DUO_PROFILE", "iphone" => "IPHONE_DYNAMIC_ISLAND_LARGE_PROFILE", "ipad" => "IPAD_13_PROFILE", "watch" => "WATCH_SERIES_10_PROFILE", "creative" => "DEFAULT_PROFILE"}
 group = groups.fetch(device)
@@ -129,8 +130,17 @@ begin
           # A creative surface allows only one image. Once the replacement has
           # finished processing, detach only this draft's same-surface reference.
           # Keep the old library image so an unsuccessful replacement can restore it.
-          current = all(api, "/appStoreVersionLocalizations/#{localization}/placements", "limit" => "200", "include" => "image")
+          current = all(api, "/appStoreVersionLocalizations/#{localization}/placements", "limit" => "200", "include" => "image,appStoreVersionLocalization")
           replaced = current.select { |row| row.dig("attributes", "placementType") == placement_type && row.dig("attributes", "placementGroup") == group }
+          replaced.each { |row| api.delete("/appAssetLibraryPlacements/#{row.fetch('id')}") }
+        else
+          # New versions inherit screenshots. Free a slot only after the new
+          # image is ready; eight inherited Duo images plus eight replacements
+          # cannot temporarily coexist within Apple's ten-image group limit.
+          current = all(api, "/appStoreVersionLocalizations/#{localization}/placements", "limit" => "200", "include" => "image,appStoreVersionLocalization")
+          desired_ids = uploads.select { |row| row[1] == localization }.map { |row| row[3] }
+          replaced = AppStoreAssetSlots.replacements(current,
+            desired_ids: desired_ids, localization: localization, group: group)
           replaced.each { |row| api.delete("/appAssetLibraryPlacements/#{row.fetch('id')}") }
         end
         begin
@@ -144,12 +154,14 @@ begin
             .select { |row| row.dig("attributes", "placementType") == placement_type && row.dig("attributes", "placementGroup") == group }
           placement = current.find { |row| row.dig("relationships", "image", "data", "id") == id }
           unless placement
-            if current.empty?
+            if current.empty? || (!creative && current.size < 10)
               replaced.each do |old|
-                api.post("/appAssetLibraryPlacements", data: {type: "appAssetLibraryPlacements", attributes: {
+                next if current.any? { |row| row.dig("relationships", "image", "data", "id") == old.dig("relationships", "image", "data", "id") }
+                restored = api.post("/appAssetLibraryPlacements", data: {type: "appAssetLibraryPlacements", attributes: {
                   placementType: placement_type, placementGroup: group}, relationships: {
                   image: {data: old.dig("relationships", "image", "data")},
                   appStoreVersionLocalization: {data: {type: "appStoreVersionLocalizations", id: localization}}}})
+                current << restored.fetch("data")
               end
             end
             raise error
