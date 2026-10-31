@@ -1,4 +1,6 @@
-MochiLog 4.0.0 — App Review guide
+MochiLog 4.0.1 — App Review guide
+
+This update adds iPad mini (A20 Pro) support to the device catalog for log imports and battery capacity displays.
 
 No account or login is required. On a fresh installation, open Sample Mode on Home to load sample records and inspect Home, Details, charts, settings, and the Watch companion. The main app supports iOS/iPadOS 16+, and optional iCloud synchronization requires 17+. Existing manual analytics-file import remains available without a computer or VPN.
 

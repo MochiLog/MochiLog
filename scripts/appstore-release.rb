@@ -9,8 +9,8 @@ require_relative "submit-appstore-review"
 api = AppStoreConnect.new
 app = "6756904240"
 mode = ENV.fetch("RELEASE_MODE", "inspect")
-version = ENV.fetch("MARKETING_VERSION", "4.0.0")
-build = ENV.fetch("BUILD_NUMBER", "1061")
+version = ENV.fetch("MARKETING_VERSION", "4.0.1")
+build = ENV.fetch("BUILD_NUMBER", "1066")
 raise "Unknown mode" unless %w[inspect withdraw prepare verify submit].include?(mode)
 output = File.expand_path("../build/appstore-release", __dir__)
 FileUtils.mkdir_p(output)

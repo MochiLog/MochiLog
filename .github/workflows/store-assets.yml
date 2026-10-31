@@ -8,7 +8,7 @@ on:
         options: [inspect, upload-duo, upload-iphone, upload-ipad, upload-watch, upload-creative]
       store_version:
         type: string
-        default: '4.0.0'
+        default: '4.0.1'
 permissions:
   contents: read
 jobs:
@@ -21,6 +21,8 @@ jobs:
         with:
           ruby-version: '3.3'
       - run: gem install jwt --no-document
+      - name: Verify safe screenshot slot replacement
+        run: ruby scripts/test-app-store-asset-slots.rb
       - name: Inspect supported placements and existing versions
         env:
           STORE_VERSION: ${{ inputs.store_version }}
