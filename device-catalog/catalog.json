@@ -1,0 +1,2779 @@
+{
+  "profiles" : [
+    {
+      "boards" : {
+
+      },
+      "capacity" : 308,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch 10 (42mm)",
+      "identifiers" : [
+        "Watch7,10",
+        "Watch7,8"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch 10 (42mm)",
+      "soc" : "S10"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 327,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch 10 (46mm)",
+      "identifiers" : [
+        "Watch7,11",
+        "Watch7,9"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch 10 (46mm)",
+      "soc" : "S10"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 322,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch 11 (42mm)",
+      "identifiers" : [
+        "Watch7,17",
+        "Watch7,19"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch 11 (42mm)",
+      "soc" : "S10"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 363,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch 11 (46mm)",
+      "identifiers" : [
+        "Watch7,18",
+        "Watch7,20"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch 11 (46mm)",
+      "soc" : "S10"
+    },
+    {
+      "boards" : {
+        "N237sAP" : "Watch8,2"
+      },
+      "capacity" : 327,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch 12 (42mm)",
+      "identifiers" : [
+        "Watch8,2"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+        "Watch8,2" : [
+          "A3581",
+          "A3583"
+        ]
+      },
+      "name" : "Apple Watch 12 (42mm)",
+      "soc" : "S11"
+    },
+    {
+      "boards" : {
+        "N238sAP" : "Watch8,4"
+      },
+      "capacity" : 327,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch 12 (42mm) Cellular",
+      "identifiers" : [
+        "Watch8,4"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+        "Watch8,4" : [
+          "A3582",
+          "A3586"
+        ]
+      },
+      "name" : "Apple Watch 12 (42mm) Cellular",
+      "soc" : "S11"
+    },
+    {
+      "boards" : {
+        "N237bAP" : "Watch8,3"
+      },
+      "capacity" : 378,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch 12 (46mm)",
+      "identifiers" : [
+        "Watch8,3"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+        "Watch8,3" : [
+          "A3584",
+          "A3585"
+        ]
+      },
+      "name" : "Apple Watch 12 (46mm)",
+      "soc" : "S11"
+    },
+    {
+      "boards" : {
+        "N238bAP" : "Watch8,5"
+      },
+      "capacity" : 378,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch 12 (46mm) Cellular",
+      "identifiers" : [
+        "Watch8,5"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+        "Watch8,5" : [
+          "A3587",
+          "A3588"
+        ]
+      },
+      "name" : "Apple Watch 12 (46mm) Cellular",
+      "soc" : "S11"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 262,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch 3 (38mm)",
+      "identifiers" : [
+        "Watch3,3"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch 3 (38mm)",
+      "soc" : "S3"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 279,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch 3 (38mm) Cellular",
+      "identifiers" : [
+        "Watch3,1"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch 3 (38mm) Cellular",
+      "soc" : "S3"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 342,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch 3 (42mm)",
+      "identifiers" : [
+        "Watch3,4"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch 3 (42mm)",
+      "soc" : "S3"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 352,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch 3 (42mm) Cellular",
+      "identifiers" : [
+        "Watch3,2"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch 3 (42mm) Cellular",
+      "soc" : "S3"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 224,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch 4 (40mm)",
+      "identifiers" : [
+        "Watch4,1",
+        "Watch4,3"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch 4 (40mm)",
+      "soc" : "S4"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 291,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch 4 (44mm)",
+      "identifiers" : [
+        "Watch4,2",
+        "Watch4,4"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch 4 (44mm)",
+      "soc" : "S4"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 245,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch 5 (40mm)",
+      "identifiers" : [
+        "Watch5,1",
+        "Watch5,3"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch 5 (40mm)",
+      "soc" : "S5"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 296,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch 5 (44mm)",
+      "identifiers" : [
+        "Watch5,2",
+        "Watch5,4"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch 5 (44mm)",
+      "soc" : "S5"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 265,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch 6 (40mm)",
+      "identifiers" : [
+        "Watch6,1",
+        "Watch6,3"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch 6 (40mm)",
+      "soc" : "S6"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 303,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch 6 (44mm)",
+      "identifiers" : [
+        "Watch6,2",
+        "Watch6,4"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch 6 (44mm)",
+      "soc" : "S6"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 284,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch 7 (41mm)",
+      "identifiers" : [
+        "Watch6,6",
+        "Watch6,8"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch 7 (41mm)",
+      "soc" : "S7"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 308,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch 7 (45mm)",
+      "identifiers" : [
+        "Watch6,7",
+        "Watch6,9"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch 7 (45mm)",
+      "soc" : "S7"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 282,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch 8 (41mm)",
+      "identifiers" : [
+        "Watch6,14",
+        "Watch6,16"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch 8 (41mm)",
+      "soc" : "S8"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 308,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch 8 (45mm)",
+      "identifiers" : [
+        "Watch6,15",
+        "Watch6,17"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch 8 (45mm)",
+      "soc" : "S8"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 282,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch 9 (41mm)",
+      "identifiers" : [
+        "Watch7,1",
+        "Watch7,3"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch 9 (41mm)",
+      "soc" : "S9"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 308,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch 9 (45mm)",
+      "identifiers" : [
+        "Watch7,2",
+        "Watch7,4"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch 9 (45mm)",
+      "soc" : "S9"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 245,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch SE (第1世代) (40mm)",
+      "identifiers" : [
+        "Watch5,11",
+        "Watch5,9"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch SE (第1世代) (40mm)",
+      "soc" : "S5"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 296,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch SE (第1世代) (44mm)",
+      "identifiers" : [
+        "Watch5,10",
+        "Watch5,12"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch SE (第1世代) (44mm)",
+      "soc" : "S5"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 245,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch SE (第2世代) (40mm)",
+      "identifiers" : [
+        "Watch6,10",
+        "Watch6,12"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch SE (第2世代) (40mm)",
+      "soc" : "S8"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 296,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch SE (第2世代) (44mm)",
+      "identifiers" : [
+        "Watch6,11",
+        "Watch6,13"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch SE (第2世代) (44mm)",
+      "soc" : "S8"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 263,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch SE (第3世代) (40mm)",
+      "identifiers" : [
+        "Watch7,13",
+        "Watch7,15"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch SE (第3世代) (40mm)",
+      "soc" : "S10"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 330,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch SE (第3世代) (44mm)",
+      "identifiers" : [
+        "Watch7,14",
+        "Watch7,16"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch SE (第3世代) (44mm)",
+      "soc" : "S10"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 542,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch Ultra (第1世代)",
+      "identifiers" : [
+        "Watch6,18"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch Ultra (第1世代)",
+      "soc" : "S8"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 564,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch Ultra (第2世代)",
+      "identifiers" : [
+        "Watch7,5"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch Ultra (第2世代)",
+      "soc" : "S9"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 599,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch Ultra (第3世代)",
+      "identifiers" : [
+        "Watch7,12"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "Apple Watch Ultra (第3世代)",
+      "soc" : "S10"
+    },
+    {
+      "boards" : {
+        "N240AP" : "Watch8,1"
+      },
+      "capacity" : 633,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:Apple Watch Ultra (第4世代)",
+      "identifiers" : [
+        "Watch8,1"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+        "Watch8,1" : [
+          "A3579",
+          "A3580"
+        ]
+      },
+      "name" : "Apple Watch Ultra (第4世代)",
+      "soc" : "S11"
+    },
+    {
+      "boards" : {
+        "J481AP" : "iPad15,7",
+        "J482AP" : "iPad15,8"
+      },
+      "capacity" : 7606,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad (A16)",
+      "identifiers" : [
+        "iPad15,7",
+        "iPad15,8"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad (A16)",
+      "soc" : "A16 Bionic"
+    },
+    {
+      "boards" : {
+        "J271AP" : "iPad13,18",
+        "J272AP" : "iPad13,19"
+      },
+      "capacity" : 7606,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad (第10世代)",
+      "identifiers" : [
+        "iPad13,18",
+        "iPad13,19"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad (第10世代)",
+      "soc" : "A14 Bionic"
+    },
+    {
+      "boards" : {
+        "J71sAP" : "iPad6,11",
+        "J71tAP" : "iPad6,11",
+        "J72sAP" : "iPad6,12",
+        "J72tAP" : "iPad6,12"
+      },
+      "capacity" : 8827,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad (第5世代)",
+      "identifiers" : [
+        "iPad6,11",
+        "iPad6,12"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad (第5世代)",
+      "soc" : "A9"
+    },
+    {
+      "boards" : {
+        "J71bAP" : "iPad7,5",
+        "J72bAP" : "iPad7,6"
+      },
+      "capacity" : 8827,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad (第6世代)",
+      "identifiers" : [
+        "iPad7,5",
+        "iPad7,6"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad (第6世代)",
+      "soc" : "A10 Fusion"
+    },
+    {
+      "boards" : {
+        "J171AP" : "iPad7,11",
+        "J172AP" : "iPad7,12"
+      },
+      "capacity" : 8827,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad (第7世代)",
+      "identifiers" : [
+        "iPad7,11",
+        "iPad7,12"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad (第7世代)",
+      "soc" : "A10 Fusion"
+    },
+    {
+      "boards" : {
+        "J171aAP" : "iPad11,6",
+        "J172aAP" : "iPad11,7"
+      },
+      "capacity" : 8686,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad (第8世代)",
+      "identifiers" : [
+        "iPad11,6",
+        "iPad11,7"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad (第8世代)",
+      "soc" : "A12 Bionic"
+    },
+    {
+      "boards" : {
+        "J181AP" : "iPad12,1",
+        "J182AP" : "iPad12,2"
+      },
+      "capacity" : 8686,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad (第9世代)",
+      "identifiers" : [
+        "iPad12,1",
+        "iPad12,2"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad (第9世代)",
+      "soc" : "A13 Bionic"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 7340,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Air (第1世代)",
+      "identifiers" : [
+        "iPad4,1",
+        "iPad4,2",
+        "iPad4,3"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Air (第1世代)",
+      "soc" : "A7"
+    },
+    {
+      "boards" : {
+        "J81AP" : "iPad5,3",
+        "J82AP" : "iPad5,4"
+      },
+      "capacity" : 7340,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Air (第2世代)",
+      "identifiers" : [
+        "iPad5,3",
+        "iPad5,4"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Air (第2世代)",
+      "soc" : "A8X"
+    },
+    {
+      "boards" : {
+        "J217AP" : "iPad11,3",
+        "J218AP" : "iPad11,4"
+      },
+      "capacity" : 8134,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Air (第3世代)",
+      "identifiers" : [
+        "iPad11,3",
+        "iPad11,4"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Air (第3世代)",
+      "soc" : "A12 Bionic"
+    },
+    {
+      "boards" : {
+        "J307AP" : "iPad13,1",
+        "J308AP" : "iPad13,2"
+      },
+      "capacity" : 7606,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Air (第4世代)",
+      "identifiers" : [
+        "iPad13,1",
+        "iPad13,2"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Air (第4世代)",
+      "soc" : "A14 Bionic"
+    },
+    {
+      "boards" : {
+        "J407AP" : "iPad13,16",
+        "J408AP" : "iPad13,17"
+      },
+      "capacity" : 7526,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Air (第5世代)",
+      "identifiers" : [
+        "iPad13,16",
+        "iPad13,17"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Air (第5世代)",
+      "soc" : "M1"
+    },
+    {
+      "boards" : {
+        "J507AP" : "iPad14,8",
+        "J508AP" : "iPad14,9"
+      },
+      "capacity" : 7606,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Air 11 (M2)",
+      "identifiers" : [
+        "iPad14,8",
+        "iPad14,9"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Air 11 (M2)",
+      "soc" : "M2"
+    },
+    {
+      "boards" : {
+        "J607AP" : "iPad15,3",
+        "J608AP" : "iPad15,4"
+      },
+      "capacity" : 7606,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Air 11 (M3)",
+      "identifiers" : [
+        "iPad15,3",
+        "iPad15,4"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Air 11 (M3)",
+      "soc" : "M3"
+    },
+    {
+      "boards" : {
+        "J707AP" : "iPad16,8",
+        "J708AP" : "iPad16,9"
+      },
+      "capacity" : 7606,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Air 11 (M4)",
+      "identifiers" : [
+        "iPad16,8",
+        "iPad16,9"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Air 11 (M4)",
+      "soc" : "M4"
+    },
+    {
+      "boards" : {
+        "J537AP" : "iPad14,10",
+        "J538AP" : "iPad14,11"
+      },
+      "capacity" : 9705,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Air 13 (M2)",
+      "identifiers" : [
+        "iPad14,10",
+        "iPad14,11"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Air 13 (M2)",
+      "soc" : "M2"
+    },
+    {
+      "boards" : {
+        "J637AP" : "iPad15,5",
+        "J638AP" : "iPad15,6"
+      },
+      "capacity" : 9720,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Air 13 (M3)",
+      "identifiers" : [
+        "iPad15,5",
+        "iPad15,6"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Air 13 (M3)",
+      "soc" : "M3"
+    },
+    {
+      "boards" : {
+        "J737AP" : "iPad16,10",
+        "J738AP" : "iPad16,11"
+      },
+      "capacity" : 9720,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Air 13 (M4)",
+      "identifiers" : [
+        "iPad16,10",
+        "iPad16,11"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Air 13 (M4)",
+      "soc" : "M4"
+    },
+    {
+      "boards" : {
+        "J207AP" : "iPad7,3",
+        "J208AP" : "iPad7,4"
+      },
+      "capacity" : 8134,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Pro 10.5",
+      "identifiers" : [
+        "iPad7,3",
+        "iPad7,4"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Pro 10.5",
+      "soc" : "A10X Fusion"
+    },
+    {
+      "boards" : {
+        "J717AP" : "iPad16,3",
+        "J718AP" : "iPad16,4"
+      },
+      "capacity" : 8160,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Pro 11 (M4)",
+      "identifiers" : [
+        "iPad16,3",
+        "iPad16,4"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Pro 11 (M4)",
+      "soc" : "M4"
+    },
+    {
+      "boards" : {
+        "J817AP" : "iPad17,1",
+        "J818AP" : "iPad17,2"
+      },
+      "capacity" : 8160,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Pro 11 (M5)",
+      "identifiers" : [
+        "iPad17,1",
+        "iPad17,2"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Pro 11 (M5)",
+      "soc" : "M5"
+    },
+    {
+      "boards" : {
+        "J317AP" : "iPad8,1",
+        "J317xAP" : "iPad8,2",
+        "J318AP" : "iPad8,3",
+        "J318xAP" : "iPad8,4"
+      },
+      "capacity" : 7812,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Pro 11 (第1世代)",
+      "identifiers" : [
+        "iPad8,1",
+        "iPad8,2",
+        "iPad8,3",
+        "iPad8,4"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Pro 11 (第1世代)",
+      "soc" : "A12X Bionic"
+    },
+    {
+      "boards" : {
+        "J417AP" : "iPad8,9",
+        "J418AP" : "iPad8,10"
+      },
+      "capacity" : 7600,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Pro 11 (第2世代)",
+      "identifiers" : [
+        "iPad8,10",
+        "iPad8,9"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Pro 11 (第2世代)",
+      "soc" : "A12Z Bionic"
+    },
+    {
+      "boards" : {
+        "J517AP" : "iPad13,4",
+        "J517xAP" : "iPad13,5",
+        "J518AP" : "iPad13,6",
+        "J518xAP" : "iPad13,7"
+      },
+      "capacity" : 7538,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Pro 11 (第3世代)",
+      "identifiers" : [
+        "iPad13,4",
+        "iPad13,5",
+        "iPad13,6",
+        "iPad13,7"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Pro 11 (第3世代)",
+      "soc" : "M1"
+    },
+    {
+      "boards" : {
+        "J617AP" : "iPad14,3",
+        "J618AP" : "iPad14,4"
+      },
+      "capacity" : 7538,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Pro 11 (第4世代)",
+      "identifiers" : [
+        "iPad14,3",
+        "iPad14,4"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Pro 11 (第4世代)",
+      "soc" : "M2"
+    },
+    {
+      "boards" : {
+        "J98aAP" : "iPad6,7",
+        "J99aAP" : "iPad6,8"
+      },
+      "capacity" : 10307,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Pro 12.9 (第1世代)",
+      "identifiers" : [
+        "iPad6,7",
+        "iPad6,8"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Pro 12.9 (第1世代)",
+      "soc" : "A9X"
+    },
+    {
+      "boards" : {
+        "J120AP" : "iPad7,1",
+        "J121AP" : "iPad7,2"
+      },
+      "capacity" : 10850,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Pro 12.9 (第2世代)",
+      "identifiers" : [
+        "iPad7,1",
+        "iPad7,2"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Pro 12.9 (第2世代)",
+      "soc" : "A10X Fusion"
+    },
+    {
+      "boards" : {
+        "J320AP" : "iPad8,5",
+        "J320xAP" : "iPad8,6",
+        "J321AP" : "iPad8,7",
+        "J321xAP" : "iPad8,8"
+      },
+      "capacity" : 9720,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Pro 12.9 (第3世代)",
+      "identifiers" : [
+        "iPad8,5",
+        "iPad8,6",
+        "iPad8,7",
+        "iPad8,8"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Pro 12.9 (第3世代)",
+      "soc" : "A12X Bionic"
+    },
+    {
+      "boards" : {
+        "J420AP" : "iPad8,11",
+        "J421AP" : "iPad8,12"
+      },
+      "capacity" : 9720,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Pro 12.9 (第4世代)",
+      "identifiers" : [
+        "iPad8,11",
+        "iPad8,12"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Pro 12.9 (第4世代)",
+      "soc" : "A12Z Bionic"
+    },
+    {
+      "boards" : {
+        "J522AP" : "iPad13,8",
+        "J522xAP" : "iPad13,9",
+        "J523AP" : "iPad13,10",
+        "J523xAP" : "iPad13,11"
+      },
+      "capacity" : 10533,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Pro 12.9 (第5世代)",
+      "identifiers" : [
+        "iPad13,10",
+        "iPad13,11",
+        "iPad13,8",
+        "iPad13,9"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Pro 12.9 (第5世代)",
+      "soc" : "M1"
+    },
+    {
+      "boards" : {
+        "J620AP" : "iPad14,5",
+        "J621AP" : "iPad14,6"
+      },
+      "capacity" : 10758,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Pro 12.9 (第6世代)",
+      "identifiers" : [
+        "iPad14,5",
+        "iPad14,6"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Pro 12.9 (第6世代)",
+      "soc" : "M2"
+    },
+    {
+      "boards" : {
+        "J720AP" : "iPad16,5",
+        "J721AP" : "iPad16,6"
+      },
+      "capacity" : 10209,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Pro 13 (M4)",
+      "identifiers" : [
+        "iPad16,5",
+        "iPad16,6"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Pro 13 (M4)",
+      "soc" : "M4"
+    },
+    {
+      "boards" : {
+        "J820AP" : "iPad17,3",
+        "J821AP" : "iPad17,4"
+      },
+      "capacity" : 10209,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Pro 13 (M5)",
+      "identifiers" : [
+        "iPad17,3",
+        "iPad17,4"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Pro 13 (M5)",
+      "soc" : "M5"
+    },
+    {
+      "boards" : {
+        "J127AP" : "iPad6,3",
+        "J128AP" : "iPad6,4"
+      },
+      "capacity" : 7306,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad Pro 9.7",
+      "identifiers" : [
+        "iPad6,3",
+        "iPad6,4"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad Pro 9.7",
+      "soc" : "A9X"
+    },
+    {
+      "boards" : {
+        "J410AP" : "iPad16,1",
+        "J411AP" : "iPad16,2"
+      },
+      "capacity" : 5034,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad mini (A17 Pro)",
+      "identifiers" : [
+        "iPad16,1",
+        "iPad16,2"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad mini (A17 Pro)",
+      "soc" : "A17 Pro"
+    },
+    {
+      "boards" : {
+        "J510AP" : "iPad19,1",
+        "J511AP" : "iPad19,2"
+      },
+      "capacity" : 4900,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad mini (A20 Pro)",
+      "identifiers" : [
+        "iPad19,1",
+        "iPad19,2"
+      ],
+      "modelNumbers" : [
+        "A3595",
+        "A3596",
+        "A3597"
+      ],
+      "modelNumbersByIdentifier" : {
+        "iPad19,1" : [
+          "A3595"
+        ],
+        "iPad19,2" : [
+          "A3596",
+          "A3597"
+        ]
+      },
+      "name" : "iPad mini (A20 Pro)",
+      "soc" : "A20 Pro"
+    },
+    {
+      "boards" : {
+        "J96AP" : "iPad5,1",
+        "J97AP" : "iPad5,2"
+      },
+      "capacity" : 5124,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad mini (第4世代)",
+      "identifiers" : [
+        "iPad5,1",
+        "iPad5,2"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad mini (第4世代)",
+      "soc" : "A8"
+    },
+    {
+      "boards" : {
+        "J210AP" : "iPad11,1",
+        "J211AP" : "iPad11,2"
+      },
+      "capacity" : 5124,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad mini (第5世代)",
+      "identifiers" : [
+        "iPad11,1",
+        "iPad11,2"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad mini (第5世代)",
+      "soc" : "A12 Bionic"
+    },
+    {
+      "boards" : {
+        "J310AP" : "iPad14,1",
+        "J311AP" : "iPad14,2"
+      },
+      "capacity" : 5124,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPad mini (第6世代)",
+      "identifiers" : [
+        "iPad14,1",
+        "iPad14,2"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPad mini (第6世代)",
+      "soc" : "A15 Bionic"
+    },
+    {
+      "boards" : {
+        "N104AP" : "iPhone12,1"
+      },
+      "capacity" : 3110,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 11",
+      "identifiers" : [
+        "iPhone12,1"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 11",
+      "soc" : "A13 Bionic"
+    },
+    {
+      "boards" : {
+        "D421AP" : "iPhone12,3"
+      },
+      "capacity" : 3046,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 11 Pro",
+      "identifiers" : [
+        "iPhone12,3"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 11 Pro",
+      "soc" : "A13 Bionic"
+    },
+    {
+      "boards" : {
+        "D431AP" : "iPhone12,5"
+      },
+      "capacity" : 3969,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 11 Pro Max",
+      "identifiers" : [
+        "iPhone12,5"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 11 Pro Max",
+      "soc" : "A13 Bionic"
+    },
+    {
+      "boards" : {
+        "D53gAP" : "iPhone13,2"
+      },
+      "capacity" : 2815,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 12",
+      "identifiers" : [
+        "iPhone13,2"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 12",
+      "soc" : "A14 Bionic"
+    },
+    {
+      "boards" : {
+        "D53pAP" : "iPhone13,3"
+      },
+      "capacity" : 2815,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 12 Pro",
+      "identifiers" : [
+        "iPhone13,3"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 12 Pro",
+      "soc" : "A14 Bionic"
+    },
+    {
+      "boards" : {
+        "D54pAP" : "iPhone13,4"
+      },
+      "capacity" : 3687,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 12 Pro Max",
+      "identifiers" : [
+        "iPhone13,4"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 12 Pro Max",
+      "soc" : "A14 Bionic"
+    },
+    {
+      "boards" : {
+        "D52gAP" : "iPhone13,1"
+      },
+      "capacity" : 2227,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 12 mini",
+      "identifiers" : [
+        "iPhone13,1"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 12 mini",
+      "soc" : "A14 Bionic"
+    },
+    {
+      "boards" : {
+        "D17AP" : "iPhone14,5"
+      },
+      "capacity" : 3227,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 13",
+      "identifiers" : [
+        "iPhone14,5"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 13",
+      "soc" : "A15 Bionic"
+    },
+    {
+      "boards" : {
+        "D63AP" : "iPhone14,2"
+      },
+      "capacity" : 3095,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 13 Pro",
+      "identifiers" : [
+        "iPhone14,2"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 13 Pro",
+      "soc" : "A15 Bionic"
+    },
+    {
+      "boards" : {
+        "D64AP" : "iPhone14,3"
+      },
+      "capacity" : 4352,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 13 Pro Max",
+      "identifiers" : [
+        "iPhone14,3"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 13 Pro Max",
+      "soc" : "A15 Bionic"
+    },
+    {
+      "boards" : {
+        "D16AP" : "iPhone14,4"
+      },
+      "capacity" : 2406,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 13 mini",
+      "identifiers" : [
+        "iPhone14,4"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 13 mini",
+      "soc" : "A15 Bionic"
+    },
+    {
+      "boards" : {
+        "D27AP" : "iPhone14,7"
+      },
+      "capacity" : 3279,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 14",
+      "identifiers" : [
+        "iPhone14,7"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 14",
+      "soc" : "A15 Bionic"
+    },
+    {
+      "boards" : {
+        "D28AP" : "iPhone14,8"
+      },
+      "capacity" : 4325,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 14 Plus",
+      "identifiers" : [
+        "iPhone14,8"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 14 Plus",
+      "soc" : "A15 Bionic"
+    },
+    {
+      "boards" : {
+        "D73AP" : "iPhone15,2"
+      },
+      "capacity" : 3200,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 14 Pro",
+      "identifiers" : [
+        "iPhone15,2"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 14 Pro",
+      "soc" : "A16 Bionic"
+    },
+    {
+      "boards" : {
+        "D74AP" : "iPhone15,3"
+      },
+      "capacity" : 4323,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 14 Pro Max",
+      "identifiers" : [
+        "iPhone15,3"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 14 Pro Max",
+      "soc" : "A16 Bionic"
+    },
+    {
+      "boards" : {
+        "D37AP" : "iPhone15,4"
+      },
+      "capacity" : 3349,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 15",
+      "identifiers" : [
+        "iPhone15,4"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 15",
+      "soc" : "A16 Bionic"
+    },
+    {
+      "boards" : {
+        "D38AP" : "iPhone15,5"
+      },
+      "capacity" : 4383,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 15 Plus",
+      "identifiers" : [
+        "iPhone15,5"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 15 Plus",
+      "soc" : "A16 Bionic"
+    },
+    {
+      "boards" : {
+        "D83AP" : "iPhone16,1"
+      },
+      "capacity" : 3274,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 15 Pro",
+      "identifiers" : [
+        "iPhone16,1"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 15 Pro",
+      "soc" : "A17 Pro"
+    },
+    {
+      "boards" : {
+        "D84AP" : "iPhone16,2"
+      },
+      "capacity" : 4422,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 15 Pro Max",
+      "identifiers" : [
+        "iPhone16,2"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 15 Pro Max",
+      "soc" : "A17 Pro"
+    },
+    {
+      "boards" : {
+        "D47AP" : "iPhone17,3"
+      },
+      "capacity" : 3561,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 16",
+      "identifiers" : [
+        "iPhone17,3"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 16",
+      "soc" : "A18"
+    },
+    {
+      "boards" : {
+        "D48AP" : "iPhone17,4"
+      },
+      "capacity" : 4674,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 16 Plus",
+      "identifiers" : [
+        "iPhone17,4"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 16 Plus",
+      "soc" : "A18"
+    },
+    {
+      "boards" : {
+        "D93AP" : "iPhone17,1"
+      },
+      "capacity" : 3582,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 16 Pro",
+      "identifiers" : [
+        "iPhone17,1"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 16 Pro",
+      "soc" : "A18 Pro"
+    },
+    {
+      "boards" : {
+        "D94AP" : "iPhone17,2"
+      },
+      "capacity" : 4685,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 16 Pro Max",
+      "identifiers" : [
+        "iPhone17,2"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 16 Pro Max",
+      "soc" : "A18 Pro"
+    },
+    {
+      "boards" : {
+        "V59AP" : "iPhone17,5"
+      },
+      "capacity" : 4005,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 16e",
+      "identifiers" : [
+        "iPhone17,5"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 16e",
+      "soc" : "A18"
+    },
+    {
+      "boards" : {
+        "V57AP" : "iPhone18,3"
+      },
+      "capacity" : 3692,
+      "capacityVariants" : [
+        {
+          "capacity" : 3692,
+          "configuration" : "esim"
+        },
+        {
+          "capacity" : 3692,
+          "configuration" : "physicalSIM",
+          "region" : "HK/CN"
+        }
+      ],
+      "id" : "bundled:iPhone 17",
+      "identifiers" : [
+        "iPhone18,3"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 17",
+      "soc" : "A19"
+    },
+    {
+      "boards" : {
+        "V53AP" : "iPhone18,1"
+      },
+      "capacity" : 4252,
+      "capacityVariants" : [
+        {
+          "capacity" : 4252,
+          "configuration" : "esim"
+        },
+        {
+          "capacity" : 3988,
+          "configuration" : "physicalSIM",
+          "region" : "HK/CN"
+        }
+      ],
+      "id" : "bundled:iPhone 17 Pro",
+      "identifiers" : [
+        "iPhone18,1"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 17 Pro",
+      "soc" : "A19 Pro"
+    },
+    {
+      "boards" : {
+        "V54AP" : "iPhone18,2"
+      },
+      "capacity" : 5088,
+      "capacityVariants" : [
+        {
+          "capacity" : 5088,
+          "configuration" : "esim"
+        },
+        {
+          "capacity" : 4823,
+          "configuration" : "physicalSIM",
+          "region" : "HK/CN"
+        }
+      ],
+      "id" : "bundled:iPhone 17 Pro Max",
+      "identifiers" : [
+        "iPhone18,2"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 17 Pro Max",
+      "soc" : "A19 Pro"
+    },
+    {
+      "boards" : {
+        "V159AP" : "iPhone18,5"
+      },
+      "capacity" : 4005,
+      "capacityVariants" : [
+        {
+          "capacity" : 4005,
+          "configuration" : "esim"
+        },
+        {
+          "capacity" : 4005,
+          "configuration" : "physicalSIM",
+          "region" : "HK/CN"
+        }
+      ],
+      "id" : "bundled:iPhone 17e",
+      "identifiers" : [
+        "iPhone18,5"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 17e",
+      "soc" : "A19"
+    },
+    {
+      "boards" : {
+        "V63AP" : "iPhone19,2"
+      },
+      "capacity" : 4288,
+      "capacityVariants" : [
+        {
+          "capacity" : 4288,
+          "configuration" : "esim"
+        },
+        {
+          "capacity" : 4056,
+          "configuration" : "physicalSIM",
+          "region" : "HK/CN"
+        }
+      ],
+      "id" : "bundled:iPhone 18 Pro",
+      "identifiers" : [
+        "iPhone19,2"
+      ],
+      "modelNumbers" : [
+        "A3472",
+        "A3713",
+        "A3714",
+        "A3715"
+      ],
+      "modelNumbersByIdentifier" : {
+        "iPhone19,2" : [
+          "A3472",
+          "A3713",
+          "A3714",
+          "A3715"
+        ]
+      },
+      "name" : "iPhone 18 Pro",
+      "soc" : "A20 Pro"
+    },
+    {
+      "boards" : {
+        "V64AP" : "iPhone19,3",
+        "V64sAP" : "iPhone19,7"
+      },
+      "capacity" : 5567,
+      "capacityVariants" : [
+        {
+          "capacity" : 5567,
+          "configuration" : "esim"
+        },
+        {
+          "capacity" : 5391,
+          "configuration" : "physicalSIM",
+          "region" : "HK/CN"
+        }
+      ],
+      "id" : "bundled:iPhone 18 Pro Max",
+      "identifiers" : [
+        "iPhone19,3",
+        "iPhone19,7"
+      ],
+      "modelNumbers" : [
+        "A3473",
+        "A3716",
+        "A3717",
+        "A3718"
+      ],
+      "modelNumbersByIdentifier" : {
+        "iPhone19,3" : [
+          "A3473"
+        ],
+        "iPhone19,7" : [
+          "A3716",
+          "A3717",
+          "A3718"
+        ]
+      },
+      "name" : "iPhone 18 Pro Max",
+      "soc" : "A20 Pro"
+    },
+    {
+      "boards" : {
+        "N71AP" : "iPhone8,1",
+        "N71mAP" : "iPhone8,1"
+      },
+      "capacity" : 1715,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 6s",
+      "identifiers" : [
+        "iPhone8,1"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 6s",
+      "soc" : "A9"
+    },
+    {
+      "boards" : {
+        "N66AP" : "iPhone8,2",
+        "N66mAP" : "iPhone8,2"
+      },
+      "capacity" : 2705,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 6s Plus",
+      "identifiers" : [
+        "iPhone8,2"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 6s Plus",
+      "soc" : "A9"
+    },
+    {
+      "boards" : {
+        "D101AP" : "iPhone9,3",
+        "D10AP" : "iPhone9,1"
+      },
+      "capacity" : 1960,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 7",
+      "identifiers" : [
+        "iPhone9,1",
+        "iPhone9,3"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 7",
+      "soc" : "A10 Fusion"
+    },
+    {
+      "boards" : {
+        "D111AP" : "iPhone9,4",
+        "D11AP" : "iPhone9,2"
+      },
+      "capacity" : 2906,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 7 Plus",
+      "identifiers" : [
+        "iPhone9,2",
+        "iPhone9,4"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 7 Plus",
+      "soc" : "A10 Fusion"
+    },
+    {
+      "boards" : {
+        "D201AP" : "iPhone10,4",
+        "D20AP" : "iPhone10,1"
+      },
+      "capacity" : 1821,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 8",
+      "identifiers" : [
+        "iPhone10,1",
+        "iPhone10,4"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 8",
+      "soc" : "A11 Bionic"
+    },
+    {
+      "boards" : {
+        "D211AP" : "iPhone10,5",
+        "D21AP" : "iPhone10,2"
+      },
+      "capacity" : 2675,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone 8 Plus",
+      "identifiers" : [
+        "iPhone10,2",
+        "iPhone10,5"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone 8 Plus",
+      "soc" : "A11 Bionic"
+    },
+    {
+      "boards" : {
+        "D23AP" : "iPhone18,4"
+      },
+      "capacity" : 3149,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone Air",
+      "identifiers" : [
+        "iPhone18,4"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone Air",
+      "soc" : "A19 Pro"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 3149,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone Air MagSafeバッテリー",
+      "identifiers" : [
+        "A3385"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone Air MagSafeバッテリー",
+      "soc" : ""
+    },
+    {
+      "boards" : {
+        "V68AP" : "iPhone19,4"
+      },
+      "capacity" : 4883,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone Duo",
+      "identifiers" : [
+        "iPhone19,4"
+      ],
+      "modelNumbers" : [
+        "A3447",
+        "A3719",
+        "A3720",
+        "A3721"
+      ],
+      "modelNumbersByIdentifier" : {
+        "iPhone19,4" : [
+          "A3447",
+          "A3719",
+          "A3720",
+          "A3721"
+        ]
+      },
+      "name" : "iPhone Duo",
+      "soc" : "A20 Pro"
+    },
+    {
+      "boards" : {
+        "N69AP" : "iPhone8,4",
+        "N69uAP" : "iPhone8,4"
+      },
+      "capacity" : 1624,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone SE (第1世代)",
+      "identifiers" : [
+        "iPhone8,4"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone SE (第1世代)",
+      "soc" : "A9"
+    },
+    {
+      "boards" : {
+        "D79AP" : "iPhone12,8"
+      },
+      "capacity" : 1821,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone SE (第2世代)",
+      "identifiers" : [
+        "iPhone12,8"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone SE (第2世代)",
+      "soc" : "A13 Bionic"
+    },
+    {
+      "boards" : {
+        "D49AP" : "iPhone14,6"
+      },
+      "capacity" : 2018,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone SE (第3世代)",
+      "identifiers" : [
+        "iPhone14,6"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone SE (第3世代)",
+      "soc" : "A15 Bionic"
+    },
+    {
+      "boards" : {
+        "D221AP" : "iPhone10,6",
+        "D22AP" : "iPhone10,3"
+      },
+      "capacity" : 2700,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone X",
+      "identifiers" : [
+        "iPhone10,3",
+        "iPhone10,6"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone X",
+      "soc" : "A11 Bionic"
+    },
+    {
+      "boards" : {
+        "N841AP" : "iPhone11,8"
+      },
+      "capacity" : 2942,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone XR",
+      "identifiers" : [
+        "iPhone11,8"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone XR",
+      "soc" : "A12 Bionic"
+    },
+    {
+      "boards" : {
+        "D321AP" : "iPhone11,2"
+      },
+      "capacity" : 2658,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone XS",
+      "identifiers" : [
+        "iPhone11,2"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone XS",
+      "soc" : "A12 Bionic"
+    },
+    {
+      "boards" : {
+        "D331AP" : "iPhone11,4",
+        "D331pAP" : "iPhone11,6"
+      },
+      "capacity" : 3174,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPhone XS Max",
+      "identifiers" : [
+        "iPhone11,4",
+        "iPhone11,6"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPhone XS Max",
+      "soc" : "A12 Bionic"
+    },
+    {
+      "boards" : {
+
+      },
+      "capacity" : 1043,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPod touch (第6世代)",
+      "identifiers" : [
+        "iPod7,1"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPod touch (第6世代)",
+      "soc" : "A8"
+    },
+    {
+      "boards" : {
+        "N112AP" : "iPod9,1"
+      },
+      "capacity" : 1043,
+      "capacityVariants" : [
+
+      ],
+      "id" : "bundled:iPod touch (第7世代)",
+      "identifiers" : [
+        "iPod9,1"
+      ],
+      "modelNumbers" : [
+
+      ],
+      "modelNumbersByIdentifier" : {
+
+      },
+      "name" : "iPod touch (第7世代)",
+      "soc" : "A10 Fusion"
+    }
+  ],
+  "revision" : 2026110101,
+  "schemaVersion" : 1
+}
