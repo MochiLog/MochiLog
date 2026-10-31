@@ -30,3 +30,16 @@ git branch recovered/icloud-diagnostics archive-icloud-diagnostics-20260919
 ```
 
 整理前後のローカル参照と作業ツリーの状態は、Git管理外の`build/branch-cleanup-20261101/`へ記録する。
+
+## 追加：旧作業フォルダの削除
+
+その後のユーザー指示により、約2.6GBの`MochiLog-mac-log-transfer`作業フォルダも削除した。上記のdetached HEADでの保持は初回整理時の状態で、現在の登録済み作業ツリーは本体の`MochiLog`のみ。
+
+- mainへの統合済みコミット、作業ツリーの状態、使用中プロセス、無視対象ファイルを確認。ソースの未コミット差分は生成済みPythonキャッシュの削除のみだった。
+- 旧依存ライブラリ、DerivedData、中間物、古いUIテスト結果など9,366ファイル（論理サイズ約1,571.5MiB）を削除。配布用IPAと古いxcarchiveもユーザーの指定により保管せず削除した。
+- Xcode標準のArchivesと現行作業フォルダにあるdSYMをUUIDで照合した。旧9ビルド分・27バンドルに同一UUIDの保管先がなかったため、シンボルだけを`~/Library/Developer/Xcode/MochiLogSymbols/legacy-20261101/`へ移動した。これは今回作成したシンボル保存先であり、Xcodeが以前から自動保管していたものではない。移動前後のファイルハッシュとUUIDの一致を確認した。
+- 固有の実機調査データなど622ファイルは、リポジトリ外の`~/Library/Application Support/MochiLog Development/RetiredWorktrees.noindex/2026-11-01/investigation-data.tar.gz`へ圧縮退避した。圧縮後は約19.3MiB。全項目のSHA-256を読み戻して照合し、フォルダは700・アーカイブは600の権限にした。配布物や再生成できるUI成果物は含めない。
+- 旧フォルダ内の調査用依存リポジトリには独自コミット・追加ファイルがないことも確認し、削除対象に含めた。
+- 保護対象を確認した後に`git worktree remove --force`で旧フォルダと登録を削除。現行のモバイル・Mac・Windows・Webのリポジトリは保持した。
+
+詳細なファイル名・ハッシュ・実機情報を含む照合表は、公開しない`build/worktree-cleanup-20261101/`に保存した。公開記録には生ログや認証情報を含めない。
