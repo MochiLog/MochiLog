@@ -1,4 +1,4 @@
-4.1.0
+4.0.1
 
 • Added support for iPad mini (A20 Pro).
 • Please check log imports, model names and battery capacity, automatic log collection and iCloud sync.
