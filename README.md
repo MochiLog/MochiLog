@@ -1,8 +1,8 @@
 # MochiLog
 
-4.0.0はApp Storeへの審査提出準備中です。新しいPC連携はiOS/iPadOS 27以降で利用でき、[Mac](https://github.com/MochiLog/MochiLog-Mac/releases)・[Windows](https://github.com/MochiLog/MochiLog-Windows/releases)のコンパニオンと暗号化してログを受け渡します。従来の手動取り込みはiOS/iPadOS 16以降で引き続き利用できます。
+4.0.0はApp Storeで公開中です。PC連携はiOS/iPadOS 27以降で利用でき、[Mac](https://github.com/MochiLog/MochiLog-Mac/releases)・[Windows](https://github.com/MochiLog/MochiLog-Windows/releases)のコンパニオンと暗号化してログを受け渡します。従来の手動取り込みはiOS/iPadOS 16以降で引き続き利用できます。
 
-設定の「自動ログ収集」でPC連携と任意の端末内取得を設定できます。現在のバッテリー表示は高度な設定で有効にできます。詳しくは[自動ログ収集ガイド](docs/automatic-log-collection.md)と[4.0.0の更新内容](docs/RELEASE_NOTES_4.0.0.md)をご覧ください。現時点で4.0.0を試す場合は[TestFlight](https://testflight.apple.com/join/vnHYsRgN)を利用できます。
+設定の「自動ログ収集」でPC連携と任意の端末内取得を設定できます。現在のバッテリー表示は高度な設定で有効にできます。詳しくは[自動ログ収集ガイド](docs/automatic-log-collection.md)と[4.0.0の更新内容](docs/RELEASE_NOTES_4.0.0.md)をご覧ください。開発中の4.1.0は[TestFlight](https://testflight.apple.com/join/vnHYsRgN)でテストしています。
 
 **今日のバッテリー。その先の変化も。**
 
@@ -17,6 +17,12 @@ iPhone・iPadの解析ログから容量と充放電回数を記録し、履歴�
 3. 解析結果を確認して保存します。日付の異なる記録が増えると、容量やサイクルの変化をグラフで追えます。
 
 ログの生成や取得できる項目は機種とOSで異なります。値は参考情報で、Appleの公式診断や修理判断を代替しません。
+
+## 4.1.0ベータの機種データ更新
+
+新しい機種の名前・識別子・標準バッテリー容量などを、アプリのアップデートなしで取得できます。自動確認は初期状態でオンです。**設定 → 高度な設定 → デバイス情報を管理 → 機種データの更新**で切り替えたり、今すぐ確認したりできます。
+
+オフラインでは保存済みの機種データを使用します。手動で編集した値は優先され、過去の記録がデータ更新だけで書き換わることはありません。ログ形式の変更や新機能への対応には、引き続きアプリのアップデートが必要です。
 
 ## 4.0.0のPC連携
 
@@ -41,6 +47,8 @@ iPhone・iPadの解析ログから容量と充放電回数を記録し、履歴�
 ---
 
 MochiLog turns imported iPhone and iPad Analytics files into battery records and trend charts. Manual import works without a computer. Optional iCloud sync and viewing records on a paired Apple Watch are also available.
+
+The 4.1.0 beta can update device names, identifiers and reference capacities without an app update. Automatic checks are on by default; control them or check manually under **Advanced Settings → Device Library → Device data updates**. Saved data works offline. Manual settings and existing records are preserved. New log formats and app features still require an app update.
 
 MochiLog 4.0.0 supports encrypted daily-log transfer from a Mac (macOS 27) or Windows 11 to mobile (iOS/iPadOS 27). An optional **Live Battery** tab shows current cycle count and capacity through your existing computer pairing. Enable it in Advanced Settings; it is off by default. It refreshes while open, displays friendly model names, combines identical readings from multiple computers and compares only differences. Each source retains its acquisition time, missing fields and outdated state. Current values are not saved to history, records or iCloud.
 

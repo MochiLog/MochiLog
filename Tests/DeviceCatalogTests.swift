@@ -116,6 +116,31 @@ struct DeviceCatalogTests {
     precondition(restarted.entries == savedEntries)
     print("PASS: new-device resolution, bundled fallback, manual settings, conflicts and restart")
 
+    let freshCache = DeviceCatalogCache(url: root.appendingPathComponent("fresh/catalog.json"))
+    let freshStore = DeviceProfileStore(defaults: defaults)
+    precondition(freshStore.names["iPad99,1"] == nil)
+    var returnTamperedData = false
+    let freshUpdater = DeviceCatalogUpdater(
+      defaults: defaults, store: freshStore, cache: freshCache, publicKey: publicKey
+    ) { _ in
+      DeviceCatalogDownload.Result(bytes: returnTamperedData ? tampered : valid, etag: nil)
+    }
+    let discovered = await freshUpdater.checkForUnknownModel("iPad99,1")
+    precondition(discovered && freshUpdater.dataRevision == original.revision)
+    precondition(freshStore.names["iPad99,1"] == future.name)
+    precondition(freshStore.capacity(future.name) == 5000)
+    precondition(freshStore.capacity(custom.name) == 4800)
+    let successfulCheck = freshUpdater.lastChecked
+    returnTamperedData = true
+    _ = await freshUpdater.check()
+    precondition(freshUpdater.messageKey == "catalog_failed")
+    precondition(freshUpdater.lastChecked == successfulCheck)
+    precondition(freshStore.names["iPad99,1"] == future.name)
+    precondition((try? freshCache.load(publicKey: publicKey)) == original)
+    defaults.removeObject(forKey: "deviceCatalog.lastUnknownAttempt")
+    print(
+      "PASS: unknown model fetch activates signed data; a later bad response preserves active data")
+
     var requests = 0
     let updater = DeviceCatalogUpdater(
       defaults: defaults, store: store, cache: cache, publicKey: publicKey

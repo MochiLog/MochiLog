@@ -1282,7 +1282,7 @@ final class LanguageAndLayoutTests: XCTestCase {
       XCTAssertTrue(settings.waitForExistence(timeout: 15), app.debugDescription)
       settings.tap()
       let advanced =
-        UIDevice.current.userInterfaceIdiom == .pad
+        app.buttons["settings.category.advanced"].exists
         ? app.buttons["settings.category.advanced"] : app.buttons["settings.advanced"]
       for _ in 0..<10 {
         if advanced.isHittable { break }
@@ -1300,7 +1300,9 @@ final class LanguageAndLayoutTests: XCTestCase {
       XCTAssertTrue(check.isHittable && check.isEnabled)
       XCTAssertEqual(app.switches["catalog.automatic"].value as? String, "0")
       XCTAssertTrue(
-        app.otherElements["catalog.version"].exists || app.staticTexts["2026110101"].exists)
+        app.staticTexts.matching(identifier: "catalog.version").allElementsBoundByIndex.contains {
+          Int($0.label) != nil
+        }, "A valid data revision is shown even after a data-only update")
       screenshot("Device catalog settings \(language)")
       check.tap()
       let result = app.staticTexts["catalog.result"]
