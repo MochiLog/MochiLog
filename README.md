@@ -1,65 +1,72 @@
 # MochiLog
 
-4.0.0はApp Storeで公開中です。PC連携はiOS/iPadOS 27以降で利用でき、[Mac](https://github.com/MochiLog/MochiLog-Mac/releases)・[Windows](https://github.com/MochiLog/MochiLog-Windows/releases)のコンパニオンと暗号化してログを受け渡します。従来の手動取り込みはiOS/iPadOS 16以降で引き続き利用できます。
-
-設定の「自動ログ収集」でPC連携と任意の端末内取得を設定できます。現在のバッテリー表示は高度な設定で有効にできます。詳しくは[自動ログ収集ガイド](docs/automatic-log-collection.md)と[4.0.0の更新内容](docs/RELEASE_NOTES_4.0.0.md)をご覧ください。開発中の4.1.0は[TestFlight](https://testflight.apple.com/join/vnHYsRgN)でテストしています。
-
 **今日のバッテリー。その先の変化も。**
 
-iPhone・iPadの解析ログから容量と充放電回数を記録し、履歴をグラフで振り返るアプリです。iCloud同期は任意で利用でき、ペアリングしたApple Watchでも記録を閲覧できます。PCを使わず、スマホだけでログを手動読み込みできます。
+iPhone・iPadの解析ログからバッテリー容量と充放電回数を記録し、履歴をグラフで振り返るアプリです。スマホ単体でログを取り込めます。任意のiCloud同期や、Apple Watchでの記録の閲覧にも対応します。
 
-[App Store](https://apps.apple.com/app/mochilog/id6756904240) · [TestFlightベータ](https://testflight.apple.com/join/vnHYsRgN) · [紹介サイト](https://mochilog.ryuya-dev.net/) · [使い方](https://mochilog.ryuya-dev.net/guide?lang=ja)
+[App Store](https://apps.apple.com/app/mochilog/id6756904240) · [TestFlightベータ](https://testflight.apple.com/join/vnHYsRgN) · [公式サイト](https://mochilog.ryuya-dev.net/) · [使い方](https://mochilog.ryuya-dev.net/guide?lang=ja)
+
+## できること
+
+- 解析ログや保存したファイルからバッテリー記録を追加し、複数のログもまとめて取り込み。
+- 機種ごとの容量・充放電回数の変化をグラフで確認。
+- iCloud同期を有効にして、同じApple Accountの端末間で記録を共有。
+- ペアリングしたApple Watchで記録を閲覧。
+- 任意のMac・Windows連携で、ログを収集してスマホへ転送。
+- 「現在のバッテリー」タブで、取得できた現在値と最終取得日時を確認。
+
+日本語、英語、簡体字中国語、繁体字中国語、韓国語、スペイン語、フランス語、ドイツ語に対応します。
 
 ## 最初の記録
 
-1. 設定 → プライバシーとセキュリティ → 解析と改善 → 解析データで、Analytics-から始まるログを探します。
-2. 共有メニューからMochiLogを選びます。ファイルに保存して、アプリから読み込むこともできます。
-3. 解析結果を確認して保存します。日付の異なる記録が増えると、容量やサイクルの変化をグラフで追えます。
+1. 端末の「設定 → プライバシーとセキュリティ → 解析と改善 → 解析データ」を開き、`Analytics-`で始まるログを探します。
+2. 共有メニューからMochiLogを選びます。ファイルに保存してアプリから読み込むこともできます。
+3. 解析結果を確認して保存します。日付の異なる記録が増えると、バッテリーの変化を振り返れます。
 
-ログの生成や取得できる項目は機種とOSで異なります。値は参考情報で、Appleの公式診断や修理判断を代替しません。
+ログがない場合は、同じ設定画面で解析の共有を確認してください。オンにした直後は、新しいログが生成されるまで時間がかかります。ログの項目は機種とOSによって異なります。値は参考情報で、Appleの公式診断や修理判断を代替しません。
+
+## 自動ログ収集と現在値
+
+**設定 → 自動ログ収集**で、PC連携と実験的な端末内取得をそれぞれ設定できます。
+
+[MochiLog Mac](https://github.com/MochiLog/MochiLog-Mac/releases/latest)・[MochiLog Windows](https://github.com/MochiLog/MochiLog-Windows/releases/latest)がログを収集し、端末でMochiLogを開くと受信・解析・記録します。Apple Watchのログは、ペアリング先のiPhoneに保存されたものを収集します。初回設定や収集時のロック解除などの条件は[自動ログ収集ガイド](docs/automatic-log-collection.md)をご確認ください。
+
+PCを使わない端末内取得は、対応VPNと初回の信頼設定が必要な実験機能です。利用条件と操作は同じガイドで案内しています。自動取得の時刻や間隔はOSの制限を受けます。
+
+**設定 → 高度な設定 → 現在のバッテリー**をオンにすると、現在値のタブが表示されます。初期状態はオフです。複数PCで同じ値がある場合はまとめ、異なる値だけ比較できます。現在値は履歴として保存されません。[現在値の使い方](docs/LIVE_BATTERY.md)もご覧ください。
 
 ## 4.1.0ベータの機種データ更新
 
-新しい機種の名前・識別子・標準バッテリー容量などを、アプリのアップデートなしで取得できます。自動確認は初期状態でオンです。**設定 → 高度な設定 → デバイス情報を管理 → 機種データの更新**で切り替えたり、今すぐ確認したりできます。
+新しい機種の情報を、アプリのアップデートなしで取得できます。自動確認は初期状態でオンです。**設定 → 高度な設定 → デバイス情報を管理 → 機種データの更新**で切り替えたり、今すぐ確認したりできます。
 
-オフラインでは保存済みの機種データを使用します。手動で編集した値は優先され、過去の記録がデータ更新だけで書き換わることはありません。ログ形式の変更や新機能への対応には、引き続きアプリのアップデートが必要です。
+オフラインでは保存済みの機種データを使用します。手動で編集した値と過去の記録は保護されます。新しいログ形式や新機能への対応には、引き続きアプリのアップデートが必要です。[TestFlight](https://testflight.apple.com/join/vnHYsRgN)で先行版を試せます。
 
-## 4.0.0のPC連携
+## 対応環境
 
-[MochiLog Mac](https://github.com/MochiLog/MochiLog-Mac/releases)と[MochiLog Windows](https://github.com/MochiLog/MochiLog-Windows/releases)が日次のバッテリー解析ログを収集し、スマホでアプリを開いたときに暗号化して転送します。解析と記録はスマホ側で行います。スマホはiOS/iPadOS 27、MacはmacOS 27、WindowsはWindows 11が対象です。PC連携を設定しなくても通常の手動読み込みは使えます。
+| 機能 | 対応環境 |
+| --- | --- |
+| 手動のログ取り込み・記録 | iOS / iPadOS 16以降 |
+| iCloud同期 | iOS / iPadOS 17以降 |
+| Mac・Windows連携 | iOS / iPadOS 27以降、macOS 27以降またはWindows 11 |
+| 端末内取得 | iOS / iPadOS 17以降、対応VPN・初回の信頼設定が必要 |
+| 端末内だけで行う初回ペアリング | iOS / iPadOS 27以降、Developer Modeが必要 |
 
-現在の充放電回数・設計容量・最大容量などを確認する専用タブも追加しました。**設定 → 高度な設定 → 現在のバッテリー**をオンにすると表示します（初期状態はオフ）。既存のPCペアリングを使用し、アプリを開いている間に更新します。機種名を表示し、複数PCの共通値はまとめ、違う値だけ比較できます。PCごとの最終取得日時、取得できない項目、古い値を区別して表示し、現在値は履歴・記録・iCloudに保存しません。
+公開版とベータ版では利用できる機能が異なる場合があります。詳細は各機能のガイドをご確認ください。
 
-[現在値の使い方と注意点](docs/LIVE_BATTERY.md) · [Macの利用ガイド](https://github.com/MochiLog/MochiLog-Mac/blob/main/docs/USER_GUIDE.md) · [Windowsの利用ガイド](https://github.com/MochiLog/MochiLog-Windows/blob/main/docs/USER_GUIDE.md)
+## サポート
 
-## 端末内での自動取得（ベータ）
+[使い方・困ったときは](https://mochilog.ryuya-dev.net/guide?lang=ja) · [お問い合わせ](https://mochilog.ryuya-dev.net/support?lang=ja) · [プライバシーポリシー](https://mochilog.ryuya-dev.net/privacy?lang=ja) · [利用規約](https://mochilog.ryuya-dev.net/terms?lang=ja)
 
-**設定 → 自動ログ収集 → 端末内取得**を有効にすると、対応するVPN経路で自分の端末からログを取得できます。iOS/iPadOS 17以降に対応し、27以降ではDeveloper Modeを有効にして端末内で初回ペアリングも行えます。
+## English
 
-端末がロック解除されVPNが接続中なら、MochiLogを表示していない間もOSが許可したタイミングで取得を試みます。完成したファイルは次にアプリを開いた時に解析・記録します。時間切れでも取得済みファイルを引き継ぎ、既存の重複チェックを使います。実行時刻・間隔は保証されず、アプリを強制終了すると次の起動まで自動取得は止まります。PC連携とは独立して切り替えられます。
+MochiLog turns imported iPhone and iPad analytics files into battery records and trend charts. Import files directly on your device, optionally sync records through iCloud, and view them on a paired Apple Watch.
 
-## 言語と対応環境
+Start with the [App Store app](https://apps.apple.com/app/mochilog/id6756904240) and [user guide](https://mochilog.ryuya-dev.net/guide?lang=en). Manual import supports iOS/iPadOS 16+, iCloud sync requires 17+, and computer transfer requires 27+ with macOS 27+ or Windows 11. Optional on-device collection requires iOS/iPadOS 17+ and a compatible VPN; first-time pairing entirely on the device requires 27+ and Developer Mode.
 
-日本語、英語、簡体字中国語、繁体字中国語、韓国語、スペイン語、フランス語、ドイツ語に対応します。本体はiOS/iPadOS 16以降、iCloud同期は17以降、PC連携は27以降です。端末内取得とその現在値表示は17以降、端末内の初回ペアリングは27以降に対応します（旧OSの実機検証は進行中）。PC版を更新しても既存のペアリングを引き継ぎます。ベータ版とApp Store公開版では利用できる機能が異なります。
+Enable the optional **Live Battery** tab in Advanced Settings to view current readings and acquisition times. These values are not saved as history. The 4.1.0 [TestFlight beta](https://testflight.apple.com/join/vnHYsRgN) also updates device reference data independently of app updates, with manual checks, offline use and preservation of manual settings and saved records.
 
-[プライバシーポリシー](https://mochilog.ryuya-dev.net/privacy?lang=ja) · [利用規約](https://mochilog.ryuya-dev.net/terms?lang=ja) · [サポート](https://mochilog.ryuya-dev.net/support?lang=ja)
+Available in Japanese, English, Simplified Chinese, Traditional Chinese, Korean, Spanish, French and German. Visit [support](https://mochilog.ryuya-dev.net/support?lang=en) for help.
 
 ---
 
-MochiLog turns imported iPhone and iPad Analytics files into battery records and trend charts. Manual import works without a computer. Optional iCloud sync and viewing records on a paired Apple Watch are also available.
-
-The 4.1.0 beta can update device names, identifiers and reference capacities without an app update. Automatic checks are on by default; control them or check manually under **Advanced Settings → Device Library → Device data updates**. Saved data works offline. Manual settings and existing records are preserved. New log formats and app features still require an app update.
-
-MochiLog 4.0.0 supports encrypted daily-log transfer from a Mac (macOS 27) or Windows 11 to mobile (iOS/iPadOS 27). An optional **Live Battery** tab shows current cycle count and capacity through your existing computer pairing. Enable it in Advanced Settings; it is off by default. It refreshes while open, displays friendly model names, combines identical readings from multiple computers and compares only differences. Each source retains its acquisition time, missing fields and outdated state. Current values are not saved to history, records or iCloud.
-
-On-device collection and current readings target iOS/iPadOS 17+, while device-only initial pairing requires 27+. Earlier versions import a pairing file; 17.0–17.3 use Lockdown format and 17.4+ can use RPPairing. First-time OS approval is required; older-OS real-device validation remains pending. Computer collection still requires 27+.
-
-See the [live-value guide](docs/LIVE_BATTERY.md) and desktop user guides linked above. Build and test notes from the earlier development branch are preserved in [developer documentation](docs/README_20260908_DEVELOPMENT.md).
-
-同じPCとペアリングしたiPhone・iPadは、同じApple Accountで双方のiCloud同期が有効と確認できる場合に限り、他の端末のログも受信できます。元の端末の個体IDを保持して記録し、片方がオフ・別アカウント・未確認なら共有しません。共有元のアプリをしばらく開いていない場合は再確認まで保留します。
-
-Devices paired with the same PC can also receive each other’s logs when both have confirmed iCloud sync enabled on the same Apple Account. Records keep the original device identity. Disabled sync, different accounts and unconfirmed permissions prevent sharing. If the source app has not been opened for a while, sharing waits for renewed confirmation.
-
-4.0.0ではMochiLog対応のidevice_pairからペアリングファイルを直接インストールできます。公式ツールへの登録は[PR #84](https://github.com/jkcoxson/idevice_pair/pull/84)で提案中で、採用・配布されるまでは公式版の一覧には表示されません。
-
-On-device collection supports iOS/iPadOS 17 and later. Initial pairing entirely on the device requires 27 or later and Developer Mode. From beta 1050, with this optional feature enabled, an unlocked device and a connected VPN can also collect while MochiLog is not displayed, whenever iOS allows execution. Complete files are analyzed and recorded on the next foreground activation through the existing duplicate checks. Timing and intervals are not guaranteed; force-quitting stops automatic collection until the next launch.
+[開発者向け文書 / Developer documentation](docs/DEVELOPMENT.md) · [ライセンス / License](LICENSE)
