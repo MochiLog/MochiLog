@@ -1,5 +1,7 @@
 # MochiLog
 
+> 旧開発ブランチの履歴資料です。現在の利用案内は[README](../README.md)、開発手順の入口は[開発者向け文書](DEVELOPMENT.md)を参照してください。下記の未マージ・未公開という記述は当時の状態です。旧ブランチはmain統合後に整理し、再現用のコミットは`940d32400d0f3604ae7f2ad135e80c6439f62d49`として参照できます。
+
 **今日のバッテリー。その先の変化も。**
 
 MochiLogは、iPhone・iPadの解析ログからバッテリーの容量や充電サイクルを記録し、履歴をグラフで振り返るアプリです。ペアリングしたApple Watchでも、iPhoneから転送された記録を閲覧できます。
@@ -50,8 +52,9 @@ Deployment Targetは、この作業で全OS・全実機を試験したという�
 ## ビルド
 
 ```sh
-git clone --branch refactor/ios27-batch-import-adaptive-ui-20260908 https://github.com/MochiLog/MochiLog.git
+git clone https://github.com/MochiLog/MochiLog.git
 cd MochiLog
+git checkout --detach 940d32400d0f3604ae7f2ad135e80c6439f62d49
 open MochiLog.xcodeproj
 ```
 
