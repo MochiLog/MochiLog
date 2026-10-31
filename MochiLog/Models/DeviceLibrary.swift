@@ -144,6 +144,8 @@ struct DeviceLibrary {
     "iPad17,2": "iPad Pro 11 (M5)",
     "iPad17,3": "iPad Pro 13 (M5)",
     "iPad17,4": "iPad Pro 13 (M5)",
+    "iPad19,1": "iPad mini (A20 Pro)",
+    "iPad19,2": "iPad mini (A20 Pro)",
 
     // iPod
     "iPod7,1": "iPod touch (第6世代)",
@@ -355,6 +357,8 @@ struct DeviceLibrary {
     "J818AP": "iPad17,2",
     "J820AP": "iPad17,3",
     "J821AP": "iPad17,4",
+    "J510AP": "iPad19,1",
+    "J511AP": "iPad19,2",
 
     // iPod
     "N112AP": "iPod9,1",
@@ -433,6 +437,7 @@ struct DeviceLibrary {
     "iPad Pro 11 (第1世代)": "A12X Bionic",
     "iPad Pro 10.5": "A10X Fusion",
     "iPad Pro 9.7": "A9X",
+    "iPad mini (A20 Pro)": "A20 Pro",
     "iPad mini (A17 Pro)": "A17 Pro",
     "iPad mini (第6世代)": "A15 Bionic",
     "iPad mini (第5世代)": "A12 Bionic",
@@ -564,6 +569,7 @@ struct DeviceLibrary {
     "iPad Pro 11 (第1世代)": 7812,
     "iPad Pro 10.5": 8134,
     "iPad Pro 9.7": 7306,
+    "iPad mini (A20 Pro)": 4900,
     "iPad mini (A17 Pro)": 5034,
     "iPad mini (第6世代)": 5124,
     "iPad mini (第5世代)": 5124,
@@ -633,6 +639,7 @@ struct DeviceLibrary {
   ]
 
   static let modelNumbers: [String: [String]] = [
+    "iPad mini (A20 Pro)": ["A3595", "A3596", "A3597"],
     "iPhone Duo": ["A3447", "A3719", "A3720", "A3721"],
     "iPhone 18 Pro": ["A3472", "A3713", "A3714", "A3715"],
     "iPhone 18 Pro Max": ["A3473", "A3716", "A3717", "A3718"],
@@ -645,6 +652,8 @@ struct DeviceLibrary {
   ]
 
   static let modelNumbersByIdentifier: [String: [String]] = [
+    "iPad19,1": ["A3595"],
+    "iPad19,2": ["A3596", "A3597"],
     "iPhone19,2": ["A3472", "A3713", "A3714", "A3715"],
     "iPhone19,3": ["A3473"],
     "iPhone19,4": ["A3447", "A3719", "A3720", "A3721"],

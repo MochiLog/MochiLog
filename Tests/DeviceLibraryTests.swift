@@ -15,6 +15,7 @@ struct DeviceLibraryTests {
   static func main() throws {
     try verifyIdentityCorrections()
     try verifyIPadCapacityCorrections()
+    try verifyIPadMiniA20Pro()
     let suite = "MochiLog.DeviceLibraryTests." + UUID().uuidString
     let defaults = UserDefaults(suiteName: suite)!
     defer { defaults.removePersistentDomain(forName: suite) }
@@ -50,6 +51,34 @@ struct DeviceLibraryTests {
     precondition(
       correction(cellular42, 279) == nil, "Even a matching explicit override stays manual")
     print("PASS: all four Series 3 variants, legacy corrections, idempotency and manual overrides")
+  }
+
+  private static func verifyIPadMiniA20Pro() throws {
+    let suite = "MochiLog.IPadMiniA20ProTests." + UUID().uuidString
+    let defaults = UserDefaults(suiteName: suite)!
+    defer { defaults.removePersistentDomain(forName: suite) }
+    let profiles = DeviceProfileStore(defaults: defaults)
+    let name = "iPad mini (A20 Pro)"
+    for (identifier, board) in [("iPad19,1", "J510AP"), ("iPad19,2", "J511AP")] {
+      precondition(profiles.names[identifier] == name)
+      precondition(profiles.identifier(for: board) == identifier)
+      precondition(profiles.capacity(profiles.names[identifier]!) == 4900)
+    }
+    let profile = profiles.profiles.first { $0.name == name }!
+    precondition(profile.category == .ipad)
+    precondition(profile.soc == "A20 Pro")
+    precondition(profile.modelNumbersByIdentifier["iPad19,1"] == ["A3595"])
+    precondition(profile.modelNumbersByIdentifier["iPad19,2"] == ["A3596", "A3597"])
+    precondition(DeviceLibrary.getModels(for: .ipad, series: "mini").first == name)
+    precondition(profiles.capacity("iPad mini (A17 Pro)") == 5034)
+
+    var customized = profile
+    customized.capacity = 4800
+    try profiles.save(customized)
+    let reloaded = DeviceProfileStore(defaults: defaults)
+    precondition(reloaded.capacity(name) == 4800, "Manual reference capacity survives reload")
+    precondition(reloaded.names["iPad19,2"] == name)
+    print("PASS: iPad mini A20 Pro Wi-Fi/Cellular import references, model selection and overrides")
   }
 
   private static func verifyIPadCapacityCorrections() throws {

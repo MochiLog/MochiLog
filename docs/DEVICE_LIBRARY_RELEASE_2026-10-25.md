@@ -41,3 +41,11 @@ Public notes describe corrected incorrect values in battery/device information w
 - [Store verification and submission 40129719047](https://github.com/MochiLog/MochiLog/actions/runs/40129719047) verified all 40 screenshots, including eight Duo images per locale, plus four header/search assets. Only the requested 4.0.0 version was submitted.
 - Apple confirmed both the review submission and app version as **`WAITING_FOR_REVIEW`**. Submission ID: `2984d66e-853b-4e75-bc86-dc15524b85c1`. This is a submitted review, not an approval or public release.
 - AltStore PAL remains on its approved package until Apple's corresponding 4.0.0 notarized package is available and validated.
+
+## iPad mini (A20 Pro) addition — 2026-11-01
+
+- Add Wi-Fi `iPad19,1` / `J510AP` / `A3595` and Cellular `iPad19,2` / `J511AP` / `A3596`, `A3597`, with the A20 Pro SoC and a 4,900mAh reference capacity. Both variants share one standard selectable device profile.
+- Capacity evidence: [Apple EU specifications and product information sheets](https://www.apple.com/ie/ipad-mini/specs/) list 4,900mAh for both variants. Identifiers and boards were checked against AppleDB source [Wi-Fi](https://github.com/littlebyteorg/appledb/blob/db24da70be6f7e7c305c7c871948d1051e903b34/deviceFiles/iPad/iPad19%2C1.json) and [Cellular](https://github.com/littlebyteorg/appledb/blob/db24da70be6f7e7c305c7c871948d1051e903b34/deviceFiles/iPad/iPad19%2C2.json).
+- The user confirmed retaining the A17 Pro reference at 5,034mAh. Existing correction migrations and manual reference capacities remain intact. This is an additive catalog update, so no new record migration or CloudKit schema change is required.
+- Battery calculations use mAh. The app does not store Wh reference values; no Wh-to-mAh conversion is introduced. The supplied 18.7Wh and Apple's specifications-page 18.9Wh are not used interchangeably in calculations.
+- Apply the same catalog change to App Store 4.0.1 and TestFlight 4.1.0. Distribution results are recorded after verification.

@@ -1,4 +1,4 @@
 4.1.0
 
-• Please check importing logs and viewing records on iPhone and iPad.
-• Please continue testing automatic log collection, current battery information and iCloud sync.
+• Added support for iPad mini (A20 Pro).
+• Please check log imports, model names and battery capacity, automatic log collection and iCloud sync.

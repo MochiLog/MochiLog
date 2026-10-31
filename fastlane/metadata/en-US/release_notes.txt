@@ -1,32 +1,3 @@
-4.0.0
+4.0.1
 
-• Automatically import iPhone and iPad battery logs with the new Mac and Windows apps. Manual import remains available without a PC.
-• Import Apple Watch logs saved on your iPhone, including multiple Watches and Watches not yet registered in MochiLog.
-• Pair multiple Macs and Windows PCs using QR codes and confirmation codes. Remove individual pairings when no longer needed.
-• Receive other devices' logs and current battery information through a PC when both devices enable iCloud sync with the same Apple Account.
-• See connection status, transfer progress and import results. Use Receive Now to import on demand.
-• Improved reconnection, slow-network transfers and receiving from multiple PCs.
-• Added manual IP addresses and cellular controls. Remote access requires a compatible VPN such as Tailscale.
-• Reduced unnecessary communication after daily logs arrive to help save battery.
-• Added Settings → Automatic Log Collection, with separate PC and on-device collection switches.
-• Added experimental on-device collection of logs and current battery information without a PC. A compatible VPN is required; this feature is off by default.
-• Set up on-device collection with an existing PC pairing or a pairing file. Installation from compatible idevice_pair versions is also supported.
-• Pair directly on iOS/iPadOS 27 or later, with Developer Mode and approval guidance.
-• See collection progress, file counts and elapsed time, with pause and resume. Improved overlapping progress displays.
-• Continue or schedule collection in the background when allowed by iOS. Timing depends on the OS and device use.
-• Improved recovery after interruption or restart, and fixed received logs failing to appear as records.
-• Added the optional Live Battery tab in Advanced Settings, off by default. Current readings are not saved as history.
-• View cycles, capacity, voltage, current and charging status in tables, with optional details for more fields.
-• Check the last update time and status, refresh now, and view multiple devices.
-• Combine matching readings from multiple PCs, compare differences and display friendly model names.
-• Distinguish records from devices of the same model, including after export, import and iCloud sync.
-• Fixed records being attributed to the wrong iPhone, iPad or Apple Watch.
-• Review exact duplicates at launch and choose which to remove.
-• Select multiple battery records, or all records, for deletion from Home.
-• Improved PC connection security while retaining existing pairings.
-• Improved iPad settings, navigation, device management and QR camera orientation; added larger iPhone Duo display support.
-• Fixed sharing crashes, chart display issues and recurring Apple Watch import results.
-• Clarified how to import multiple logs from the share menu and improved when the import action appears.
-• Corrected incorrect values in some battery and device information.
-• Updated eight languages, illustrated introductions, setup guides, troubleshooting and PC download links.
-• PC collection requires iOS/iPadOS 27+ and macOS 27+ or Windows 11. On-device collection requires iOS/iPadOS 17+. Daily logs require generated analytics and an unlocked device.
+• Added support for iPad mini (A20 Pro).
