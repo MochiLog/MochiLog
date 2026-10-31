@@ -49,3 +49,16 @@ Public notes describe corrected incorrect values in battery/device information w
 - The user confirmed retaining the A17 Pro reference at 5,034mAh. Existing correction migrations and manual reference capacities remain intact. This is an additive catalog update, so no new record migration or CloudKit schema change is required.
 - Battery calculations use mAh. The app does not store Wh reference values; no Wh-to-mAh conversion is introduced. The supplied 18.7Wh and Apple's specifications-page 18.9Wh are not used interchangeably in calculations.
 - Apply the same catalog change to App Store 4.0.1 and TestFlight 4.1.0. Distribution results are recorded after verification.
+
+### Verified builds and distribution
+
+- Catalog changes and regression checks are committed as `2f373b5`. Main is 4.1.0 (1067); the same product changes are on `release/4.0.1` as 4.0.1 (1066). Keep release version metadata separate from main.
+- Device-library and profile regression suites passed, including both new identifiers, boards, model numbers, catalog ordering, the unchanged A17 Pro reference, and persistence of a custom capacity. Share-extension registration, bundled licenses and release-tool safeguard checks also passed.
+- Xcode 27.2 RC (27B48) ran the live-battery opt-in/layout and localized-record sharing checks on iPhone 17, iPad Pro M4 and iPhone Duo simulators: six successful test runs. Device Hub also displayed the new profile with 4,900mAh, A20 Pro and both identifiers/boards.
+- Both signed Release exports passed deep/strict signature checks. Main app, share extension and Watch app have matching marketing/build versions, distribution profiles with `get-task-allow=false`, and no test bundles. The main app's CloudKit entitlement targets Production.
+- 4.0.1 (1066): 16,139,797-byte IPA, SHA-256 `6daebcd3cabb432f195cacfbe4df42db3b5e7633c19efae1d1db7c5595315604`.
+- 4.1.0 (1067): 16,139,811-byte IPA, SHA-256 `4d5b3a80c95814302bf75d95fde0103fbf7cb976481949af35350266924d7440`.
+- Both uploads are VALID and not expired. Existing internal `iOS16`, `iCloud同期` and external `main` groups are assigned, automatic notifications are enabled, and Japanese/English notes are saved. Build 1067 is IN_BETA_TESTING internally and externally. Build 1066 is IN_BETA_TESTING internally and WAITING_FOR_BETA_REVIEW externally at verification time.
+- App Store 4.0.1 selects build 1066. Preparation and read-only verification succeeded for the localized metadata, 40 screenshots (including both Duo poses) and four header/search assets. App Review has **not** been submitted; the user previously reserved the final submission button, and a clarification is pending for this release.
+- The screenshot uploader now rotates only stale placements belonging to the editable version when Apple's ten-image group limit prevents adding all replacements first. Six focused tests cover slot limits, preserving desired assets and rejecting foreign/unresolved version relationships. A separate API check confirmed that public 4.0.0 remains READY_FOR_DISTRIBUTION with all 40 original screenshots and four creative assets unchanged.
+- Local evidence is under ignored `build/release-20261101/`, `build/release-4.0.1-1066/` and `build/testflight-1067/`. Do not commit credentials or raw API responses.

@@ -50,3 +50,13 @@ Heavy builds stay on CI to avoid adding local simulator/build caches.
 - Local build/test/export/upload/verification evidence is under ignored `build/testflight-1065/`. Credentials and raw device data are not part of the repository. App Store release metadata and review submission were not changed.
 
 For a local export from an existing signed archive, fastlane's `build_app` action uses `skip_build_archive:true`, `export_method:app-store` and an explicit export-options plist. Set the plist method to `app-store-connect` and include all three bundle IDs in `provisioningProfiles`; automatic profile detection alone found only the share extension in this environment. Keep `manageAppVersionAndBuildNumber=false` so Apple receives the verified build numbers.
+
+## iPad mini (A20 Pro) support — 2026-11-01
+
+- Build **4.1.0 (1067)** includes the additive iPad mini (A20 Pro) catalog entry: Wi-Fi and Cellular identifiers, board IDs, model numbers, SoC and 4,900mAh reference. The user confirmed retaining iPad mini (A17 Pro) at 5,034mAh. No persistence schema or new migration is needed.
+- The same product change is prepared for App Store 4.0.1 (1066) on `release/4.0.1`. Main retains 4.1.0 version metadata. Japanese/English TestFlight notes describe the new model and ask testers to check imports, names/capacity, automatic collection and iCloud sync.
+- Xcode 27.2 RC produced the signed Release archive and IPA. All three bundles report 4.1.0 (1067), distribution signing and disabled `get-task-allow`; Production CloudKit and deep/strict signature verification passed, with no test bundles present.
+- IPA size: **16,139,811 bytes**. SHA-256: `4d5b3a80c95814302bf75d95fde0103fbf7cb976481949af35350266924d7440`.
+- Catalog/profile regression suites and share-extension/license checks passed. Two UI smoke tests each passed on iPhone 17, iPad Pro M4 and Duo simulators, for six successful runs. The new profile was also inspected in Device Hub.
+- Upload processing is **VALID**, `expired=false`. Existing internal `iOS16` and `iCloud同期` groups and external `main` group are assigned. Japanese/English notes are published and automatic notifications are enabled. Both internal and external states are **IN_BETA_TESTING**.
+- Evidence is under ignored `build/testflight-1067/` and `build/release-4.0.1-1066/`; App Store preparation and its separate final submission status are documented in `DEVICE_LIBRARY_RELEASE_2026-10-25.md`.
