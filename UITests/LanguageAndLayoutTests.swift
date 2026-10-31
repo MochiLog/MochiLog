@@ -1258,6 +1258,59 @@ final class LanguageAndLayoutTests: XCTestCase {
     XCTAssertTrue(app.buttons["profiles.model.bundled:iPhone 15 Pro"].waitForExistence(timeout: 5))
   }
 
+  func testDeviceCatalogSettingsInEightLanguages() {
+    let settingsNames = [
+      "en": "Settings", "ja": "設定", "de": "Einstellungen", "es": "Ajustes",
+      "fr": "Réglages", "ko": "설정", "zh-Hans": "设置", "zh-Hant": "設定",
+    ]
+    let checkNames = [
+      "en": "Check for updates now", "ja": "今すぐ更新を確認",
+      "de": "Jetzt nach Updates suchen", "es": "Buscar actualizaciones ahora",
+      "fr": "Rechercher une mise à jour", "ko": "지금 업데이트 확인",
+      "zh-Hans": "立即检查更新", "zh-Hant": "立即檢查更新",
+    ]
+    for language in ["en", "ja", "de", "es", "fr", "ko", "zh-Hans", "zh-Hant"] {
+      app.launchArguments = [
+        "-hasCompletedTutorial", "YES", "-showPopupOnLoad", "NO", "-iCloudSyncEnabled", "NO",
+        "-appLanguage", language, "-AppleLanguages", "(\(language))",
+        "-deviceCatalog.automaticUpdates", "NO", "-LastKnownAppVersion", "4.1.0",
+        "-pcAutomaticCollectionEnabled", "NO", "-localAutomaticCollectionEnabled", "NO",
+      ]
+      app.launch()
+      let settings = app.descendants(matching: .any)
+        .matching(NSPredicate(format: "label == %@", settingsNames[language]!)).firstMatch
+      XCTAssertTrue(settings.waitForExistence(timeout: 15), app.debugDescription)
+      settings.tap()
+      let advanced =
+        UIDevice.current.userInterfaceIdiom == .pad
+        ? app.buttons["settings.category.advanced"] : app.buttons["settings.advanced"]
+      for _ in 0..<10 {
+        if advanced.isHittable { break }
+        app.swipeUp()
+      }
+      XCTAssertTrue(advanced.isHittable, app.debugDescription)
+      advanced.tap()
+      app.buttons["settings.deviceProfiles"].tap()
+      let updateSettings = app.buttons["catalog.settings"]
+      XCTAssertTrue(updateSettings.waitForExistence(timeout: 10), app.debugDescription)
+      updateSettings.tap()
+      let check = app.buttons["catalog.checkNow"]
+      XCTAssertTrue(check.waitForExistence(timeout: 10), app.debugDescription)
+      XCTAssertTrue(check.label.contains(checkNames[language]!), app.debugDescription)
+      XCTAssertTrue(check.isHittable && check.isEnabled)
+      XCTAssertEqual(app.switches["catalog.automatic"].value as? String, "0")
+      XCTAssertTrue(
+        app.otherElements["catalog.version"].exists || app.staticTexts["2026110101"].exists)
+      screenshot("Device catalog settings \(language)")
+      check.tap()
+      let result = app.staticTexts["catalog.result"]
+      XCTAssertTrue(result.waitForExistence(timeout: 45), app.debugDescription)
+      XCTAssertFalse(result.label.hasPrefix("catalog_"), "Results must be localized")
+      XCTAssertTrue(check.isEnabled, "Manual checks remain available when automatic checks are off")
+      app.terminate()
+    }
+  }
+
   func testIPadAdvancedPagesStayInSettingsPane() {
     app.launch()
     let settings = app.descendants(matching: .any)

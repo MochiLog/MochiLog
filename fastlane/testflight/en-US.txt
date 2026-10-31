@@ -1,4 +1,6 @@
 4.1.0
 
+• Device reference data can now update automatically, adding new models without an app update.
+• Open Advanced Settings → Device Library → Device data updates to control automatic checks or check manually.
 • Added support for iPad mini (A20 Pro).
-• Please check log imports, model names and battery capacity, automatic log collection and iCloud sync.
+• Please check device data updates, preservation of manual settings, log imports and offline use.

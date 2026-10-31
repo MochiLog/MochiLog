@@ -1,0 +1,47 @@
+name: Verify signed device catalog
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'device-catalog/**'
+      - 'MochiLog/Models/DeviceCatalog.swift'
+      - 'MochiLog/Models/DeviceProfile.swift'
+      - 'MochiLog/Services/DeviceCatalog*.swift'
+      - 'MochiLog/Services/DeviceProfileStore.swift'
+      - 'Tests/DeviceCatalogTests.swift'
+      - 'scripts/*device-catalog*'
+      - 'scripts/DeviceCatalogSigner.swift'
+      - '.github/workflows/device-catalog.yml'
+  pull_request:
+    paths:
+      - 'device-catalog/**'
+      - 'MochiLog/Models/DeviceCatalog.swift'
+      - 'MochiLog/Models/DeviceProfile.swift'
+      - 'MochiLog/Services/DeviceCatalog*.swift'
+      - 'MochiLog/Services/DeviceProfileStore.swift'
+      - 'Tests/DeviceCatalogTests.swift'
+      - 'scripts/*device-catalog*'
+      - 'scripts/DeviceCatalogSigner.swift'
+      - '.github/workflows/device-catalog.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: macos-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Verify authenticity and exact reviewed data
+        run: bash scripts/device-catalog.sh verify device-catalog/catalog.signed.json device-catalog/catalog.json
+      - name: Verify cache, manual settings, retries and tamper protection
+        run: bash scripts/test-device-catalog.sh
+      - name: Verify existing reference corrections
+        run: |
+          bash scripts/test-device-library.sh
+          bash scripts/test-device-profiles.sh

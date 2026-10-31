@@ -10,6 +10,8 @@ Con iCloud activado, los registros se sincronizan mediante la base de datos priv
 
 Si se activa Batería en vivo, un ordenador vinculado obtiene ciclos de carga y capacidades actuales del servicio de diagnóstico del dispositivo y los envía cifrados a la app móvil. Estos valores solo se mantienen en memoria y no se guardan como historial, registros de batería, datos de iCloud ni registros de diagnóstico para soporte. La opción está desactivada por defecto. Es independiente de la recopilación y conservación de archivos Analytics diarios. Si se usa una VPN configurada por el usuario, como Tailscale, también se aplican sus condiciones y tratamiento de datos.
 
+Desde la versión 4.1.0, MochiLog se conecta a GitHub para descargar datos de referencia de dispositivos, como nombres y capacidades estándar. Las comprobaciones automáticas están activadas de forma predeterminada y pueden desactivarse en ajustes; también hay comprobación manual. Las solicitudes no incluyen registros, archivos de análisis ni identificadores individuales del dispositivo, aunque GitHub puede recibir información de red habitual, como la dirección IP. Los datos verificados se guardan en el dispositivo para usarlos sin conexión.
+
 ## 3. Soporte
 
 Al enviar un correo de soporte, el desarrollador recibe el apodo, correo, mensaje y adjuntos. El soporte de transferencia Mac adjunta, al enviarse, versiones del sistema y la app, modelo, estado de transferencia, identificadores, errores y eventos de diagnóstico recientes. Estos pueden incluir nombres o rutas de archivos. Revise el mensaje antes de enviarlo. Los proveedores de correo procesan el mensaje. Conservamos la información mientras sea necesaria para atender la solicitud y los registros pertinentes; atendemos solicitudes de eliminación salvo obligación legal de conservación.
@@ -26,7 +28,7 @@ MochiLog no usa SDK de publicidad, seguimiento ni análisis de uso de terceros. 
 
 Consultas y solicitudes de eliminación de correos de soporte: support@mochilog.ryuya-dev.net.
 
-Revised: 2026-10-09
+Revised: 2026-11-01
 
 La vista completa puede tratar metadatos de fabricación, identificadores de batería e indicadores de estado en memoria. Muestra los nombres y valores originales sin deducir unidades. No se guardan ni se adjuntan a los registros de soporte y se transfieren cifrados mediante el enlace existente.
 

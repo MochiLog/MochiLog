@@ -130,7 +130,9 @@ enum DeviceProfileCatalog {
       return "profile_capacity_invalid"
     }
     if profile.identifiers.contains(where: {
-      $0.range(of: "^(iPhone|iPad|Watch|iPod)[0-9]+,[0-9]+$", options: .regularExpression) == nil
+      $0.range(
+        of: "^((iPhone|iPad|Watch|iPod)[0-9]+,[0-9]+|A[0-9]{4})$", options: .regularExpression)
+        == nil
     })
       || Set(profile.identifiers).count != profile.identifiers.count
     {

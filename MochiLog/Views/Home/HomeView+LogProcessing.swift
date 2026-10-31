@@ -325,12 +325,11 @@ extension HomeView {
     let enableValidation = AppSettings.shared.enableCapacityValidation
     let threshold = AppSettings.shared.capacityValidationThreshold
 
-    DispatchQueue.global(qos: .userInitiated).async {
-      let parseResult = LogParser.parse(
-        text: text,
-        enableValidation: enableValidation,
-        validationThreshold: threshold
-      )
+    Task {
+      let initial = await DeviceCatalogImportResolver.parse(
+        text: text, validation: enableValidation, threshold: threshold)
+      let parseResult = await DeviceCatalogImportResolver.resolve(
+        initial, text: text, validation: enableValidation, threshold: threshold)
 
       DispatchQueue.main.async {
         isProcessing = false
@@ -582,6 +581,8 @@ extension HomeView {
           let id = offset + index
           let url = urls[index]
           if let text, let parsedResult {
+            let parsedResult = await DeviceCatalogImportResolver.resolve(
+              parsedResult, text: text, validation: validation, threshold: threshold)
             var item = processBatchItem(
               id: id, parseResult: parsedResult,
               filename: url.lastPathComponent, rawText: text,

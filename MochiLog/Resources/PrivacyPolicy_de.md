@@ -10,6 +10,8 @@ Bei aktivierter iCloud-Synchronisierung werden Aufzeichnungen über die private 
 
 Wenn Live-Batterie aktiviert ist, liest ein gekoppelter Computer aktuelle Ladezyklen und Kapazitätswerte aus dem Diagnosedienst des Geräts und überträgt sie verschlüsselt an die mobile App. Diese Werte bleiben nur im Arbeitsspeicher und werden nicht als Verlauf, Batterieeinträge, iCloud-Daten oder Support-Diagnoseprotokolle gespeichert. Die Einstellung ist standardmäßig aus. Dies ist getrennt von der Erfassung und Aufbewahrung täglicher Analytics-Dateien. Bei einem vom Nutzer eingerichteten VPN wie Tailscale gelten auch dessen Bedingungen und Datenverarbeitung.
 
+Ab Version 4.1.0 ruft MochiLog Gerätedaten wie Modellnamen und Referenzkapazitäten von GitHub ab. Automatische Prüfungen sind standardmäßig aktiviert und können in den Einstellungen deaktiviert werden; manuelle Prüfungen sind ebenfalls möglich. Die Anfragen enthalten keine Aufzeichnungen, Analysedateien oder individuellen Gerätekennungen. GitHub kann jedoch übliche Verbindungsdaten wie die IP-Adresse erhalten. Verifizierte Gerätedaten werden zur Offline-Nutzung auf dem Gerät gespeichert.
+
 ## 3. Support
 
 Wenn der Nutzer eine Support-E-Mail sendet, erhält der Entwickler Spitzname, E-Mail-Adresse, Nachricht und Anhänge. Der Mac-Transfer-Support fügt beim Senden OS- und App-Version, Modell, Übertragungsstatus, Gerätekennungen, Fehler und jüngste Diagnoseereignisse hinzu. Diese können Dateinamen oder Pfade enthalten. Prüfen Sie die E-Mail vor dem Versand. E-Mail-Anbieter verarbeiten die Nachricht. Supportdaten werden für die Bearbeitung und notwendige Dokumentation aufbewahrt; Löschanfragen werden erfüllt, soweit keine gesetzliche Aufbewahrungspflicht besteht.
@@ -26,7 +28,7 @@ MochiLog nutzt keine Werbe-, Tracking- oder Drittanbieter-Nutzungsanalyse-SDKs. 
 
 Fragen und Anfragen zur Löschung von Support-E-Mails: support@mochilog.ryuya-dev.net.
 
-Revised: 2026-10-09
+Revised: 2026-11-01
 
 Die vollständige Akkuansicht kann auch Herstellungsdaten, Akku-Kennungen und Statuskennzeichen im Arbeitsspeicher verarbeiten. Originalnamen und Werte der API werden ohne angenommene Einheiten angezeigt. Sie werden nicht gespeichert oder Supportprotokollen beigefügt und mit der bestehenden Kopplung verschlüsselt übertragen.
 

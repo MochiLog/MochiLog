@@ -42,6 +42,8 @@ jobs:
       - name: Verify device references and multi-file action registration
         run: |
           bash scripts/test-device-library.sh
+          bash scripts/test-device-catalog.sh
+          bash scripts/device-catalog.sh verify device-catalog/catalog.signed.json device-catalog/catalog.json
           python3 scripts/check-share-extension.py
 
       - name: Verify idempotent diagnostic archive retries

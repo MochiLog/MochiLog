@@ -2,12 +2,13 @@ import Combine
 import Foundation
 
 final class DeviceProfileStore: ObservableObject {
-  static let shared = DeviceProfileStore()
+  static let shared = DeviceProfileStore(catalog: try? DeviceCatalogCache.standard.load())
   @Published private(set) var revision = 0
   private let lock = NSRecursiveLock()
   private let defaults: UserDefaults
   private let key = "deviceProfileOverrides.v1"
   private var stored: [DeviceProfileEntry]
+  private var standards: [DeviceProfile]
   private var resolved: [DeviceProfile] = []
   private var nameMap: [String: String] = [:]
   private var capacityMap: [String: Int] = [:]
@@ -32,8 +33,9 @@ final class DeviceProfileStore: ObservableObject {
     }
   }()
 
-  init(defaults: UserDefaults = .standard) {
+  init(defaults: UserDefaults = .standard, catalog: DeviceCatalog? = nil) {
     self.defaults = defaults
+    standards = (try? catalog?.standards(over: Self.bundled)) ?? Self.bundled
     stored =
       defaults.data(forKey: key).flatMap {
         try? JSONDecoder().decode([DeviceProfileEntry].self, from: $0)
@@ -41,11 +43,13 @@ final class DeviceProfileStore: ObservableObject {
     rebuild()
   }
 
+  var standardProfiles: [DeviceProfile] { lock.lock(); defer { lock.unlock() }; return standards }
   var profiles: [DeviceProfile] { lock.lock(); defer { lock.unlock() }; return resolved }
   var entries: [DeviceProfileEntry] { lock.lock(); defer { lock.unlock() }; return stored }
   var names: [String: String] { lock.lock(); defer { lock.unlock() }; return nameMap }
   var conflicts: [DeviceProfileEntry] {
-    entries.filter { !DeviceProfileCatalog.conflicts($0, bundled: Self.bundled).isEmpty }
+    lock.lock(); defer { lock.unlock() }
+    return stored.filter { !DeviceProfileCatalog.conflicts($0, bundled: standards).isEmpty }
   }
   func capacity(_ name: String) -> Int? {
     lock.lock(); defer { lock.unlock() }; return capacityMap[name]
@@ -98,8 +102,8 @@ final class DeviceProfileStore: ObservableObject {
       next[index].previousIdentifiers.formUnion(next[index].current.identifiers)
       next[index].current = profile
     } else {
-      let original = Self.bundled.first { $0.id == profile.id } ?? profile
-      let bundled = Self.bundled.filter { $0.matches(profile) || $0.matches(original) }
+      let original = standards.first { $0.id == profile.id } ?? profile
+      let bundled = standards.filter { $0.matches(profile) || $0.matches(original) }
       next.append(
         DeviceProfileEntry(
           original: original, current: profile,
@@ -129,7 +133,7 @@ final class DeviceProfileStore: ObservableObject {
     lock.lock(); defer { lock.unlock() }
     guard let index = stored.firstIndex(where: { $0.id == id }) else { return }
     var next = stored
-    let candidates = Self.bundled.filter {
+    let candidates = standards.filter {
       next[index].current.matches($0) || next[index].original.matches($0)
     }
     .sorted { $0.id < $1.id }
@@ -154,6 +158,16 @@ final class DeviceProfileStore: ObservableObject {
     try persist(next)
   }
 
+  /// Change standard reference data without touching saved records or manual entries.
+  func apply(catalog: DeviceCatalog) throws {
+    let next = try catalog.standards(over: Self.bundled)
+    lock.lock(); defer { lock.unlock() }
+    guard standards != next else { return }
+    standards = next
+    rebuild()
+    revision += 1
+  }
+
   private func persist(_ next: [DeviceProfileEntry]) throws {
     let data = try JSONEncoder().encode(next)
     defaults.set(data, forKey: key)
@@ -163,7 +177,7 @@ final class DeviceProfileStore: ObservableObject {
   }
 
   private func rebuild() {
-    resolved = DeviceProfileCatalog.merged(bundled: Self.bundled, entries: stored)
+    resolved = DeviceProfileCatalog.merged(bundled: standards, entries: stored)
     nameMap = [:]; capacityMap = [:]; socMap = [:]; boardMap = [:]
     for profile in resolved {
       for identifier in profile.identifiers { nameMap[identifier] = profile.name }

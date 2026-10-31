@@ -173,6 +173,7 @@ final class MochiLogSceneDelegate: UIResponder, UIWindowSceneDelegate {
   }
 
   func sceneDidBecomeActive(_ scene: UIScene) {
+    Task { await DeviceCatalogUpdater.shared.checkIfDue() }
     if #available(iOS 27, *) { MacTransferManager.shared.start() }
     if #available(iOS 17, *) {
       LocalDiagnosticsManager.shared.checkInstalledPairingFile()

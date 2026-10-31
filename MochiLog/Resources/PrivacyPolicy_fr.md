@@ -10,6 +10,8 @@ Avec iCloud activé, les relevés sont synchronisés via la base iCloud privée 
 
 Si Batterie en direct est activée, un ordinateur jumelé lit les cycles et capacités actuels via le service de diagnostic de l’appareil et les transmet chiffrés à l’app mobile. Ces valeurs restent uniquement en mémoire et ne sont pas enregistrées dans l’historique, les relevés de batterie, iCloud ou les journaux de diagnostic du support. Le réglage est désactivé par défaut. Ce traitement est distinct de la collecte et conservation des fichiers Analytics quotidiens. Les conditions et le traitement des données d’un VPN configuré par l’utilisateur, tel que Tailscale, s’appliquent également.
 
+À partir de la version 4.1.0, MochiLog contacte GitHub pour télécharger les données de référence des appareils, telles que les noms de modèles et les capacités standard. Les vérifications automatiques sont activées par défaut et peuvent être désactivées dans les réglages ; une vérification manuelle est également disponible. Les requêtes ne contiennent ni relevés, ni journaux d’analyse, ni identifiants individuels d’appareil, mais GitHub peut recevoir les informations de connexion habituelles, comme l’adresse IP. Les données vérifiées sont conservées sur l’appareil pour une utilisation hors ligne.
+
 ## 3. Assistance
 
 Si l’utilisateur envoie un courriel au support, le développeur reçoit son pseudonyme, son adresse, son message et ses pièces jointes. Le support du transfert Mac joint lors de l’envoi les versions OS/app, le modèle, l’état du transfert, des identifiants, erreurs et événements de diagnostic récents. Ces événements peuvent contenir des noms ou chemins de fichiers. Vérifiez le courriel avant envoi. Les fournisseurs de messagerie traitent le message. Les données sont conservées selon les besoins du traitement et des dossiers nécessaires; les demandes de suppression sont honorées sauf obligation légale.
@@ -26,7 +28,7 @@ MochiLog n’utilise aucun SDK publicitaire, de suivi ou d’analyse d’utilisa
 
 Questions et demandes de suppression des courriels de support : support@mochilog.ryuya-dev.net.
 
-Revised: 2026-10-09
+Revised: 2026-11-01
 
 La vue complète peut traiter en mémoire les métadonnées de fabrication, identifiants de batterie et indicateurs d’état. Les noms et valeurs de l’API sont affichés sans déduire les unités. Ils ne sont ni enregistrés ni joints aux journaux d’assistance et sont transférés chiffrés avec le jumelage existant.
 

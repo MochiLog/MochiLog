@@ -10,6 +10,8 @@ If iCloud sync is enabled, records are synchronized through the user’s private
 
 If Live Battery is enabled, a paired computer reads current cycle count and capacity fields from the device diagnostics service and sends them encrypted to the mobile app. These current values are held only in memory and are not stored as history, battery records, iCloud data or support diagnostic logs. The setting is off by default. This is separate from collection and retention of daily Analytics files. If communication uses a VPN such as Tailscale configured by the user, that service’s terms and data handling also apply.
 
+From version 4.1.0, MochiLog contacts GitHub to download device reference data such as model names and standard capacities. Automatic checks are on by default and can be disabled in settings; manual checks are also available. Requests do not include records, analytics logs or physical device identifiers, but GitHub may receive normal network information such as the IP address. Verified reference data is cached on the device for offline use.
+
 ## 3. Support requests
 
 If the user sends a support email, the developer receives the nickname, email address, message, and attachments supplied. Mac transfer support attaches OS and app versions, model, transfer status, device identifiers, errors, and recent diagnostic events from the mobile device and Mac when the user sends the email. Events may include filenames or file paths. Review the email before sending it. The user’s and developer’s email providers process the message. Support information is retained as needed to handle the request and keep necessary records; deletion requests are honored except where retention is required by law.
@@ -26,7 +28,7 @@ MochiLog does not use advertising, tracking SDKs, or third-party usage analytics
 
 For policy questions or requests to delete support emails, contact support@mochilog.ryuya-dev.net.
 
-Revised: 2026-10-09
+Revised: 2026-11-01
 
 The full-field battery view can also handle manufacturing metadata, battery identifiers and status flags in memory. It shows original API names and values without guessing units. These fields are not saved or attached to support logs and use encrypted transfer with the existing pairing.
 

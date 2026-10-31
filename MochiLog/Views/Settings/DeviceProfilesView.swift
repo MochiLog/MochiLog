@@ -23,6 +23,14 @@ struct DeviceProfilesView: View {
         .accessibilityIdentifier("profiles.addRow")
       }
       Section {
+        NavigationLink {
+          DeviceCatalogSettingsView()
+        } label: {
+          Label(profileText("catalog_title"), systemImage: "arrow.triangle.2.circlepath")
+        }
+        .accessibilityIdentifier("catalog.settings")
+      }
+      Section {
         TextField(profileText("profile_search"), text: $search)
           .textInputAutocapitalization(.never).autocorrectionDisabled()
           .accessibilityIdentifier("profiles.search")
@@ -191,7 +199,7 @@ private struct DeviceProfileEditor: View {
   }
   private var conflicts: [DeviceProfile] {
     guard let entry else { return [] }
-    return DeviceProfileCatalog.conflicts(entry, bundled: DeviceProfileStore.bundled)
+    return DeviceProfileCatalog.conflicts(entry, bundled: store.standardProfiles)
   }
 
   var body: some View {
