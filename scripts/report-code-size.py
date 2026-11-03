@@ -11,7 +11,7 @@ import subprocess
 import tempfile
 
 REPOS = {
-    "mobile": ("MochiLog（iPhone・iPad・Watch）", "MochiLog-mac-log-transfer"),
+    "mobile": ("MochiLog（iPhone・iPad・Watch）", "MochiLog"),
     "mac": ("MochiLog Mac", "MochiLog-Mac"),
     "windows": ("MochiLog Windows", "MochiLog-Windows"),
     "web": ("MochiLog Web", "MochiLog-Web"),
@@ -161,7 +161,9 @@ def table(headers, rows):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--repos-root", type=Path, default=Path.home() / "Documents")
+    parser.add_argument(
+        "--repos-root", type=Path, default=Path(__file__).resolve().parents[2]
+    )
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     report = {
@@ -353,7 +355,7 @@ def main():
     body += (
         "\n"
         + methodology
-        + "## 再集計\n\n```sh\npython3 scripts/report-code-size.py --repos-root /Users/ryuya/Documents --output docs/code-size/YYYY-MM-DD\n```\n\ncloc 2.10が必要。FastfileはRuby、.commandはShell、Inno Setupの.issはPascalのコメント規則で集計した。全ファイルの分類・言語・コード／コメント／空行・物理行数は [metrics.json](metrics.json) に保存。\n"
+        + "## 再集計\n\n```sh\npython3 scripts/report-code-size.py --output docs/code-size/YYYY-MM-DD\n```\n\ncloc 2.10が必要。FastfileはRuby、.commandはShell、Inno Setupの.issはPascalのコメント規則で集計した。全ファイルの分類・言語・コード／コメント／空行・物理行数は [metrics.json](metrics.json) に保存。\n"
     )
     (out / "report.md").write_text(body)
     print(

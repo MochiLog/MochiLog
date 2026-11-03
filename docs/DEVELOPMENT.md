@@ -11,6 +11,8 @@
 
 ## 開発環境・ビルド・テスト
 
+2026-11-04に、このMacのソースを`/Users/ryuya/Documents/MochiLog/`へ集約した。同名の親フォルダと区別し、スマホ版のGitルートは`/Users/ryuya/Documents/MochiLog/MochiLog/`とする。`MochiLog-Mac`、`MochiLog-Windows`、`MochiLog-Web`はその兄弟フォルダ。署名ツールはスマホ版の`scripts/`に含まれる。各リポジトリのGit履歴・ブランチ・未コミット変更・ビルド中間物は保持している。署名鍵の保管場所は変更していない。
+
 - [開発環境の確認記録](DEVELOPMENT_ENVIRONMENT_2026-10-26.md)：Xcode、依存関係、署名と実機・シミュレーターの確認。本文の情報は記録日の状態。
 - [ローカル資源管理](LOCAL_DEVELOPMENT_RESOURCES.md)
 - [テスト](../Tests/README.md)

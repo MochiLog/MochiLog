@@ -12,7 +12,7 @@
 	"argv": [
 		"/opt/homebrew/bin/xcode-build-server"
 	],
-	"workspace": "/Users/ryuya/Documents/MochiLog/MochiLog.xcodeproj/project.xcworkspace",
+	"workspace": "/Users/ryuya/Documents/MochiLog/MochiLog/MochiLog.xcodeproj/project.xcworkspace",
 	"build_root": "/Users/ryuya/Library/Developer/Xcode/DerivedData/MochiLog-gnrsddugtmlwywgyxpgyaehfkpcf",
 	"scheme": "MochiLog",
 	"kind": "xcode"
