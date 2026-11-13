@@ -1,3 +1,4 @@
-4.0.1
-
-• Added support for iPad mini (A20 Pro).
+4.0.2
+• Improved pairing and reconnection with your computer.
+• Made connection and transfer error messages easier to understand.
+• Improved log transfers on unstable connections.

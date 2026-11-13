@@ -19,7 +19,7 @@
 - [fastlane](../fastlane/README.md)
 - [DeviceLibrary移行の構成](../MochiLog/Migrations/README.md)
 
-現在のmainは4.1.0ベータの開発対象。App Store向け4.0.1は`release/4.0.1`で管理する。プロジェクトのmainアプリ、共有拡張、Watchアプリのバージョンとビルド番号を揃える。
+現在のmainは4.1.0ベータの開発対象。App Store向け4.0.2は`release/4.0.2`で管理する。4.0.1から今回のPC連携修正を取り込み、4.1.0向けの機種データ更新機能とは分ける。プロジェクトのmainアプリ、共有拡張、Watchアプリのバージョンとビルド番号を揃える。
 
 ## 配信・機種データ
 
