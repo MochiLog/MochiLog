@@ -40,3 +40,5 @@ APIキー、秘密鍵、ペアリング情報、実機の生ログや診断ス�
 ## Pairing diagnostics and support exports (2026-11-13)
 
 See [the implementation and verification notes](PAIRING_DIAGNOSTICS_2026-11-13.md) for pairing failure audits, split-file attachments, compatibility and export limits.
+
+See also [the timeout-path audit and ZIP follow-up](PAIRING_TIMEOUT_AUDIT_2026-11-13.md).

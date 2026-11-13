@@ -157,12 +157,12 @@ struct MacTransferSupportView: View {
           let urls = try SupportLogExport.prepare(
             sources: exportSources, days: days,
             diagnostics: exportDiagnostics, unavailable: missing, directory: directory)
-          return try urls.map { url in
+          let archive = try SupportArchive.create(files: urls, directory: directory)
+          return [
             MailAttachment(
-              data: try Data(contentsOf: url),
-              mimeType: url.pathExtension == "json" ? "application/json" : "text/plain",
-              fileName: url.lastPathComponent)
-          }
+              data: try Data(contentsOf: archive), mimeType: "application/zip",
+              fileName: archive.lastPathComponent)
+          ]
         }.value
         exportDirectory = directory
         preparedAttachments = prepared

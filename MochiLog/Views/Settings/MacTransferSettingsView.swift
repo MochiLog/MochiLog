@@ -3,6 +3,7 @@ import SwiftUI
 
 @available(iOS 27, *)
 struct MacTransferSettingsView: View {
+  @Environment(\.scenePhase) private var scenePhase
   @EnvironmentObject private var dataStore: DataStore
   @StateObject private var manager = MacTransferManager.shared
   @State private var showingScanner = false
@@ -11,6 +12,7 @@ struct MacTransferSettingsView: View {
   @State private var secureCandidate: SecureMacPairingCandidate?
   @State private var enteredPairingCode = ""
   @State private var isPreparingPairing = false
+  @State private var isConfirmingPairing = false
   @State private var guidePlatform = 0
   @State private var manualHostAddress = ""
   @State private var unpairHostID: UUID?
@@ -372,7 +374,9 @@ struct MacTransferSettingsView: View {
       Button(L10n.text("mt_secure_pair_confirm", table: "MacTransfer")) {
         guard let candidate = secureCandidate else { return }
         secureCandidate = nil
+        isConfirmingPairing = true
         Task {
+          defer { isConfirmingPairing = false }
           do {
             try await manager.confirmSecurePairing(
               candidate,
@@ -388,6 +392,13 @@ struct MacTransferSettingsView: View {
       }
     } message: {
       Text(L10n.text("mt_secure_pair_instruction", table: "MacTransfer"))
+    }
+    .onChange(of: scenePhase) { _, phase in
+      if isPreparingPairing || isConfirmingPairing || secureCandidate != nil {
+        MacTransferManager.appendDebugEvent(
+          "PC pairing: app scene changed; phase=\(phase), preparing=\(isPreparingPairing), confirming=\(isConfirmingPairing)"
+        )
+      }
     }
     .onAppear {
       manualHostAddress = manager.pairing?.manualHostAddress ?? ""

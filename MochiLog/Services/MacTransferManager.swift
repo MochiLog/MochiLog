@@ -81,6 +81,7 @@ final class MacTransferManager: ObservableObject {
   private var retryDelay: UInt64 = 5
   private var isRunning = false
   private var connection: NWConnection?
+  private var responseDeadline: ProgressDeadline?
   private var activeRequestNonce: UUID?
   @Published private(set) var usingLegacyTransfer = false
   @Published private(set) var legacyTransferConfirmed = false
@@ -590,7 +591,10 @@ final class MacTransferManager: ObservableObject {
       if let tailnet = Self.tailnetRoute(address: values["tailnet"], port: tailnetPort) {
         routes.append(tailnet)
       }
-      guard !routes.isEmpty else { throw TransferError.invalidPairing }
+      // The host UUID and QR public key pin the peer. Bonjour can recover a
+      // changed LAN address or IPv6-only LAN without trusting a different host.
+      routes.append(
+        .service(name: host.uuidString, type: "_mochilog._tcp", domain: "local.", interface: nil))
       stage = "key-agreement"
       let clientPrivate = Curve25519.KeyAgreement.PrivateKey()
       let clientPublic = clientPrivate.publicKey.rawRepresentation
@@ -607,11 +611,20 @@ final class MacTransferManager: ObservableObject {
         "clientPublicKey": clientPublic.base64EncodedString(),
         "physicalDeviceID": device.uuidString,
       ])
+      let challengeProof = Self.authenticationCode(
+        "pair-challenge|\(session.uuidString)", secret: secret)
       stage = "challenge-exchange"
-      let reply = try await PairingTransport.exchange(
+      let result = try await PairingTransport.exchangeResult(
         routes: routes,
         payload: initiation, allowCellular: allowsCellularTransfer,
-        context: "prepare", log: { Self.recordPairingTransport($0) })
+        continueOnInvalidResponse: true, context: "prepare",
+        validateResponse: {
+          Self.validPairingReply(
+            $0, type: "pair-challenge", session: session, proof: challengeProof)
+        },
+        log: { Self.recordPairingTransport($0) })
+      let reply = result.data
+      let confirmedRoutes = [result.route] + routes.filter { $0 != result.route }
       stage = "challenge-response"
       guard let object = try JSONSerialization.jsonObject(with: reply) as? [String: String],
         object["type"] == "pair-challenge", object["sessionID"] == session.uuidString,
@@ -635,7 +648,7 @@ final class MacTransferManager: ObservableObject {
       Self.appendDebugEvent("PC pairing: challenge proof verified")
       return SecureMacPairingCandidate(
         pairing: pair, sessionID: session,
-        clientPublicKey: clientPublic, routes: routes,
+        clientPublicKey: clientPublic, routes: confirmedRoutes,
         relinkLocalRecords: relinkLocalRecords, protocolVersion: version)
     } catch {
       Self.appendDebugEvent(
@@ -667,11 +680,19 @@ final class MacTransferManager: ObservableObject {
         "physicalDeviceID": candidate.pairing.physicalDeviceID.uuidString,
         "confirmationMAC": confirmationMAC,
       ])
+      let completionProof = Self.authenticationCode(
+        "pair-complete|\(candidate.sessionID.uuidString)", secret: candidate.pairing.secret)
+      let session = candidate.sessionID
       stage = "confirmation-exchange"
       let reply = try await PairingTransport.exchange(
         routes: candidate.routes,
         payload: request, allowCellular: allowsCellularTransfer,
-        context: "confirm", log: { Self.recordPairingTransport($0) })
+        context: "confirm",
+        validateResponse: {
+          Self.validPairingReply(
+            $0, type: "pair-complete", session: session, proof: completionProof)
+        },
+        log: { Self.recordPairingTransport($0) })
       stage = "confirmation-response"
       guard let object = try JSONSerialization.jsonObject(with: reply) as? [String: String],
         object["type"] == "pair-complete",
@@ -715,6 +736,16 @@ final class MacTransferManager: ObservableObject {
         "PC pairing: confirm failed; stage=\(stage); \(PairingTransport.errorSummary(error))")
       throw error
     }
+  }
+
+  nonisolated private static func validPairingReply(
+    _ data: Data, type: String, session: UUID, proof: String
+  ) -> Bool {
+    guard let value = try? JSONSerialization.jsonObject(with: data) as? [String: String] else {
+      return false
+    }
+    return value["type"] == type && value["sessionID"] == session.uuidString
+      && value["proof"] == proof
   }
 
   nonisolated private static func recordPairingTransport(_ event: String) {
@@ -1023,6 +1054,8 @@ final class MacTransferManager: ObservableObject {
   }
 
   func stop() {
+    responseDeadline?.cancel()
+    responseDeadline = nil
     isRunning = false
     cloudPolicyTask?.cancel()
     cloudPolicyTask = nil
@@ -1193,6 +1226,8 @@ final class MacTransferManager: ObservableObject {
 
   private func routeFailed(_ failed: NWConnection, error: String) {
     guard connection === failed else { return }
+    responseDeadline?.cancel()
+    responseDeadline = nil
     failed.cancel()
     connection = nil
     activeRequestNonce = nil
@@ -1467,6 +1502,7 @@ final class MacTransferManager: ObservableObject {
     }
     let connection = NWConnection(to: route, using: parameters)
     self.connection = connection
+    startResponseDeadline(on: connection)
     activeRequestNonce = nonce
     activePauseUntil = pauseUntil
     activeResume = resume
@@ -1489,7 +1525,11 @@ final class MacTransferManager: ObservableObject {
       case .preparing:
         Task { @MainActor in Self.appendDebugEvent("Connection: preparing") }
       case .ready:
-        Task { @MainActor in Self.appendDebugEvent("Connection: ready") }
+        Task { @MainActor in
+          guard self.isRunning, self.connection === connection else { return }
+          self.responseDeadline?.progress()
+          Self.appendDebugEvent("Connection: ready")
+        }
         connection.send(
           content: payload + Data([10]),
           completion: .contentProcessed { error in
@@ -1498,6 +1538,7 @@ final class MacTransferManager: ObservableObject {
               if let error {
                 self.routeFailed(connection, error: error.localizedDescription)
               } else {
+                self.responseDeadline?.progress()
                 self.requestSentUptime = ProcessInfo.processInfo.systemUptime
                 Self.appendDebugEvent(
                   "Connection: request sent; request=\(nonce.uuidString), connectMs=\(Int((self.requestSentUptime - self.requestStartedUptime) * 1000))"
@@ -1528,14 +1569,39 @@ final class MacTransferManager: ObservableObject {
       case .ready, .failed, .cancelled: return
       default: break
       }
+      Self.appendDebugEvent(
+        "Transfer timeout: phase=connecting, deadlineSeconds=\(timeout), route=\(self.routeIndex + 1), code=-1001"
+      )
       self.routeFailed(connection, error: URLError(.timedOut).localizedDescription)
     }
   }
 
+  private func startResponseDeadline(on connection: NWConnection) {
+    responseDeadline?.cancel()
+    responseDeadline = ProgressDeadline(
+      interval: 25, queue: DispatchQueue(label: "net.ryuya-dev.MochiLog.transfer-idle")
+    ) { [weak self, weak connection] in
+      Task { @MainActor in
+        guard let self, let connection, self.isRunning, self.connection === connection else {
+          return
+        }
+        let phase =
+          self.requestSentUptime == 0
+          ? "sending" : (self.firstByteUptime == 0 ? "waiting-first-byte" : "receiving")
+        Self.appendDebugEvent(
+          "Transfer timeout: phase=\(phase), idleSeconds=25, receivedBytes=\(self.accumulated.count), request=\(self.activeRequestNonce?.uuidString ?? "none")"
+        )
+        self.routeFailed(connection, error: URLError(.timedOut).localizedDescription)
+      }
+    }
+  }
+
   private func receive(on connection: NWConnection) {
+    let deadline = responseDeadline
     connection.receive(minimumIncompleteLength: 1, maximumLength: 65_536) {
       [weak self] data, _, complete, error in
       guard let self else { return }
+      if let data, !data.isEmpty { deadline?.progress() }
       Task { @MainActor in
         guard self.isRunning, self.connection === connection else { return }
         if let data, !data.isEmpty, self.firstByteUptime == 0 {
@@ -1547,6 +1613,8 @@ final class MacTransferManager: ObservableObject {
         if let data { self.accumulated.append(data) }
         if let data, !data.isEmpty { self.connectionPhase = .receiving }
         if self.accumulated.count > 64 * 1024 * 1024 + 1_024 {
+          self.responseDeadline?.cancel()
+          self.responseDeadline = nil
           connection.cancel()
           self.status = MacTransferStatus.text("mt_s_04")
           self.isReceiving = false
@@ -1567,6 +1635,8 @@ final class MacTransferManager: ObservableObject {
   }
 
   private func finish(_ bytes: Data, connection: NWConnection) {
+    responseDeadline?.cancel()
+    responseDeadline = nil
     defer {
       connection.cancel()
       self.connection = nil
