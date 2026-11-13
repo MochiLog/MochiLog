@@ -590,7 +590,12 @@ final class LanguageAndLayoutTests: XCTestCase {
     screenshot("Live Battery encrypted PC response")
   }
 
-  func testDuoAspectRatioAndResize() {
+  func testDuoAspectRatioAndResize() throws {
+    // This old synthetic canvas is larger than a phone's outer display. It is
+    // not a fold/unfold operation; native Duo tests cover the actual hardware UI.
+    guard UIDevice.current.userInterfaceIdiom == .pad else {
+      throw XCTSkip("Run the synthetic 800x1120 canvas on iPad; use native Duo tests on Duo.")
+    }
     app.launchEnvironment["MOCHI_LAYOUT_TEST"] = "1"
     app.launchArguments += ["-selectedTabIndex", "0"]
     app.launch()
