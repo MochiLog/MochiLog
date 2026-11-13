@@ -519,167 +519,206 @@ final class MacTransferManager: ObservableObject {
     from text: String, dataStore: DataStore,
     relinkLocalRecords: Bool = false
   ) async throws -> SecureMacPairingCandidate {
-    guard !ProcessInfo.processInfo.isiOSAppOnMac else { throw TransferError.invalidPairing }
-    guard let components = URLComponents(string: text),
-      components.scheme == "mochilog-mac", components.host == "pair"
-    else {
-      throw TransferError.invalidPairing
-    }
-    var values: [String: String] = [:]
-    for item in components.queryItems ?? [] {
-      guard let value = item.value, values[item.name] == nil else {
+    Self.appendDebugEvent("PC pairing: prepare started")
+    var stage = "qr-url"
+    do {
+      guard !ProcessInfo.processInfo.isiOSAppOnMac else { throw TransferError.invalidPairing }
+      guard let components = URLComponents(string: text),
+        components.scheme == "mochilog-mac", components.host == "pair"
+      else {
         throw TransferError.invalidPairing
       }
-      values[item.name] = value
-    }
-    guard let version = values["v"], ["2", "3"].contains(version),
-      let host = values["host"].flatMap(UUID.init(uuidString:)),
-      let session = values["session"].flatMap(UUID.init(uuidString:)),
-      let model = values["model"],
-      let macPublicBytes = values["public"].flatMap({ Data(base64Encoded: $0) }),
-      macPublicBytes.count == 32,
-      let macPublic = try? Curve25519.KeyAgreement.PublicKey(
-        rawRepresentation: macPublicBytes),
-      let port = values["port"].flatMap(UInt16.init), port != 0,
-      let endpointPort = NWEndpoint.Port(rawValue: port)
-    else { throw TransferError.invalidPairing }
-    guard model == DeviceLibrary.localModelIdentifier() else {
-      throw TransferError.wrongDevice
-    }
-    let storedID = PhysicalDeviceIdentityStore.stored()
-    let previousID = storedID ?? PhysicalDeviceIdentityStore.current()
-    let device: UUID
-    if version == "3" {
-      let invited = values["device"].flatMap(UUID.init(uuidString:))
-      if let invited, storedID != nil, invited != previousID && !relinkLocalRecords {
+      stage = "qr-fields"
+      var values: [String: String] = [:]
+      for item in components.queryItems ?? [] {
+        guard let value = item.value, values[item.name] == nil else {
+          throw TransferError.invalidPairing
+        }
+        values[item.name] = value
+      }
+      guard let version = values["v"], ["2", "3"].contains(version),
+        let host = values["host"].flatMap(UUID.init(uuidString:)),
+        let session = values["session"].flatMap(UUID.init(uuidString:)),
+        let model = values["model"],
+        let macPublicBytes = values["public"].flatMap({ Data(base64Encoded: $0) }),
+        macPublicBytes.count == 32,
+        let macPublic = try? Curve25519.KeyAgreement.PublicKey(
+          rawRepresentation: macPublicBytes),
+        let port = values["port"].flatMap(UInt16.init), port != 0,
+        let endpointPort = NWEndpoint.Port(rawValue: port)
+      else { throw TransferError.invalidPairing }
+      Self.appendDebugEvent(
+        "PC pairing: invitation validated; session=\(session.uuidString), protocol=\(version)")
+      stage = "device-model"
+      guard model == DeviceLibrary.localModelIdentifier() else {
+        throw TransferError.wrongDevice
+      }
+      stage = "device-identity"
+      let storedID = PhysicalDeviceIdentityStore.stored()
+      let previousID = storedID ?? PhysicalDeviceIdentityStore.current()
+      let device: UUID
+      if version == "3" {
+        let invited = values["device"].flatMap(UUID.init(uuidString:))
+        if let invited, storedID != nil, invited != previousID && !relinkLocalRecords {
+          throw TransferError.identityConflict
+        }
+        device =
+          storedID == nil
+          ? (invited ?? previousID) : (relinkLocalRecords ? (invited ?? previousID) : previousID)
+      } else if let invited = values["device"].flatMap(UUID.init(uuidString:)) {
+        device = invited
+      } else {
+        throw TransferError.invalidPairing
+      }
+      if version == "2",
+        previousID != device && !relinkLocalRecords
+          && dataStore.recordsDescending.contains(where: {
+            $0.physicalDeviceID == previousID && $0.deviceModelCode == model
+          })
+      {
         throw TransferError.identityConflict
       }
-      device =
-        storedID == nil
-        ? (invited ?? previousID) : (relinkLocalRecords ? (invited ?? previousID) : previousID)
-    } else if let invited = values["device"].flatMap(UUID.init(uuidString:)) {
-      device = invited
-    } else {
-      throw TransferError.invalidPairing
-    }
-    if version == "2",
-      previousID != device && !relinkLocalRecords
-        && dataStore.recordsDescending.contains(where: {
-          $0.physicalDeviceID == previousID && $0.deviceModelCode == model
-        })
-    {
-      throw TransferError.identityConflict
-    }
-    var routes: [NWEndpoint] = (values["ipv4"] ?? "").split(separator: ",")
-      .prefix(4).compactMap { text in
-        guard let address = IPv4Address(String(text)),
-          Self.isPrivateLANAddress(String(text))
-        else { return nil }
-        return .hostPort(host: .ipv4(address), port: endpointPort)
+      stage = "routes"
+      var routes: [NWEndpoint] = (values["ipv4"] ?? "").split(separator: ",")
+        .prefix(4).compactMap { text in
+          guard let address = IPv4Address(String(text)),
+            Self.isPrivateLANAddress(String(text))
+          else { return nil }
+          return .hostPort(host: .ipv4(address), port: endpointPort)
+        }
+      let tailnetPort = values["tailnetPort"].flatMap(UInt16.init)
+      if let tailnet = Self.tailnetRoute(address: values["tailnet"], port: tailnetPort) {
+        routes.append(tailnet)
       }
-    let tailnetPort = values["tailnetPort"].flatMap(UInt16.init)
-    if let tailnet = Self.tailnetRoute(address: values["tailnet"], port: tailnetPort) {
-      routes.append(tailnet)
+      guard !routes.isEmpty else { throw TransferError.invalidPairing }
+      stage = "key-agreement"
+      let clientPrivate = Curve25519.KeyAgreement.PrivateKey()
+      let clientPublic = clientPrivate.publicKey.rawRepresentation
+      let shared = try clientPrivate.sharedSecretFromKeyAgreement(with: macPublic)
+      let derived = shared.hkdfDerivedSymmetricKey(
+        using: SHA256.self,
+        salt: Data(session.uuidString.utf8),
+        sharedInfo: Data("MochiLog pair v\(version)|\(host.uuidString)|\(device.uuidString)".utf8),
+        outputByteCount: 32)
+      let secret = derived.withUnsafeBytes { Data($0) }
+      let initiation = try JSONSerialization.data(withJSONObject: [
+        "type": "pair-init", "sessionID": session.uuidString,
+        "version": version,
+        "clientPublicKey": clientPublic.base64EncodedString(),
+        "physicalDeviceID": device.uuidString,
+      ])
+      stage = "challenge-exchange"
+      let reply = try await PairingTransport.exchange(
+        routes: routes,
+        payload: initiation, allowCellular: allowsCellularTransfer,
+        context: "prepare", log: { Self.recordPairingTransport($0) })
+      stage = "challenge-response"
+      guard let object = try JSONSerialization.jsonObject(with: reply) as? [String: String],
+        object["type"] == "pair-challenge", object["sessionID"] == session.uuidString,
+        let supplied = object["proof"]
+      else { throw TransferError.invalidPairing }
+      stage = "challenge-proof"
+      let expected = Self.authenticationCode(
+        "pair-challenge|\(session.uuidString)",
+        secret: secret)
+      guard supplied == expected
+      else { throw TransferError.invalidPairing }
+      var pair = MacTransferPairing(
+        hostID: host, physicalDeviceID: device,
+        model: model, secret: secret,
+        tailnetAddress: values["tailnet"], tailnetPort: tailnetPort)
+      pair.requiresSecureTransfer = values["transfer"] == "3"
+      pair.platform = values["platform"] == "windows" ? "windows" : "macOS"
+      pair.lanAddresses = (values["ipv4"] ?? "").split(separator: ",")
+        .map(String.init).filter(Self.isPrivateLANAddress)
+      pair.lanPort = port
+      Self.appendDebugEvent("PC pairing: challenge proof verified")
+      return SecureMacPairingCandidate(
+        pairing: pair, sessionID: session,
+        clientPublicKey: clientPublic, routes: routes,
+        relinkLocalRecords: relinkLocalRecords, protocolVersion: version)
+    } catch {
+      Self.appendDebugEvent(
+        "PC pairing: prepare failed; stage=\(stage); \(PairingTransport.errorSummary(error))")
+      throw error
     }
-    guard !routes.isEmpty else { throw TransferError.invalidPairing }
-    let clientPrivate = Curve25519.KeyAgreement.PrivateKey()
-    let clientPublic = clientPrivate.publicKey.rawRepresentation
-    let shared = try clientPrivate.sharedSecretFromKeyAgreement(with: macPublic)
-    let derived = shared.hkdfDerivedSymmetricKey(
-      using: SHA256.self,
-      salt: Data(session.uuidString.utf8),
-      sharedInfo: Data("MochiLog pair v\(version)|\(host.uuidString)|\(device.uuidString)".utf8),
-      outputByteCount: 32)
-    let secret = derived.withUnsafeBytes { Data($0) }
-    let initiation = try JSONSerialization.data(withJSONObject: [
-      "type": "pair-init", "sessionID": session.uuidString,
-      "version": version,
-      "clientPublicKey": clientPublic.base64EncodedString(),
-      "physicalDeviceID": device.uuidString,
-    ])
-    let reply = try await PairingTransport.exchange(
-      routes: routes,
-      payload: initiation, allowCellular: allowsCellularTransfer)
-    guard let object = try JSONSerialization.jsonObject(with: reply) as? [String: String],
-      object["type"] == "pair-challenge", object["sessionID"] == session.uuidString,
-      let supplied = object["proof"]
-    else { throw TransferError.invalidPairing }
-    let expected = Self.authenticationCode(
-      "pair-challenge|\(session.uuidString)",
-      secret: secret)
-    guard supplied == expected
-    else { throw TransferError.invalidPairing }
-    var pair = MacTransferPairing(
-      hostID: host, physicalDeviceID: device,
-      model: model, secret: secret,
-      tailnetAddress: values["tailnet"], tailnetPort: tailnetPort)
-    pair.requiresSecureTransfer = values["transfer"] == "3"
-    pair.platform = values["platform"] == "windows" ? "windows" : "macOS"
-    pair.lanAddresses = (values["ipv4"] ?? "").split(separator: ",")
-      .map(String.init).filter(Self.isPrivateLANAddress)
-    pair.lanPort = port
-    return SecureMacPairingCandidate(
-      pairing: pair, sessionID: session,
-      clientPublicKey: clientPublic, routes: routes,
-      relinkLocalRecords: relinkLocalRecords, protocolVersion: version)
   }
 
   func confirmSecurePairing(
     _ candidate: SecureMacPairingCandidate,
     enteredCode: String, dataStore: DataStore
   ) async throws {
-    let code = enteredCode.trimmingCharacters(in: .whitespacesAndNewlines)
-    guard code.count == 6, code.allSatisfy({ $0 >= "0" && $0 <= "9" }) else {
-      throw TransferError.invalidPairingCode
+    Self.appendDebugEvent("PC pairing: confirm started; session=\(candidate.sessionID.uuidString)")
+    var stage = "confirmation-code"
+    do {
+      let code = enteredCode.trimmingCharacters(in: .whitespacesAndNewlines)
+      guard code.count == 6, code.allSatisfy({ $0 >= "0" && $0 <= "9" }) else {
+        throw TransferError.invalidPairingCode
+      }
+      let key = SymmetricKey(data: candidate.pairing.secret)
+      let confirmationMAC = HMAC<SHA256>.authenticationCode(
+        for: Data("pair-confirm|\(candidate.sessionID.uuidString)|\(code)".utf8),
+        using: key
+      ).map { String(format: "%02x", $0) }.joined()
+      let request = try JSONSerialization.data(withJSONObject: [
+        "type": "pair-confirm", "sessionID": candidate.sessionID.uuidString,
+        "version": candidate.protocolVersion,
+        "clientPublicKey": candidate.clientPublicKey.base64EncodedString(),
+        "physicalDeviceID": candidate.pairing.physicalDeviceID.uuidString,
+        "confirmationMAC": confirmationMAC,
+      ])
+      stage = "confirmation-exchange"
+      let reply = try await PairingTransport.exchange(
+        routes: candidate.routes,
+        payload: request, allowCellular: allowsCellularTransfer,
+        context: "confirm", log: { Self.recordPairingTransport($0) })
+      stage = "confirmation-response"
+      guard let object = try JSONSerialization.jsonObject(with: reply) as? [String: String],
+        object["type"] == "pair-complete",
+        object["sessionID"] == candidate.sessionID.uuidString,
+        let supplied = object["proof"]
+      else { throw TransferError.invalidPairing }
+      stage = "confirmation-proof"
+      let expected = HMAC<SHA256>.authenticationCode(
+        for: Data("pair-complete|\(candidate.sessionID.uuidString)".utf8),
+        using: key
+      ).map { String(format: "%02x", $0) }.joined()
+      guard supplied == expected else { throw TransferError.invalidPairing }
+      let pair = candidate.pairing
+      stage = "relink-records"
+      let previousID = PhysicalDeviceIdentityStore.current()
+      if previousID != pair.physicalDeviceID && candidate.relinkLocalRecords {
+        _ = try dataStore.reassignPhysicalDeviceID(
+          from: previousID,
+          to: pair.physicalDeviceID, matchingModelCode: pair.model)
+      }
+      if pairings.isEmpty {
+        UserDefaults.standard.set(pair.hostID.uuidString, forKey: "MacTransferLegacyHostID")
+      }
+      var updated = pairings.filter { $0.hostID != pair.hostID }
+      updated.append(pair)
+      let revoked = pendingRevocations.filter { $0.hostID != pair.hostID }
+      try Self.saveStoredPairings(revoked, account: "revoked-hosts")
+      stage = "save-credentials"
+      try Self.savePairings(updated)
+      pendingRevocations = revoked
+      pairings = updated
+      pairing = pair
+      pendingAck = UserDefaults.standard.string(forKey: pendingAckKey)
+      Self.appendDebugEvent("PC pairing: confirmed; credentials saved")
+      PhysicalDeviceIdentityStore.replace(with: pair.physicalDeviceID)
+      status = MacTransferStatus.text("mt_s_01")
+      stop()
+      start()
+    } catch {
+      Self.appendDebugEvent(
+        "PC pairing: confirm failed; stage=\(stage); \(PairingTransport.errorSummary(error))")
+      throw error
     }
-    let key = SymmetricKey(data: candidate.pairing.secret)
-    let confirmationMAC = HMAC<SHA256>.authenticationCode(
-      for: Data("pair-confirm|\(candidate.sessionID.uuidString)|\(code)".utf8),
-      using: key
-    ).map { String(format: "%02x", $0) }.joined()
-    let request = try JSONSerialization.data(withJSONObject: [
-      "type": "pair-confirm", "sessionID": candidate.sessionID.uuidString,
-      "version": candidate.protocolVersion,
-      "clientPublicKey": candidate.clientPublicKey.base64EncodedString(),
-      "physicalDeviceID": candidate.pairing.physicalDeviceID.uuidString,
-      "confirmationMAC": confirmationMAC,
-    ])
-    let reply = try await PairingTransport.exchange(
-      routes: candidate.routes,
-      payload: request, allowCellular: allowsCellularTransfer)
-    guard let object = try JSONSerialization.jsonObject(with: reply) as? [String: String],
-      object["type"] == "pair-complete",
-      object["sessionID"] == candidate.sessionID.uuidString,
-      let supplied = object["proof"]
-    else { throw TransferError.invalidPairing }
-    let expected = HMAC<SHA256>.authenticationCode(
-      for: Data("pair-complete|\(candidate.sessionID.uuidString)".utf8),
-      using: key
-    ).map { String(format: "%02x", $0) }.joined()
-    guard supplied == expected else { throw TransferError.invalidPairing }
-    let pair = candidate.pairing
-    let previousID = PhysicalDeviceIdentityStore.current()
-    if previousID != pair.physicalDeviceID && candidate.relinkLocalRecords {
-      _ = try dataStore.reassignPhysicalDeviceID(
-        from: previousID,
-        to: pair.physicalDeviceID, matchingModelCode: pair.model)
-    }
-    if pairings.isEmpty {
-      UserDefaults.standard.set(pair.hostID.uuidString, forKey: "MacTransferLegacyHostID")
-    }
-    var updated = pairings.filter { $0.hostID != pair.hostID }
-    updated.append(pair)
-    let revoked = pendingRevocations.filter { $0.hostID != pair.hostID }
-    try Self.saveStoredPairings(revoked, account: "revoked-hosts")
-    try Self.savePairings(updated)
-    pendingRevocations = revoked
-    pairings = updated
-    pairing = pair
-    pendingAck = UserDefaults.standard.string(forKey: pendingAckKey)
-    PhysicalDeviceIdentityStore.replace(with: pair.physicalDeviceID)
-    status = MacTransferStatus.text("mt_s_01")
-    stop()
-    start()
+  }
+
+  nonisolated private static func recordPairingTransport(_ event: String) {
+    Task { @MainActor in Self.appendDebugEvent(event) }
   }
 
   private static func isPrivateLANAddress(_ address: String) -> Bool {
@@ -2158,12 +2197,17 @@ final class MacTransferManager: ObservableObject {
       "build": Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unknown",
       "deviceModel": DeviceLibrary.localModelIdentifier() ?? "unknown",
       "paired": pairing != nil,
+      "pairedComputers": pairings.count,
+      "pairingDiagnosticsVersion": 1,
+      "pcAutomaticCollectionEnabled": AppSettings.shared.pcAutomaticCollectionEnabled,
+      "allowsCellularTransfer": allowsCellularTransfer,
       "receiving": isReceiving,
       "unconfirmedFiles": defaults.stringArray(forKey: unconfirmedKey)?.count ?? 0,
       "confirmedFiles": defaults.stringArray(forKey: confirmedKey)?.count ?? 0,
       "pendingAcknowledgement": pendingAck != nil,
       "recentEvents": recentEvents,
     ]
+    object["lastPairingEvent"] = Self.debugEvents().last { $0.contains("PC pairing:") }
     object["lastAppDiagnostic"] = CrashDiagnostics.shared.summary()
     if debugManifestSnapshot == nil
       || Date().timeIntervalSince(debugManifestCapturedAt ?? .distantPast) > 600
@@ -2237,6 +2281,13 @@ final class MacTransferManager: ObservableObject {
         directory: Self.debugArchiveDirectory, limit: 1) != nil
     }
     return false
+  }
+
+  func computerDiagnosticsData(for hostID: UUID) -> Data? {
+    let base = "MacTransferLastMacDiagnostics"
+    let legacy =
+      UserDefaults.standard.string(forKey: "MacTransferLegacyHostID") == hostID.uuidString
+    return UserDefaults.standard.data(forKey: legacy ? base : "\(base).\(hostID.uuidString)")
   }
 
   func latestMacDiagnosticsData() -> Data? {
@@ -2675,91 +2726,19 @@ final class MacTransferManager: ObservableObject {
       var add = query
       add[kSecValueData as String] = data
       add[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
-      guard SecItemAdd(add as CFDictionary, nil) == errSecSuccess else {
+      let addStatus = SecItemAdd(add as CFDictionary, nil)
+      guard addStatus == errSecSuccess else {
+        Self.appendDebugEvent("PC pairing: keychain add failed; status=\(addStatus)")
         throw TransferError.keychain
       }
     } else if status != errSecSuccess {
+      Self.appendDebugEvent("PC pairing: keychain update failed; status=\(status)")
       throw TransferError.keychain
     }
   }
 }
 
 @available(iOS 17, *)
-private enum PairingTransport {
-  nonisolated static func exchange(
-    routes: [NWEndpoint], payload: Data,
-    allowCellular: Bool, continueOnInvalidResponse: Bool = false
-  ) async throws -> Data {
-    try await Task.detached(priority: .userInitiated) {
-      var lastError: Error = TransferError.invalidPairing
-      for route in routes {
-        do {
-          return try exchange(on: route, payload: payload, allowCellular: allowCellular)
-        } catch TransferError.invalidPairing {
-          if !continueOnInvalidResponse { throw TransferError.invalidPairing }
-          lastError = TransferError.invalidPairing
-        } catch { lastError = error }
-      }
-      throw lastError
-    }.value
-  }
-
-  nonisolated private static func exchange(
-    on route: NWEndpoint, payload: Data,
-    allowCellular: Bool
-  ) throws -> Data {
-    let parameters = NWParameters.tcp
-    if !allowCellular { parameters.prohibitedInterfaceTypes = [.cellular] }
-    let connection = NWConnection(to: route, using: parameters)
-    let queue = DispatchQueue(label: "net.ryuya-dev.MochiLog.pairing")
-    let finished = DispatchSemaphore(value: 0)
-    var response = Data()
-    var failure: Error?
-    var completed = false
-    func finish(_ error: Error? = nil) {
-      guard !completed else { return }
-      completed = true
-      failure = error
-      finished.signal()
-    }
-    func receive() {
-      connection.receive(minimumIncompleteLength: 1, maximumLength: 8_192) {
-        data, _, complete, error in
-        if let data { response.append(data) }
-        if response.count > 16_384 {
-          finish(TransferError.invalidPayload)
-          return
-        }
-        if let error { finish(error) } else if complete { finish() } else { receive() }
-      }
-    }
-    connection.stateUpdateHandler = { state in
-      switch state {
-      case .ready:
-        connection.send(
-          content: payload + Data([10]),
-          completion: .contentProcessed { error in
-            if let error { finish(error) } else { receive() }
-          })
-      case .failed(let error): finish(error)
-      default: break
-      }
-    }
-    connection.start(queue: queue)
-    queue.asyncAfter(deadline: .now() + 10) {
-      finish(URLError(.timedOut))
-      connection.cancel()
-    }
-    finished.wait()
-    connection.cancel()
-    if let failure { throw failure }
-    guard let newline = response.firstIndex(of: 10) else {
-      throw TransferError.invalidPairing
-    }
-    return Data(response[..<newline])
-  }
-}
-
 enum TransferError: LocalizedError {
   case invalidPairing, invalidPairingCode, wrongDevice, invalidPayload, keychain, identityConflict
   var errorDescription: String? {
