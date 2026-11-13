@@ -596,7 +596,10 @@ final class LanguageAndLayoutTests: XCTestCase {
     app.launch()
     let sample = app.buttons["View Sample Data"]
     if sample.waitForExistence(timeout: 5) { sample.tap() }
-    XCTAssertTrue(app.staticTexts["iPhone 15 Pro"].firstMatch.waitForExistence(timeout: 15))
+    let firstRecord = app.buttons.matching(
+      NSPredicate(format: "identifier BEGINSWITH %@", "home.record.")
+    ).firstMatch
+    XCTAssertTrue(firstRecord.waitForExistence(timeout: 15), app.debugDescription)
     screenshot("Duo approximation 800x1120 Home")
     for title in ["Analytics", "Settings"] {
       let tab = app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", title))
@@ -1296,6 +1299,10 @@ final class LanguageAndLayoutTests: XCTestCase {
     XCTAssertTrue(search.waitForExistence(timeout: 5))
     app.buttons["BackButton"].firstMatch.tap()
 
+    // PC transfer moved to Automatic Log Collection; device profiles remain in Advanced.
+    let collection = app.buttons["settings.category.automaticCollection"]
+    XCTAssertTrue(collection.waitForExistence(timeout: 10))
+    collection.tap()
     let transfer = app.buttons["settings.macTransfer"]
     XCTAssertTrue(transfer.waitForExistence(timeout: 10))
     transfer.tap()
@@ -1306,6 +1313,8 @@ final class LanguageAndLayoutTests: XCTestCase {
       "PC transfer should remain in the right settings pane")
     screenshot("iPad PC Transfer Pane")
     app.buttons["BackButton"].firstMatch.tap()
+    XCTAssertTrue(transfer.waitForExistence(timeout: 10))
+    advanced.tap()
     XCTAssertTrue(profiles.waitForExistence(timeout: 10))
   }
 
