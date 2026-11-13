@@ -190,8 +190,8 @@ struct MacTransferSupportView: View {
       } catch {
         try? FileManager.default.removeItem(at: directory)
         MacTransferManager.appendDebugEvent(
-          "PC support: attachment export failed; \(PairingTransport.errorSummary(error))")
-        preparationError = error.localizedDescription
+          "PC support: attachment export failed; stage=support-zip; \(PairingTransport.errorSummary(error))")
+        preparationError = L10n.text("mt_support_prepare_failed", table: "MacTransfer")
       }
     }
   }

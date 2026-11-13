@@ -1007,6 +1007,59 @@
     "local_pair_cancelled": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Pairing cancelled"}},"ja":{"stringUnit":{"state":"translated","value":"ペアリングを中止しました"}},"de":{"stringUnit":{"state":"translated","value":"Kopplung abgebrochen"}},"es":{"stringUnit":{"state":"translated","value":"Emparejamiento cancelado"}},"fr":{"stringUnit":{"state":"translated","value":"Jumelage annulé"}},"ko":{"stringUnit":{"state":"translated","value":"페어링 취소됨"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"配对已取消"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"配對已取消"}}}},
     "local_pair_short_background": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"iOS only granted a short background window. Complete approval promptly; if it stops, return and retry."}},"ja":{"stringUnit":{"state":"translated","value":"iOSが許可したバックグラウンド時間が短いため、速やかに承認してください。止まった場合は戻って再試行できます。"}},"de":{"stringUnit":{"state":"translated","value":"iOS erlaubt nur kurze Hintergrundzeit. Zügig bestätigen; bei Abbruch zurückkehren und erneut versuchen."}},"es":{"stringUnit":{"state":"translated","value":"iOS concedió poco tiempo en segundo plano. Autoriza pronto; si se detiene, vuelve y reintenta."}},"fr":{"stringUnit":{"state":"translated","value":"iOS a accordé peu de temps en arrière-plan. Autorisez rapidement ; en cas d’arrêt, revenez et réessayez."}},"ko":{"stringUnit":{"state":"translated","value":"iOS가 허용한 백그라운드 시간이 짧습니다. 빨리 승인하고 중지되면 돌아와 재시도하세요."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"iOS仅允许较短的后台时间。请尽快授权；如停止，可返回重试。"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"iOS僅允許較短的背景時間。請儘快授權；如停止，可返回重試。"}}}},
     "local_pair_replace_note": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"A successful pairing replaces only this app’s on-device credential. Existing PC pairings and records remain. Cancel or failure keeps the current credential."}},"ja":{"stringUnit":{"state":"translated","value":"成功した場合だけ、このアプリの端末内取得用の認証情報を置き換えます。既存のPCペアリングと記録は保持します。中止・失敗なら現在の認証情報を残します。"}},"de":{"stringUnit":{"state":"translated","value":"Nur eine erfolgreiche Kopplung ersetzt den Gerätezugang dieser App. PC-Kopplungen und Aufzeichnungen bleiben erhalten. Abbruch oder Fehler behalten den bisherigen Zugang."}},"es":{"stringUnit":{"state":"translated","value":"Solo un emparejamiento correcto reemplaza la credencial local de esta app. Se conservan los PC y registros. Cancelar o fallar mantiene la credencial actual."}},"fr":{"stringUnit":{"state":"translated","value":"Seul un jumelage réussi remplace l’accès local de cette app. Les PC et enregistrements sont conservés. Annulation ou échec garde l’accès actuel."}},"ko":{"stringUnit":{"state":"translated","value":"성공한 경우에만 이 앱의 기기 내 인증 정보를 교체합니다. PC 페어링과 기록은 유지됩니다. 취소 또는 실패 시 기존 인증 정보를 유지합니다."}},"zh-Hans":{"stringUnit":{"state":"translated","value":"只有成功配对才替换此应用的设备内凭据。现有电脑配对和记录保持不变。取消或失败时保留当前凭据。"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"只有成功配對才取代此App的裝置內憑證。現有電腦配對和記錄保持不變。取消或失敗時保留目前憑證。"}}}},
+    "mt_support_prepare_failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t prepare the diagnostic files. Please try again."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "診断情報を準備できませんでした。もう一度試してください。"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Diagnosedateien konnten nicht vorbereitet werden. Versuchen Sie es erneut."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se han podido preparar los archivos de diagnóstico. Inténtalo de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les fichiers de diagnostic n’ont pas pu être préparés. Réessayez."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "진단 파일을 준비하지 못했습니다. 다시 시도해 주세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法准备诊断文件。请重试。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法準備診斷檔案。請重試。"
+          }
+        }
+      }
+    },
     "update_optin_title": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Automatically check for updates?"}},"ja":{"stringUnit":{"state":"translated","value":"アップデートを自動確認しますか？"}},"de":{"stringUnit":{"state":"translated","value":"Automatisch nach Updates suchen?"}},"es":{"stringUnit":{"state":"translated","value":"¿Buscar actualizaciones automáticamente?"}},"fr":{"stringUnit":{"state":"translated","value":"Rechercher automatiquement les mises à jour ?"}},"ko":{"stringUnit":{"state":"translated","value":"업데이트를 자동으로 확인할까요?"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"自动检查更新？"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"自動檢查更新？"}}}},
     "update_optin_yes": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Enable automatic checks"}},"ja":{"stringUnit":{"state":"translated","value":"自動確認をオンにする"}},"de":{"stringUnit":{"state":"translated","value":"Automatische Suche aktivieren"}},"es":{"stringUnit":{"state":"translated","value":"Activar comprobaciones"}},"fr":{"stringUnit":{"state":"translated","value":"Activer la recherche"}},"ko":{"stringUnit":{"state":"translated","value":"자동 확인 켜기"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"开启自动检查"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"開啟自動檢查"}}}},
     "update_optin_no": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Keep off"}},"ja":{"stringUnit":{"state":"translated","value":"オフのまま使う"}},"de":{"stringUnit":{"state":"translated","value":"Deaktiviert lassen"}},"es":{"stringUnit":{"state":"translated","value":"Mantener desactivado"}},"fr":{"stringUnit":{"state":"translated","value":"Laisser désactivé"}},"ko":{"stringUnit":{"state":"translated","value":"끄기 유지"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"保持关闭"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"保持關閉"}}}},
