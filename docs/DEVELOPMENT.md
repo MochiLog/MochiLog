@@ -36,3 +36,7 @@ APIキー、秘密鍵、ペアリング情報、実機の生ログや診断ス�
 `idevice_pair`への登録の経緯は[PR #84](https://github.com/jkcoxson/idevice_pair/pull/84)を参照する。利用者向けの対応状況を案内するときは、採用されたソースと実際に配布された版を確認する。
 
 [旧開発ブランチの記録](README_20260908_DEVELOPMENT.md)は履歴資料。その文書内の「未マージ」「未公開」や当時の共有方式を現在の状態として扱わない。
+
+## Pairing diagnostics and support exports (2026-11-13)
+
+See [the implementation and verification notes](PAIRING_DIAGNOSTICS_2026-11-13.md) for pairing failure audits, split-file attachments, compatibility and export limits.

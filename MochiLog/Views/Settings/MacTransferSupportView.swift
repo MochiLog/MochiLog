@@ -10,6 +10,10 @@ struct MacTransferSupportView: View {
   @State private var incidentDate = Date()
   @State private var showingComposer = false
   @State private var showingMailError = false
+  @State private var preparingAttachments = false
+  @State private var preparedAttachments: [MailAttachment] = []
+  @State private var exportDirectory: URL?
+  @State private var preparationError: String?
   private var valid: Bool {
     [nickname, email, message].allSatisfy {
       !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -57,11 +61,12 @@ struct MacTransferSupportView: View {
       Section {
         Button(L10n.text("mt_038", table: "MacTransfer")) {
           if MFMailComposeViewController.canSendMail() {
-            showingComposer = true
+            prepareMail()
           } else {
             showingMailError = true
           }
-        }.disabled(!valid)
+        }.disabled(!valid || preparingAttachments)
+        if preparingAttachments { ProgressView() }
       }
     }
     .formStyle(.grouped)
@@ -69,7 +74,7 @@ struct MacTransferSupportView: View {
     .frame(maxWidth: .infinity)
     .background(Color(uiColor: .systemGroupedBackground))
     .navigationTitle(L10n.text("mt_022", table: "MacTransfer"))
-    .sheet(isPresented: $showingComposer) {
+    .sheet(isPresented: $showingComposer, onDismiss: clearPreparedFiles) {
       MailComposeView(
         recipients: ["support@mochilog.ryuya-dev.net"],
         subject: "[MochiLog] \(L10n.text("mt_040", table: "MacTransfer"))",
@@ -81,7 +86,7 @@ struct MacTransferSupportView: View {
           \(L10n.text("mt_034", table: "MacTransfer")):
           \(message)
           """,
-        attachments: attachments
+        attachments: preparedAttachments
       ) { _ in }
     }
     .alert(
@@ -92,53 +97,85 @@ struct MacTransferSupportView: View {
     } message: {
       Text(L10n.text("mt_086", table: "MacTransfer"))
     }
+    .alert(
+      L10n.text("mt_085", table: "MacTransfer"),
+      isPresented: Binding(
+        get: { preparationError != nil }, set: { if !$0 { preparationError = nil } })
+    ) {
+      Button("OK", role: .cancel) { preparationError = nil }
+    } message: {
+      Text(preparationError ?? "")
+    }
     .onAppear { manager.receiveNow() }
   }
 
-  private var attachments: [MailAttachment] {
-    var result = [
-      MailAttachment(
-        data: manager.supportDiagnosticsData(),
-        mimeType: "application/json", fileName: "mochilog-iphone-diagnostics.json")
+  private func clearPreparedFiles() {
+    if let exportDirectory { try? FileManager.default.removeItem(at: exportDirectory) }
+    exportDirectory = nil
+    preparedAttachments = []
+  }
+
+  private func prepareMail() {
+    guard !preparingAttachments else { return }
+    clearPreparedFiles()
+    preparingAttachments = true
+    MacTransferManager.appendDebugEvent("PC support: attachment export started")
+    var sources = [
+      SupportLogExport.Source(name: "mochilog-iphone", directory: manager.debugLogDirectory())
     ]
-    let formatter = DateFormatter()
-    formatter.locale = Locale(identifier: "en_US_POSIX")
-    formatter.calendar = Calendar(identifier: .gregorian)
-    formatter.timeZone = .autoupdatingCurrent
-    formatter.dateFormat = "yyyy-MM-dd"
-    for offset in -2...0 {
-      guard
-        let date = Calendar.current.date(
-          byAdding: .day, value: offset,
-          to: incidentDate)
-      else { continue }
-      let day = formatter.string(from: date)
-      result.append(
-        MailAttachment(
-          data: Data(manager.debugLogText(for: day).utf8),
-          mimeType: "text/plain", fileName: "mochilog-iphone-debug-\(day).log"))
-      for computer in manager.pairings {
-        let text = manager.computerDebugLogText(for: computer.hostID, day: day)
-        result.append(
-          MailAttachment(
-            data: Data(text.utf8),
-            mimeType: "text/plain",
-            fileName: "mochilog-computer-\(computer.hostID.uuidString.prefix(8))-debug-\(day).log"))
+    var diagnostics = [
+      SupportLogExport.Diagnostic(
+        name: "mochilog-iphone-diagnostics.json", data: manager.supportDiagnosticsData())
+    ]
+    var unavailable: [String] = []
+    if manager.pairings.isEmpty {
+      unavailable.append(
+        "computer: app pairing not completed; remote logs/diagnostics have not been received")
+    }
+    for computer in manager.pairings {
+      let name = "mochilog-computer-" + computer.hostID.uuidString
+      sources.append(.init(name: name, directory: manager.debugLogDirectory(for: computer.hostID)))
+      if let report = manager.computerDiagnosticsData(for: computer.hostID) {
+        diagnostics.append(.init(name: name + "-diagnostics.json", data: report))
+      } else {
+        unavailable.append(name + ": remote diagnostics not yet received")
       }
     }
     if let diagnostic = CrashDiagnostics.shared.latest() {
-      result.append(
-        MailAttachment(
-          data: diagnostic, mimeType: "application/json",
-          fileName: "mochilog-ios-app-diagnostic.json"))
+      diagnostics.append(.init(name: "mochilog-ios-app-diagnostic.json", data: diagnostic))
     }
-    if let mac = manager.latestMacDiagnosticsData() {
-      let computer = manager.pairing?.platform == "windows" ? "windows" : "mac"
-      result.append(
-        MailAttachment(
-          data: mac, mimeType: "application/json",
-          fileName: "mochilog-\(computer)-diagnostics.json"))
+    let days = SupportLogExport.days(around: incidentDate)
+    let directory = FileManager.default.temporaryDirectory.appendingPathComponent(
+      "MochiLog-Support-" + UUID().uuidString)
+    let exportSources = sources
+    let exportDiagnostics = diagnostics
+    let missing = unavailable
+    Task { @MainActor in
+      defer { preparingAttachments = false }
+      do {
+        let prepared = try await Task.detached(priority: .utility) {
+          let urls = try SupportLogExport.prepare(
+            sources: exportSources, days: days,
+            diagnostics: exportDiagnostics, unavailable: missing, directory: directory)
+          return try urls.map { url in
+            MailAttachment(
+              data: try Data(contentsOf: url),
+              mimeType: url.pathExtension == "json" ? "application/json" : "text/plain",
+              fileName: url.lastPathComponent)
+          }
+        }.value
+        exportDirectory = directory
+        preparedAttachments = prepared
+        MacTransferManager.appendDebugEvent(
+          "PC support: attachment export prepared; files=\(prepared.count), bytes=\(prepared.reduce(0) { $0 + $1.data.count })"
+        )
+        showingComposer = true
+      } catch {
+        try? FileManager.default.removeItem(at: directory)
+        MacTransferManager.appendDebugEvent(
+          "PC support: attachment export failed; \(PairingTransport.errorSummary(error))")
+        preparationError = error.localizedDescription
+      }
     }
-    return result
   }
 }

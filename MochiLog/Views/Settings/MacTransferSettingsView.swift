@@ -256,6 +256,7 @@ struct MacTransferSettingsView: View {
               .font(.caption).foregroundStyle(.secondary)
           }
           Button {
+            MacTransferManager.appendDebugEvent("PC pairing: QR scanner opened")
             showingScanner = true
           } label: {
             Label(
@@ -326,7 +327,10 @@ struct MacTransferSettingsView: View {
         .navigationTitle(L10n.text("mt_072", table: "MacTransfer"))
         .toolbar {
           ToolbarItem(placement: .cancellationAction) {
-            Button(L10n.text("mt_037", table: "MacTransfer")) { showingScanner = false }
+            Button(L10n.text("mt_037", table: "MacTransfer")) {
+              MacTransferManager.appendDebugEvent("PC pairing: QR scanner cancelled by user")
+              showingScanner = false
+            }
           }
         }
       }
@@ -378,6 +382,7 @@ struct MacTransferSettingsView: View {
         }
       }
       Button(L10n.text("mt_037", table: "MacTransfer"), role: .cancel) {
+        MacTransferManager.appendDebugEvent("PC pairing: confirmation cancelled by user")
         secureCandidate = nil
         enteredPairingCode = ""
       }
@@ -398,7 +403,9 @@ struct MacTransferSettingsView: View {
       URLComponents(string: value)?.queryItems?.contains {
         $0.name == "v" && ["2", "3"].contains($0.value ?? "")
       } == true
+    MacTransferManager.appendDebugEvent("PC pairing: QR scanned; supportedProtocol=\(isSecure)")
     guard isSecure else {
+      MacTransferManager.appendDebugEvent("PC pairing: QR rejected; reason=unsupported-protocol")
       errorMessage = L10n.text("mt_secure_pair_update_mac", table: "MacTransfer")
       return
     }
@@ -720,15 +727,36 @@ private final class ScannerController: UIViewController, AVCaptureMetadataOutput
   override func viewDidLoad() {
     super.viewDidLoad()
     view.backgroundColor = .black
+    MacTransferManager.appendDebugEvent(
+      "PC pairing: camera setup; authorization=\(AVCaptureDevice.authorizationStatus(for: .video).rawValue)"
+    )
+    NotificationCenter.default.addObserver(
+      self, selector: #selector(captureFailed(_:)), name: .AVCaptureSessionRuntimeError,
+      object: session)
     guard
       let camera = AVCaptureDevice.default(
         .builtInWideAngleCamera,
-        for: .video, position: .back),
-      let input = try? AVCaptureDeviceInput(device: camera), session.canAddInput(input)
-    else { return }
+        for: .video, position: .back)
+    else {
+      MacTransferManager.appendDebugEvent("PC pairing: camera unavailable")
+      return
+    }
+    let input: AVCaptureDeviceInput
+    do { input = try AVCaptureDeviceInput(device: camera) } catch {
+      MacTransferManager.appendDebugEvent(
+        "PC pairing: camera input failed; \(PairingTransport.errorSummary(error))")
+      return
+    }
+    guard session.canAddInput(input) else {
+      MacTransferManager.appendDebugEvent("PC pairing: camera input rejected")
+      return
+    }
     session.addInput(input)
     let output = AVCaptureMetadataOutput()
-    guard session.canAddOutput(output) else { return }
+    guard session.canAddOutput(output) else {
+      MacTransferManager.appendDebugEvent("PC pairing: camera metadata output rejected")
+      return
+    }
     session.addOutput(output)
     output.setMetadataObjectsDelegate(self, queue: .main)
     output.metadataObjectTypes = [.qr]
@@ -749,6 +777,16 @@ private final class ScannerController: UIViewController, AVCaptureMetadataOutput
       }
     }
     sessionQueue.async { self.session.startRunning() }
+  }
+
+  deinit { NotificationCenter.default.removeObserver(self) }
+
+  @objc nonisolated private func captureFailed(_ notification: Notification) {
+    let error = notification.userInfo?[AVCaptureSessionErrorKey] as? NSError
+    let summary = error.map { PairingTransport.errorSummary($0) } ?? "unknown"
+    Task { @MainActor in
+      MacTransferManager.appendDebugEvent("PC pairing: camera runtime failed; \(summary)")
+    }
   }
 
   override func viewDidLayoutSubviews() {
