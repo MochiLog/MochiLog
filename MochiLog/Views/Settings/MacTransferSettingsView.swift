@@ -168,7 +168,7 @@ struct MacTransferSettingsView: View {
             HStack {
               Button(L10n.text("mt_manual_ip_save", table: "MacTransfer")) {
                 do { try manager.setManualHostAddress(manualHostAddress) } catch {
-                  errorMessage = error.localizedDescription
+                  errorMessage = manager.settingsErrorMessage(error, phase: "manual-address")
                 }
               }
               Spacer()
@@ -176,7 +176,9 @@ struct MacTransferSettingsView: View {
                 do {
                   try manager.setManualHostAddress(nil)
                   manualHostAddress = ""
-                } catch { errorMessage = error.localizedDescription }
+                } catch {
+                  errorMessage = manager.settingsErrorMessage(error, phase: "manual-address")
+                }
               }
             }
           } header: {
@@ -306,7 +308,7 @@ struct MacTransferSettingsView: View {
       Button(L10n.text("mt_unpair_button", table: "MacTransfer"), role: .destructive) {
         if let unpairHostID {
           do { try manager.unpair(unpairHostID) } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = manager.settingsErrorMessage(error, phase: "unpair")
           }
         }
         unpairHostID = nil
@@ -381,7 +383,7 @@ struct MacTransferSettingsView: View {
             try await manager.confirmSecurePairing(
               candidate,
               enteredCode: enteredPairingCode, dataStore: dataStore)
-          } catch { errorMessage = error.localizedDescription }
+          } catch { errorMessage = manager.pairingErrorMessage(error) }
           enteredPairingCode = ""
         }
       }
@@ -429,7 +431,7 @@ struct MacTransferSettingsView: View {
           dataStore: dataStore, relinkLocalRecords: relinkLocalRecords)
         enteredPairingCode = ""
       } catch TransferError.identityConflict { pendingPairingQR = value } catch {
-        errorMessage = error.localizedDescription
+        errorMessage = manager.pairingErrorMessage(error)
       }
     }
   }

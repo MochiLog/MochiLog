@@ -1,6 +1,960 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "mt_failure_connectTimeout" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't connect to your computer. Open MochiLog on it and check your connection."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "パソコンに接続できませんでした。パソコンのMochiLogを開き、通信環境を確認してください。"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Verbindung zum Computer. Öffnen Sie dort MochiLog und prüfen Sie die Verbindung."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se puede conectar al ordenador. Abre MochiLog en él y comprueba la conexión."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connexion à l’ordinateur impossible. Ouvrez-y MochiLog et vérifiez la connexion."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터에 연결할 수 없습니다. 컴퓨터에서 MochiLog를 열고 연결 상태를 확인해 주세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法连接电脑。请在电脑上打开 MochiLog，并检查网络连接。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法連接電腦。請在電腦上開啟 MochiLog，並檢查網路連線。"
+          }
+        }
+      }
+    },
+    "mt_failure_connectionLost" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The connection was lost. Check your connection and try again."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "接続が切れました。通信環境を確認して、もう一度試してください。"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Verbindung wurde getrennt. Prüfen Sie sie und versuchen Sie es erneut."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se ha perdido la conexión. Compruébala e inténtalo de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La connexion a été perdue. Vérifiez-la et réessayez."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연결이 끊어졌습니다. 연결 상태를 확인하고 다시 시도해 주세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接已断开。请检查网络连接，然后重试。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "連線已中斷。請檢查網路連線，然後重試。"
+          }
+        }
+      }
+    },
+    "mt_failure_connectionRefused" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your computer isn't ready to connect. Open MochiLog on it and try again."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "パソコン側で接続を受け付けていません。パソコンのMochiLogを開いて、もう一度試してください。"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Computer nimmt keine Verbindung an. Öffnen Sie dort MochiLog und versuchen Sie es erneut."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El ordenador no acepta la conexión. Abre MochiLog en él e inténtalo de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’ordinateur n’accepte pas la connexion. Ouvrez-y MochiLog et réessayez."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터가 연결을 받지 않습니다. 컴퓨터에서 MochiLog를 열고 다시 시도해 주세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "电脑未接受连接。请在电脑上打开 MochiLog，然后重试。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "電腦未接受連線。請在電腦上開啟 MochiLog，然後重試。"
+          }
+        }
+      }
+    },
+    "mt_failure_incompleteResponse" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The transfer stopped partway through. Check your connection and try again."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "受信が途中で止まりました。通信環境を確認して、もう一度試してください。"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Übertragung wurde unterbrochen. Prüfen Sie die Verbindung und versuchen Sie es erneut."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La transferencia se ha interrumpido. Comprueba la conexión e inténtalo de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le transfert s’est interrompu. Vérifiez la connexion et réessayez."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "수신이 도중에 멈췄습니다. 연결 상태를 확인하고 다시 시도해 주세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "接收中途停止了。请检查网络连接，然后重试。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "接收中途停止了。請檢查網路連線，然後重試。"
+          }
+        }
+      }
+    },
+    "mt_failure_invalidAddress" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check the computer’s IP address and enter it again."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "パソコンのIPアドレスを確認して、入力し直してください。"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prüfen Sie die IP-Adresse des Computers und geben Sie sie erneut ein."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comprueba la dirección IP del ordenador e introdúcela de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vérifiez l’adresse IP de l’ordinateur et saisissez-la à nouveau."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터의 IP 주소를 확인하고 다시 입력해 주세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请检查电脑的 IP 地址，然后重新输入。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請檢查電腦的 IP 位址，然後重新輸入。"
+          }
+        }
+      }
+    },
+    "mt_failure_invalidData" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t verify the received data. Try receiving it again."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "受信したデータを確認できませんでした。もう一度受信してください。"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die empfangenen Daten konnten nicht geprüft werden. Empfangen Sie sie erneut."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se han podido verificar los datos recibidos. Vuelve a recibirlos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les données reçues n’ont pas pu être vérifiées. Réessayez de les recevoir."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "받은 데이터를 확인하지 못했습니다. 다시 수신해 주세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法验证收到的数据。请重新接收。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法驗證收到的資料。請重新接收。"
+          }
+        }
+      }
+    },
+    "mt_failure_networkDenied" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Network access isn't allowed. Turn on Local Network for MochiLog in Settings."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ネットワークへのアクセスが許可されていません。設定でMochiLogの「ローカルネットワーク」をオンにしてください。"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Netzwerkzugriff ist nicht erlaubt. Aktivieren Sie in den Einstellungen „Lokales Netzwerk“ für MochiLog."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se permite el acceso a la red. Activa «Red local» para MochiLog en Ajustes."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’accès au réseau n’est pas autorisé. Activez « Réseau local » pour MochiLog dans les réglages."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "네트워크 접근이 허용되지 않았습니다. 설정에서 MochiLog의 로컬 네트워크를 켜 주세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未允许访问网络。请在设置中打开 MochiLog 的“本地网络”权限。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚未允許存取網路。請在設定中開啟 MochiLog 的「區域網路」權限。"
+          }
+        }
+      }
+    },
+    "mt_failure_networkPolicyDenied" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Network access is restricted. Check your settings or security software."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通信が制限されています。ネットワークの設定やセキュリティソフトの許可を確認してください。"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Netzwerkzugriff ist eingeschränkt. Prüfen Sie Ihre Einstellungen oder Sicherheitssoftware."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El acceso a la red está restringido. Comprueba los ajustes o el software de seguridad."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’accès au réseau est limité. Vérifiez les réglages ou le logiciel de sécurité."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "통신이 제한되어 있습니다. 네트워크 설정이나 보안 소프트웨어의 허용 여부를 확인해 주세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "网络访问受到限制。请检查网络设置或安全软件的许可。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "網路存取受到限制。請檢查網路設定或安全軟體的許可。"
+          }
+        }
+      }
+    },
+    "mt_failure_networkUnavailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No connection is available. Check Wi-Fi or mobile data."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通信できる状態ではありません。Wi-Fiやモバイル通信の接続を確認してください。"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Verbindung verfügbar. Prüfen Sie WLAN oder mobile Daten."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay conexión disponible. Comprueba el Wi-Fi o los datos móviles."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune connexion disponible. Vérifiez le Wi-Fi ou les données mobiles."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연결할 수 없는 상태입니다. Wi-Fi나 모바일 데이터 연결을 확인해 주세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当前无法连接。请检查 Wi-Fi 或移动数据连接。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目前無法連線。請檢查 Wi-Fi 或行動數據連線。"
+          }
+        }
+      }
+    },
+    "mt_failure_pairingRejected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pairing couldn't be confirmed. Scan a new QR code and try again."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ペアリングを確認できませんでした。新しいQRコードを読み取って、もう一度試してください。"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Kopplung konnte nicht bestätigt werden. Scannen Sie einen neuen QR-Code und versuchen Sie es erneut."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se ha podido confirmar el enlace. Escanea un nuevo QR e inténtalo de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’association n’a pas pu être confirmée. Scannez un nouveau code QR et réessayez."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "페어링을 확인할 수 없습니다. 새 QR 코드를 읽고 다시 시도해 주세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法确认配对。请扫描新的二维码，然后重试。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法確認配對。請掃描新的 QR 碼，然後重試。"
+          }
+        }
+      }
+    },
+    "mt_failure_pinFormat" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter the six-digit code shown on your computer."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "パソコンに表示されている6桁の確認コードを入力してください。"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geben Sie den sechsstelligen Code auf Ihrem Computer ein."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Introduce el código de seis dígitos que aparece en el ordenador."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saisissez le code à six chiffres affiché sur l’ordinateur."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터에 표시된 6자리 확인 코드를 입력해 주세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请输入电脑上显示的六位确认码。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請輸入電腦上顯示的六位確認碼。"
+          }
+        }
+      }
+    },
+    "mt_failure_portBusy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't get ready to connect. Close any other copies of MochiLog and try again."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "接続の準備ができませんでした。ほかに起動中のMochiLogがあれば閉じて、もう一度試してください。"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Verbindung konnte nicht vorbereitet werden. Schließen Sie weitere MochiLog-Instanzen und versuchen Sie es erneut."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se ha podido preparar la conexión. Cierra otras ventanas de MochiLog e inténtalo de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La connexion n’a pas pu être préparée. Fermez les autres instances de MochiLog et réessayez."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연결을 준비하지 못했습니다. 실행 중인 다른 MochiLog가 있다면 닫고 다시 시도해 주세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法准备连接。请关闭其他正在运行的 MochiLog，然后重试。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法準備連線。請關閉其他正在執行的 MochiLog，然後重試。"
+          }
+        }
+      }
+    },
+    "mt_failure_responseTimeout" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your computer isn't responding. Reopen MochiLog on it and try again."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "パソコンから返事がありません。パソコンのMochiLogを開き直して、もう一度試してください。"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Computer antwortet nicht. Öffnen Sie dort MochiLog erneut und versuchen Sie es noch einmal."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El ordenador no responde. Vuelve a abrir MochiLog en él e inténtalo de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’ordinateur ne répond pas. Rouvrez-y MochiLog et réessayez."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터가 응답하지 않습니다. 컴퓨터에서 MochiLog를 다시 열고 재시도해 주세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "电脑没有响应。请在电脑上重新打开 MochiLog，然后重试。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "電腦沒有回應。請在電腦上重新開啟 MochiLog，然後重試。"
+          }
+        }
+      }
+    },
+    "mt_failure_settingsStorage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t save your changes. Try again."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "変更を保存できませんでした。もう一度試してください。"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Änderungen konnten nicht gespeichert werden. Versuchen Sie es erneut."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se han podido guardar los cambios. Inténtalo de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les modifications n’ont pas pu être enregistrées. Réessayez."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "변경 사항을 저장하지 못했습니다. 다시 시도해 주세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法保存更改。请重试。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法儲存變更。請重試。"
+          }
+        }
+      }
+    },
+    "mt_failure_storage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't save the pairing. Unlock your device and try again."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ペアリング情報を保存できませんでした。端末のロックを解除して、もう一度試してください。"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Kopplung konnte nicht gespeichert werden. Entsperren Sie Ihr Gerät und versuchen Sie es erneut."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se ha podido guardar el enlace. Desbloquea el dispositivo e inténtalo de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’association n’a pas pu être enregistrée. Déverrouillez l’appareil et réessayez."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "페어링 정보를 저장하지 못했습니다. 기기의 잠금을 해제하고 다시 시도해 주세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法保存配对信息。请解锁设备，然后重试。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法儲存配對資訊。請解鎖裝置，然後重試。"
+          }
+        }
+      }
+    },
+    "mt_failure_unknown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't connect. Reopen MochiLog on your computer and try again."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "接続できませんでした。パソコンのMochiLogを開き直して、もう一度試してください。"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Verbindung möglich. Öffnen Sie MochiLog am Computer erneut und versuchen Sie es noch einmal."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se ha podido conectar. Vuelve a abrir MochiLog en el ordenador e inténtalo de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La connexion a échoué. Rouvrez MochiLog sur l’ordinateur et réessayez."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연결하지 못했습니다. 컴퓨터에서 MochiLog를 다시 열고 재시도해 주세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法连接。请在电脑上重新打开 MochiLog，然后重试。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法連線。請在電腦上重新開啟 MochiLog，然後重試。"
+          }
+        }
+      }
+    },
+    "mt_failure_unverifiedPeer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't verify this QR code. Scan the new code shown on your computer."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QRコードを確認できませんでした。パソコンに表示されている新しいQRコードを読み取ってください。"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der QR-Code konnte nicht bestätigt werden. Scannen Sie den neuen Code auf Ihrem Computer."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se ha podido verificar el QR. Escanea el nuevo código que aparece en el ordenador."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le code QR n’a pas pu être vérifié. Scannez le nouveau code affiché sur l’ordinateur."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QR 코드를 확인할 수 없습니다. 컴퓨터에 표시된 새 QR 코드를 읽어 주세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法验证二维码。请扫描电脑上显示的新二维码。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法驗證 QR 碼。請掃描電腦上顯示的新 QR 碼。"
+          }
+        }
+      }
+    },
+    "mt_failure_wrongDevice" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This QR code is for another device. Select this device on your computer and scan again."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この端末用のQRコードではありません。パソコンでこの端末を選び、読み取り直してください。"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser QR-Code gehört zu einem anderen Gerät. Wählen Sie dieses Gerät am Computer aus und scannen Sie erneut."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este QR es para otro dispositivo. Selecciona este dispositivo en el ordenador y vuelve a escanearlo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce code QR est destiné à un autre appareil. Sélectionnez cet appareil sur l’ordinateur et scannez à nouveau."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다른 기기용 QR 코드입니다. 컴퓨터에서 이 기기를 선택하고 다시 읽어 주세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此二维码用于其他设备。请在电脑上选择本设备，然后重新扫描。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此 QR 碼適用於其他裝置。請在電腦上選擇本裝置，然後重新掃描。"
+          }
+        }
+      }
+    },
     "mt_log_first": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"First page"}},"ja":{"stringUnit":{"state":"translated","value":"先頭のページ"}},"de":{"stringUnit":{"state":"translated","value":"Erste Seite"}},"es":{"stringUnit":{"state":"translated","value":"Primera página"}},"fr":{"stringUnit":{"state":"translated","value":"Première page"}},"ko":{"stringUnit":{"state":"translated","value":"첫 페이지"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"第一页"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"第一頁"}}}},
     "mt_log_last": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Last page"}},"ja":{"stringUnit":{"state":"translated","value":"最後のページ"}},"de":{"stringUnit":{"state":"translated","value":"Letzte Seite"}},"es":{"stringUnit":{"state":"translated","value":"Última página"}},"fr":{"stringUnit":{"state":"translated","value":"Dernière page"}},"ko":{"stringUnit":{"state":"translated","value":"마지막 페이지"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"最后一页"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"最後一頁"}}}},
     "mt_log_category": {"extractionState":"manual","localizations":{"en":{"stringUnit":{"state":"translated","value":"Feature"}},"ja":{"stringUnit":{"state":"translated","value":"機能"}},"de":{"stringUnit":{"state":"translated","value":"Funktion"}},"es":{"stringUnit":{"state":"translated","value":"Función"}},"fr":{"stringUnit":{"state":"translated","value":"Fonction"}},"ko":{"stringUnit":{"state":"translated","value":"기능"}},"zh-Hans":{"stringUnit":{"state":"translated","value":"功能"}},"zh-Hant":{"stringUnit":{"state":"translated","value":"功能"}}}},
