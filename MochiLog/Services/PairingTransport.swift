@@ -4,10 +4,11 @@ import Network
 /// The pairing protocol is newline framed. A valid response must not wait for
 /// the peer to close its TCP connection. Never log payloads, PINs or keys.
 @available(iOS 17, *)
-enum PairingTransport {
+nonisolated enum PairingTransport {
   typealias Logger = @Sendable (String) -> Void
 
   nonisolated static func errorSummary(_ error: Error) -> String {
+    if let failure = error as? PCConnectionFailure { return failure.diagnosticDescription }
     if let transfer = error as? TransferError { return "reason=\(transfer)" }
     let value = error as NSError
     let domain = String(
@@ -54,7 +55,7 @@ enum PairingTransport {
       do {
         let operation = Exchange(
           route: route, payload: payload, allowCellular: allowCellular,
-          timeout: timeout, prefix: prefix, log: log)
+          timeout: timeout, prefix: prefix, component: "qr-" + context, log: log)
         let reply = try await withTaskCancellationHandler {
           try await withCheckedThrowingContinuation { operation.start($0) }
         } onCancel: {
@@ -62,7 +63,7 @@ enum PairingTransport {
         }
         guard validateResponse(reply) else {
           log("\(prefix); rejected framed response; reason=identity-or-proof")
-          lastError = TransferError.invalidPairing
+          lastError = PCConnectionFailure(.unverifiedPeer, phase: context)
           continue
         }
         log(
@@ -102,6 +103,7 @@ enum PairingTransport {
     private let allowCellular: Bool
     private let timeout: TimeInterval
     private let prefix: String
+    private let component: String
     private let log: Logger
     // All mutable state belongs to queue, including cancellation before start.
     private var continuation: CheckedContinuation<Data, Error>?
@@ -110,16 +112,19 @@ enum PairingTransport {
     private var deadline: DispatchWorkItem?
     private var response = Data()
     private var phase = "connecting"
+    private var denied = false
+    private var waitingFailure: PCConnectionFailure?
 
     init(
       route: NWEndpoint, payload: Data, allowCellular: Bool, timeout: TimeInterval,
-      prefix: String, log: @escaping Logger
+      prefix: String, component: String, log: @escaping Logger
     ) {
       self.route = route
       self.payload = payload
       self.allowCellular = allowCellular
       self.timeout = timeout
       self.prefix = prefix
+      self.component = component
       self.log = log
     }
 
@@ -136,6 +141,8 @@ enum PairingTransport {
         self.connection = connection
         connection.pathUpdateHandler = { [weak self] path in
           guard let self, self.continuation != nil else { return }
+          self.denied = path.unsatisfiedReason == .localNetworkDenied
+          NetworkAccessDiagnostics.shared.recordPath(path, component: self.component)
           self.log(
             "\(self.prefix); path=\(path.status), wifi=\(path.usesInterfaceType(.wifi)), cellular=\(path.usesInterfaceType(.cellular)), unsatisfied=\(path.unsatisfiedReason)"
           )
@@ -144,6 +151,9 @@ enum PairingTransport {
           guard let self, self.continuation != nil else { return }
           switch state {
           case .ready:
+            self.waitingFailure = nil
+            NetworkAccessDiagnostics.shared.record(
+              component: self.component + "-state", state: "connected")
             self.log("\(self.prefix); connected")
             self.phase = "sending"
             connection.send(
@@ -160,6 +170,8 @@ enum PairingTransport {
               })
           case .preparing: self.log("\(self.prefix); preparing")
           case .waiting(let error):
+            self.waitingFailure = PCConnectionFailure.classify(
+              error, phase: self.phase, denied: self.denied)
             self.log("\(self.prefix); waiting; \(PairingTransport.errorSummary(error))")
           case .failed(let error): self.finish(.failure(error))
           case .cancelled: self.finish(.failure(CancellationError()))
@@ -170,7 +182,14 @@ enum PairingTransport {
           guard let self, self.continuation != nil else { return }
           self.log(
             "\(self.prefix); timeout; phase=\(self.phase), receivedBytes=\(self.response.count)")
-          self.finish(.failure(URLError(.timedOut)))
+          if !self.denied, let known = self.waitingFailure, known.kind != .unknown {
+            self.finish(.failure(known))
+          } else {
+            self.finish(
+              .failure(
+                PCConnectionFailure.timeout(
+                  phase: self.phase, bytes: self.response.count, denied: self.denied)))
+          }
         }
         self.deadline = deadline
         self.queue.asyncAfter(deadline: .now() + self.timeout, execute: deadline)
@@ -217,7 +236,16 @@ enum PairingTransport {
       connection?.pathUpdateHandler = nil
       connection?.cancel()
       connection = nil
-      continuation.resume(with: result)
+      switch result {
+      case .failure(let error) where !(error is CancellationError) && !(error is TransferError):
+        let failure = PCConnectionFailure.classify(
+          error, phase: phase, denied: denied, receivedBytes: response.count)
+        NetworkAccessDiagnostics.shared.record(
+          component: component + "-error", state: failure.diagnosticCode + ":" + failure.phase,
+          denied: denied, error: error)
+        continuation.resume(throwing: failure)
+      default: continuation.resume(with: result)
+      }
     }
   }
 }

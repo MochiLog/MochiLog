@@ -82,6 +82,7 @@ final class MacTransferManager: ObservableObject {
   private var isRunning = false
   private var connection: NWConnection?
   private var responseDeadline: ProgressDeadline?
+  private var transferNetworkDenied = false
   private var activeRequestNonce: UUID?
   @Published private(set) var usingLegacyTransfer = false
   @Published private(set) var legacyTransferConfirmed = false
@@ -738,6 +739,40 @@ final class MacTransferManager: ObservableObject {
     }
   }
 
+  func settingsErrorMessage(_ error: Error, phase: String) -> String {
+    let kind: PCConnectionFailure.Kind
+    if phase == "manual-address", case TransferError.invalidPairing = error {
+      kind = .invalidAddress
+    } else {
+      kind = .settingsStorage
+    }
+    let failure = PCConnectionFailure(kind, phase: phase, error: error)
+    Self.appendDebugEvent("PC settings failure: " + failure.diagnosticDescription)
+    return L10n.text(failure.messageKey, table: "MacTransfer")
+  }
+
+  func pairingErrorMessage(_ error: Error) -> String {
+    let failure: PCConnectionFailure
+    if let typed = error as? PCConnectionFailure {
+      failure = typed
+    } else if let transfer = error as? TransferError {
+      let kind: PCConnectionFailure.Kind
+      switch transfer {
+      case .invalidPairing: kind = .pairingRejected
+      case .invalidPairingCode: kind = .pinFormat
+      case .wrongDevice: kind = .wrongDevice
+      case .invalidPayload: kind = .unverifiedPeer
+      case .keychain: kind = .storage
+      case .identityConflict: kind = .wrongDevice
+      }
+      failure = .init(kind, phase: "pairing-validation", error: error)
+    } else {
+      failure = .classify(error, phase: "pairing")
+    }
+    Self.appendDebugEvent("PC pairing failure: " + failure.diagnosticDescription)
+    return L10n.text(failure.messageKey, table: "MacTransfer")
+  }
+
   nonisolated private static func validPairingReply(
     _ data: Data, type: String, session: UUID, proof: String
   ) -> Bool {
@@ -998,7 +1033,9 @@ final class MacTransferManager: ObservableObject {
           Self.appendDebugEvent("Bonjour: waiting (\(error.localizedDescription))")
         case .failed(let error):
           self.connectionPhase = .retrying
-          self.status = MacTransferStatus.text("mt_s_02", error.localizedDescription)
+          let failure = PCConnectionFailure.classify(error, phase: "discovery")
+          Self.appendDebugEvent("Bonjour failure: " + failure.diagnosticDescription)
+          self.status = L10n.text(failure.messageKey, table: "MacTransfer")
           self.scheduleRetry()
         default: break
         }
@@ -1224,8 +1261,9 @@ final class MacTransferManager: ObservableObject {
     return .hostPort(host: .ipv4(ipv4), port: endpointPort)
   }
 
-  private func routeFailed(_ failed: NWConnection, error: String) {
+  private func routeFailed(_ failed: NWConnection, error: PCConnectionFailure) {
     guard connection === failed else { return }
+    Self.appendDebugEvent("PC transfer failure: " + error.diagnosticDescription)
     responseDeadline?.cancel()
     responseDeadline = nil
     failed.cancel()
@@ -1240,7 +1278,7 @@ final class MacTransferManager: ObservableObject {
       return
     } else {
       connectionPhase = .retrying
-      status = MacTransferStatus.text("mt_s_03", error)
+      status = L10n.text(error.messageKey, table: "MacTransfer")
       scheduleRetry()
     }
   }
@@ -1502,13 +1540,18 @@ final class MacTransferManager: ObservableObject {
     }
     let connection = NWConnection(to: route, using: parameters)
     self.connection = connection
+    transferNetworkDenied = false
     startResponseDeadline(on: connection)
     activeRequestNonce = nonce
     activePauseUntil = pauseUntil
     activeResume = resume
     accumulated = Data()
     connection.pathUpdateHandler = { [weak self, weak connection] path in
+      NetworkAccessDiagnostics.shared.recordPath(path, component: "pc-transfer")
       Task { @MainActor in
+        if let self, let connection, self.connection === connection {
+          self.transferNetworkDenied = path.unsatisfiedReason == .localNetworkDenied
+        }
         Self.appendDebugEvent(
           "Path: \(path.status), Wi-Fi \(path.usesInterfaceType(.wifi)), reason \(String(describing: path.unsatisfiedReason))"
         )
@@ -1536,7 +1579,10 @@ final class MacTransferManager: ObservableObject {
             Task { @MainActor in
               guard self.isRunning, self.connection === connection else { return }
               if let error {
-                self.routeFailed(connection, error: error.localizedDescription)
+                self.routeFailed(
+                  connection,
+                  error: PCConnectionFailure.classify(
+                    error, phase: "sending", denied: self.transferNetworkDenied))
               } else {
                 self.responseDeadline?.progress()
                 self.requestSentUptime = ProcessInfo.processInfo.systemUptime
@@ -1554,7 +1600,13 @@ final class MacTransferManager: ObservableObject {
       case .failed(let error):
         Task { @MainActor in
           Self.appendDebugEvent("Connection: failed (\(error.localizedDescription))")
-          self.routeFailed(connection, error: error.localizedDescription)
+          self.routeFailed(
+            connection,
+            error: PCConnectionFailure.classify(
+              error,
+              phase: self.requestSentUptime == 0
+                ? "connecting" : (self.firstByteUptime == 0 ? "waiting-first-byte" : "receiving"),
+              denied: self.transferNetworkDenied, receivedBytes: self.accumulated.count))
         }
       case .cancelled:
         Task { @MainActor in Self.appendDebugEvent("Connection: cancelled") }
@@ -1572,7 +1624,10 @@ final class MacTransferManager: ObservableObject {
       Self.appendDebugEvent(
         "Transfer timeout: phase=connecting, deadlineSeconds=\(timeout), route=\(self.routeIndex + 1), code=-1001"
       )
-      self.routeFailed(connection, error: URLError(.timedOut).localizedDescription)
+      self.routeFailed(
+        connection,
+        error: PCConnectionFailure.timeout(
+          phase: "connecting", bytes: 0, denied: self.transferNetworkDenied))
     }
   }
 
@@ -1591,7 +1646,11 @@ final class MacTransferManager: ObservableObject {
         Self.appendDebugEvent(
           "Transfer timeout: phase=\(phase), idleSeconds=25, receivedBytes=\(self.accumulated.count), request=\(self.activeRequestNonce?.uuidString ?? "none")"
         )
-        self.routeFailed(connection, error: URLError(.timedOut).localizedDescription)
+        self.routeFailed(
+          connection,
+          error: PCConnectionFailure.timeout(
+            phase: phase == "receiving" ? "receiving" : "waiting-first-byte",
+            bytes: self.accumulated.count, denied: self.transferNetworkDenied))
       }
     }
   }
@@ -1622,7 +1681,11 @@ final class MacTransferManager: ObservableObject {
           return
         }
         if let error {
-          self.routeFailed(connection, error: error.localizedDescription)
+          self.routeFailed(
+            connection,
+            error: PCConnectionFailure.classify(
+              error, phase: "receiving", denied: self.transferNetworkDenied,
+              receivedBytes: self.accumulated.count))
         } else if complete {
           let bytes = self.accumulated
           self.accumulated = Data()
@@ -2011,7 +2074,14 @@ final class MacTransferManager: ObservableObject {
       status = MacTransferStatus.text("mt_s_11", kind, filename)
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { self.pull() }
     } catch {
-      status = MacTransferStatus.text("mt_s_12", error.localizedDescription)
+      let failure: PCConnectionFailure
+      if error is TransferError {
+        failure = .init(.invalidData, phase: "persisting-received-data", error: error)
+      } else {
+        failure = .init(.settingsStorage, phase: "persisting-received-data", error: error)
+      }
+      Self.appendDebugEvent("Transfer failure: " + failure.diagnosticDescription)
+      status = L10n.text(failure.messageKey, table: "MacTransfer")
       isReceiving = false
       connectionPhase = .retrying
       scheduleRetry()
@@ -2277,6 +2347,8 @@ final class MacTransferManager: ObservableObject {
       "pendingAcknowledgement": pendingAck != nil,
       "recentEvents": recentEvents,
     ]
+    object["settingsSnapshot"] = try? JSONSerialization.jsonObject(
+      with: MobileSupportSettings.capture(manager: self))
     object["lastPairingEvent"] = Self.debugEvents().last { $0.contains("PC pairing:") }
     object["lastAppDiagnostic"] = CrashDiagnostics.shared.summary()
     if debugManifestSnapshot == nil
@@ -2324,6 +2396,7 @@ final class MacTransferManager: ObservableObject {
       } else {
         object.removeValue(forKey: "archiveChunk")
         object.removeValue(forKey: "lastAppDiagnostic")
+        object.removeValue(forKey: "settingsSnapshot")
         // Keep the complete day manifest so older retained days can catch up.
         return
           (try? JSONSerialization.data(

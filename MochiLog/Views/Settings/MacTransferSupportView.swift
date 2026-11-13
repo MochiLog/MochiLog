@@ -125,7 +125,10 @@ struct MacTransferSupportView: View {
     ]
     var diagnostics = [
       SupportLogExport.Diagnostic(
-        name: "mochilog-iphone-diagnostics.json", data: manager.supportDiagnosticsData())
+        name: "mochilog-iphone-diagnostics.json", data: manager.supportDiagnosticsData()),
+      .init(
+        name: "mochilog-iphone-settings.json", data: MobileSupportSettings.capture(manager: manager)
+      ),
     ]
     var unavailable: [String] = []
     if manager.pairings.isEmpty {
@@ -137,6 +140,12 @@ struct MacTransferSupportView: View {
       sources.append(.init(name: name, directory: manager.debugLogDirectory(for: computer.hostID)))
       if let report = manager.computerDiagnosticsData(for: computer.hostID) {
         diagnostics.append(.init(name: name + "-diagnostics.json", data: report))
+        if let settings = SupportSettingsSnapshot.extract(from: report) {
+          diagnostics.append(
+            .init(name: name + "-settings.json", data: SupportSettingsSnapshot.formatted(settings)))
+        } else {
+          unavailable.append(name + ": settings snapshot not received (possibly an older peer)")
+        }
       } else {
         unavailable.append(name + ": remote diagnostics not yet received")
       }
@@ -153,10 +162,18 @@ struct MacTransferSupportView: View {
     Task { @MainActor in
       defer { preparingAttachments = false }
       do {
+        await MobileSupportSettings.refreshPermissions()
+        var refreshed = exportDiagnostics.filter { $0.name != "mochilog-iphone-settings.json" }
+        refreshed.append(
+          .init(
+            name: "mochilog-iphone-settings.json",
+            data: SupportSettingsSnapshot.formatted(MobileSupportSettings.capture(manager: manager))
+          ))
+        let finalDiagnostics = refreshed
         let prepared = try await Task.detached(priority: .utility) {
           let urls = try SupportLogExport.prepare(
             sources: exportSources, days: days,
-            diagnostics: exportDiagnostics, unavailable: missing, directory: directory)
+            diagnostics: finalDiagnostics, unavailable: missing, directory: directory)
           let archive = try SupportArchive.create(files: urls, directory: directory)
           return [
             MailAttachment(
