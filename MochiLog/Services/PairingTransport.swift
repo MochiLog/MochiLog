@@ -19,8 +19,28 @@ enum PairingTransport {
     routes: [NWEndpoint], payload: Data, allowCellular: Bool,
     continueOnInvalidResponse: Bool = false,
     context: String = "control", timeout: TimeInterval = 10,
+    validateResponse: @escaping @Sendable (Data) -> Bool = { _ in true },
     log: @escaping Logger = { _ in }
   ) async throws -> Data {
+    try await exchangeResult(
+      routes: routes, payload: payload, allowCellular: allowCellular,
+      continueOnInvalidResponse: continueOnInvalidResponse, context: context, timeout: timeout,
+      validateResponse: validateResponse, log: log
+    ).data
+  }
+
+  struct Response: Sendable {
+    let data: Data
+    let route: NWEndpoint
+  }
+
+  nonisolated static func exchangeResult(
+    routes: [NWEndpoint], payload: Data, allowCellular: Bool,
+    continueOnInvalidResponse: Bool = false,
+    context: String = "control", timeout: TimeInterval = 10,
+    validateResponse: @escaping @Sendable (Data) -> Bool = { _ in true },
+    log: @escaping Logger = { _ in }
+  ) async throws -> Response {
     let attempt = UUID().uuidString
     let started = ProcessInfo.processInfo.systemUptime
     log(
@@ -30,7 +50,7 @@ enum PairingTransport {
     for (index, route) in routes.enumerated() {
       try Task.checkCancellation()
       let prefix =
-        "PC pairing: attempt=\(attempt), stage=\(context), route=\(index + 1)/\(routes.count)"
+        "PC pairing: attempt=\(attempt), stage=\(context), route=\(index + 1)/\(routes.count), routeKind=\(routeKind(route))"
       do {
         let operation = Exchange(
           route: route, payload: payload, allowCellular: allowCellular,
@@ -40,10 +60,15 @@ enum PairingTransport {
         } onCancel: {
           operation.cancel()
         }
+        guard validateResponse(reply) else {
+          log("\(prefix); rejected framed response; reason=identity-or-proof")
+          lastError = TransferError.invalidPairing
+          continue
+        }
         log(
           "\(prefix); response framed; bytes=\(reply.count), elapsedMs=\(Int((ProcessInfo.processInfo.systemUptime - started) * 1000))"
         )
-        return reply
+        return Response(data: reply, route: route)
       } catch is CancellationError {
         log("\(prefix); cancelled")
         throw CancellationError()
@@ -57,6 +82,17 @@ enum PairingTransport {
       "PC pairing: exchange exhausted; attempt=\(attempt), stage=\(context); \(errorSummary(lastError))"
     )
     throw lastError
+  }
+
+  private static func routeKind(_ endpoint: NWEndpoint) -> String {
+    switch endpoint {
+    case .service: return "bonjour"
+    case .hostPort(.ipv4(let address), _):
+      let bytes = Array(address.rawValue)
+      return bytes.count == 4 && bytes[0] == 100 && (64...127).contains(bytes[1])
+        ? "tailnet" : "ipv4"
+    default: return "direct"
+    }
   }
 
   private final class Exchange: @unchecked Sendable {

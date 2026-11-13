@@ -20,8 +20,11 @@ final class Peer: @unchecked Sendable {
   let listener: NWListener
   let queue = DispatchQueue(label: "pairing-test-peer")
   var clients: [NWConnection] = []
-  init(parts: [Data]?, close: Bool = false) throws {
+  init(parts: [Data]?, close: Bool = false, serviceName: String? = nil) throws {
     listener = try NWListener(using: .tcp, on: .any)
+    if let serviceName {
+      listener.service = NWListener.Service(name: serviceName, type: "_mochilog._tcp")
+    }
     let ready = DispatchSemaphore(value: 0)
     listener.stateUpdateHandler = { state in if case .ready = state { ready.signal() } }
     listener.newConnectionHandler = { [weak self] connection in
@@ -52,7 +55,7 @@ final class Peer: @unchecked Sendable {
   func stop() {
     queue.sync {
       listener.cancel()
-      clients.forEach { $0.cancel() }
+      for client in clients { client.cancel() }
     }
   }
 }
@@ -90,10 +93,52 @@ final class Peer: @unchecked Sendable {
       _ = try await task.value
       preconditionFailure("Cancellation ignored")
     } catch { precondition(error is CancellationError) }
+    let remembered = try await PairingTransport.exchangeResult(
+      routes: [silent.endpoint, peer.endpoint], payload: Data("{}".utf8), allowCellular: false,
+      timeout: 0.12)
+    precondition(
+      remembered.route == peer.endpoint, "Successful route was not retained for confirmation")
     let fallback = try await PairingTransport.exchange(
       routes: [silent.endpoint, peer.endpoint],
       payload: Data("{}".utf8), allowCellular: false, timeout: 0.15, log: { events.append($0) })
     precondition(fallback == response && events.text.contains("route=2/2"))
+    let partialEvents = Events()
+    let partial = try Peer(parts: [Data("partial-no-newline".utf8)])
+    defer { partial.stop() }
+    do {
+      _ = try await PairingTransport.exchange(
+        routes: [partial.endpoint], payload: Data("{}".utf8), allowCellular: false, timeout: 0.12,
+        log: { partialEvents.append($0) })
+      preconditionFailure("Partial non-terminated response did not time out")
+    } catch { precondition((error as NSError).code == -1001) }
+    precondition(
+      partialEvents.text.contains("receivedBytes=18"), "Partial response size was not recorded")
+    let unrelated = try Peer(parts: [Data("HTTP/1.1 200 OK\r\n".utf8)])
+    defer { unrelated.stop() }
+    let expected = Data("{\"type\":\"pair-challenge\"}".utf8)
+    let originalBehavior = try await PairingTransport.exchange(
+      routes: [unrelated.endpoint, peer.endpoint], payload: Data("{}".utf8), allowCellular: false,
+      timeout: 1)
+    precondition(originalBehavior != expected, "Unvalidated first response unexpectedly fell back")
+    let validated = try await PairingTransport.exchange(
+      routes: [unrelated.endpoint, peer.endpoint], payload: Data("{}".utf8), allowCellular: false,
+      timeout: 1, validateResponse: { $0 == expected }, log: { events.append($0) })
+    precondition(validated == expected && events.text.contains("rejected framed response"))
+    let serviceName = UUID().uuidString
+    let advertised = try Peer(parts: [expected + Data([10])], serviceName: serviceName)
+    defer { advertised.stop() }
+    let discovered = try await PairingTransport.exchange(
+      routes: [
+        .service(name: serviceName, type: "_mochilog._tcp", domain: "local.", interface: nil)
+      ], payload: Data("{}".utf8), allowCellular: false, timeout: 3,
+      validateResponse: { $0 == expected })
+    precondition(discovered == expected, "Bonjour host route failed without an IPv4 hint")
+    let emptyFrame = try Peer(parts: [Data("{}".utf8)], close: true)
+    defer { emptyFrame.stop() }
+    let recoveredEOF = try await PairingTransport.exchange(
+      routes: [emptyFrame.endpoint, peer.endpoint], payload: Data("{}".utf8), allowCellular: false,
+      continueOnInvalidResponse: true, timeout: 1)
+    precondition(recoveredEOF == response, "Challenge EOF from a wrong route prevented fallback")
     let truncated = try Peer(parts: [Data("{\"incomplete\":".utf8)], close: true)
     defer { truncated.stop() }
     do {
@@ -109,7 +154,7 @@ final class Peer: @unchecked Sendable {
       preconditionFailure("Oversized response accepted")
     } catch { guard case TransferError.invalidPayload = error else { throw error } }
     print(
-      "PASS: fragmented newline response without EOF, timeout phase, route fallback, cancellation, output bounds and secret-free logs"
+      "PASS: fragmented newline response without EOF, timeout phase/partial reply, validated fallback, Bonjour without IP hints, cancellation, output bounds and secret-free logs"
     )
   }
 }
