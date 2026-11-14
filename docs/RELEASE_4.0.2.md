@@ -1,5 +1,7 @@
 # 4.0.2 release verification — 2026-11-13
 
+> Superseded on 2026-11-14: the user canceled 4.0.2 and selected 4.1.0 as the combined release. TestFlight build 1069 was expired and the editable App Store draft was renamed to 4.1.0 with build 1069 deselected. Do not resume 4.0.2 distribution or submission. See `TESTFLIGHT_BETA_4.1.0.md` for the replacement.
+
 The user authorized a patch release after TestFlight distribution and thorough debugging, followed by App Review submission. This branch starts at the shipped 4.0.1 source and contains the three November 13 PC pairing/support commits from main. Main remains the independent 4.1.0 beta development line; the signed device-catalog updater is not introduced by this patch.
 
 ## Candidate
