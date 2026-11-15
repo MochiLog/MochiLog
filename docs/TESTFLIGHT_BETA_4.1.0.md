@@ -97,3 +97,9 @@ Archive took 57.6 seconds, export 31.8 seconds and fastlane upload 65.8 seconds,
 - After the UI checks and external TestFlight availability were confirmed, the already-authorized App Review submission completed: **4.1.0 (1070), WAITING_FOR_REVIEW**, submission `4e85a20d-88e2-4d06-b4a2-010efd6a5631`. General App Store publication remains subject to Apple's review; release type is AFTER_APPROVAL.
 - The canceled **4.0.2 (1069)** now reports **EXPIRED for both internal and external testing**. The App Store version list contains 4.1.0 rather than a 4.0.2 draft. The old release journal is marked superseded. Earlier valid builds were not expired.
 - Final logs: `publish.log`, `ui-iphone.log`, `ui-ipad.log`, `store-verify.log`, `store-submit.log` and `status-builds.json` under ignored `build/testflight-1070/`. Original reporter-specific network conditions remain unverified; detailed diagnostics in this release are intended to make any recurrence attributable.
+
+### App Store publication confirmed — 2026-11-15
+
+The user requested the PC distribution update and general App Store publication after debugging. The existing 4.1.0 (1070) submission had already passed review: App Store Connect reports READY_FOR_DISTRIBUTION / READY_FOR_SALE, and the public Japanese lookup returns 4.1.0 with currentVersionReleaseDate 2026-11-14T15:56:48Z (November 15, 00:56 JST). The published version is the same signed build whose simulator, protocol and Mac-hosted TestFlight checks are recorded above. No new mobile binary was necessary or uploaded for this request; the 4.0.2 build remains expired.
+
+The PC 1.0.1 distribution follow-up and its actual machine checks are documented separately in the Mac and Windows repositories. A customer-reply draft must describe connection improvements without claiming the reporter's original network failure was conclusively reproduced or resolved.
