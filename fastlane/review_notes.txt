@@ -15,3 +15,5 @@ Mac: https://github.com/MochiLog/MochiLog-Mac/releases
 Windows: https://github.com/MochiLog/MochiLog-Windows/releases
 
 日本語: 初回はホームのサンプルモードで記録・詳細・分析・設定を確認できます。アカウントは不要です。新しいPC連携・端末内取得・現在のバッテリー表示は任意で、初期状態はオフです。従来の手動読み込みはPCやVPNなしで利用できます。PC連携はiOS/iPadOS 27以降、端末内取得は17以降に対応します。27以降の端末内初回ペアリングにはDeveloper Modeの有効化・再起動・OSの承認が必要です。日次ログの取得には解析データの生成と端末のロック解除が必要です。すべてアプリ内に手順と条件を記載しています。
+
+4.1.1 (1072) replaces build 1071. It retains the update/scene restoration fix and also fixes crashes caused by out-of-range optional log metadata and Watch display values, plus a large-text sample banner layout issue. Existing data and pairing formats are unchanged.

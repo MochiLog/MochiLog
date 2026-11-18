@@ -25,6 +25,22 @@ final class ErrorLogStore {
 @main
 struct BatchLogParserTests {
   @MainActor static func main() throws {
+    for (value, expectedRAM) in [
+      ("8", "8 GB"), ("7.5", "7.5 GB"), ("0", "0 GB"), ("-1", nil),
+      ("1e100", nil), ("9223372036854775808", nil),
+      ("9223372036854774784", "9223372036854774784 GB"),
+    ] {
+      let text = """
+        {"timestamp":"2026-11-18T09:00:00+0900"}
+        {"deviceCapacity":256,"dramSize":\(value),"productSku":"C/A"}
+        {"hardwareModel":"iPhone99,1","message":{"last_value_CycleCount":42,"last_value_NominalChargeCapacity":3900,"last_value_AppleRawMaxCapacity":3950}}
+        """
+      let parsed = LogParser.parse(text: text, enableValidation: false)
+      assert(parsed.failureDescription == nil && parsed.cycleCount == 42)
+      assert(parsed.ram == expectedRAM, "RAM boundary \(value) must not trap or corrupt formatting")
+      assert(parsed.storage == "256 GB" && parsed.productSku == "C/A")
+      assert(parsed.nominalCapacity == 3900 && parsed.rawCapacity == 3950)
+    }
     let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
     try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
     defer { try? FileManager.default.removeItem(at: directory) }

@@ -1,5 +1,11 @@
 4.1.1
 
+Also fixed crashes when importing certain data or displaying it on Apple Watch, and improved the layout with larger text.
+
+Additional checks:
+• Receive and reconnect using existing PC pairings, including receiving from multiple computers.
+• Open the device list, record list and details on Apple Watch.
+
 Fixed an issue that could close MochiLog when switching to another app after an update.
 
 Please check:

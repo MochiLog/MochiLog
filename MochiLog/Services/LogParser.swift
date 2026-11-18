@@ -153,7 +153,15 @@ struct LogParser {
 
       if let cap = hw.deviceCapacity { result.storage = "\(cap) GB" }
       if let dram = hw.dramSize {
-        result.ram = dram.rounded() == dram ? "\(Int(dram)) GB" : "\(dram) GB"
+        if dram.isFinite, dram >= 0 {
+          if dram.rounded() == dram {
+            // A valid JSON Double can exceed Int.max. Discard only this
+            // optional metadata field, without losing the battery measurement.
+            if let whole = Int(exactly: dram) { result.ram = "\(whole) GB" }
+          } else {
+            result.ram = "\(dram) GB"
+          }
+        }
       }
       result.productSku = hw.productSku?.trimmingCharacters(in: .whitespacesAndNewlines)
     }

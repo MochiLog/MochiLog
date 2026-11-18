@@ -1381,12 +1381,18 @@ final class LanguageAndLayoutTests: XCTestCase {
   private func verifyOverview(size: String) {
     app.launchArguments += ["-UIPreferredContentSizeCategoryName", size]
     app.launch()
-    if app.buttons["View Sample Data"].exists { app.buttons["View Sample Data"].tap() }
+    let sample = app.buttons["View Sample Data"]
+    if sample.waitForExistence(timeout: 5) { sample.tap() }
     // A phone list lazily creates rows; the first device can be a Watch.
     let record = app.buttons.matching(
       NSPredicate(format: "identifier BEGINSWITH %@", "home.record.")
     ).firstMatch
-    XCTAssertTrue(record.waitForExistence(timeout: 15))
+    // At accessibility sizes the lazy list's first row can begin below the banner.
+    for _ in 0..<4 {
+      if record.exists && record.isHittable { break }
+      app.swipeUp()
+    }
+    XCTAssertTrue(record.waitForExistence(timeout: 15), app.debugDescription)
     screenshot("Refreshed Home")
     for title in ["Analytics", "Settings"] {
       let tab = app.descendants(matching: .any).matching(

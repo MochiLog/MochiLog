@@ -49,7 +49,7 @@ struct RecordRow: View {
             .fill(healthGradient)
             .frame(width: 8, height: 8)
 
-          Text("\(Int(record.healthPercent))%")
+          Text(record.healthPercentText)
             .font(.headline)
             .fontWeight(.semibold)
             .foregroundStyle(healthGradient)

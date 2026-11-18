@@ -2,6 +2,30 @@ import XCTest
 
 /// Uses records delivered by the paired iPhone fixture import; never creates cloud data.
 final class WatchLayoutTests: XCTestCase {
+  /// The dedicated simulator's Documents fixture is installed before this test.
+  func testUnrepresentableHealthDoesNotCrash() {
+    continueAfterFailure = false
+    let app = XCUIApplication()
+    app.launchEnvironment["MOCHI_STORE_SCREENSHOTS"] = "1"
+    app.launchArguments = ["-appLanguage", "en", "-AppleLanguages", "(en)"]
+    app.launch()
+    let device = app.buttons["watch.device.Numeric Edge Cases"]
+    XCTAssertTrue(device.waitForExistence(timeout: 15), app.debugDescription)
+    attach(app, "Unrepresentable health on device list")
+    app.staticTexts["Numeric Edge Cases"].tap()
+    let record = app.buttons.matching(identifier: "watch.record").firstMatch
+    if !record.waitForExistence(timeout: 3), device.exists && device.isHittable {
+      app.staticTexts["Numeric Edge Cases"].tap()
+    }
+    XCTAssertTrue(record.waitForExistence(timeout: 10), app.debugDescription)
+    XCTAssertTrue(app.staticTexts["—"].exists, app.debugDescription)
+    record.tap()
+    XCTAssertTrue(app.staticTexts["—"].waitForExistence(timeout: 10), app.debugDescription)
+    attach(app, "Unrepresentable health on details")
+    scrollTo(app.staticTexts["96%"], in: app)
+    XCTAssertEqual(app.state, .runningForeground)
+  }
+
   func testSyncedRecordsAndGermanDetails() {
     continueAfterFailure = false
     let app = XCUIApplication()

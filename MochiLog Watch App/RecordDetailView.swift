@@ -16,7 +16,7 @@ struct RecordDetailView: View {
       VStack(spacing: 16) {
         // ヘルスリング（iOS側と同じスタイル）
         HealthRingView(
-          percentage: Int(record.healthPercent)
+          percentage: record.displayedHealthPercent
         )
         .frame(height: 120)
         .padding(.top, 8)
@@ -27,14 +27,14 @@ struct RecordDetailView: View {
           MetricRow(
             icon: "heart.fill",
             label: L10n.string("actual_health"),
-            value: "\(Int(record.healthPercent))%"
+            value: record.healthPercentText
           )
 
           // 公称ヘルス
           MetricRow(
             icon: "heart",
             label: L10n.string("nominal_health"),
-            value: "\(Int(record.nominalHealthPercent))%"
+            value: record.nominalHealthPercentText
           )
 
           // サイクル数
@@ -132,7 +132,7 @@ struct RecordDetailView: View {
 // MARK: - ヘルスリング（iOS側と同じスタイル）
 
 struct HealthRingView: View {
-  let percentage: Int
+  let percentage: Int?
 
   var body: some View {
     ZStack {
@@ -142,7 +142,7 @@ struct HealthRingView: View {
 
       // プログレスリング（iOS側と同じグラデーション）
       Circle()
-        .trim(from: 0, to: CGFloat(min(max(percentage, 0), 100)) / 100)
+        .trim(from: 0, to: CGFloat(min(max(percentage ?? 0, 0), 100)) / 100)
         .stroke(
           AngularGradient(
             gradient: Gradient(colors: [.green, .green]),
@@ -155,7 +155,7 @@ struct HealthRingView: View {
 
       // 中央テキスト
       VStack(spacing: 2) {
-        Text("\(percentage)%")
+        Text(WatchBatteryRecord.percentageText(percentage))
           .font(.title2)
           .fontWeight(.bold)
       }

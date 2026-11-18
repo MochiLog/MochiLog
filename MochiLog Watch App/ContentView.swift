@@ -189,7 +189,7 @@ struct ContentView: View {
       let latestRecord = sortedRecords.first!
       return DeviceGroup(
         name: name,
-        latestHealth: Int(latestRecord.healthPercent),
+        latestHealth: latestRecord.displayedHealthPercent,
         latestCycleCount: latestRecord.cycleCount,
         records: sortedRecords
       )
@@ -201,7 +201,7 @@ struct ContentView: View {
 
 struct DeviceGroup {
   let name: String
-  let latestHealth: Int
+  let latestHealth: Int?
   let latestCycleCount: Int
   let records: [WatchBatteryRecord]
 }
@@ -227,7 +227,7 @@ struct DeviceCard: View {
             .font(.caption)
             .foregroundStyle(healthGradient)
 
-          Text("\(device.latestHealth)%")
+          Text(WatchBatteryRecord.percentageText(device.latestHealth))
             .font(.subheadline)
             .fontWeight(.medium)
             .foregroundStyle(healthGradient)

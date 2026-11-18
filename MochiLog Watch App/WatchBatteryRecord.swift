@@ -39,6 +39,22 @@ struct WatchBatteryRecord: Codable, Identifiable, Hashable {
 
   // MARK: - 計算プロパティ
 
+  var displayedHealthPercent: Int? { Self.displayedPercentage(healthPercent) }
+  var displayedNominalHealthPercent: Int? { Self.displayedPercentage(nominalHealthPercent) }
+  var healthPercentText: String { Self.percentageText(displayedHealthPercent) }
+  var nominalHealthPercentText: String { Self.percentageText(displayedNominalHealthPercent) }
+
+  /// Preserve ordinary truncation and values above 100%; never invent a value
+  /// when a received number cannot be represented by the integer display.
+  static func displayedPercentage(_ value: Double) -> Int? {
+    guard value.isFinite, value >= 0 else { return nil }
+    return Int(exactly: value.rounded(.towardZero))
+  }
+
+  static func percentageText(_ value: Int?) -> String {
+    value.map { "\($0)%" } ?? "—"
+  }
+
   /// ローカライズされた診断結果
   /// iPhone側から送信された日本語テキストを、Watch側の言語設定に応じて翻訳する
   var localizedDiagnosticResult: String {

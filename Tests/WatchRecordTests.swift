@@ -33,6 +33,21 @@ struct WatchRecordTests {
       cycleCount: 0, nominalHealthPercent: 100, healthPercent: 100,
       diagnosticResult: "Future diagnostic", diagnosticCode: "future_code")
     assert(unknown.localizedDiagnosticResult == "Future diagnostic")
+    for (value, expected) in [(97.9, 97), (101.5, 101), (0.0, 0)] {
+      assert(WatchBatteryRecord.displayedPercentage(value) == expected)
+    }
+    for value in [Double.nan, .infinity, -.infinity, 1e100, Double(Int.max), -1] {
+      assert(WatchBatteryRecord.displayedPercentage(value) == nil)
+      assert(
+        WatchBatteryRecord.percentageText(WatchBatteryRecord.displayedPercentage(value)) == "—")
+    }
+    let oversized = legacy.replacingOccurrences(
+      of: "\"healthPercent\":97", with: "\"healthPercent\":1e100")
+    let oversizedRecord = try decoder.decode(WatchBatteryRecord.self, from: Data(oversized.utf8))
+    assert(oversizedRecord.healthPercent == 1e100, "Keep the original received value")
+    assert(
+      oversizedRecord.displayedHealthPercent == nil && oversizedRecord.healthPercentText == "—")
+    assert(current.healthPercentText == "97%" && current.nominalHealthPercentText == "96%")
     print(
       "PASS: Watch legacy payloads, stable diagnostics across languages, record identity, Codable round-trip"
     )
