@@ -10,7 +10,7 @@ api = AppStoreConnect.new
 app = "6756904240"
 mode = ENV.fetch("RELEASE_MODE", "inspect")
 version = ENV.fetch("MARKETING_VERSION", "4.1.1")
-build = ENV.fetch("BUILD_NUMBER", "1073")
+build = ENV.fetch("BUILD_NUMBER", "1074")
 raise "Unknown mode" unless %w[inspect withdraw prepare verify submit].include?(mode)
 output = File.expand_path("../build/appstore-release", __dir__)
 FileUtils.mkdir_p(output)

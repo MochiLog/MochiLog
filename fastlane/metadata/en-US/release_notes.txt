@@ -4,3 +4,5 @@
 • Fixed crashes when importing certain data or displaying it on Apple Watch.
 • Improved the layout when using larger text sizes.
 • Improved setup guidance for automatic log collection.
+• Fixed issues that could interrupt PC connections or log reception.
+• Improved guidance for permissions and settings needed for pairing.

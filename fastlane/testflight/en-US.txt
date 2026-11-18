@@ -18,3 +18,6 @@ Please test on iPhone, iPad and iPhone Duo.
 
 • When enabling an unconfigured collection method, follow its setup guidance. Cancelling should leave the method off.
 • Confirm that the reason is shown when pairing-file selection is unavailable.
+
+• Check guidance when local network or camera access is unavailable, including returning from Settings.
+• Check reconnection when a paired PC is unavailable or a transfer is interrupted.

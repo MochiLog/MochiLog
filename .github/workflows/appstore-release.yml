@@ -12,7 +12,7 @@ on:
         default: '4.1.1'
       build_number:
         type: string
-        default: '1073'
+        default: '1074'
 permissions:
   contents: read
 jobs:
