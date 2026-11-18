@@ -1,6 +1,3 @@
-4.1.0
+4.1.1
 
-• Device reference data can now update automatically, adding new models without an app update.
-• Improved pairing and reconnection with your computer.
-• Made connection and transfer error messages easier to understand.
-• Improved log reception on unstable connections.
+• Fixed an issue that could cause the app to close when switching apps after an update.

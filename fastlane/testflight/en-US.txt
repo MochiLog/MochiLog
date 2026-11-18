@@ -1,15 +1,11 @@
-4.1.0
+4.1.1
 
-• Device reference data can now update automatically, adding new models without an app update.
-• Improved pairing and reconnection with your computer.
-• Made connection and transfer error messages easier to understand.
-• Improved log reception on unstable connections.
+Fixed an issue that could close MochiLog when switching to another app after an update.
 
-Please check
-• Automatic and manual checks in Advanced Settings → Device Library → Device data updates.
-• Preservation of manual device settings after a catalog update, log imports and offline use.
-• Pairing with your computer using its QR code and confirmation code.
-• Receiving logs, reconnecting after an interruption, and receiving after reopening the app.
-• Updating while preserving existing pairings and records.
-• Manual imports, sharing and iCloud synchronization.
-• Clear guidance after connection failures and creating a ZIP for a support email.
+Please check:
+• Update over an earlier version and confirm that your existing records appear.
+• Open Home, record details and sharing, then switch to another app and return.
+• Import analytics logs from the share menu or Files and check the results and saved records.
+• Close and reopen MochiLog and confirm that your records remain available.
+
+Please test on iPhone, iPad and iPhone Duo.

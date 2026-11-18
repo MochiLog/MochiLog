@@ -1,6 +1,6 @@
-MochiLog 4.1.0 — App Review guide
+MochiLog 4.1.1 — App Review guide
 
-This update adds signed, data-only device-reference updates and improves PC pairing, reconnection, transfer reliability and plain-language error guidance. Device reference updates use the fixed GitHub URL disclosed in the privacy policy and can be disabled in Advanced Settings → Device Library → Device data updates. Downloaded catalog data does not include executable code or rewrite saved records.
+This patch fixes a crash when an installation updated from an earlier version switches to the background. It preserves access to existing records and the current log import, sharing and collection features. Please check Home, record details and sharing, then switch apps and return to MochiLog.
 
 No account or login is required. On a fresh installation, open Sample Mode on Home to load sample records and inspect Home, Details, charts, settings, and the Watch companion. The main app supports iOS/iPadOS 16+, and optional iCloud synchronization requires 17+. Existing manual analytics-file import remains available without a computer or VPN.
 
