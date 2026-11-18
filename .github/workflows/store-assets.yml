@@ -8,7 +8,7 @@ on:
         options: [inspect, upload-duo, upload-iphone, upload-ipad, upload-watch, upload-creative]
       store_version:
         type: string
-        default: '4.0.1'
+        default: '4.1.1'
 permissions:
   contents: read
 jobs:

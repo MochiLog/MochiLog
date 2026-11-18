@@ -6,7 +6,7 @@ require "fileutils"
 require_relative "app-store-asset-slots"
 api = AppStoreConnect.new
 app = "6756904240"
-version = ENV.fetch("STORE_VERSION", "4.0.1")
+version = ENV.fetch("STORE_VERSION", "4.1.1")
 device = ENV.fetch("STORE_DEVICE", "duo")
 groups = {"duo" => "IPHONE_DUO_PROFILE", "iphone" => "IPHONE_DYNAMIC_ISLAND_LARGE_PROFILE", "ipad" => "IPAD_13_PROFILE", "watch" => "WATCH_SERIES_10_PROFILE", "creative" => "DEFAULT_PROFILE"}
 group = groups.fetch(device)

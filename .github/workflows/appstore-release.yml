@@ -9,10 +9,10 @@ on:
         description: 'Submit only with explicit authorization, after external TestFlight distribution'
       marketing_version:
         type: string
-        default: '4.0.1'
+        default: '4.1.1'
       build_number:
         type: string
-        default: '1066'
+        default: '1071'
 permissions:
   contents: read
 jobs:
