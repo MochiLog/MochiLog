@@ -17,11 +17,17 @@ The containing app uses `UISceneDelegate` for both `connectionOptions.urlContext
 
 ## Launch after upgrading from the SwiftUI app lifecycle
 
-Keep `MochiLog Main Scene` and its UIKit delegate declared in `Info.plist`, with the same configuration name returned by the app delegate. An empty scene manifest can restore an older installation's `SwiftUI.AppSceneDelegate` even though the app now starts through UIKit, causing `Fatal error: Missing AppGraph` during scene state restoration.
+Keep `MochiLog Main Scene` and its UIKit delegate declared in `Info.plist`, with the same configuration name returned by the app delegate. The manifest alone is insufficient: on 2026-11-18, an in-place upgrade reproduced restoration of an older `SwiftUI.AppSceneDelegate` even with this manifest. A UIKit-only entry point then traps when that scene saves its restoration state.
 
 To check this migration, launch a version using the former SwiftUI `App` lifecycle, then install the current app over it without uninstalling or clearing its data. Verify the home screen and existing records load, then terminate and relaunch. Also background and foreground the app and check that URL imports still reach the queue. A clean install alone does not exercise the saved-session migration.
 
-Verified on a connected iPhone 17: the failing session archive referenced `SwiftUI.AppSceneDelegate`; after installing the named UIKit configuration, the same session referenced `MochiLog Main Scene`. Launching through Xcode reached `HomeView.onAppear` and loaded 158 existing records without the AppGraph failure.
+Historical check (2026-09-08): on a connected iPhone 17, the failing session archive referenced `SwiftUI.AppSceneDelegate`; after installing the named UIKit configuration, that session referenced `MochiLog Main Scene`. Launching through Xcode reached `HomeView.onAppear` and loaded 158 existing records. This single-device result did not cover every saved-session upgrade path.
+
+The 2026-11-18 fix keeps a SwiftUI `App` entry point and adapts the existing UIKit delegates. `SceneWindowHost` creates a window only for directly restored UIKit sessions; SwiftUI owns its own windows. SwiftUI URL callbacks and UIKit URL contexts both feed the existing import queue. No session archive, preference suite, record store or pairing is deleted.
+
+Run `python3 scripts/test-scene-lifecycle.py`. It compiles the production entry point/window host with synthetic delegates and creates disposable iPhone/iPad simulators. It checks legacy SwiftUI updates, UIKit updates, fresh installs, a negative control that actually crashes in `AppSceneDelegate.stateRestorationActivity`, and recovery of that crashed installation without uninstalling. Each passing case checks one window, unchanged record bytes/preferences, foreground/background/relaunch cycles, and warm/cold URLs sent by another installed app. The sender uses `UIApplication.open`; some simulator versions silently refuse `simctl openurl` with a LaunchServices scheme-approval error.
+
+`MochiLogUITests/SceneLifecycleTests/testHomeSurvivesBackgroundAndRelaunch` checks the full app with in-memory records and iCloud disabled. It verifies the home screen through repeated background/foreground transitions and relaunch. It does not replace the synthetic in-place upgrade tests or verification of the next signed distribution on a physical device.
 
 ## Chart and overview regression checks
 

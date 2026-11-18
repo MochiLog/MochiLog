@@ -3,9 +3,8 @@ import SwiftUI
 import UIKit
 import WatchConnectivity
 
-/// UIKit owns URL delivery so every URL in a single Open In request reaches the queue.
-/// All app screens remain SwiftUI views.
-@main
+/// UIKit delegates retain batch URL delivery and collection lifecycle callbacks.
+/// MochiLogApplication owns SwiftUI startup so older saved scenes remain valid.
 final class MochiLogApp: UIResponder, UIApplicationDelegate {
   private static let appGroupIdentifier = "group.net.ryuya-dev.MochiLog"
 
@@ -19,6 +18,11 @@ final class MochiLogApp: UIResponder, UIApplicationDelegate {
       MacTransferManager.appendDebugEvent(
         "Application launch: state=\(application.applicationState.rawValue), background=\(application.applicationState == .background), unlocked=\(application.isProtectedDataAvailable)"
       )
+      let restoredConfigurations = application.openSessions.map {
+        "\($0.configuration.name ?? "unnamed")/\($0.configuration.delegateClass.map(NSStringFromClass) ?? "none")"
+      }.sorted().joined(separator: ", ")
+      MacTransferManager.appendDebugEvent(
+        "Scene lifecycle: entry=SwiftUI, restored=[\(restoredConfigurations)]")
       LocalCollectionScheduler.register()
     }
     if #available(iOS 27, *) { LocalDevicePairing.register() }
@@ -35,8 +39,8 @@ final class MochiLogApp: UIResponder, UIApplicationDelegate {
     configurationForConnecting connectingSceneSession: UISceneSession,
     options: UIScene.ConnectionOptions
   ) -> UISceneConfiguration {
-    // Keep the name in sync with Info.plist so UIKit can validate restored sessions
-    // against our current lifecycle instead of restoring SwiftUI.AppSceneDelegate.
+    // Keep this name and class stable for installations with saved UIKit sessions.
+    // SwiftUI forwards scene events to this delegate for new/legacy SwiftUI sessions.
     let configuration = UISceneConfiguration(
       name: "MochiLog Main Scene", sessionRole: connectingSceneSession.role)
     configuration.sceneClass = UIWindowScene.self
@@ -133,11 +137,9 @@ final class MochiLogSceneDelegate: UIResponder, UIWindowSceneDelegate {
     options connectionOptions: UIScene.ConnectionOptions
   ) {
     guard let windowScene = scene as? UIWindowScene else { return }
-    let window = UIWindow(windowScene: windowScene)
     #if DEBUG && targetEnvironment(simulator)
       // Screenshot automation must be dark even if Xcode supplies a light trait override.
       if ProcessInfo.processInfo.environment["MOCHI_STORE_SCREENSHOTS"] == "1" {
-        window.overrideUserInterfaceStyle = .dark
         // Export the same sample records for the companion's isolated screenshot fixture.
         do {
           let encoder = JSONEncoder()
@@ -152,24 +154,24 @@ final class MochiLogSceneDelegate: UIResponder, UIWindowSceneDelegate {
           try encoder.encode(records).write(to: destination, options: .atomic)
         } catch { print("Screenshot fixture export failed: \(error)") }
       }
-      if ProcessInfo.processInfo.environment["MOCHI_LAYOUT_TEST"] == "1" {
-        window.rootViewController = UIHostingController(rootView: LayoutValidationHost())
-      } else {
-        window.rootViewController = UIHostingController(rootView: MochiLogRootView())
-      }
-    #else
-      window.rootViewController = UIHostingController(rootView: MochiLogRootView())
     #endif
-    self.window = window
+    // An older UIKit session calls us directly; SwiftUI sessions forward callbacks
+    // through their own delegate and already own their window. Never create both.
+    window = SceneWindowHost.restoreUIKitWindow(
+      in: windowScene, delegate: self, content: { MochiLogWindowContent() })
+    if #available(iOS 17, *) {
+      MacTransferManager.appendDebugEvent(
+        "Scene lifecycle: connected, windowOwner=\(window == nil ? "SwiftUI" : "UIKit"), configuration=\(session.configuration.name ?? "unnamed")"
+      )
+    }
     #if DEBUG
       if #available(iOS 27, *) { MacTransferManager.shared.debugReceiveIfRequested() }
     #endif
-    window.makeKeyAndVisible()
     open(connectionOptions.urlContexts)
   }
 
-  func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
-    open(URLContexts)
+  func scene(_ scene: UIScene, openURLContexts contexts: Set<UIOpenURLContext>) {
+    open(contexts)
   }
 
   func sceneDidBecomeActive(_ scene: UIScene) {
@@ -216,6 +218,26 @@ final class MochiLogSceneDelegate: UIResponder, UIWindowSceneDelegate {
 
   private func open(_ contexts: Set<UIOpenURLContext>) {
     MochiLogApp.route(contexts.map(\.url).sorted { $0.absoluteString < $1.absoluteString })
+  }
+}
+
+/// Shared content for SwiftUI windows and restored UIKit windows.
+struct MochiLogWindowContent: View {
+  @ViewBuilder
+  var body: some View {
+    #if DEBUG && targetEnvironment(simulator)
+      Group {
+        if ProcessInfo.processInfo.environment["MOCHI_LAYOUT_TEST"] == "1" {
+          LayoutValidationHost()
+        } else {
+          MochiLogRootView()
+        }
+      }
+      .preferredColorScheme(
+        ProcessInfo.processInfo.environment["MOCHI_STORE_SCREENSHOTS"] == "1" ? .dark : nil)
+    #else
+      MochiLogRootView()
+    #endif
   }
 }
 

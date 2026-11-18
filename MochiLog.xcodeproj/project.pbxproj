@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A61118202600000000000001 /* SceneLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A61118202600000000000002 /* SceneLifecycleTests.swift */; };
 		0A6A2C78B16444A1327B1454 /* MochiLogShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 203587808C3FC8825D39A12D /* MochiLogShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		127EAC3B627051340D274793 /* LanguageAndLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28577E54F8F793BF56F606D7 /* LanguageAndLayoutTests.swift */; };
 		2B72203E33BF09F62F1AC558 /* WatchLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CBF473DDFC0446BB61C4CE9 /* WatchLayoutTests.swift */; };
@@ -89,6 +90,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A61118202600000000000002 /* SceneLifecycleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneLifecycleTests.swift; sourceTree = "<group>"; };
 		129EAD9F001E904356A4AC73 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		203587808C3FC8825D39A12D /* MochiLogShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; path = MochiLogShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		28577E54F8F793BF56F606D7 /* LanguageAndLayoutTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LanguageAndLayoutTests.swift; sourceTree = "<group>"; };
@@ -285,6 +287,7 @@
 			isa = PBXGroup;
 			children = (
 				28577E54F8F793BF56F606D7 /* LanguageAndLayoutTests.swift */,
+				A61118202600000000000002 /* SceneLifecycleTests.swift */,
 			);
 			path = UITests;
 			sourceTree = "<group>";
@@ -575,6 +578,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				127EAC3B627051340D274793 /* LanguageAndLayoutTests.swift in Sources */,
+				A61118202600000000000001 /* SceneLifecycleTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

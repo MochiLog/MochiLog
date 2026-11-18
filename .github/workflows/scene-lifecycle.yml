@@ -1,0 +1,45 @@
+name: Scene lifecycle upgrade verification
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: scene-lifecycle-verification
+  cancel-in-progress: false
+
+jobs:
+  scene-upgrades:
+    runs-on: xcode-27
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify upgrades with real simulator scene archives
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p Build
+          python3 scripts/test-scene-lifecycle.py 2>&1 | tee Build/scene-lifecycle.log
+      - name: Remove only this run's disposable simulators
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json, pathlib, subprocess
+          manifest = pathlib.Path('Build/scene-lifecycle-tests/owned-simulators.json')
+          if manifest.exists():
+              devices = json.loads(subprocess.check_output(['xcrun', 'simctl', 'list', 'devices', '-j']))['devices']
+              existing = {device['udid'] for group in devices.values() for device in group}
+              for device in json.loads(manifest.read_text()):
+                  if device not in existing:
+                      continue
+                  for action in ('shutdown', 'delete'):
+                      subprocess.run(['xcrun', 'simctl', action, device], check=False, timeout=30)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: scene-lifecycle-failure-log
+          path: Build/scene-lifecycle.log
+          retention-days: 2
