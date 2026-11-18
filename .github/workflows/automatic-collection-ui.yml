@@ -6,7 +6,7 @@ on:
         description: Checks to run
         type: choice
         default: all
-        options: [all, installer, ui, debug_logs, error_logs, record_selection]
+        options: [all, installer, ui, debug_logs, error_logs, record_selection, pairing_permissions]
       devices:
         description: 'UI device coverage'
         type: choice
@@ -69,7 +69,7 @@ jobs:
           retention-days: 2
       - name: Verify eight languages and tab changes on iPad and iPhone
         env:
-          MOCHILOG_UI_SCOPE: ${{ inputs.verification == 'record_selection' && 'record-selection' || inputs.verification == 'error_logs' && 'error-logs' || inputs.verification == 'debug_logs' && 'diagnostic-logs' || 'all' }}
+          MOCHILOG_UI_SCOPE: ${{ inputs.verification == 'pairing_permissions' && 'pairing-permissions' || inputs.verification == 'record_selection' && 'record-selection' || inputs.verification == 'error_logs' && 'error-logs' || inputs.verification == 'debug_logs' && 'diagnostic-logs' || 'all' }}
           MOCHILOG_UI_DEVICES: ${{ inputs.devices || 'both' }}
           # Hosted CI can compile concurrently; local execution defaults to one.
           MOCHILOG_UI_BUILD_JOBS: '2'

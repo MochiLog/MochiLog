@@ -170,6 +170,11 @@ nonisolated enum PairingTransport {
               })
           case .preparing: self.log("\(self.prefix); preparing")
           case .waiting(let error):
+            if NetworkAccessDiagnostics.isLocalNetworkPolicyDenial(error) {
+              NetworkAccessDiagnostics.shared.record(
+                component: self.component + "-policy", state: "local-network-policy-denied",
+                denied: true, error: error)
+            }
             self.waitingFailure = PCConnectionFailure.classify(
               error, phase: self.phase, denied: self.denied)
             self.log("\(self.prefix); waiting; \(PairingTransport.errorSummary(error))")
@@ -242,7 +247,8 @@ nonisolated enum PairingTransport {
           error, phase: phase, denied: denied, receivedBytes: response.count)
         NetworkAccessDiagnostics.shared.record(
           component: component + "-error", state: failure.diagnosticCode + ":" + failure.phase,
-          denied: denied, error: error)
+          denied: denied || NetworkAccessDiagnostics.isLocalNetworkPolicyDenial(error), error: error
+        )
         continuation.resume(throwing: failure)
       default: continuation.resume(with: result)
       }

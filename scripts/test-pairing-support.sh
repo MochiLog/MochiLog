@@ -4,6 +4,8 @@ cd "$(dirname "$0")/.."
 folder="$(mktemp -d "${TMPDIR:-/tmp}/mochilog-pairing-support.XXXXXX")"
 trap 'rm -rf "$folder"' EXIT
 export MOCHILOG_TRANSFER_TEST_ROOT="$folder"
+xcrun swiftc -j 1 -warnings-as-errors -parse-as-library MochiLog/Services/PCTransferRecoveryPolicy.swift Tests/PCTransferRecoveryTests.swift -o "$folder/recovery"
+"$folder/recovery"
 xcrun swiftc -j 1 -warnings-as-errors -parse-as-library MochiLog/Services/ProgressDeadline.swift Tests/ProgressDeadlineTests.swift -o "$folder/deadline"
 "$folder/deadline"
 xcrun swiftc -j 1 -warnings-as-errors -parse-as-library \

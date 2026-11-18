@@ -19,6 +19,7 @@ nonisolated final class NetworkAccessDiagnostics: @unchecked Sendable {
     let errorCode: Int?
   }
   static let processInstanceID = UUID().uuidString
+  static let observationsChanged = Notification.Name("MochiLogNetworkAccessObservationsChanged")
   static let shared = NetworkAccessDiagnostics(
     defaults: ProcessInfo.processInfo.environment["MOCHILOG_TRANSFER_TEST_ROOT"] == nil
       ? .standard : nil)
@@ -58,13 +59,28 @@ nonisolated final class NetworkAccessDiagnostics: @unchecked Sendable {
       expensive: expensive, errorDomain: problem.map { String($0.domain.prefix(80)) },
       errorCode: problem?.code)
     lock.lock()
-    defer { lock.unlock() }
     entries.removeAll { $0.component == entry.component }
     entries.append(entry)
     entries = Array(entries.suffix(8))
     if let data = try? JSONEncoder().encode(entries), data.count <= 8192 {
       defaults?.set(data, forKey: key)
     }
+    lock.unlock()
+    NotificationCenter.default.post(name: Self.observationsChanged, object: nil)
+  }
+
+  static func isLocalNetworkPolicyDenial(_ error: Error) -> Bool {
+    let value = PCConnectionFailure.systemError(error)
+    return value.domain == "DNSServiceError" && value.code == -65570
+  }
+
+  /// A generic satisfied path, an open listener, a timeout, or a persisted
+  /// observation from an older process is not proof of Local Network access.
+  func localNetworkDenialObserved() -> Bool {
+    snapshot().last(where: {
+      $0.processInstanceID == Self.processInstanceID
+        && ($0.denialObserved || $0.state == "permission-check-ready")
+    })?.denialObserved == true
   }
 
   func snapshot() -> [Observation] {

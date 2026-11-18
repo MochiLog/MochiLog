@@ -39,12 +39,16 @@ if [[ "$scope" == all ]]; then
   ui_tests+=(
     -only-testing:MochiLogUITests/LanguageAndLayoutTests/testAutomaticCollectionInEightLanguages
     -only-testing:MochiLogUITests/LanguageAndLayoutTests/testCollectionProgressAndResumeInEightLanguages
+    -only-testing:MochiLogUITests/LanguageAndLayoutTests/testPairingPermissionWarningsInEightLanguages
   )
   ui_timeout=1200
 elif [[ "$scope" == error-logs ]]; then
   ui_tests=(-only-testing:MochiLogUITests/LanguageAndLayoutTests/testLargeErrorLogsInEightLanguages)
 elif [[ "$scope" == record-selection ]]; then
   ui_tests=(-only-testing:MochiLogUITests/LanguageAndLayoutTests/testHomeRecordMultipleDeletionInEightLanguages)
+  ui_timeout=600
+elif [[ "$scope" == pairing-permissions ]]; then
+  ui_tests=(-only-testing:MochiLogUITests/LanguageAndLayoutTests/testPairingPermissionWarningsInEightLanguages)
   ui_timeout=600
 elif [[ "$scope" != diagnostic-logs ]]; then
   echo "Unknown MOCHILOG_UI_SCOPE: $scope" >&2; exit 2
@@ -99,17 +103,17 @@ for kind in "${device_kinds[@]}"; do
   tail -30 "Build/automatic-ui-$kind.log"
   # A targeted viewer retry does not need to repeat the already-passed native
   # diagnostics protocol probes; default/all scopes still exercise them.
-  if [[ "$scope" != error-logs && "$scope" != record-selection ]] && ! bounded 180 python3 scripts/test-local-diagnostics-simulator.py "$device" \
+  if [[ "$scope" != error-logs && "$scope" != record-selection && "$scope" != pairing-permissions ]] && ! bounded 180 python3 scripts/test-local-diagnostics-simulator.py "$device" \
     --app Build/automatic-ui-derived/Build/Products/Debug-iphonesimulator/MochiLog.app \
     --output "Build/automatic-ui-$kind-native.json" \
     > "Build/automatic-ui-$kind-native.log" 2>&1; then failed=1; fi
-  if [[ "$scope" != error-logs && "$scope" != record-selection ]]; then cat "Build/automatic-ui-$kind-native.log"; fi
+  if [[ "$scope" != error-logs && "$scope" != record-selection && "$scope" != pairing-permissions ]]; then cat "Build/automatic-ui-$kind-native.log"; fi
   cleanup; device=""
 done
 
 # Reuse an installed older runtime when present; never download one here.
 legacy_runtime=""
-if [[ "$scope" != record-selection ]]; then
+if [[ "$scope" != record-selection && "$scope" != pairing-permissions ]]; then
   legacy_runtime=$(xcrun simctl list runtimes -j | python3 -c 'import json,sys; r=[x for x in json.load(sys.stdin)["runtimes"] if x.get("isAvailable") and x["name"] == "iOS 17.0"]; print(r[0]["identifier"] if r else "")')
 fi
 if [[ -n "$legacy_runtime" ]]; then
@@ -137,6 +141,8 @@ if [[ -n "$legacy_runtime" ]]; then
   cleanup; device=""
 elif [[ "$scope" == record-selection ]]; then
   echo "Targeted home record selection verification; separate native/older-OS probes were not repeated."
+elif [[ "$scope" == pairing-permissions ]]; then
+  echo "Targeted pairing permission UI; simulated observations do not verify actual system permission dialogs."
 else
   echo "iOS 17 runtime not installed; older-OS UI check skipped explicitly."
 fi

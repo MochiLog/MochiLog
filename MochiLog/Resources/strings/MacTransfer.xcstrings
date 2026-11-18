@@ -7863,6 +7863,370 @@
           }
         }
       }
+    },
+    "mt_permissions_title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pairing permissions"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ペアリングの権限"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Berechtigungen zum Koppeln"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permisos de enlace"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autorisations de jumelage"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페어링 권한"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配对权限"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配對權限"
+          }
+        }
+      }
+    },
+    "mt_permissions_check": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check permissions"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "権限を確認"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Berechtigungen prüfen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comprobar permisos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérifier les autorisations"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "권한 확인"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "检查权限"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "檢查權限"
+          }
+        }
+      }
+    },
+    "mt_permissions_settings": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Settings"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定を開く"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einstellungen öffnen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir ajustes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir les réglages"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정 열기"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开设置"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開設定"
+          }
+        }
+      }
+    },
+    "mt_permissions_detail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On iPhone, iPad, and Mac, allow Local Network access. Scanning a QR code also needs camera access on iPhone or iPad."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPhone・iPadとMacでは「ローカルネットワーク」の許可が必要です。QRコードの読み取りには、iPhone・iPadのカメラの許可も必要です。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erlaube auf iPhone, iPad und Mac den Zugriff auf das lokale Netzwerk. Zum Scannen eines QR-Codes ist auf dem iPhone oder iPad auch der Kamerazugriff nötig."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permite el acceso a la red local en el iPhone, iPad y Mac. Para escanear un código QR también se necesita acceso a la cámara del iPhone o iPad."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autorisez l’accès au réseau local sur iPhone, iPad et Mac. La lecture d’un code QR nécessite aussi l’accès à la caméra de l’iPhone ou de l’iPad."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPhone, iPad 및 Mac에서 로컬 네트워크 접근을 허용해 주세요. QR 코드를 스캔하려면 iPhone 또는 iPad의 카메라 접근 권한도 필요합니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请在 iPhone、iPad 和 Mac 上允许访问本地网络。扫描二维码还需要 iPhone 或 iPad 的相机权限。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請在 iPhone、iPad 和 Mac 上允許存取區域網路。掃描 QR 碼還需要 iPhone 或 iPad 的相機權限。"
+          }
+        }
+      }
+    },
+    "mt_permissions_camera_denied": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To scan the QR code, turn on Camera for MochiLog in Settings."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QRコードを読み取るには、設定でMochiLogのカメラをオンにしてください。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktiviere in den Einstellungen die Kamera für MochiLog, um den QR-Code zu scannen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para escanear el código QR, activa la cámara para MochiLog en Ajustes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour lire le code QR, activez la caméra pour MochiLog dans les réglages."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QR 코드를 스캔하려면 설정에서 MochiLog의 카메라 접근을 허용해 주세요."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要扫描二维码，请在“设置”中允许 MochiLog 使用相机。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "若要掃描 QR 碼，請在「設定」中允許 MochiLog 使用相機。"
+          }
+        }
+      }
+    },
+    "mt_permissions_camera_restricted": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera use is restricted. Check Screen Time or the device management settings."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カメラの利用が制限されています。スクリーンタイムや端末の管理設定を確認してください。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Kameranutzung ist eingeschränkt. Prüfe die Bildschirmzeit oder die Geräteverwaltung."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El uso de la cámara está restringido. Revisa Tiempo de uso o los ajustes de gestión del dispositivo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’utilisation de la caméra est restreinte. Vérifiez Temps d’écran ou les réglages de gestion de l’appareil."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "카메라 사용이 제한되어 있습니다. 스크린 타임 또는 기기 관리 설정을 확인해 주세요."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相机使用受到限制。请检查“屏幕使用时间”或设备管理设置。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相機使用受到限制。請檢查「螢幕使用時間」或裝置管理設定。"
+          }
+        }
+      }
+    },
+    "mt_permissions_local_denied_mac": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local Network access is not allowed. In System Settings → Privacy & Security → Local Network, turn on MochiLog Mac."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ローカルネットワークへの接続が許可されていません。「システム設定 → プライバシーとセキュリティ → ローカルネットワーク」でMochiLog Macをオンにしてください。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Zugriff auf das lokale Netzwerk ist nicht erlaubt. Aktiviere MochiLog Mac unter Systemeinstellungen → Datenschutz & Sicherheit → Lokales Netzwerk."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se permite el acceso a la red local. Activa MochiLog Mac en Ajustes del Sistema → Privacidad y seguridad → Red local."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’accès au réseau local n’est pas autorisé. Activez MochiLog Mac dans Réglages Système → Confidentialité et sécurité → Réseau local."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "로컬 네트워크 접근이 허용되지 않았습니다. 시스템 설정 → 개인정보 보호 및 보안 → 로컬 네트워크에서 MochiLog Mac을 켜 주세요."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未允许访问本地网络。请在“系统设置 → 隐私与安全性 → 本地网络”中开启 MochiLog Mac。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚未允許存取區域網路。請在「系統設定 → 隱私權與安全性 → 區域網路」中開啟 MochiLog Mac。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

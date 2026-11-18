@@ -1,4 +1,5 @@
 import AVFoundation
+import Combine
 import SwiftUI
 
 @available(iOS 27, *)
@@ -6,6 +7,9 @@ struct MacTransferSettingsView: View {
   @Environment(\.scenePhase) private var scenePhase
   @EnvironmentObject private var dataStore: DataStore
   @StateObject private var manager = MacTransferManager.shared
+  @StateObject private var networkPermission = PCNetworkPermissionCheck()
+  @State private var cameraAuthorization = AVCaptureDevice.authorizationStatus(for: .video)
+  @State private var isCheckingPermissions = false
   @State private var showingScanner = false
   @State private var errorMessage: String?
   @State private var pendingPairingQR: String?
@@ -25,6 +29,7 @@ struct MacTransferSettingsView: View {
     Form {
       if ProcessInfo.processInfo.isiOSAppOnMac {
       } else {
+        permissionSection
         Section {
           workflowDiagram
           DisclosureGroup(L10n.text("mt_flow_details", table: "MacTransfer")) {
@@ -260,13 +265,25 @@ struct MacTransferSettingsView: View {
               .font(.caption).foregroundStyle(.secondary)
           }
           Button {
-            MacTransferManager.appendDebugEvent("PC pairing: QR scanner opened")
-            showingScanner = true
+            Task {
+              isCheckingPermissions = true
+              defer { isCheckingPermissions = false }
+              await requestCameraIfNeeded()
+              guard cameraAuthorization == .authorized else {
+                errorMessage = L10n.text(cameraWarningKey, table: "MacTransfer")
+                return
+              }
+              networkPermission.check()
+              MacTransferManager.appendDebugEvent("PC pairing: QR scanner opened")
+              showingScanner = true
+            }
           } label: {
             Label(
               L10n.text("mt_065", table: "MacTransfer"),
               systemImage: "qrcode.viewfinder")
           }
+          .disabled(isCheckingPermissions)
+          .accessibilityIdentifier("macTransfer.scanQR")
         } header: {
           Text(L10n.text("mt_066", table: "MacTransfer"))
         } footer: {
@@ -344,6 +361,9 @@ struct MacTransferSettingsView: View {
       isPresented: Binding(get: { errorMessage != nil }, set: { if !$0 { errorMessage = nil } })
     ) {
       Button("OK", role: .cancel) { errorMessage = nil }
+      if networkPermission.denied || cameraAuthorization == .denied {
+        Button(L10n.text("mt_permissions_settings", table: "MacTransfer")) { openAppSettings() }
+      }
     } message: {
       Text(errorMessage ?? "")
     }
@@ -383,7 +403,7 @@ struct MacTransferSettingsView: View {
             try await manager.confirmSecurePairing(
               candidate,
               enteredCode: enteredPairingCode, dataStore: dataStore)
-          } catch { errorMessage = manager.pairingErrorMessage(error) }
+          } catch { showPairingError(error) }
           enteredPairingCode = ""
         }
       }
@@ -396,6 +416,11 @@ struct MacTransferSettingsView: View {
       Text(L10n.text("mt_secure_pair_instruction", table: "MacTransfer"))
     }
     .onChange(of: scenePhase) { _, phase in
+      if phase == .background { networkPermission.stop() }
+      if phase == .active {
+        refreshPermissions()
+        recheckKnownNetworkDenial()
+      }
       if isPreparingPairing || isConfirmingPairing || secureCandidate != nil {
         MacTransferManager.appendDebugEvent(
           "PC pairing: app scene changed; phase=\(phase), preparing=\(isPreparingPairing), confirming=\(isConfirmingPairing)"
@@ -403,12 +428,120 @@ struct MacTransferSettingsView: View {
       }
     }
     .onAppear {
+      refreshPermissions()
+      recheckKnownNetworkDenial()
       manualHostAddress = manager.pairing?.manualHostAddress ?? ""
       manager.start()
     }
+    .onDisappear { networkPermission.stop() }
+    .onReceive(
+      NotificationCenter.default.publisher(for: NetworkAccessDiagnostics.observationsChanged)
+        .receive(on: RunLoop.main)
+    ) { _ in networkPermission.refresh() }
     .onChange(of: manager.pairing?.hostID) { _, _ in
       manualHostAddress = manager.pairing?.manualHostAddress ?? ""
     }
+  }
+
+  private var cameraWarningKey: String {
+    cameraAuthorization == .restricted
+      ? "mt_permissions_camera_restricted" : "mt_permissions_camera_denied"
+  }
+
+  private var permissionSection: some View {
+    Section {
+      if networkPermission.denied {
+        Label(
+          L10n.text("mt_failure_networkDenied", table: "MacTransfer"),
+          systemImage: "exclamationmark.triangle.fill"
+        )
+        .foregroundStyle(.orange)
+        .accessibilityIdentifier("macTransfer.localNetworkWarning")
+      }
+      if cameraAuthorization == .denied || cameraAuthorization == .restricted {
+        Label(
+          L10n.text(cameraWarningKey, table: "MacTransfer"),
+          systemImage: "camera.fill"
+        )
+        .foregroundStyle(.orange)
+        .accessibilityIdentifier("macTransfer.cameraWarning")
+      }
+      if networkPermission.denied || cameraAuthorization == .denied {
+        Button(L10n.text("mt_permissions_settings", table: "MacTransfer")) { openAppSettings() }
+          .accessibilityIdentifier("macTransfer.openPermissionSettings")
+      }
+      Button {
+        Task {
+          isCheckingPermissions = true
+          defer { isCheckingPermissions = false }
+          await requestCameraIfNeeded()
+          networkPermission.check()
+        }
+      } label: {
+        HStack {
+          Label(
+            L10n.text("mt_permissions_check", table: "MacTransfer"), systemImage: "checkmark.shield"
+          )
+          if networkPermission.isChecking || isCheckingPermissions {
+            Spacer()
+            ProgressView()
+          }
+        }
+      }
+      .disabled(networkPermission.isChecking || isCheckingPermissions)
+      .accessibilityIdentifier("macTransfer.checkPermissions")
+    } header: {
+      Text(L10n.text("mt_permissions_title", table: "MacTransfer"))
+    } footer: {
+      Text(L10n.text("mt_permissions_detail", table: "MacTransfer"))
+    }
+  }
+
+  private func refreshPermissions() {
+    cameraAuthorization = AVCaptureDevice.authorizationStatus(for: .video)
+    #if DEBUG && targetEnvironment(simulator)
+      switch ProcessInfo.processInfo.environment["MOCHI_PC_PERMISSION_UI_TEST"] {
+      case "local-denied":
+        NetworkAccessDiagnostics.shared.record(
+          component: "permission-ui-fixture", state: "synthetic-denial", denied: true)
+      case "camera-denied": cameraAuthorization = .denied
+      case "camera-restricted": cameraAuthorization = .restricted
+      default: break
+      }
+    #endif
+    networkPermission.refresh()
+    MacTransferManager.appendDebugEvent(
+      "PC pairing permissions: camera=\(cameraAuthorization.rawValue), localNetworkDenialObserved=\(networkPermission.denied); unknown is not allowed/denied"
+    )
+  }
+
+  private func requestCameraIfNeeded() async {
+    if AVCaptureDevice.authorizationStatus(for: .video) == .notDetermined {
+      _ = await AVCaptureDevice.requestAccess(for: .video)
+    }
+    refreshPermissions()
+  }
+
+  private func recheckKnownNetworkDenial() {
+    guard networkPermission.denied else { return }
+    #if DEBUG && targetEnvironment(simulator)
+      guard ProcessInfo.processInfo.environment["MOCHI_PC_PERMISSION_UI_TEST"] == nil else {
+        return
+      }
+    #endif
+    networkPermission.check()
+  }
+
+  private func openAppSettings() {
+    MacTransferManager.appendDebugEvent("PC pairing permissions: app Settings opened by user")
+    if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+  }
+
+  private func showPairingError(_ error: Error) {
+    // The transport records the refusal before resuming its caller. Refresh
+    // synchronously so the error alert includes Open Settings on first display.
+    networkPermission.refresh()
+    errorMessage = manager.pairingErrorMessage(error)
   }
 
   private func handlePairingQR(_ value: String, relinkLocalRecords: Bool = false) {
@@ -431,7 +564,7 @@ struct MacTransferSettingsView: View {
           dataStore: dataStore, relinkLocalRecords: relinkLocalRecords)
         enteredPairingCode = ""
       } catch TransferError.identityConflict { pendingPairingQR = value } catch {
-        errorMessage = manager.pairingErrorMessage(error)
+        showPairingError(error)
       }
     }
   }

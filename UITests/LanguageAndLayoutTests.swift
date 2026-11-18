@@ -341,6 +341,62 @@ final class LanguageAndLayoutTests: XCTestCase {
     }
   }
 
+  func testPairingPermissionWarningsInEightLanguages() {
+    let settingsTitles = [
+      "en": "Settings", "ja": "設定", "de": "Einstellungen",
+      "es": "Ajustes", "fr": "Réglages", "ko": "설정", "zh-Hans": "设置", "zh-Hant": "設定",
+    ]
+    var cases = ["en", "ja", "de", "es", "fr", "ko", "zh-Hans", "zh-Hant"].map {
+      ($0, "local-denied")
+    }
+    cases += [
+      ("en", "camera-denied"), ("ja", "camera-denied"),
+      ("en", "camera-restricted"), ("ja", "camera-restricted"),
+    ]
+    for (language, mode) in cases {
+      // Simulator does not implement Local Network privacy. This injected
+      // observation tests UI/classification, not an actual system permission.
+      app.launchEnvironment["MOCHI_PC_PERMISSION_UI_TEST"] = mode
+      app.launchArguments = [
+        "-hasCompletedTutorial", "YES", "-showPopupOnLoad", "NO",
+        "-iCloudSyncEnabled", "NO", "-appLanguage", language, "-AppleLanguages", "(\(language))",
+        "-selectedTabIndex", "2", "-LastKnownAppVersion", "4.1.1",
+        "-pcAutomaticCollectionEnabled", "NO", "-localAutomaticCollectionEnabled", "NO",
+      ]
+      app.launch()
+      let settings = app.buttons[settingsTitles[language]!].firstMatch
+      XCTAssertTrue(settings.waitForExistence(timeout: 15), app.debugDescription)
+      settings.tap()
+      let collection =
+        UIDevice.current.userInterfaceIdiom == .pad
+        ? app.buttons["settings.category.automaticCollection"]
+        : app.buttons["settings.automaticCollection"]
+      for _ in 0..<10 {
+        if collection.isHittable { break }
+        app.swipeUp()
+      }
+      XCTAssertTrue(collection.isHittable, app.debugDescription)
+      collection.tap()
+      let pc = app.buttons["settings.macTransfer"]
+      XCTAssertTrue(pc.waitForExistence(timeout: 10), app.debugDescription)
+      pc.tap()
+      let identifier =
+        mode == "local-denied"
+        ? "macTransfer.localNetworkWarning" : "macTransfer.cameraWarning"
+      let warning = app.descendants(matching: .any).matching(identifier: identifier).firstMatch
+      XCTAssertTrue(warning.waitForExistence(timeout: 10), app.debugDescription)
+      XCTAssertFalse(warning.label.contains("mt_"), "Permission guidance must be translated")
+      XCTAssertTrue(app.buttons["macTransfer.checkPermissions"].exists)
+      XCTAssertEqual(
+        app.buttons["macTransfer.openPermissionSettings"].exists,
+        mode != "camera-restricted",
+        "A managed restriction must not be presented as a normal app toggle")
+      screenshot("Pairing permissions \(language) \(mode)")
+      app.terminate()
+    }
+    app.launchEnvironment.removeValue(forKey: "MOCHI_PC_PERMISSION_UI_TEST")
+  }
+
   func testTraditionalChineseAutomaticCollectionControls() {
     verifyAutomaticCollectionLanguages([("zh-Hant", "自動日誌收集")])
   }

@@ -15,6 +15,30 @@ import Network
     let restored = NetworkAccessDiagnostics(defaults: defaults)
     precondition(restored.snapshot().last?.denialObserved == true)
     precondition(restored.snapshot().last?.processID == ProcessInfo.processInfo.processIdentifier)
+    precondition(restored.localNetworkDenialObserved())
+    restored.record(component: "generic-path", state: "path-satisfied")
+    precondition(
+      restored.localNetworkDenialObserved(), "Generic connectivity must not erase a known denial")
+    restored.record(component: "pairing-permission-check", state: "permission-check-ready")
+    precondition(!restored.localNetworkDenialObserved())
+    restored.record(
+      component: "qr-policy", state: "denied", denied: true,
+      error: NWError.dns(-65570))
+    precondition(restored.localNetworkDenialObserved())
+    precondition(NetworkAccessDiagnostics.isLocalNetworkPolicyDenial(NWError.dns(-65570)))
+    precondition(!NetworkAccessDiagnostics.isLocalNetworkPolicyDenial(NWError.posix(.EACCES)))
+    var previousProcess =
+      try JSONSerialization.jsonObject(
+        with: JSONEncoder().encode(restored.snapshot())) as! [[String: Any]]
+    for index in previousProcess.indices {
+      previousProcess[index]["processInstanceID"] = "older-process"
+    }
+    defaults.set(
+      try JSONSerialization.data(withJSONObject: previousProcess),
+      forKey: "MochiLogNetworkAccessObservationsV1")
+    precondition(
+      !NetworkAccessDiagnostics(defaults: defaults).localNetworkDenialObserved(),
+      "A previous app process must not turn an unknown current permission into denied")
     let bytes = SupportSettingsSnapshot.encode(
       platform: "test", toggles: ["pcAutomaticCollection": true],
       limits: ["debugRetentionDays": 30],

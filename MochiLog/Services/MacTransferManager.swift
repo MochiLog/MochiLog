@@ -95,6 +95,12 @@ final class MacTransferManager: ObservableObject {
     /// A development-only, one-shot equivalent of Receive Now. Uses real saved
     /// pairings and the normal authenticated protocol without changing settings.
     func debugReceiveIfRequested() {
+      #if targetEnvironment(simulator)
+        if ProcessInfo.processInfo.environment["MOCHI_PC_STABILITY_PROBE"] == "1" {
+          debugSimulatorStabilityProbeIfRequested()
+          return
+        }
+      #endif
       guard !debugReceiveRequested,
         let platform = ProcessInfo.processInfo.environment["MOCHI_PC_RECEIVE_PROBE"],
         ["mac", "windows", "any"].contains(platform), !isRunning
@@ -821,6 +827,7 @@ final class MacTransferManager: ObservableObject {
     let monitor = NWPathMonitor()
     pathMonitor = monitor
     monitor.pathUpdateHandler = { [weak self, weak monitor] path in
+      guard let monitor else { return }
       let signature =
         "\(path.status)|\(path.usesInterfaceType(.wifi))|\(path.usesInterfaceType(.cellular))|\(path.usesInterfaceType(.wiredEthernet))|\(path.availableInterfaces.map(\.name).sorted())"
       Task { @MainActor in
@@ -953,7 +960,7 @@ final class MacTransferManager: ObservableObject {
       for: .bonjourWithTXTRecord(type: "_mochilog._tcp", domain: nil), using: .tcp)
     self.browser = browser
     browser.browseResultsChangedHandler = { [weak self, weak browser] results, _ in
-      guard let self else { return }
+      guard let self, let browser else { return }
       let result = results.first(where: { result in
         if case .service(let name, _, _, _) = result.endpoint {
           return name == pairing.hostID.uuidString
@@ -1010,28 +1017,39 @@ final class MacTransferManager: ObservableObject {
         {
           newRoutes.insert(.hostPort(host: .ipv4(ipv4), port: port), at: 0)
         }
-        if newRoutes != self.directRoutes {
-          self.directRoutes = newRoutes
-          self.routeIndex = 0
-          Self.appendDebugEvent("Bonjour: \(newRoutes.count) direct route(s) advertised")
-          if let active = self.connection, case .preparing = active.state {
-            active.cancel()
-            self.connection = nil
-            self.isReceiving = false
-          }
+        let attemptActive = self.connection != nil
+        let reconciled = PCTransferRecoveryPolicy.routes(
+          current: self.directRoutes, discovered: newRoutes, attemptActive: attemptActive)
+        if reconciled != self.directRoutes {
+          self.directRoutes = reconciled
+          if !attemptActive { self.routeIndex = 0 }
+          Self.appendDebugEvent(
+            "Bonjour: \(reconciled.count) direct route(s); activeAttemptPreserved=\(attemptActive)")
         }
-        self.pull()
+        if !attemptActive { self.pull() }
       }
     }
     browser.stateUpdateHandler = { [weak self, weak browser] state in
+      guard let browser else { return }
       Task { @MainActor [weak self] in
         guard let self, self.isRunning, self.browser === browser else { return }
         switch state {
         case .ready:
           Self.appendDebugEvent("Bonjour: ready")
         case .waiting(let error):
+          NetworkAccessDiagnostics.shared.record(
+            component: "pc-discovery", state: "waiting",
+            denied: NetworkAccessDiagnostics.isLocalNetworkPolicyDenial(error), error: error)
           Self.appendDebugEvent("Bonjour: waiting (\(error.localizedDescription))")
         case .failed(let error):
+          NetworkAccessDiagnostics.shared.record(
+            component: "pc-discovery", state: "failed",
+            denied: NetworkAccessDiagnostics.isLocalNetworkPolicyDenial(error), error: error)
+          if self.connection != nil {
+            Self.appendDebugEvent(
+              "Bonjour: discovery failed while a direct transfer is active; connection retained")
+            return
+          }
           self.connectionPhase = .retrying
           let failure = PCConnectionFailure.classify(error, phase: "discovery")
           Self.appendDebugEvent("Bonjour failure: " + failure.diagnosticDescription)
@@ -1042,6 +1060,19 @@ final class MacTransferManager: ObservableObject {
       }
     }
     browser.start(queue: queue)
+    DispatchQueue.main.asyncAfter(deadline: .now() + PCTransferRecoveryPolicy.discoveryTimeout) {
+      [weak self, weak browser] in
+      guard let self, let browser, self.isRunning, self.browser === browser,
+        self.connection == nil, self.endpoint == nil, self.directRoutes.isEmpty
+      else { return }
+      let failure = PCConnectionFailure.timeout(phase: "discovery", bytes: 0, denied: false)
+      Self.appendDebugEvent(
+        "Discovery ended without a route; computer=\(pairing.hostID.uuidString), pairedComputers=\(self.pairings.count); "
+          + failure.diagnosticDescription)
+      self.connectionPhase = .retrying
+      self.status = L10n.text(failure.messageKey, table: "MacTransfer")
+      self.scheduleRetry()
+    }
     if !directRoutes.isEmpty {
       DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
         guard let self, self.isRunning, self.browser === browser,
@@ -1111,6 +1142,7 @@ final class MacTransferManager: ObservableObject {
     connection = nil
     activeRequestNonce = nil
     usingLegacyTransfer = false
+    accumulated = Data()
     endpoint = nil
     directRoutes = []
     routeIndex = 0
@@ -1269,6 +1301,7 @@ final class MacTransferManager: ObservableObject {
     failed.cancel()
     connection = nil
     activeRequestNonce = nil
+    accumulated = Data()
     isReceiving = false
     if routeIndex < directRoutes.count && (routeIndex + 1 < directRoutes.count || endpoint != nil) {
       routeIndex += 1
@@ -1572,27 +1605,27 @@ final class MacTransferManager: ObservableObject {
           guard self.isRunning, self.connection === connection else { return }
           self.responseDeadline?.progress()
           Self.appendDebugEvent("Connection: ready")
-        }
-        connection.send(
-          content: payload + Data([10]),
-          completion: .contentProcessed { error in
-            Task { @MainActor in
-              guard self.isRunning, self.connection === connection else { return }
-              if let error {
-                self.routeFailed(
-                  connection,
-                  error: PCConnectionFailure.classify(
-                    error, phase: "sending", denied: self.transferNetworkDenied))
-              } else {
-                self.responseDeadline?.progress()
-                self.requestSentUptime = ProcessInfo.processInfo.systemUptime
-                Self.appendDebugEvent(
-                  "Connection: request sent; request=\(nonce.uuidString), connectMs=\(Int((self.requestSentUptime - self.requestStartedUptime) * 1000))"
-                )
-                self.receive(on: connection)
+          connection.send(
+            content: payload + Data([10]),
+            completion: .contentProcessed { error in
+              Task { @MainActor in
+                guard self.isRunning, self.connection === connection else { return }
+                if let error {
+                  self.routeFailed(
+                    connection,
+                    error: PCConnectionFailure.classify(
+                      error, phase: "sending", denied: self.transferNetworkDenied))
+                } else {
+                  self.responseDeadline?.progress()
+                  self.requestSentUptime = ProcessInfo.processInfo.systemUptime
+                  Self.appendDebugEvent(
+                    "Connection: request sent; request=\(nonce.uuidString), connectMs=\(Int((self.requestSentUptime - self.requestStartedUptime) * 1000))"
+                  )
+                  self.receive(on: connection)
+                }
               }
-            }
-          })
+            })
+        }
       case .waiting(let error):
         Task { @MainActor in
           Self.appendDebugEvent("Connection: waiting (\(error.localizedDescription))")
@@ -1671,16 +1704,27 @@ final class MacTransferManager: ObservableObject {
         }
         if let data { self.accumulated.append(data) }
         if let data, !data.isEmpty { self.connectionPhase = .receiving }
-        if self.accumulated.count > 64 * 1024 * 1024 + 1_024 {
-          self.responseDeadline?.cancel()
-          self.responseDeadline = nil
-          connection.cancel()
-          self.status = MacTransferStatus.text("mt_s_04")
-          self.isReceiving = false
-          self.connectionPhase = .retrying
+        let frameComplete: Bool
+        do {
+          frameComplete = try PCTransferRecoveryPolicy.frameIsComplete(self.accumulated)
+        } catch {
+          self.routeFailed(
+            connection,
+            error: .init(
+              .invalidData, phase: "response-framing", error: error,
+              receivedBytes: self.accumulated.count))
           return
         }
-        if let error {
+        if frameComplete {
+          // TCP EOF may be delayed or absent even after the entire authenticated
+          // frame arrived. Do not discard it while waiting for the peer to close.
+          Self.appendDebugEvent(
+            "Transfer: complete frame received; bytes=\(self.accumulated.count), peerClosed=\(complete); authenticating"
+          )
+          let bytes = self.accumulated
+          self.accumulated = Data()
+          self.finish(bytes, connection: connection)
+        } else if let error {
           self.routeFailed(
             connection,
             error: PCConnectionFailure.classify(
@@ -2075,7 +2119,17 @@ final class MacTransferManager: ObservableObject {
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { self.pull() }
     } catch {
       let failure: PCConnectionFailure
-      if error is TransferError {
+      if let crypto = error as? CryptoKitError {
+        let kind: PCConnectionFailure.Kind
+        if case .authenticationFailure = crypto {
+          kind = .unverifiedPeer
+        } else {
+          kind = .invalidData
+        }
+        failure = .init(
+          kind,
+          phase: "response-authentication", error: error)
+      } else if error is TransferError {
         failure = .init(.invalidData, phase: "persisting-received-data", error: error)
       } else {
         failure = .init(.settingsStorage, phase: "persisting-received-data", error: error)
@@ -2880,6 +2934,68 @@ final class MacTransferManager: ObservableObject {
     }
   }
 }
+
+#if DEBUG && targetEnvironment(simulator)
+  @available(iOS 17, *)
+  extension MacTransferManager {
+    /// Hermetic transport regression probe: synthetic in-memory credentials on
+    /// disposable simulators only. Does not import records or save pairing keys.
+    private func debugSimulatorStabilityProbeIfRequested() {
+      guard !debugReceiveRequested, !isRunning, pairings.isEmpty,
+        pendingRevocations.isEmpty
+      else { return }
+      debugReceiveRequested = true
+      let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+      let input = documents.appendingPathComponent("PCStabilityFixture.json")
+      guard let bytes = try? Data(contentsOf: input), bytes.count <= 4_096,
+        let config = try? JSONSerialization.jsonObject(with: bytes) as? [String: Any],
+        let hosts = config["hosts"] as? [[String: Any]], (1...2).contains(hosts.count),
+        let deviceText = config["deviceID"] as? String, let deviceID = UUID(uuidString: deviceText),
+        let timeout = config["timeout"] as? Double, timeout > 0, timeout <= 30
+      else { return }
+      let fixtures: [MacTransferPairing] = hosts.compactMap { host in
+        guard let id = host["id"] as? String, let hostID = UUID(uuidString: id),
+          let port = host["port"] as? Int, (0...65_535).contains(port)
+        else { return nil }
+        return MacTransferPairing(
+          hostID: hostID, physicalDeviceID: deviceID, model: "synthetic-simulator",
+          secret: Data(repeating: 7, count: 32), platform: "mac",
+          lanPort: port == 0 ? nil : UInt16(port),
+          manualHostAddress: port == 0 ? nil : "127.0.0.1", requiresSecureTransfer: true)
+      }
+      guard fixtures.count == hosts.count else { return }
+      pairings = fixtures
+      pairing = fixtures[0]
+      manualReceive = true
+      isRunning = true
+      hasNetworkPath = true
+      networkIsAvailable = true
+      networkUsesWiFiOrEthernet = true
+      allowsCellularTransfer = true  // Loopback has no Wi-Fi/cellular interface.
+      let started = ProcessInfo.processInfo.systemUptime
+      beginDiscovery()
+      Task {
+        while ProcessInfo.processInfo.systemUptime - started < timeout {
+          if lastAuthenticatedContactAt != nil { break }
+          try? await Task.sleep(for: .milliseconds(50))
+        }
+        let result: [String: Any] = [
+          "passed": lastAuthenticatedContactAt != nil,
+          "elapsedSeconds": ProcessInfo.processInfo.systemUptime - started,
+          "selectedComputer": pairing?.hostID.uuidString ?? "none",
+          "receiving": isReceiving,
+          "debugEvents": Array(Self.debugEvents().suffix(80)),
+        ]
+        stop()
+        if let output = try? JSONSerialization.data(withJSONObject: result, options: [.sortedKeys])
+        {
+          try? output.write(
+            to: documents.appendingPathComponent("PCStabilityResult.json"), options: .atomic)
+        }
+      }
+    }
+  }
+#endif
 
 @available(iOS 17, *)
 enum TransferError: LocalizedError {
