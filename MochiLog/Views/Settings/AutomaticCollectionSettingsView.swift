@@ -4,6 +4,13 @@ import UniformTypeIdentifiers
 @available(iOS 17, *)
 struct AutomaticCollectionSettingsView: View {
   @ObservedObject private var settings = AppSettings.shared
+  @ObservedObject private var localManager = LocalDiagnosticsManager.shared
+  @ObservedObject private var transfer = MacTransferManager.shared
+  private enum SetupMethod { case local, pc }
+  @State private var setupRequired: SetupMethod?
+  @State private var showSetupAlert = false
+  @State private var showLocalSetup = false
+  @State private var showPCSetup = false
   private func text(_ key: String) -> String { L10n.text(key, table: "MacTransfer") }
   var body: some View {
     Form {
@@ -18,8 +25,24 @@ struct AutomaticCollectionSettingsView: View {
       }
       if #available(iOS 27, *) {
         Section {
-          Toggle(text("auto_pc_enable"), isOn: $settings.pcAutomaticCollectionEnabled)
-            .accessibilityIdentifier("autoCollection.pcToggle")
+          Toggle(
+            text("auto_pc_enable"),
+            isOn: Binding(
+              get: { settings.pcAutomaticCollectionEnabled },
+              set: { enabled in
+                settings.pcAutomaticCollectionEnabled = enabled
+                if enabled && transfer.pairings.isEmpty {
+                  setupRequired = .pc
+                  showSetupAlert = true
+                  MacTransferManager.appendDebugEvent(
+                    "Collection setup required: method=pc, trigger=enabled")
+                }
+              })
+          )
+          .accessibilityIdentifier("autoCollection.pcToggle")
+          if settings.pcAutomaticCollectionEnabled && transfer.pairings.isEmpty {
+            setupNotice("auto_pc_setup_message")
+          }
           NavigationLink {
             MacTransferSettingsView()
           } label: {
@@ -29,8 +52,24 @@ struct AutomaticCollectionSettingsView: View {
         }
       }
       Section {
-        Toggle(text("auto_local_enable"), isOn: $settings.localAutomaticCollectionEnabled)
-          .accessibilityIdentifier("autoCollection.localToggle")
+        Toggle(
+          text("auto_local_enable"),
+          isOn: Binding(
+            get: { settings.localAutomaticCollectionEnabled },
+            set: { enabled in
+              settings.localAutomaticCollectionEnabled = enabled
+              if enabled && !localManager.configured {
+                setupRequired = .local
+                showSetupAlert = true
+                MacTransferManager.appendDebugEvent(
+                  "Collection setup required: method=local, trigger=enabled")
+              }
+            })
+        )
+        .accessibilityIdentifier("autoCollection.localToggle")
+        if settings.localAutomaticCollectionEnabled && !localManager.configured {
+          setupNotice("auto_local_setup_message")
+        }
         NavigationLink {
           LocalDiagnosticsSettingsView()
         } label: {
@@ -39,6 +78,38 @@ struct AutomaticCollectionSettingsView: View {
         Text(text("auto_local_note")).font(.caption).foregroundStyle(.secondary)
       }
     }.navigationTitle(text("auto_collection_title"))
+      .navigationDestination(isPresented: $showLocalSetup) { LocalDiagnosticsSettingsView() }
+      .navigationDestination(isPresented: $showPCSetup) {
+        if #available(iOS 27, *) { MacTransferSettingsView() }
+      }
+      .alert(
+        text("auto_setup_title"),
+        isPresented: $showSetupAlert,
+        presenting: setupRequired
+      ) { method in
+        Button(text("auto_setup_open")) {
+          if method == .local { showLocalSetup = true } else { showPCSetup = true }
+          MacTransferManager.appendDebugEvent(
+            "Collection setup: opened guide; method=\(method == .local ? "local" : "pc")")
+        }
+        Button(L10n.text("cancel", table: "Common"), role: .cancel) {
+          if method == .local {
+            settings.localAutomaticCollectionEnabled = false
+          } else {
+            settings.pcAutomaticCollectionEnabled = false
+          }
+          MacTransferManager.appendDebugEvent(
+            "Collection setup: cancelled enable; method=\(method == .local ? "local" : "pc")")
+        }
+      } message: { method in
+        Text(text(method == .local ? "auto_local_setup_message" : "auto_pc_setup_message"))
+      }
+  }
+
+  private func setupNotice(_ key: String) -> some View {
+    Label(text(key), systemImage: "exclamationmark.triangle.fill")
+      .font(.callout).foregroundStyle(.orange)
+      .accessibilityIdentifier("autoCollection.setupRequired")
   }
 }
 
@@ -94,16 +165,26 @@ struct LocalDiagnosticsSettingsView: View {
             }.disabled(manager.busy || manager.pairingActive)
           }
         }
-        DisclosureGroup(text("local_import_title")) {
+        DisclosureGroup {
           Text(text("local_direct_import_note")).font(.caption).foregroundStyle(.secondary)
           Text(text("local_import_note")).font(.caption).foregroundStyle(.secondary)
           TextField(text("local_udid"), text: $expectedUDID).textInputAutocapitalization(.never)
             .autocorrectionDisabled()
+            .accessibilityIdentifier("localPairing.udid")
           Button(text("local_import_button")) { importing = true }.disabled(
-            expectedUDID.isEmpty || manager.busy || manager.pairingActive)
+            importDisabledReason != nil
+          )
+          .accessibilityIdentifier("localPairing.import")
+          if let reason = importDisabledReason {
+            Label(text(reason), systemImage: "info.circle")
+              .font(.caption).foregroundStyle(.secondary)
+              .accessibilityIdentifier("localPairing.importDisabledReason")
+          }
           Link(
             "idevice_pair",
             destination: URL(string: "https://github.com/jkcoxson/idevice_pair/releases")!)
+        } label: {
+          Text(text("local_import_title")).accessibilityIdentifier("localPairing.fileOptions")
         }
       }
       Section(text("local_vpn_step")) {
@@ -176,13 +257,39 @@ struct LocalDiagnosticsSettingsView: View {
       .fileImporter(isPresented: $importing, allowedContentTypes: [.propertyList, .data]) {
         result in
         do {
-          let url = try result.get(); let access = url.startAccessingSecurityScopedResource()
+          let url = try result.get()
+          let access = url.startAccessingSecurityScopedResource()
           defer { if access { url.stopAccessingSecurityScopedResource() } }
           guard let size = try url.resourceValues(forKeys: [.fileSizeKey]).fileSize, size <= 65536
           else { throw LocalDiagnosticsTransport.Failure.invalid }
-          try manager.importPairing(Data(contentsOf: url), expectedUDID: expectedUDID)
-        } catch { errorMessage = text("local_import_failed") }
+          try manager.importPairing(
+            Data(contentsOf: url),
+            expectedUDID: expectedUDID.trimmingCharacters(in: .whitespacesAndNewlines))
+        } catch {
+          let problem = error as NSError
+          if problem.domain == NSCocoaErrorDomain && problem.code == NSUserCancelledError {
+            MacTransferManager.appendDebugEvent("Local pairing import: file selection cancelled")
+            return
+          }
+          let failure =
+            (error as? LocalDiagnosticsTransport.Failure).map { String(describing: $0) }
+            ?? "file-access-or-format"
+          MacTransferManager.appendDebugEvent(
+            "Local pairing import failed: stage=file-selection-or-validation, kind=\(failure), domain=\(problem.domain), code=\(problem.code)"
+          )
+          errorMessage = text("local_import_failed")
+        }
       }
+  }
+
+  private var importDisabledReason: String? {
+    if manager.pairingActive { return "local_import_pairing_note" }
+    if manager.installingPairing { return "local_import_installing_note" }
+    if manager.busy || manager.batteryBusy { return "local_import_busy_note" }
+    if expectedUDID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+      return "local_import_udid_required"
+    }
+    return nil
   }
 }
 

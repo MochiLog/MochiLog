@@ -3,3 +3,4 @@
 • Fixed an issue that could cause the app to close when switching apps after an update.
 • Fixed crashes when importing certain data or displaying it on Apple Watch.
 • Improved the layout when using larger text sizes.
+• Improved setup guidance for automatic log collection.

@@ -270,6 +270,77 @@ final class LanguageAndLayoutTests: XCTestCase {
     ])
   }
 
+  func testAutomaticCollectionSetupGuidanceInEightLanguages() {
+    let titles = [
+      "en": ("Settings", "Setup Required", "Open Setup", "Cancel"),
+      "ja": ("設定", "設定が必要です", "設定へ進む", "キャンセル"),
+      "de": ("Einstellungen", "Einrichtung erforderlich", "Einrichtung öffnen", "Abbrechen"),
+      "es": ("Ajustes", "Configuración necesaria", "Abrir configuración", "Cancelar"),
+      "fr": ("Réglages", "Configuration requise", "Configurer", "Annuler"),
+      "ko": ("설정", "설정 필요", "설정으로 이동", "취소"),
+      "zh-Hans": ("设置", "需要设置", "前往设置", "取消"),
+      "zh-Hant": ("設定", "需要設定", "前往設定", "取消"),
+    ]
+    for language in ["en", "ja", "de", "es", "fr", "ko", "zh-Hans", "zh-Hant"] {
+      let labels = titles[language]!
+      app.launchArguments = [
+        "-hasCompletedTutorial", "YES", "-showPopupOnLoad", "NO", "-iCloudSyncEnabled", "NO",
+        "-appLanguage", language, "-AppleLanguages", "(\(language))", "-selectedTabIndex", "2",
+        "-LastKnownAppVersion", "4.1.1", "-pcAutomaticCollectionEnabled", "NO",
+        "-localAutomaticCollectionEnabled", "NO",
+      ]
+      app.launch()
+      let settings = app.buttons[labels.0].firstMatch
+      XCTAssertTrue(settings.waitForExistence(timeout: 15), app.debugDescription)
+      settings.tap()
+      let collection =
+        UIDevice.current.userInterfaceIdiom == .pad
+        ? app.buttons["settings.category.automaticCollection"]
+        : app.buttons["settings.automaticCollection"]
+      for _ in 0..<10 {
+        if collection.isHittable { break }
+        app.swipeUp()
+      }
+      XCTAssertTrue(collection.isHittable, app.debugDescription)
+      collection.tap()
+      let pc = app.switches["autoCollection.pcToggle"]
+      XCTAssertTrue(pc.waitForExistence(timeout: 10), app.debugDescription)
+      tapSwitch(pc)
+      let alert = app.alerts[labels.1]
+      if !alert.waitForExistence(timeout: 2), pc.value as? String == "0", pc.isHittable {
+        // A switch can become accessible before the initial navigation transition ends.
+        tapSwitch(pc)
+      }
+      XCTAssertTrue(alert.waitForExistence(timeout: 5), app.debugDescription)
+      alert.buttons[labels.3].tap()
+      XCTAssertEqual(pc.value as? String, "0", "Cancel must undo enabling an unconfigured method")
+      let local = app.switches["autoCollection.localToggle"]
+      tapSwitch(local)
+      XCTAssertTrue(alert.waitForExistence(timeout: 5), app.debugDescription)
+      alert.buttons[labels.3].tap()
+      XCTAssertEqual(local.value as? String, "0")
+      tapSwitch(local)
+      XCTAssertTrue(alert.waitForExistence(timeout: 5))
+      screenshot("Setup warning \(language)")
+      alert.buttons[labels.2].tap()
+      let fileOptions = app.descendants(matching: .any)["localPairing.fileOptions"].firstMatch
+      revealLocalControl(fileOptions)
+      fileOptions.tap()
+      let field = app.textFields["localPairing.udid"]
+      revealLocalControl(field)
+      let importButton = app.buttons["localPairing.import"]
+      XCTAssertTrue(importButton.exists && !importButton.isEnabled, app.debugDescription)
+      let reason = app.descendants(matching: .any)["localPairing.importDisabledReason"].firstMatch
+      revealLocalControl(reason)
+      XCTAssertTrue(reason.waitForExistence(timeout: 5), app.debugDescription)
+      field.tap()
+      field.typeText("0000000000000000")
+      XCTAssertTrue(importButton.isEnabled, "Entering the expected UDID must enable file selection")
+      screenshot("Pairing file guidance \(language)")
+      app.terminate()
+    }
+  }
+
   func testTraditionalChineseAutomaticCollectionControls() {
     verifyAutomaticCollectionLanguages([("zh-Hant", "自動日誌收集")])
   }

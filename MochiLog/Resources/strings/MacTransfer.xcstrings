@@ -7439,7 +7439,431 @@
     "mt_log_delete_confirm": {"extractionState": "manual", "localizations": {"en": {"stringUnit": {"state": "translated", "value": "Delete all saved Mac connection debug logs?"}}, "ja": {"stringUnit": {"state": "translated", "value": "保存済みのMac連携デバッグログをすべて削除しますか？"}}, "de": {"stringUnit": {"state": "translated", "value": "Alle gespeicherten Mac-Verbindungslogs löschen?"}}, "es": {"stringUnit": {"state": "translated", "value": "¿Eliminar todos los registros de conexión con Mac?"}}, "fr": {"stringUnit": {"state": "translated", "value": "Supprimer tous les journaux de connexion Mac ?"}}, "ko": {"stringUnit": {"state": "translated", "value": "저장된 Mac 연결 디버그 로그를 모두 삭제할까요?"}}, "zh-Hans": {"stringUnit": {"state": "translated", "value": "删除所有已保存的 Mac 连接调试日志？"}}, "zh-Hant": {"stringUnit": {"state": "translated", "value": "刪除所有已儲存的 Mac 連線偵錯記錄？"}}}},
     "mt_log_date": {"extractionState": "manual", "localizations": {"en": {"stringUnit": {"state": "translated", "value": "Log date"}}, "ja": {"stringUnit": {"state": "translated", "value": "ログの日付"}}, "de": {"stringUnit": {"state": "translated", "value": "Log-Datum"}}, "es": {"stringUnit": {"state": "translated", "value": "Fecha del registro"}}, "fr": {"stringUnit": {"state": "translated", "value": "Date du journal"}}, "ko": {"stringUnit": {"state": "translated", "value": "로그 날짜"}}, "zh-Hans": {"stringUnit": {"state": "translated", "value": "日志日期"}}, "zh-Hant": {"stringUnit": {"state": "translated", "value": "記錄日期"}}}},
     "mt_log_incident": {"extractionState": "manual", "localizations": {"en": {"stringUnit": {"state": "translated", "value": "When did the issue occur?"}}, "ja": {"stringUnit": {"state": "translated", "value": "問題が発生した日時"}}, "de": {"stringUnit": {"state": "translated", "value": "Wann ist das Problem aufgetreten?"}}, "es": {"stringUnit": {"state": "translated", "value": "¿Cuándo ocurrió el problema?"}}, "fr": {"stringUnit": {"state": "translated", "value": "Quand le problème est-il survenu ?"}}, "ko": {"stringUnit": {"state": "translated", "value": "문제 발생 날짜와 시간"}}, "zh-Hans": {"stringUnit": {"state": "translated", "value": "问题发生时间"}}, "zh-Hant": {"stringUnit": {"state": "translated", "value": "問題發生時間"}}}},
-    "mt_log_support_days": {"extractionState": "manual", "localizations": {"en": {"stringUnit": {"state": "translated", "value": "Debug logs for that day and the preceding two days will be attached."}}, "ja": {"stringUnit": {"state": "translated", "value": "発生日とその前の2日分のデバッグログを添付します。"}}, "de": {"stringUnit": {"state": "translated", "value": "Debug-Logs dieses Tages und der beiden Vortage werden angehängt."}}, "es": {"stringUnit": {"state": "translated", "value": "Se adjuntarán los registros de ese día y los dos anteriores."}}, "fr": {"stringUnit": {"state": "translated", "value": "Les journaux de ce jour et des deux jours précédents seront joints."}}, "ko": {"stringUnit": {"state": "translated", "value": "해당 날짜와 이전 이틀의 디버그 로그를 첨부합니다."}}, "zh-Hans": {"stringUnit": {"state": "translated", "value": "将附上当天及前两天的调试日志。"}}, "zh-Hant": {"stringUnit": {"state": "translated", "value": "將附上當天及前兩天的偵錯記錄。"}}}}
+    "mt_log_support_days": {"extractionState": "manual", "localizations": {"en": {"stringUnit": {"state": "translated", "value": "Debug logs for that day and the preceding two days will be attached."}}, "ja": {"stringUnit": {"state": "translated", "value": "発生日とその前の2日分のデバッグログを添付します。"}}, "de": {"stringUnit": {"state": "translated", "value": "Debug-Logs dieses Tages und der beiden Vortage werden angehängt."}}, "es": {"stringUnit": {"state": "translated", "value": "Se adjuntarán los registros de ese día y los dos anteriores."}}, "fr": {"stringUnit": {"state": "translated", "value": "Les journaux de ce jour et des deux jours précédents seront joints."}}, "ko": {"stringUnit": {"state": "translated", "value": "해당 날짜와 이전 이틀의 디버그 로그를 첨부합니다."}}, "zh-Hans": {"stringUnit": {"state": "translated", "value": "将附上当天及前两天的调试日志。"}}, "zh-Hant": {"stringUnit": {"state": "translated", "value": "將附上當天及前兩天的偵錯記錄。"}}}},
+    "auto_setup_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setup Required"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定が必要です"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einrichtung erforderlich"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configuración necesaria"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configuration requise"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정 필요"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要设置"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要設定"
+          }
+        }
+      }
+    },
+    "auto_local_setup_message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up pairing for this device and connect a compatible VPN. Automatic collection will begin after setup."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この端末のペアリング情報と、対応するVPNの接続を設定してください。完了するまで自動取得は始まりません。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Richte die Kopplung für dieses Gerät ein und verbinde ein kompatibles VPN. Die automatische Erfassung beginnt nach der Einrichtung."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configura el enlace de este dispositivo y conecta una VPN compatible. La recopilación automática comenzará al terminar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configurez le jumelage de cet appareil et connectez un VPN compatible. La collecte automatique commencera ensuite."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 기기의 페어링 정보를 설정하고 호환되는 VPN에 연결하세요. 설정을 마치면 자동 수집이 시작됩니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请设置此设备的配对信息，并连接兼容的 VPN。设置完成后才会开始自动收集。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請設定此裝置的配對資訊，並連接相容的 VPN。設定完成後才會開始自動收集。"
+          }
+        }
+      }
+    },
+    "auto_pc_setup_message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pair this device with a computer. Automatic receiving will begin after setup."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PCとのペアリングを設定してください。完了するまで自動受信は始まりません。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopple dieses Gerät mit einem Computer. Der automatische Empfang beginnt nach der Einrichtung."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enlaza este dispositivo con un ordenador. La recepción automática comenzará al terminar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jumelez cet appareil avec un ordinateur. La réception automatique commencera ensuite."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 기기를 PC와 페어링하세요. 설정을 마치면 자동 수신이 시작됩니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请将此设备与电脑配对。设置完成后才会开始自动接收。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請將此裝置與電腦配對。設定完成後才會開始自動接收。"
+          }
+        }
+      }
+    },
+    "auto_setup_open": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Setup"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定へ進む"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einrichtung öffnen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir configuración"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configurer"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정으로 이동"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "前往设置"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "前往設定"
+          }
+        }
+      }
+    },
+    "local_import_udid_required": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter this device’s UDID to choose a pairing file."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この端末のUDIDを入力すると、ペアリングファイルを選べます。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gib die UDID dieses Geräts ein, um eine Kopplungsdatei auszuwählen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Introduce el UDID de este dispositivo para elegir un archivo de enlace."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saisissez l’UDID de cet appareil pour choisir un fichier de jumelage."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 기기의 UDID를 입력하면 페어링 파일을 선택할 수 있습니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入此设备的 UDID 后即可选择配对文件。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "輸入此裝置的 UDID 後即可選擇配對檔案。"
+          }
+        }
+      }
+    },
+    "local_import_busy_note": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diagnostic information is being collected. Choose a file after it finishes."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "診断情報を取得中です。完了後にファイルを選べます。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diagnoseinformationen werden erfasst. Wähle danach eine Datei aus."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se está recopilando información de diagnóstico. Elige un archivo cuando termine."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La collecte des informations de diagnostic est en cours. Choisissez un fichier une fois celle-ci terminée."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "진단 정보를 수집 중입니다. 완료된 후 파일을 선택하세요."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在收集诊断信息，请在完成后选择文件。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在收集診斷資訊，請於完成後選擇檔案。"
+          }
+        }
+      }
+    },
+    "local_import_pairing_note": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pairing is in progress. Finish or cancel it before choosing a file."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ペアリング中です。完了またはキャンセルしてからファイルを選んでください。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Kopplung läuft. Schließe sie ab oder brich sie ab, bevor du eine Datei auswählst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hay un enlace en curso. Termínalo o cancélalo antes de elegir un archivo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un jumelage est en cours. Terminez-le ou annulez-le avant de choisir un fichier."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페어링 중입니다. 완료하거나 취소한 후 파일을 선택하세요."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在配对，请在完成或取消后选择文件。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在配對，請於完成或取消後選擇檔案。"
+          }
+        }
+      }
+    },
+    "local_import_installing_note": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pairing information is being verified. Choose a file after verification finishes."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ペアリング情報を確認中です。完了後にファイルを選べます。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopplungsinformationen werden geprüft. Wähle nach der Prüfung eine Datei aus."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se está verificando la información de enlace. Elige un archivo cuando termine."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les informations de jumelage sont en cours de vérification. Choisissez un fichier après la vérification."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페어링 정보를 확인 중입니다. 확인이 끝난 후 파일을 선택하세요."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在验证配对信息，请在验证完成后选择文件。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在驗證配對資訊，請於驗證完成後選擇檔案。"
+          }
+        }
+      }
+    }
   },
   "version": "1.0"
 }

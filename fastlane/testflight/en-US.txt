@@ -15,3 +15,6 @@ Please check:
 • Close and reopen MochiLog and confirm that your records remain available.
 
 Please test on iPhone, iPad and iPhone Duo.
+
+• When enabling an unconfigured collection method, follow its setup guidance. Cancelling should leave the method off.
+• Confirm that the reason is shown when pairing-file selection is unavailable.
