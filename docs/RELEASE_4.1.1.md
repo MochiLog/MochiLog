@@ -110,3 +110,14 @@ release/4.0.1とrelease/4.0.2のmain非祖先コミットも確認した。
 - 今回も新しい作業ブランチは作らずmainへコミット・pushした。既存の無関係な未コミット変更は保持した。
 
 1073の署名・UI結果・Apple応答はGit管理外の`Build/release-4.1.1-1073/`と`Build/bug-investigation-2026-11-18/`へ保存した。
+
+
+## PC stability and permission guidance — build 1074
+
+The latest replacement is 4.1.1 (1074), built from `702cf833a4cc699b0d90911fc179541b7ca22cd4` with Xcode 27.2 RC. It includes the PC recovery and permission guidance in [the stability investigation](PC_LINK_STABILITY_2026-11-18.md). The app, share extension and Watch app all report 1074. Release signature, Production CloudKit, non-debuggable distribution profiles, eight-language permission strings, dSYM UUIDs and absence of simulator-only fixtures passed. IPA SHA-256: `e655a0aae739855049cad214ff11b3293dcf319675fec15ec791b868e7fa3454` (16,442,514 bytes).
+
+Apple build ID: `626133b8-57d7-4ba1-8a0b-7559a0a864e6`; VALID, expired=false. Internal TestFlight is IN_BETA_TESTING. The same build is assigned to the existing external main group with Japanese/English notes and automatic notification; external review is WAITING_FOR_BETA_REVIEW.
+
+Apple rejected simultaneous beta review because 1073 was still pending. After confirming 1074 was VALID and assigned, only replaced build 1073 was stopped. Other earlier builds were left unchanged. App Review for 1073 was withdrawn, the selected build and localized notes were changed to 1074, and all 44 store images were verified again (including Duo inside/outside, header and search images). Submission `8c67c965-c3de-48f5-9a00-67750339c59e` is WAITING_FOR_REVIEW, release type AFTER_APPROVAL. Neither pending external review nor App Review is described as public distribution.
+
+Private verification and Apple responses are under ignored `Build/release-4.1.1-1074/`. Physical denial/grant of the OS local-network permission was not tested on real devices; permission presentation was tested in the simulator using explicit DEBUG-only states, as documented in the stability investigation.
