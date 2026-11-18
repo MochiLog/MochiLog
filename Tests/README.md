@@ -29,6 +29,12 @@ Run `python3 scripts/test-scene-lifecycle.py`. It compiles the production entry 
 
 `MochiLogUITests/SceneLifecycleTests/testHomeSurvivesBackgroundAndRelaunch` checks the full app with in-memory records and iCloud disabled. It verifies the home screen through repeated background/foreground transitions and relaunch. It does not replace the synthetic in-place upgrade tests or verification of the next signed distribution on a physical device.
 
+### Real file imports before distribution
+
+`SceneLifecycleTests.testRealFileImportPersistsAfterRelaunch` opens synthetic analytics files through `XCUIApplication.open`, then checks the record detail and counts after terminating and relaunching the real app. It uses a persistent local store with iCloud/automatic collection disabled; it does not use the in-memory home fixture.
+
+Run it only on disposable import simulators. Place two valid fixtures with different dates in that app's App Group container (outside `SharedLogInbox` so they do not auto-import). Configure the UI test runner's `MOCHI_IMPORT_TEST_URLS` environment as JSON mapping each simulator UDID to the two absolute file paths. The test uses `SIMULATOR_UDID` to select its inputs. Without this explicit fixture map it skips. `simctl get_app_container DEVICE net.ryuya-dev.MochiLog groups` provides the group container path. Do not point this test at a person's existing records.
+
 ## Chart and overview regression checks
 
 Run `bash scripts/test-charts.sh` for the production date/window and downsampling helpers. The fixtures cover inclusive 7/14-day windows, leap years and DST, old-only datasets, unordered context neighbors, sparse previous/next navigation, 2-year navigation round trips, automatic windows across month boundaries, preserving extrema/latest points, and edits that keep the same record ID and date. The script runs in Asia/Tokyo and America/Los_Angeles.
