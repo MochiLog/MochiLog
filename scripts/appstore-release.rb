@@ -158,5 +158,6 @@ if %w[verify submit].include?(mode)
 end
 
 if mode == "submit"
-  AppStoreReviewSubmission.submit(api, app: app, version: selected, build: build, output: output)
+  AppStoreReviewSubmission.submit(api, app: app, version: selected, build: build, output: output,
+    allow_internal_testflight: ENV["ALLOW_INTERNAL_TESTFLIGHT_REVIEW"] == "1")
 end

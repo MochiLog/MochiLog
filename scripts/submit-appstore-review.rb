@@ -6,7 +6,8 @@ require "json"
 module AppStoreReviewSubmission
   ACTIVE_STATES = %w[WAITING_FOR_REVIEW IN_REVIEW].freeze
 
-  def self.submit(api, app:, version:, build:, output:, sleeper: ->(seconds) { sleep seconds })
+  def self.submit(api, app:, version:, build:, output:, allow_internal_testflight: false,
+    sleeper: ->(seconds) { sleep seconds })
     version_id = version.fetch("id")
     selected = api.get("/appStoreVersions/#{version_id}/build").fetch("data")
     raise "Expected valid build #{build} is not selected" unless selected &&
@@ -14,8 +15,15 @@ module AppStoreReviewSubmission
       selected.dig("attributes", "processingState") == "VALID" &&
       selected.dig("attributes", "expired") == false
     beta = api.get("/builds/#{selected.fetch('id')}/buildBetaDetail").fetch("data")
-    raise "Publish this build in external TestFlight before App Review" unless
-      beta&.dig("attributes", "externalBuildState") == "IN_BETA_TESTING"
+    external = beta&.dig("attributes", "externalBuildState")
+    internal = beta&.dig("attributes", "internalBuildState")
+    pending_external_review = %w[WAITING_FOR_BETA_REVIEW IN_BETA_REVIEW].include?(external)
+    verified_internal = allow_internal_testflight && internal == "IN_BETA_TESTING" && pending_external_review
+    raise "Publish this build in TestFlight before App Review" unless
+      external == "IN_BETA_TESTING" || verified_internal
+    if verified_internal
+      puts "Explicit parallel-review mode: same build is in internal TestFlight; external beta review is #{external}."
+    end
 
     reviews = api.get("/reviewSubmissions", "filter[app]" => app, "limit" => "200")
     raise "Unexpected submission pagination" if reviews.dig("links", "next")

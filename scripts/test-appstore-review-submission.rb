@@ -6,11 +6,12 @@ require_relative "submit-appstore-review"
 class AppStoreReviewSubmissionTest < Minitest::Test
   class API
     attr_reader :mutations
-    attr_accessor :beta_state, :reviews, :rows, :selected_number, :change_build
+    attr_accessor :beta_state, :internal_state, :reviews, :rows, :selected_number, :change_build
 
     def initialize
       @mutations, @reviews, @rows = [], [], []
       @beta_state, @selected_number, @submitted = "IN_BETA_TESTING", "1063", false
+      @internal_state = "IN_BETA_TESTING"
       @build_reads = 0
     end
 
@@ -21,7 +22,7 @@ class AppStoreReviewSubmissionTest < Minitest::Test
         {"data" => {"id" => (@change_build && @build_reads > 1 ? "other" : "build"),
           "attributes" => {"version" => @selected_number, "processingState" => "VALID", "expired" => false}}}
       when "/builds/build/buildBetaDetail"
-        {"data" => {"attributes" => {"externalBuildState" => @beta_state}}}
+        {"data" => {"attributes" => {"externalBuildState" => @beta_state, "internalBuildState" => @internal_state}}}
       when "/reviewSubmissions"
         {"data" => @reviews}
       when %r{\A/reviewSubmissions/[^/]+/items\z}
@@ -51,11 +52,12 @@ class AppStoreReviewSubmissionTest < Minitest::Test
     end
   end
 
-  def submit(api)
+  def submit(api, allow_internal_testflight: false)
     Dir.mktmpdir("mochilog-review-test") do |directory|
       capture_io do
         AppStoreReviewSubmission.submit(api, app: "app", version: {"id" => "version"},
-          build: "1063", output: directory, sleeper: ->(_) {})
+          build: "1063", output: directory, allow_internal_testflight: allow_internal_testflight,
+          sleeper: ->(_) {})
       end
     end
   end
@@ -76,6 +78,31 @@ class AppStoreReviewSubmissionTest < Minitest::Test
     api.selected_number = "1062"
     assert_raises(RuntimeError) { submit(api) }
     assert_empty api.mutations
+  end
+
+  def test_explicit_parallel_review_requires_internal_availability_and_external_submission
+    %w[WAITING_FOR_BETA_REVIEW IN_BETA_REVIEW].each do |state|
+      api = API.new
+      api.beta_state = state
+      submit(api, allow_internal_testflight: true)
+      assert_equal({submitted: true}, api.mutations.last.last.fetch(:data).fetch(:attributes))
+    end
+  end
+
+  def test_parallel_review_cannot_submit_an_unavailable_or_rejected_beta
+    %w[PROCESSING READY_FOR_BETA_TESTING].each do |state|
+      api = API.new
+      api.beta_state = "WAITING_FOR_BETA_REVIEW"
+      api.internal_state = state
+      assert_raises(RuntimeError) { submit(api, allow_internal_testflight: true) }
+      assert_empty api.mutations
+    end
+    %w[READY_FOR_BETA_SUBMISSION BETA_REJECTED EXPIRED].each do |state|
+      api = API.new
+      api.beta_state = state
+      assert_raises(RuntimeError) { submit(api, allow_internal_testflight: true) }
+      assert_empty api.mutations
+    end
   end
 
   def test_active_foreign_submission_is_never_modified
