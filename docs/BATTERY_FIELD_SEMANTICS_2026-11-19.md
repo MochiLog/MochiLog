@@ -5,6 +5,10 @@ iPhone14,4 / 27.2 (24B119) のPowerlogLiteOperators・CoreAnalytics設定を照�
 これはAppleが保証する公開API仕様ではなく、特定ビルドの静的解析とコード監査の記録。
 製品の表示・計算・保存データは今回変更していない。
 
+追加候補の単位・期間・ビン・理由コードをさらに追った結果は
+[8候補の詳細監査](ANALYTICS_CANDIDATE_DEEP_DIVE_2026-11-19.md)を参照。
+特に時間帯別Temperatureの÷100経路は、LifetimeDataの温度と区別する。
+
 ## 範囲と確度
 
 - `LogParser.BatteryJSON.Message` の電池フィールド宣言 **15個すべて**を対象にした。

@@ -1,0 +1,659 @@
+{
+  "formatVersion": 1,
+  "researchDate": "2026-11-19",
+  "firmware": "iPhone14,4 / 27.2 / 24B119",
+  "scope": "Static read-only analysis of one iPhone firmware, compared to 91 retained logs; not physical Watch validation.",
+  "report": "../ANALYTICS_CANDIDATE_DEEP_DIVE_2026-11-19.md",
+  "sourceImages": [
+    {
+      "name": "PowerUI",
+      "bytes": 4727064,
+      "sha256": "69f1e868557a9842149393d1275188ed6af4df2b6783f57a12d96e7b15848107",
+      "extraction": "ipsw dyld extract --slide --objc; no --stubs"
+    },
+    {
+      "name": "BatteryAlgorithms",
+      "bytes": 14122112,
+      "sha256": "8bd9bb37b8d5c00ca7f785db428e4ad053771e0d806e14df47e800ef9d5dea65",
+      "extraction": "ipsw dyld extract --slide --objc; no --stubs"
+    },
+    {
+      "name": "ComputeSafeguards",
+      "bytes": 960872,
+      "sha256": "147a6112fc19ca66e33b31cda4ab4bea514def37e8acb6c3c41817cda8166dc9",
+      "extraction": "ipsw dyld extract --slide --objc; no --stubs"
+    },
+    {
+      "name": "PowerlogLiteOperators",
+      "bytes": 10257328,
+      "sha256": "fa3eff99fffd8bfdebd7949e5a56b1825bd9e08f981e19eadb9d3136129b2913",
+      "extraction": "ipsw dyld extract --slide --objc; no --stubs"
+    },
+    {
+      "name": "IOKit",
+      "bytes": 1265608,
+      "sha256": "9fec069262a5480c56c45a5410fedeeeae0562ec7b6666de29e6a825f2886d8c",
+      "extraction": "ipsw dyld extract --slide --objc; no --stubs"
+    },
+    {
+      "name": "PowerlogCore",
+      "bytes": 3119624,
+      "sha256": "645cf4fe4b5ff7ccea736b8ac283c508865291a9772e591dca2974b71f93b5a0",
+      "extraction": "ipsw dyld extract --slide --objc; no --stubs"
+    },
+    {
+      "name": "powerd",
+      "bytes": 844960,
+      "sha256": "f9161ad82bd6a631281c2d7a23463171b9784050748428da1eac0ae69f484bbd"
+    },
+    {
+      "name": "com.apple.driver.AppleSmartBatteryManagerEmbedded",
+      "bytes": 329792,
+      "sha256": "77f783245e77aff07754acacd20337ab5fa418f7beac90f427e3400caadb77fb"
+    },
+    {
+      "name": "apple-bdc.metadata.plist",
+      "bytes": 36936,
+      "sha256": "266759b51482aad7abc4ea1f01eae071b71ebe0b69f1ba00b59cde3dc4f4a2dc"
+    }
+  ],
+  "publicSources": [
+    {
+      "repository": "apple-oss-distributions/PowerManagement",
+      "commit": "d415e45501842834a280930c3eed9186544a67f0",
+      "metadata": "pmconfigd/Resources/com.apple.bdc.metadata.plist",
+      "batteryHealthConsumer": "pmconfigd/BatteryTimeRemaining.m"
+    }
+  ],
+  "heatmapLabels": {
+    "temperatureSourceKeys": [
+      "[−∞, 0]",
+      "[1, 10]",
+      "[11, 15]",
+      "[16, 20]",
+      "[21, 25]",
+      "[26, 30]",
+      "[31, 35]",
+      "[36, 40]",
+      "[41, 45]",
+      "[46, 50]",
+      "[51, 60]",
+      "[61, 70]"
+    ],
+    "temperatureLabels": [
+      "-10_0C",
+      "0_10C",
+      "10_15C",
+      "15_20C",
+      "20_25C",
+      "25_30C",
+      "30_35C",
+      "35_40C",
+      "40_45C",
+      "45_50C",
+      "50_60C",
+      "60_70C"
+    ],
+    "socLabels": [
+      "0_1",
+      "1_2",
+      "2_3",
+      "3_4",
+      "4_5",
+      "5_6",
+      "6_8",
+      "8_10",
+      "10_15",
+      "15_20",
+      "20_25",
+      "25_30",
+      "30_40",
+      "40_50",
+      "50_60",
+      "60_70",
+      "70_80",
+      "80_85",
+      "85_90",
+      "90_92",
+      "92_94",
+      "94_96",
+      "96_98",
+      "98_99",
+      "99_100"
+    ],
+    "voltageLabels": [
+      "2800_2900mV",
+      "2900_3000mV",
+      "3000_3100mV",
+      "3100_3200mV",
+      "3200_3300mV",
+      "3300_3400mV",
+      "3400_3500mV",
+      "3500_3600mV",
+      "3600_3700mV",
+      "3700_3800mV",
+      "3800_3900mV",
+      "3900_4000mV",
+      "4000_4100mV",
+      "4100_4200mV",
+      "4200_4220mV",
+      "4220_4240mV",
+      "4240_4260mV",
+      "4260_4280mV",
+      "4280_4300mV",
+      "4300_4310mV",
+      "4310_4320mV",
+      "4320_4330mV",
+      "4330_4340mV",
+      "4340_4350mV",
+      "4350_4360mV"
+    ]
+  },
+  "lowVoltageResidencyFormat": {
+    "rawCounterSecondsMultiplier": 0.01,
+    "shape": [
+      3,
+      3,
+      3
+    ],
+    "below3VWeights": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "candidates": [
+    {
+      "id": "unplugged",
+      "events": [
+        "UnpluggedDurationEnergyViewNew"
+      ],
+      "units": {
+        "Duration": "seconds",
+        "Energy": "capacity * percentage-point delta / 100; no voltage in formula",
+        "unplugged_count": "unplugged-to-connected transitions",
+        "Count": "input events"
+      },
+      "timeBasis": "Intervals are assigned when emitted; producer does not split at midnight.",
+      "resetEvidence": "First unknown state establishes baseline; no complete history before it.",
+      "confirmed": [
+        "RawLevel = AppleRawCurrentCapacity * 100 / AppleRawMaxCapacity.",
+        "AdapterInfo zero/nonzero determines disconnected/connected in this path.",
+        "Discharge continues until abs(RawLevel difference)>1, or unplugged-to-connected transition.",
+        "Energy = signed RawLevel difference / 100 * (NominalChargeCapacity or AppleRawMaxCapacity).",
+        "modfl truncates integral portions and keeps fractions; absolute carry strictly greater than one triggers carry extraction."
+      ],
+      "unresolved": [
+        "Capacity scale for every device family.",
+        "Recovery of unobserved pre-baseline intervals."
+      ],
+      "evidence": [
+        {
+          "image": "PowerlogLiteOperators",
+          "symbol": "-[PLAggregateDictionaryService updateAggregateStateWithEntry:]",
+          "addresses": [
+            "0x29f94b230",
+            "0x29f94b2b4",
+            "0x29f94b2c0",
+            "0x29f94b370",
+            "0x29f94b3c8"
+          ],
+          "claim": "Timestamp is Unix seconds; capacity formula does not multiply voltage."
+        },
+        {
+          "image": "PowerlogLiteOperators",
+          "symbol": "-[PLEventBackwardBatteryEntry rawLevelWithRawData:]",
+          "addresses": [
+            "0x29f9735c0"
+          ],
+          "claim": "Computes raw percentage from current/max capacities."
+        }
+      ]
+    },
+    {
+      "id": "high_soc",
+      "events": [
+        "BatteryTimeAtHighSocLast"
+      ],
+      "units": {
+        "value": null,
+        "bin": "index, not a percentage"
+      },
+      "timeBasis": "LifetimeData snapshot, last per bin in aggregation window.",
+      "resetEvidence": "Gauge-side origin/reset not established.",
+      "confirmed": [
+        "Parser reads floor(byteLength / 4) little-endian u32 values; length is not fixed to 10 bins.",
+        "SMC descriptor BLTP feeds the same property in the extracted driver.",
+        "A separate Apple consumer uses caller-provided weights and divisor; it reads signed int32 values.",
+        "Apple public BDC metadata leaves unit.symbol empty."
+      ],
+      "unresolved": [
+        "Physical bin boundaries and their possible multiple axes.",
+        "Time unit and scale by gauge model.",
+        "Manufacture, replacement, calibration and OS-reset behavior."
+      ],
+      "evidence": [
+        {
+          "image": "PowerlogLiteOperators",
+          "symbol": "-[PLBatteryAgent parseTimeAtHighSoc:]",
+          "addresses": [
+            "0x29fcb9068"
+          ],
+          "claim": "Passes u32 counters without physical unit conversion."
+        },
+        {
+          "image": "com.apple.driver.AppleSmartBatteryManagerEmbedded",
+          "symbol": "descriptor initialization",
+          "addresses": [
+            "0xfffffff0092d829c",
+            "0xfffffff00771a560"
+          ],
+          "claim": "Associates TimeAtHighSoc with BLTP."
+        },
+        {
+          "image": "BatteryAlgorithms",
+          "symbol": "BACore::CommonSerialization::convertTeqIntoScalar(NSData*, const double*, double)",
+          "addresses": [
+            "0x25a0747d4",
+            "0x25a074824",
+            "0x25a074840"
+          ],
+          "claim": "Weighted sum divided by supplied scale, not a universal bin interpretation."
+        }
+      ]
+    },
+    {
+      "id": "slow_charging",
+      "events": [
+        "SlowChargingReason"
+      ],
+      "units": {
+        "slow_charging_reason": "bit field used by Apple thermal-limiting classifier",
+        "Count": "input events"
+      },
+      "timeBasis": "Reason state at emission, not duration.",
+      "resetEvidence": "Not a lifetime counter. Missing property is distinct from numeric zero.",
+      "confirmed": [
+        "SMC CHSW property is carried unchanged to analytics.",
+        "Apple ComputeSafeguards checks external connection and tests SlowChargingReason bits 0 and 3 for thermal limiting.",
+        "8 sets bit 3; 16 sets bit 4 and does not meet this slow-reason thermal test.",
+        "NotChargingReason has an independent earlier branch; reason zero does not prove normal charging."
+      ],
+      "unresolved": [
+        "Individual meanings of bit 0 versus bit 3.",
+        "Meaning of bit 4 / code 16 and remaining bits.",
+        "Watch-specific equivalence of this consumer."
+      ],
+      "evidence": [
+        {
+          "image": "PowerlogLiteOperators",
+          "symbol": "-[PLBatteryAgent logSlowChargingReasonToCA:]",
+          "addresses": [
+            "0x29fcbbf44"
+          ],
+          "claim": "Reads ChargerData.SlowChargingReason."
+        },
+        {
+          "image": "com.apple.driver.AppleSmartBatteryManagerEmbedded",
+          "symbol": "SMC descriptor",
+          "addresses": [
+            "0xfffffff0077199c0"
+          ],
+          "claim": "CHSW is upstream key."
+        },
+        {
+          "image": "ComputeSafeguards",
+          "symbol": "-[CSPowerlogDBReader isThermalLimitedCharging:]",
+          "addresses": [
+            "0x23fc1ca98",
+            "0x23fc1cb4c",
+            "0x23fc1cb58"
+          ],
+          "claim": "Classifies bit 0 or 3 as thermal limiting when externally connected."
+        }
+      ]
+    },
+    {
+      "id": "time_of_day",
+      "events": [
+        "intervalUsageChargingParamsHistogramView_withTimeInterval"
+      ],
+      "units": {
+        "TimeInterval": "HHmm integer",
+        "BatteryTemperature": "integer Celsius in inspected producer",
+        "ChargerCurrent": "battery-entry Amperage, not AC mains current",
+        "ChargerVoltage": "AdapterVoltage; device-specific scaling still unverified"
+      },
+      "timeBasis": "Default 900-second intervals; end-boundary label, local formatter behavior, last sample not mean.",
+      "resetEvidence": "Reset metrics on large gap; default BatteryLevel 127 and BatteryTemperature 1000.",
+      "confirmed": [
+        "Default IntervalDuration NSNumber is 900.0.",
+        "Formatter HHmm / en_US has no explicit time zone in inspected initialization.",
+        "Large-gap reset sets next Unix-aligned boundary; submit labels it and advances one interval.",
+        "Only latest interval is freshly sampled during gap fill.",
+        "Battery root Temperature is divided by 100 then sampled through intValue.",
+        "ChargerCurrent and ChargerVoltage updates occur only if IsCharging.",
+        "Observed in 30 Watch files; no iPhone/iPad samples in this corpus.",
+        "ChargerVoltage initialization is missing in inspected iPhone image despite Watch field observations."
+      ],
+      "unresolved": [
+        "Physical Watch producer equivalence.",
+        "Timezone/DST reconstruction from HHmm-only final rows.",
+        "All-device current and adapter-voltage scale."
+      ],
+      "evidence": [
+        {
+          "image": "PowerlogLiteOperators",
+          "symbol": "+[PLAggregateUsageService defaults]",
+          "addresses": [
+            "0x29fc1b0b0",
+            "0x2d3db2058"
+          ],
+          "claim": "IntervalDuration default is double 900 at NSNumber+8."
+        },
+        {
+          "image": "PowerlogLiteOperators",
+          "symbol": "-[PLAggregateUsageService updateSampledMetrics]",
+          "addresses": [
+            "0x29fc1d554",
+            "0x29fc1d62c",
+            "0x29fc1d694",
+            "0x29fc1d70c"
+          ],
+          "claim": "Samples stored battery entry fields."
+        },
+        {
+          "image": "PowerlogLiteOperators",
+          "symbol": "interval submission and gap filling",
+          "addresses": [
+            "0x29fc1a84c",
+            "0x29f95ce98",
+            "0x29fc1d868"
+          ],
+          "claim": "Time label and gap-fill provenance."
+        }
+      ]
+    },
+    {
+      "id": "heatmap",
+      "events": [
+        "BatteryHeatmapSoCAggregationViewCorrected"
+      ],
+      "units": {
+        "timeSpent": "minutes in inspected Powerlog path",
+        "SoC": "index 0..24",
+        "temperature": "index 0..11",
+        "action": "charging_a / charging_b / discharging"
+      },
+      "timeBasis": "SMC deltas accumulated in persistent OS storage; API returns stored totals, analytics sums emitted values.",
+      "resetEvidence": "SMC rows cleared after read; OS store recreated on serial mismatch / old format conditions.",
+      "confirmed": [
+        "12 temperature labels and 25 nonuniform SoC labels recovered from constant arrays.",
+        "First temperature key is [−∞, 0] while display label says -10_0C.",
+        "iPhone powerd action store names are wired, wireless, discharging.",
+        "SMC BHT0..BHT9/BHTA/BHTB rows contain 25 byte counters; powerd adds and clears them.",
+        "API strips Serial from response and does not clear stored totals.",
+        "Private batterydata entitlement is checked.",
+        "Analytics event version 1 and stored Format Version 4 are distinct.",
+        "Clear failure can permit repeated accumulation; daily sum is not proven daily residence time."
+      ],
+      "unresolved": [
+        "Exact physical Watch bin equivalence.",
+        "SoC endpoint inclusion and behavior beyond supported temperature rows.",
+        "Hardware rollover/saturation and all reset causes."
+      ],
+      "evidence": [
+        {
+          "image": "PowerlogLiteOperators",
+          "symbol": "-[PLBatteryAgent logEventBackwardHeatMapCallback:andHeatMapType:]",
+          "addresses": [
+            "0x29fcb5b00",
+            "0x29fcb5e9c",
+            "0x29fcb5f1c",
+            "0x2d0ba2218",
+            "0x2d0ba2278",
+            "0x2d0ba22d8",
+            "0x2d0ba23a0"
+          ],
+          "claim": "Bin labels and TimeInMinutes/timeSpent identity."
+        },
+        {
+          "image": "powerd",
+          "symbol": "SMC collect/store and API response",
+          "addresses": [
+            "0x10001c978",
+            "0x10001cee8",
+            "0x10001cfac",
+            "0x100030ec4",
+            "0x100031970"
+          ],
+          "claim": "Clear, persistence and cumulative read semantics."
+        }
+      ]
+    },
+    {
+      "id": "shutdown",
+      "events": [
+        "BatteryShutdownHistogramDailyTotal"
+      ],
+      "units": {
+        "Count": "input events, not app crashes",
+        "daily_total_UPOCount": "conditional event sum",
+        "ShutdownSoc": "distinct from UISOC"
+      },
+      "timeBasis": "Stored past battery shutdown state; event date need not equal file date.",
+      "resetEvidence": "Deduplicates equal per-pack shutdown timestamps in OS preferences.",
+      "confirmed": [
+        "Supports battery-pack and system shutdown data paths.",
+        "CA UPOCount set when DataError absent/zero and integer UISOC>=11.",
+        "Separate isUPOEntry predicate requires UISOC>10 and Temperature>0, with debug override.",
+        "Raw ShutDownTimestamp equality suppresses repeated entry.",
+        "No non-null daily_total_UPOCount observed in sample corpus."
+      ],
+      "unresolved": [
+        "Physical meaning and scaling of all DLOG/Ra/critical flag fields.",
+        "Mapping from diagnostic state to actual unexpected shutdowns by device."
+      ],
+      "evidence": [
+        {
+          "image": "PowerlogLiteOperators",
+          "symbol": "-[PLBatteryAgent logBatteryShutdownToCA:forBatteryPack:]",
+          "addresses": [
+            "0x29fcba380",
+            "0x29fcba3ec",
+            "0x29fcba444",
+            "0x29fcba470"
+          ],
+          "claim": "Explicit CA counter conditions."
+        },
+        {
+          "image": "PowerlogLiteOperators",
+          "symbol": "-[PLBatteryAgent isUPOEntry:]",
+          "addresses": [
+            "0x29fcacfc4",
+            "0x29fcad050"
+          ],
+          "claim": "Distinct predicate."
+        },
+        {
+          "image": "PowerlogLiteOperators",
+          "symbol": "shutdown raw-data parser",
+          "addresses": [
+            "0x29fcbc8c8",
+            "0x29fcbd2b8"
+          ],
+          "claim": "Per-pack timestamp equality check and persisted timestamp."
+        }
+      ]
+    },
+    {
+      "id": "optimized_charging",
+      "events": [
+        "JITCharging_aggregated_metrics_with_trial",
+        "OBCNoRotationBatteryHealthMetricsv2"
+      ],
+      "units": {
+        "PluginDuration": "seconds",
+        "IdleDuration": "seconds",
+        "ActualUsableEligibleDuration": "seconds",
+        "EstimatedUsableEligibleDuration": "seconds",
+        "LifetimeIdleDurationMins": "minutes",
+        "LifetimeEngagements": "persisted qualifying session count"
+      },
+      "timeBasis": "JIT values describe sessions, not calendar-day slices; Lifetime values come from OS preferences.",
+      "resetEvidence": "Lifetime preference persistence across reset/restore/OS changes not guaranteed by published contract.",
+      "confirmed": [
+        "Producer is PowerUI.framework PowerUISmartChargeManager.",
+        "NSDate timeIntervalSinceDate establishes duration unit seconds.",
+        "EstimatedUsableEligibleDuration=max(0,TotalEligibleDuration-predicted charge-to-full duration).",
+        "Engaged flag is IdleDuration>0; lifetime qualifying increment has a >=60-second condition.",
+        "Lifetime values are OS analytics preferences, not battery manufacturing-age counters.",
+        "Models classify UnderCharged; it is not a direct hardware fault measurement.",
+        "Missing lifetime preferences can be replaced by zero in producer."
+      ],
+      "unresolved": [
+        "Continuity of preferences across device migration, restore and OS changes.",
+        "Cross-device model versions and exact session selection coverage."
+      ],
+      "evidence": [
+        {
+          "image": "PowerUI",
+          "symbol": "-[PowerUISmartChargeManager constructAnalyticsStatusFromEvents:]",
+          "addresses": [
+            "0x29f814b88",
+            "0x29f815168",
+            "0x29f8152b0",
+            "0x29f8153ec",
+            "0x29f815460"
+          ],
+          "claim": "Session durations and Engaged construction."
+        },
+        {
+          "image": "PowerUI",
+          "symbol": "-[PowerUISmartChargeManager reportBatteryHealthMetrics]",
+          "addresses": [
+            "0x29f813f78",
+            "0x29f81412c",
+            "0x29f8141bc"
+          ],
+          "claim": "Lifetime preference origins."
+        },
+        {
+          "image": "PowerUI",
+          "symbol": "-[PowerUISmartChargeManager recordAnalytics]",
+          "addresses": [
+            "0x29f81958c",
+            "0x29f81a3bc",
+            "0x29f81a734",
+            "0x29f81a7e8"
+          ],
+          "claim": "Qualifying increment, minute conversion and persistence."
+        }
+      ]
+    },
+    {
+      "id": "low_voltage_and_cell_disconnect",
+      "events": [
+        "Battery_LowVoltageResidencyCountersLastValue",
+        "BatteryCellDisconnectCount_Last_Value_Of_Day"
+      ],
+      "units": {
+        "LowVoltageResidencyCounters": "raw ticks * 0.01 seconds for inspected 108-byte / 27-bin format; analytics rounded to 2 significant figures",
+        "BatteryCellDisconnectCount": "current counter, not a delta",
+        "Count": "input events"
+      },
+      "timeBasis": "LifetimeData snapshots / current cell counter; last per aggregation window.",
+      "resetEvidence": "Gauge counter origin and reset conditions not established.",
+      "confirmed": [
+        "Apple consumer validates 108 bytes and reads a 3x3x3 u32 table.",
+        "TotalSeconds multiplies raw table values by 0.01.",
+        "TotalSecondsBelow3V uses first 18 bins and excludes final 9.",
+        "Powerlog rounds each raw bin to 2 significant figures through a signed-int32 argument.",
+        "All-bits-one invalid table check exists in separate Apple consumer.",
+        "Cell disconnect producer emits current value and retains previous object; does not subtract.",
+        "Apple public power-management code uses cell disconnect in SMC battery-health checks, not USB insertion counting."
+      ],
+      "unresolved": [
+        "Full 27-bin voltage/temperature/load boundaries.",
+        "Other gauge layouts and scales.",
+        "Hardware reset, replacement and calibration behavior."
+      ],
+      "evidence": [
+        {
+          "image": "BatteryAlgorithms",
+          "symbol": "LowVoltageResidency::GaugeLVRTable::DataField::TotalSeconds()",
+          "addresses": [
+            "0x25a065b08",
+            "0x25a0c0738"
+          ],
+          "claim": "Raw counter multiplier 0.01."
+        },
+        {
+          "image": "BatteryAlgorithms",
+          "symbol": "LowVoltageResidency::GaugeLVRTable::DataField::TotalSecondsBelow3V()",
+          "addresses": [
+            "0x25a065a20",
+            "0x25a0c0748"
+          ],
+          "claim": "First 18 of 27 bins selected."
+        },
+        {
+          "image": "PowerlogLiteOperators",
+          "symbol": "low-voltage parser",
+          "addresses": [
+            "0x29fcb9350",
+            "0x29fcb9358"
+          ],
+          "claim": "Rounds raw counters before CA output."
+        },
+        {
+          "image": "PowerlogCore",
+          "symbol": "+[PLUtilities roundToSigFig:withSigFig:]",
+          "addresses": [
+            "0x2224c3e84",
+            "0x2224c3e90"
+          ],
+          "claim": "Input conversion is signed int32."
+        }
+      ]
+    }
+  ],
+  "firmwareComponents": [
+    {
+      "name": "141-08508-227.dmg.aea",
+      "bytes": 2415919104,
+      "sha256": "92424ee00d50d2eb35e6ed3ef7e158ca824b8a58aeafea5dcdf96a0bc0a4710e"
+    },
+    {
+      "bytes": 8388608000,
+      "sha256": "297a0249a9af6f58067d7d3f0cfe5ebf036bfb0f7079efd8874b6402a4393b44",
+      "source": "Apple CDN iPhone14,4 27.2 24B119",
+      "purpose": "readonly powerd and dasd producer analysis",
+      "name": "141-09352-215.dmg.aea"
+    }
+  ]
+}

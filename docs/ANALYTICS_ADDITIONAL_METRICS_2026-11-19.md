@@ -3,6 +3,11 @@
 2026-11-19。既存項目の意味の監査は[別台帳](BATTERY_FIELD_SEMANTICS_2026-11-19.md)。
 この資料は追加機能の実装ではなく、保存済みログにある情報とIPSW内の生成処理を照合した記録。
 
+**同日の追跡結果:** [8候補の詳細監査](ANALYTICS_CANDIDATE_DEEP_DIVE_2026-11-19.md)で、
+以下に未確定としていたDurationの秒単位、ヒートマップのビン表・蓄積構造、
+SlowChargingReasonの温度制限ビット、低電圧カウンターのスケール等を追加確認した。
+以下は最初の調査段階の記録として残し、実装判断には詳細監査の確度・機種差を優先する。
+
 ## 調査対象と数え方
 
 AppleのiPhone14,4 / 27.2 (24B119) のCoreAnalytics設定とPowerlogLiteOperatorsを解析した。
