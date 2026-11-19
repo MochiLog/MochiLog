@@ -1,0 +1,334 @@
+{
+  "watchOSBuilds": [
+    "27.2 / 24S118",
+    "27.2.1 / 24S132"
+  ],
+  "methods": [
+    {
+      "name": "defaults",
+      "address": "0x1bfabb4cc",
+      "bytes": 12,
+      "changedAddressInstructions": 1,
+      "otherInstructionChanges": [],
+      "constantReferencesCompared": 0,
+      "constantReferencesMatch": true,
+      "objcSelectorsCompared": 0,
+      "objcSelectorsMatch": true,
+      "resolvedConstants": {}
+    },
+    {
+      "name": "instantiateMetrics",
+      "address": "0x1bfae1690",
+      "bytes": 948,
+      "changedAddressInstructions": 18,
+      "otherInstructionChanges": [],
+      "constantReferencesCompared": 12,
+      "constantReferencesMatch": true,
+      "objcSelectorsCompared": 25,
+      "objcSelectorsMatch": true,
+      "resolvedConstants": {
+        "0x1bfae1758": {
+          "string": "ScreenOnDuration"
+        },
+        "0x1bfae1794": {
+          "string": "WakeDuration"
+        },
+        "0x1bfae17d0": {
+          "string": "AudioOnDuration"
+        },
+        "0x1bfae180c": {
+          "string": "ConnectedState"
+        },
+        "0x1bfae1848": {
+          "string": "ChargingState"
+        },
+        "0x1bfae1884": {
+          "string": "AdapterType"
+        },
+        "0x1bfae18c0": {
+          "string": "ChargerCurrent"
+        },
+        "0x1bfae18fc": {
+          "string": "ChargerVoltage"
+        },
+        "0x1bfae1938": {
+          "string": "LockState"
+        },
+        "0x1bfae1974": {
+          "string": "BatteryLevel"
+        },
+        "0x1bfae19b0": {
+          "string": "PowerlogInit"
+        },
+        "0x1bfae19ec": {
+          "string": "BatteryTemperature"
+        }
+      }
+    },
+    {
+      "name": "updateSampledMetrics",
+      "address": "0x1bfa97120",
+      "bytes": 604,
+      "changedAddressInstructions": 10,
+      "otherInstructionChanges": [],
+      "constantReferencesCompared": 9,
+      "constantReferencesMatch": true,
+      "objcSelectorsCompared": 25,
+      "objcSelectorsMatch": true,
+      "resolvedConstants": {
+        "0x1bfa971a8": {
+          "string": "Level"
+        },
+        "0x1bfa971c8": {
+          "string": "BatteryLevel"
+        },
+        "0x1bfa971f8": {
+          "string": "Temperature"
+        },
+        "0x1bfa97218": {
+          "string": "BatteryTemperature"
+        },
+        "0x1bfa97238": {
+          "string": "IsCharging"
+        },
+        "0x1bfa97260": {
+          "string": "Amperage"
+        },
+        "0x1bfa972b0": {
+          "string": "ChargerCurrent"
+        },
+        "0x1bfa972d8": {
+          "string": "AdapterVoltage"
+        },
+        "0x1bfa97328": {
+          "string": "ChargerVoltage"
+        }
+      }
+    },
+    {
+      "name": "PLIntervalData init",
+      "address": "0x1bfac1c68",
+      "bytes": 232,
+      "changedAddressInstructions": 3,
+      "otherInstructionChanges": [],
+      "constantReferencesCompared": 2,
+      "constantReferencesMatch": true,
+      "objcSelectorsCompared": 4,
+      "objcSelectorsMatch": true,
+      "resolvedConstants": {
+        "0x1bfac1cf8": {
+          "string": "HHmm"
+        },
+        "0x1bfac1d10": {
+          "string": "en_US"
+        }
+      }
+    },
+    {
+      "name": "battery entry init",
+      "address": "0x1bfa6bfb4",
+      "bytes": 560,
+      "changedAddressInstructions": 8,
+      "otherInstructionChanges": [],
+      "constantReferencesCompared": 6,
+      "constantReferencesMatch": true,
+      "objcSelectorsCompared": 22,
+      "objcSelectorsMatch": true,
+      "resolvedConstants": {
+        "0x1bfa6bfe0": {
+          "string": "ID"
+        },
+        "0x1bfa6bffc": {
+          "string": "ID"
+        },
+        "0x1bfa6c0d4": {
+          "string": "Temperature"
+        },
+        "0x1bfa6c13c": {
+          "string": "Level"
+        },
+        "0x1bfa6c168": {
+          "string": "RawLevel"
+        },
+        "0x1bfa6c194": {
+          "string": "AbsoluteLevel"
+        }
+      }
+    },
+    {
+      "name": "heatmap callback",
+      "address": "0x1bfa8b798",
+      "bytes": 1440,
+      "changedAddressInstructions": 21,
+      "otherInstructionChanges": [],
+      "constantReferencesCompared": 16,
+      "constantReferencesMatch": true,
+      "objcSelectorsCompared": 27,
+      "objcSelectorsMatch": true,
+      "resolvedConstants": {
+        "0x1bfa8b7e0": {
+          "string": "batteryHeatMapData"
+        },
+        "0x1bfa8b7fc": {
+          "string": "HeatMapType"
+        },
+        "0x1bfa8b818": {
+          "string": "HeatMapType"
+        },
+        "0x1bfa8b84c": {
+          "stringArray": [
+            "2800_2900mV",
+            "2900_3000mV",
+            "3000_3100mV",
+            "3100_3200mV",
+            "3200_3300mV",
+            "3300_3400mV",
+            "3400_3500mV",
+            "3500_3600mV",
+            "3600_3700mV",
+            "3700_3800mV",
+            "3800_3900mV",
+            "3900_4000mV",
+            "4000_4100mV",
+            "4100_4200mV",
+            "4200_4220mV",
+            "4220_4240mV",
+            "4240_4260mV",
+            "4260_4280mV",
+            "4280_4300mV",
+            "4300_4310mV",
+            "4310_4320mV",
+            "4320_4330mV",
+            "4330_4340mV",
+            "4340_4350mV",
+            "4350_4360mV"
+          ]
+        },
+        "0x1bfa8b854": {
+          "stringArray": [
+            "0_1",
+            "1_2",
+            "2_3",
+            "3_4",
+            "4_5",
+            "5_6",
+            "6_8",
+            "8_10",
+            "10_15",
+            "15_20",
+            "20_25",
+            "25_30",
+            "30_40",
+            "40_50",
+            "50_60",
+            "60_70",
+            "70_80",
+            "80_85",
+            "85_90",
+            "90_92",
+            "92_94",
+            "94_96",
+            "96_98",
+            "98_99",
+            "99_100"
+          ]
+        },
+        "0x1bfa8b868": {
+          "string": "voltage"
+        },
+        "0x1bfa8b870": {
+          "string": "SoC"
+        },
+        "0x1bfa8b878": {
+          "string": "com.apple.power.battery.heatmap.voltage"
+        },
+        "0x1bfa8b888": {
+          "string": "com.apple.power.battery.heatmap.soc"
+        },
+        "0x1bfa8ba18": {
+          "string": "forceLogBatteryHeatmap"
+        },
+        "0x1bfa8bab0": {
+          "string": "Temperature"
+        },
+        "0x1bfa8badc": {
+          "string": "Bin"
+        },
+        "0x1bfa8bb08": {
+          "string": "HeatMapType"
+        },
+        "0x1bfa8bb34": {
+          "string": "TimeInMinutes"
+        },
+        "0x1bfa8bbd4": {
+          "stringArray": [
+            "-10_0C",
+            "0_10C",
+            "10_15C",
+            "15_20C",
+            "20_25C",
+            "25_30C",
+            "30_35C",
+            "35_40C",
+            "40_45C",
+            "45_50C",
+            "50_60C",
+            "60_70C"
+          ]
+        },
+        "0x1bfa8bc10": {
+          "string": "%@.%@.%@"
+        }
+      }
+    }
+  ],
+  "exactIntervalDefault": {
+    "key": "IntervalDuration",
+    "seconds": 900.0
+  },
+  "exactImages": [
+    {
+      "name": "powerd",
+      "bytes": 725520,
+      "sha256": "a8b7d880a069a733c032211b1094fe5bd64ac782e53240d97d4c2063fa15f9fa"
+    },
+    {
+      "name": "BatteryAlgorithms",
+      "bytes": 14121472,
+      "sha256": "9e25595411d2c913d10b45eea22b0a121139e385ef47aa4a52f27c1053c838b3"
+    },
+    {
+      "name": "IOKit",
+      "bytes": 1247816,
+      "sha256": "74b998c05fa321819d3f926c144b38ac41c1d74281fdd6b9adcbe6887542f055"
+    },
+    {
+      "name": "PowerlogLiteOperators",
+      "bytes": 6758280,
+      "sha256": "48437a8076377ff5a8275af3d7c6b12dfed22004862ccc069ed5bf765cfce72e"
+    },
+    {
+      "name": "PowerlogCore",
+      "bytes": 2971752,
+      "sha256": "6ba0173589b1aafcd0cdb84cbcabaf0d5bb252ce1949e9799e7becef85b33440"
+    },
+    {
+      "name": "thermalmonitord",
+      "bytes": 620400,
+      "sha256": "db327db8157654a09d292abc48935057c0d927f39f7726687bd8e13d24e43e80"
+    }
+  ],
+  "powerdByteIdentical": true,
+  "formatVersion": 1,
+  "researchDate": "2026-11-19",
+  "report": "../ANALYTICS_GAUGE_FIRMWARE_FOLLOWUP_2026-11-19.md",
+  "scope": "Static routines and public-format constants; not physical Watch validation",
+  "lvrConsumerByteIdentical": {
+    "TotalSeconds": "0x216821cb0 / 148 bytes",
+    "TotalSecondsBelow3V": "0x216821bc8 / 232 bytes",
+    "multiplier": "0x21687bbb8 / 8 bytes",
+    "mask": "0x21687bbc8 / 216 bytes"
+  },
+  "acamModelWeightSetsCompared": 48,
+  "acamModelWeightSetsMatch": 48
+}

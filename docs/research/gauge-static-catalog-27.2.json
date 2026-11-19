@@ -1,0 +1,303 @@
+{
+  "formatVersion": 1,
+  "researchDate": "2026-11-19",
+  "scope": "Static Apple firmware/configuration constants only. No device measurements or firmware payloads.",
+  "report": "../ANALYTICS_GAUGE_FIRMWARE_FOLLOWUP_2026-11-19.md",
+  "profiles": [
+    {
+      "profile": "Veridian X1861 / 109060052",
+      "hardwareVersion": "6",
+      "firmwareVersion": 109060052,
+      "firmwareSHA256": "6b13c4970f2eeeae0331d470aa7f7128ce395baa22f40ed2bf227ea0381f4456",
+      "firmwareBytes": 69632,
+      "configurations": [
+        {
+          "chemistryID": "1008842617",
+          "configurationSHA256": "d246bf6b0d709db7dbb51682014df9f2330d47d41c41de351088afc142b24134"
+        },
+        {
+          "chemistryID": "1008852617",
+          "configurationSHA256": "9696d54fdc42b691fdc501f1b7866c34765cfba26d2640da8e0c7874f6246bf0"
+        },
+        {
+          "chemistryID": "1009882617",
+          "configurationSHA256": "fb63ef489e772b4682182c61b398af10d18ed02a59785722f494d36777bd6db6"
+        },
+        {
+          "chemistryID": "1009902617",
+          "configurationSHA256": "628633b1265bf254ad821f121c5c98ada22ba2c294230e9de53fd3219e543ef6"
+        },
+        {
+          "chemistryID": "1009912618",
+          "configurationSHA256": "4d75053011e08d1fbe0d5d784a69c603e89da25777904c5ede01ab50ceff86d9"
+        },
+        {
+          "chemistryID": "1010432617",
+          "configurationSHA256": "117e9efd9869cf4d303d023f0c859a844f25457cab4c5e81b8372e7a6c70e7e6"
+        }
+      ],
+      "highSoc": {
+        "socThresholdsQ29": [
+          483183821,
+          510027366
+        ],
+        "temperatureUpperBoundsKelvinQ17": [
+          39079117,
+          39734477,
+          40389837,
+          41045197,
+          2147483647
+        ],
+        "origin": "instruction immediates, not chemistry configuration"
+      },
+      "lowVoltageResidency": {
+        "voltageBoundsQ17": [
+          0,
+          353894,
+          373555,
+          393216
+        ],
+        "temperatureBoundsKelvinQ17": [
+          0,
+          39734477,
+          41045197,
+          2147483647
+        ],
+        "absoluteCurrentBoundsQ17": [
+          0,
+          13107,
+          262144,
+          2621440
+        ],
+        "origin": "instruction immediates, not chemistry configuration",
+        "rawSecondsPerCount": 1
+      }
+    },
+    {
+      "profile": "Volchok X3357 / 209200028",
+      "hardwareVersion": "20",
+      "firmwareVersion": 209200028,
+      "firmwareSHA256": "b5b468f0bd6d6a40345ef8c0260d435dd52ee9d617c8799f5b2b61aee4c65d9e",
+      "firmwareBytes": 98304,
+      "configurations": [
+        {
+          "chemistryID": "1016752677",
+          "configurationSHA256": "72da1d03369c8226e30b34be64a43e645c7e4e4af5020e94622c18b43c85ade6",
+          "thresholdSetSHA256": "8deb05f88442305a2ed3d611ffa099838a8c233cf7d1786bdf062dc4114ab142"
+        },
+        {
+          "chemistryID": "1016762677",
+          "configurationSHA256": "6fc1180e6bab5ed284a9368e55a3f181d007c9e0dab6d58a030a31cae67a13a1",
+          "thresholdSetSHA256": "8deb05f88442305a2ed3d611ffa099838a8c233cf7d1786bdf062dc4114ab142"
+        },
+        {
+          "chemistryID": "1016772677",
+          "configurationSHA256": "17196559d873d72b8a1e7568dd8c3cb99551cbf4bb3bfc12cfab9675ed9b9f8b",
+          "thresholdSetSHA256": "8deb05f88442305a2ed3d611ffa099838a8c233cf7d1786bdf062dc4114ab142"
+        },
+        {
+          "chemistryID": "1016782617",
+          "configurationSHA256": "425c65f89840d34bb4e7e6cab6b2a18745d540d3552621bd684a20e15624514f",
+          "thresholdSetSHA256": "8deb05f88442305a2ed3d611ffa099838a8c233cf7d1786bdf062dc4114ab142"
+        },
+        {
+          "chemistryID": "1016792617",
+          "configurationSHA256": "f4d8d2027675e455959cedb06bc16b4a9f3760cdc4933926a9b76e1cab0294d6",
+          "thresholdSetSHA256": "8deb05f88442305a2ed3d611ffa099838a8c233cf7d1786bdf062dc4114ab142"
+        },
+        {
+          "chemistryID": "1016802617",
+          "configurationSHA256": "991bc1ca7c60bdfd5ebdccfbf96a42bcc144ce6d6a3917afeb245901069ca160",
+          "thresholdSetSHA256": "8deb05f88442305a2ed3d611ffa099838a8c233cf7d1786bdf062dc4114ab142"
+        },
+        {
+          "chemistryID": "1016812617",
+          "configurationSHA256": "7768945157a6ee7414abc2347413dd166eefb4e2faa239a923948caef52be87f",
+          "thresholdSetSHA256": "8deb05f88442305a2ed3d611ffa099838a8c233cf7d1786bdf062dc4114ab142"
+        },
+        {
+          "chemistryID": "1016822617",
+          "configurationSHA256": "9ccd3ca23d0fc0e9a54c1bc79c4005bde3bdcd965d7cef9ed03b8e038126c547",
+          "thresholdSetSHA256": "8deb05f88442305a2ed3d611ffa099838a8c233cf7d1786bdf062dc4114ab142"
+        },
+        {
+          "chemistryID": "1016832617",
+          "configurationSHA256": "01b04215a568b37a277ed4ef70386315d0423c7d2f2cd80f73a26c56e3c45905",
+          "thresholdSetSHA256": "8deb05f88442305a2ed3d611ffa099838a8c233cf7d1786bdf062dc4114ab142"
+        },
+        {
+          "chemistryID": "1016892677",
+          "configurationSHA256": "be15de29be762183d6160c2f022a554acaa9a8a3b6d210b65f8a51440835ee12",
+          "thresholdSetSHA256": "8deb05f88442305a2ed3d611ffa099838a8c233cf7d1786bdf062dc4114ab142"
+        },
+        {
+          "chemistryID": "1017072617",
+          "configurationSHA256": "3ada98ea4c105f8870180a0205378a04d797efe0082d3a7b74dbb1151ff3ba35",
+          "thresholdSetSHA256": "8deb05f88442305a2ed3d611ffa099838a8c233cf7d1786bdf062dc4114ab142"
+        },
+        {
+          "chemistryID": "1017092677",
+          "configurationSHA256": "1234fb6e399b42e4adc9689b86076e1a8ae80e98a70bd51867799c00276829f4",
+          "thresholdSetSHA256": "8deb05f88442305a2ed3d611ffa099838a8c233cf7d1786bdf062dc4114ab142"
+        },
+        {
+          "chemistryID": "1017102677",
+          "configurationSHA256": "2dd8cb5c13c911d52bf83bf745fa5fbfbfd492c843d0ee35b365f53e0453c0b3",
+          "thresholdSetSHA256": "8deb05f88442305a2ed3d611ffa099838a8c233cf7d1786bdf062dc4114ab142"
+        },
+        {
+          "chemistryID": "1017302677",
+          "configurationSHA256": "2d739a2776910683d5daeae835e297021a4d409e79dbc1d122d0700585ffd401",
+          "thresholdSetSHA256": "8deb05f88442305a2ed3d611ffa099838a8c233cf7d1786bdf062dc4114ab142"
+        },
+        {
+          "chemistryID": "1017312677",
+          "configurationSHA256": "0340d2460822e8cd84281eaf1d15506e495c9e18979d3e1bfb25a32c62f674f2",
+          "thresholdSetSHA256": "8deb05f88442305a2ed3d611ffa099838a8c233cf7d1786bdf062dc4114ab142"
+        },
+        {
+          "chemistryID": "1017322617",
+          "configurationSHA256": "df6b0548733962782d643a96e1dc4aee6817a4f43be6a7a5e6e485369192d1dc",
+          "thresholdSetSHA256": "8deb05f88442305a2ed3d611ffa099838a8c233cf7d1786bdf062dc4114ab142"
+        },
+        {
+          "chemistryID": "1017331110",
+          "configurationSHA256": "def65e805c36b216e80a9f91ac922a9f49a33c16d03ea73400096f33e989db10",
+          "thresholdSetSHA256": "8deb05f88442305a2ed3d611ffa099838a8c233cf7d1786bdf062dc4114ab142"
+        },
+        {
+          "chemistryID": "1017332617",
+          "configurationSHA256": "e246fe306eff99461105f2966545f8adc7474c6025f334764f9ac81b7be4c4cd",
+          "thresholdSetSHA256": "8deb05f88442305a2ed3d611ffa099838a8c233cf7d1786bdf062dc4114ab142"
+        },
+        {
+          "chemistryID": "1017342617",
+          "configurationSHA256": "1e32ef76ec6878ec8cd25772dd55350754d11c3e97b0ad1b14a25075019fe381",
+          "thresholdSetSHA256": "8deb05f88442305a2ed3d611ffa099838a8c233cf7d1786bdf062dc4114ab142"
+        },
+        {
+          "chemistryID": "1017502617",
+          "configurationSHA256": "f11d1b3aa1c62b9ef3c6e6dfc8effa68d8e7087c5467f2d152b21d94696ba3ec",
+          "thresholdSetSHA256": "8deb05f88442305a2ed3d611ffa099838a8c233cf7d1786bdf062dc4114ab142"
+        },
+        {
+          "chemistryID": "1017823217",
+          "configurationSHA256": "efa8a0b737150618458f65635b4ad74b93f80b05086ad0b38a7f391f82cfac6a",
+          "thresholdSetSHA256": "8deb05f88442305a2ed3d611ffa099838a8c233cf7d1786bdf062dc4114ab142"
+        },
+        {
+          "chemistryID": "1017833277",
+          "configurationSHA256": "111cdfb8bde654ccb5cff55182290e717722ce4f23bd8ae1b85df0d15840de7a",
+          "thresholdSetSHA256": "8deb05f88442305a2ed3d611ffa099838a8c233cf7d1786bdf062dc4114ab142"
+        }
+      ],
+      "configurationBase": "0xa000",
+      "thresholdSets": {
+        "8deb05f88442305a2ed3d611ffa099838a8c233cf7d1786bdf062dc4114ab142": {
+          "highSoc": {
+            "socThresholdsQ29": [
+              483183821,
+              510027366
+            ],
+            "temperatureUpperBoundsKelvinQ17": [
+              39079117,
+              39734477,
+              40389837,
+              41045197,
+              2147483647
+            ]
+          },
+          "lowVoltageResidency": {
+            "voltageBoundsQ17": [
+              0,
+              353894,
+              393216,
+              419430
+            ],
+            "temperatureBoundsKelvinQ17": [
+              0,
+              38423757,
+              39734477,
+              2147483647
+            ],
+            "absoluteCurrentBoundsQ17": [
+              0,
+              32768,
+              131072,
+              13107200
+            ],
+            "rawSecondsPerCount": 0.01
+          }
+        }
+      }
+    },
+    {
+      "profile": "Volchok X3528 / 209400036",
+      "hardwareVersion": "40",
+      "firmwareVersion": 209400036,
+      "firmwareSHA256": "08f806b766d395fe7d928460be0a0d32736229f786872768ec4bdbf4cbf50bb7",
+      "firmwareBytes": 98304,
+      "configurations": [
+        {
+          "chemistryID": "3016640117",
+          "configurationSHA256": "53293e8c88da3f8b69a70352d547012f66907c3b7d53dbdc3ff2d964cc8d153f",
+          "thresholdSetSHA256": "53cafe3fe631158555b2aa3e97eac7360abd00363f747b7d6b3ab734551b66ba"
+        },
+        {
+          "chemistryID": "3016650147",
+          "configurationSHA256": "acde60d9df4bb0aae9cd1a1cd7ed671d3b9b7245d881e93a6d21ced98842986d",
+          "thresholdSetSHA256": "53cafe3fe631158555b2aa3e97eac7360abd00363f747b7d6b3ab734551b66ba"
+        },
+        {
+          "chemistryID": "3017410217",
+          "configurationSHA256": "dc2a3c3da018b6ca8861b198b3ea2cd4b0b236b3ec54b3ee594857b0d2681c0a",
+          "thresholdSetSHA256": "53cafe3fe631158555b2aa3e97eac7360abd00363f747b7d6b3ab734551b66ba"
+        },
+        {
+          "chemistryID": "3017420247",
+          "configurationSHA256": "3bfee17bea3a5afef48237b6974889976555d6b4ed35868e56074bdf482f6f31",
+          "thresholdSetSHA256": "53cafe3fe631158555b2aa3e97eac7360abd00363f747b7d6b3ab734551b66ba"
+        }
+      ],
+      "configurationBase": "0xa000",
+      "thresholdSets": {
+        "53cafe3fe631158555b2aa3e97eac7360abd00363f747b7d6b3ab734551b66ba": {
+          "highSoc": {
+            "socThresholdsQ29": [
+              483183821,
+              510027366
+            ],
+            "temperatureUpperBoundsKelvinQ17": [
+              39079117,
+              39734477,
+              40389837,
+              41045197,
+              2147483647
+            ]
+          },
+          "lowVoltageResidency": {
+            "voltageBoundsQ17": [
+              0,
+              327680,
+              393216,
+              419430
+            ],
+            "temperatureBoundsKelvinQ17": [
+              0,
+              39079117,
+              40389837,
+              2147483647
+            ],
+            "absoluteCurrentBoundsQ17": [
+              0,
+              1311,
+              13107,
+              2621440
+            ],
+            "rawSecondsPerCount": 1
+          }
+        }
+      }
+    }
+  ]
+}

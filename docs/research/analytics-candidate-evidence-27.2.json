@@ -4,6 +4,12 @@
   "firmware": "iPhone14,4 / 27.2 / 24B119",
   "scope": "Static read-only analysis of one iPhone firmware, compared to 91 retained logs; not physical Watch validation.",
   "report": "../ANALYTICS_CANDIDATE_DEEP_DIVE_2026-11-19.md",
+  "followup": {
+    "report": "../ANALYTICS_GAUGE_FIRMWARE_FOLLOWUP_2026-11-19.md",
+    "gaugeCatalog": "gauge-static-catalog-27.2.json",
+    "warning": "Historical consumer-side findings below are not universal gauge definitions. A 27-counter/108-byte table can use 1-second or 0.01-second raw units and different bins. Use a verified firmware profile before converting.",
+    "resolvedFurther": ["10-bin high-SOC hours and boundaries for three gauge profiles", "SlowChargingReason bit 4 inductive charge current cap", "Watch-specific interval producer", "gauge nonvolatile persistence", "iPad cell counter storage and saturation"]
+  },
   "sourceImages": [
     {
       "name": "PowerUI",

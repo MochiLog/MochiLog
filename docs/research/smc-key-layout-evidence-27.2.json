@@ -1,0 +1,117 @@
+{
+  "formatVersion": 1,
+  "researchDate": "2026-11-19",
+  "scope": "Static SMC boot-image metadata only; no values read from the indicated addresses",
+  "imageProfiles": [
+    {
+      "formatVersion": 1,
+      "scope": "Static metadata; never dereferences RAM pointers",
+      "firmware": "H18_6-7372.42.1.v57.REL",
+      "sha256": "c2f0e60464c3cb2b79e93e49576218c5cde6d636b86286aac0287f3def4f990b",
+      "keyCount": 2936,
+      "keys": {
+        "BLTP": {
+          "key": "BLTP",
+          "attributes": "0x84",
+          "length": 40,
+          "type": "hex_",
+          "dataOrHandler": "0xe8a4c"
+        },
+        "BLTV": {
+          "key": "BLTV",
+          "attributes": "0x84",
+          "length": 108,
+          "type": "hex_",
+          "dataOrHandler": "0xe88c5"
+        },
+        "CHSW": {
+          "key": "CHSW",
+          "attributes": "0x84",
+          "length": 8,
+          "type": "hex_",
+          "dataOrHandler": "0xc3da8"
+        },
+        "B1TI": {
+          "key": "B1TI",
+          "attributes": "0x84",
+          "length": 4,
+          "type": "flt ",
+          "dataOrHandler": "0xc3ee4"
+        },
+        "B1WI": {
+          "key": "B1WI",
+          "attributes": "0x84",
+          "length": 4,
+          "type": "flt ",
+          "dataOrHandler": "0xc3ee8"
+        },
+        "BHT0": null,
+        "BHTB": null,
+        "BCDC": null,
+        "bcc0": null
+      }
+    },
+    {
+      "formatVersion": 1,
+      "scope": "Static metadata; never dereferences RAM pointers",
+      "firmware": "M11-7372.40.166.0.11.n227.REL",
+      "sha256": "5670e75bdd41dcbb93ab51c05ec2f50beb27890505ebbcd6bf53e7e5831d6982",
+      "keyCount": 1469,
+      "keys": {
+        "BLTP": {
+          "key": "BLTP",
+          "attributes": "0x84",
+          "length": 40,
+          "type": "hex_",
+          "dataOrHandler": "0x863bc"
+        },
+        "BLTV": {
+          "key": "BLTV",
+          "attributes": "0x84",
+          "length": 108,
+          "type": "hex_",
+          "dataOrHandler": "0x86235"
+        },
+        "CHSW": {
+          "key": "CHSW",
+          "attributes": "0x84",
+          "length": 8,
+          "type": "hex_",
+          "dataOrHandler": "0x73dd8"
+        },
+        "B1TI": {
+          "key": "B1TI",
+          "attributes": "0x84",
+          "length": 4,
+          "type": "flt ",
+          "dataOrHandler": "0x73f14"
+        },
+        "B1WI": {
+          "key": "B1WI",
+          "attributes": "0x84",
+          "length": 4,
+          "type": "flt ",
+          "dataOrHandler": "0x73f18"
+        },
+        "BHT0": null,
+        "BHTB": null,
+        "BCDC": null,
+        "bcc0": null
+      }
+    }
+  ],
+  "independentValidation": [
+    {
+      "sha256": "c2f0e60464c3cb2b79e93e49576218c5cde6d636b86286aac0287f3def4f990b",
+      "comparedKeys": 2936,
+      "allMatched": true,
+      "writeBoundary": "synthetic stack and output only; no MMIO"
+    },
+    {
+      "sha256": "5670e75bdd41dcbb93ab51c05ec2f50beb27890505ebbcd6bf53e7e5831d6982",
+      "comparedKeys": 1469,
+      "allMatched": true,
+      "writeBoundary": "synthetic stack and output only; no MMIO"
+    }
+  ]
+}

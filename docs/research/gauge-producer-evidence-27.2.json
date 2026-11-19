@@ -1,0 +1,144 @@
+{
+  "formatVersion": 1,
+  "researchDate": "2026-11-19",
+  "report": "../ANALYTICS_GAUGE_FIRMWARE_FOLLOWUP_2026-11-19.md",
+  "scope": "Static producer evidence and anonymized corpus structure only; no firmware payloads or user measurements",
+  "gaugeProducers": [
+    {
+      "profile": "Veridian X1861 / 109060052",
+      "sha256": "6b13c4970f2eeeae0331d470aa7f7128ce395baa22f40ed2bf227ea0381f4456",
+      "imageBase": "0x7000",
+      "highSocIncrement": "0xe4e0",
+      "smcHighSocOutputUnit": "integer hours, for audited 10-counter route",
+      "lowVoltageRawSecondsPerCount": 1,
+      "nonvolatileRestore": "0xbf84",
+      "nonvolatileSave": "0xc0b8"
+    },
+    {
+      "profile": "Volchok X3357 / 209200028",
+      "sha256": "b5b468f0bd6d6a40345ef8c0260d435dd52ee9d617c8799f5b2b61aee4c65d9e",
+      "imageBase": "0xc000",
+      "highSocIncrement": "0x16146",
+      "smcHighSocOutputUnit": "integer hours, for audited 10-counter route",
+      "lowVoltageRawSecondsPerCount": 0.01,
+      "nonvolatileRestore": "0x15ea6",
+      "nonvolatileSave": "0x15f48"
+    },
+    {
+      "profile": "Volchok X3528 / 209400036",
+      "sha256": "08f806b766d395fe7d928460be0a0d32736229f786872768ec4bdbf4cbf50bb7",
+      "imageBase": "0xc000",
+      "highSocIncrement": "0x1602e",
+      "smcHighSocOutputUnit": "integer hours, for audited 10-counter route",
+      "lowVoltageRawSecondsPerCount": 1,
+      "nonvolatileRestore": null,
+      "nonvolatileSave": null
+    }
+  ],
+  "smcConsumerProof": {
+    "oldSMC": {
+      "highSocPoll": "0x51f0",
+      "highSocDivideBy3600": "0x6014 / helper 0x566ac",
+      "selector6Destination": "object+0x328 (bins 5-9)",
+      "selector7Destination": "object+0x314 (bins 0-4)",
+      "firstFivePostDivisionMask": "0xffff",
+      "lowVoltageMinuteDivisor": "60 or 6000 according to feature bit 23",
+      "sha256": "712a9651d2d323df9b7182d07873fe60d07e396475da834cfd8126174a3e56e7",
+      "bytes": 572640
+    },
+    "modernInductiveCharge": {
+      "requestRateWriter": "0x48218-0x48264",
+      "rateStorage": "B1WI / 0xc3ee8",
+      "clearRate": "0x3bd74"
+    },
+    "slowChargingReasonBit4": {
+      "oldBitSetter": "0x18494-0x184c0",
+      "oldCurrentCapFunction": "0x1a23c",
+      "meaning": "inductive/wireless charging controller current cap; exact controller reason is not encoded here"
+    }
+  },
+  "ipadCellCounter": {
+    "smc": "H16_4-7372.42.1.j72x.REL",
+    "sha256": "69ec0cd4f9d80bc3876498f3e6364a8285adea57b555161da3b730a621cdb904",
+    "key": "bcc0",
+    "keyRecord": "0x7cd08",
+    "type": "ui8 ",
+    "bytes": 1,
+    "readHandler": "0x23e30",
+    "ram": "0xaa52b",
+    "incrementAndPersist": "0x28eec-0x28f34",
+    "saturation": 255,
+    "fallbackPersistentIdentifier": 7,
+    "fallbackPersistentName": "CELD",
+    "tiDriverVtable": "0x77328",
+    "tiUnsupportedSlots": [
+      "0x480",
+      "0x488",
+      "0x490"
+    ],
+    "unsupportedReturn": "0x8000000b",
+    "limitations": [
+      "The physical event is not an observed USB disconnection.",
+      "A read failure can initialize the persistent value to 1.",
+      "Full physical cell-disconnect conditions and every reset path are not established."
+    ]
+  },
+  "corpusHeatmapStructure": {
+    "inputFiles": 90,
+    "filesWithEvent": 28,
+    "event": "BatteryHeatmapSoCAggregationViewCorrected",
+    "eventRows": 4760,
+    "coordinates": 170,
+    "distinctWholeMaps": 3,
+    "dailyCountGroups": [
+      {
+        "Count": 1,
+        "files": 17,
+        "uniqueWholeMaps": 1
+      },
+      {
+        "Count": 2,
+        "files": 8,
+        "uniqueWholeMaps": 1
+      },
+      {
+        "Count": 3,
+        "files": 3,
+        "uniqueWholeMaps": 1
+      }
+    ],
+    "interpretation": "No observed cross-file change within each Count group. This does not establish a fresh daily distribution or a general population rate.",
+    "uniqueWholeFileSHA256s": 28
+  },
+  "exactProfileBoundary": {
+    "observedWatchGauge": 209400036,
+    "extractedWatchGauge": 209400036,
+    "observedPhoneGauge": 209200029,
+    "extractedPhoneGauge": 209200028,
+    "comparedPhoneOSBuilds": [
+      "27.0.1 / 24A446",
+      "27.2 / 24B119",
+      "27.2.1 / 24B156"
+    ],
+    "result": "All three bundled phone maps have the same 209200028 payload. No audited 209200029 payload was found.",
+    "ipadHighSocBytes": 16,
+    "ipadTenBinMappingAllowed": false
+  },
+  "remainingEvidenceGaps": [
+    "Gauge firmware 209200029 body",
+    "iPad 4-bin high-SOC producer definition",
+    "BHT runtime producer/endpoints beyond static boot SMC tables",
+    "All proprietary shutdown flag producer definitions"
+  ],
+  "ipadHighSocDerivation": {
+    "firmwareVersion": 1552,
+    "firmwareVersionHex": "0x610",
+    "pollFunction": "0x8a8c",
+    "conversion": "0x8e4c-0x8f34",
+    "runtimeSource": "big-endian u16 at object+0x79",
+    "percentSource": "four u8 at object+0x7b..0x7e",
+    "formula": "floor(runtime * percentage / 100)",
+    "output": "four u32 at object+0x175..0x184",
+    "binBoundsAvailableInSMCConsumer": false
+  }
+}
