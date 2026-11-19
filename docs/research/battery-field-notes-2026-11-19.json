@@ -1,0 +1,623 @@
+{
+  "last_value_CycleCount": {
+    "meaning": "充放電サイクル数。充電ケーブルの接続回数ではない。",
+    "unit": "回",
+    "timeBasis": "積算カウンターの最後の値。日次増分ではない。",
+    "confidence": "partial",
+    "evidence": [
+      "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbeb54-0x29fcbeb88",
+      "Apple charge-cycle guide"
+    ]
+  },
+  "last_value_DesignCapacity": {
+    "meaning": "パーサーの受け入れ宣言あり。ただし今回の3 transformには定義なし。表示・比率の分母は現行コードでは機種カタログから取得する。",
+    "unit": "アプリではmAh",
+    "timeBasis": "機種基準値。今日の実測容量ではない。",
+    "confidence": "verified-implementation",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_NominalChargeCapacity": {
+    "meaning": "ゲージが報告するNominalChargeCapacity。製品仕様の固定容量や直接実測と同一視しない。",
+    "unit": "アプリではmAh。全モデルの内部スケールは未検証",
+    "timeBasis": "取得された推定容量の最後の値。日次消費量ではない。",
+    "confidence": "partial",
+    "evidence": [
+      "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbdf30-0x29fcbdf54"
+    ]
+  },
+  "last_value_AppleRawMaxCapacity": {
+    "meaning": "ゲージが報告するAppleRawMaxCapacity。生の診断値という位置付けで、独立した実測試験ではない。",
+    "unit": "アプリではmAh。全モデルの内部スケールは未検証",
+    "timeBasis": "取得された推定容量の最後の値。日次消費量ではない。",
+    "confidence": "partial",
+    "evidence": [
+      "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbdf60-0x29fcbdf84"
+    ]
+  },
+  "last_value_MinimumQmax": {
+    "meaning": "BatteryData.LifetimeDataのMinimumQmax。Qmaxの最小履歴値である可能性が高い。低レート放電容量と断定する根拠は未取得。",
+    "unit": "アプリではmAh。内部定義は未確定",
+    "timeBasis": "LifetimeData由来。日次最小値ではない。リセット条件は未確定。",
+    "confidence": "partial",
+    "evidence": [
+      "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbe200-0x29fcbe224",
+      "TI SLUA997 defines Qmax generally; not an Apple key specification"
+    ]
+  },
+  "last_value_MaximumCapacityPercent": {
+    "meaning": "PLBatteryAgent側で得た最大容量の百分率。設定アプリの表示と常に一致するという保証は未確認。",
+    "unit": "%",
+    "timeBasis": "最後の値。丸め・補正・更新遅延の詳細は未確定。",
+    "confidence": "partial",
+    "evidence": [
+      "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbed94-0x29fcbede8"
+    ]
+  },
+  "last_value_AverageTemperature": {
+    "meaning": "LifetimeDataの平均温度。平均の重み付け・対象期間の開始点は未確定。",
+    "unit": "アプリはそのまま°C表示",
+    "timeBasis": "LifetimeData由来の最後の値。製造・交換・ゲージリセット等との起点対応は未確定。",
+    "confidence": "partial",
+    "evidence": [
+      "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbdfc0",
+      "LifetimeData receiver x21 established at 0x29fcbdeb8-0x29fcbdebc"
+    ]
+  },
+  "last_value_MaximumTemperature": {
+    "meaning": "LifetimeDataの最大温度。今日の最高温度ではない。",
+    "unit": "アプリは原値÷10を°C表示",
+    "timeBasis": "LifetimeData由来の最後の値。製造・交換・ゲージリセット等との起点対応は未確定。",
+    "confidence": "partial",
+    "evidence": [
+      "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbe290",
+      "LifetimeData receiver x21 established at 0x29fcbdeb8-0x29fcbdebc"
+    ]
+  },
+  "last_value_MinimumTemperature": {
+    "meaning": "LifetimeDataの最低温度。今日の最低温度ではない。",
+    "unit": "アプリは原値÷10を°C表示",
+    "timeBasis": "LifetimeData由来の最後の値。製造・交換・ゲージリセット等との起点対応は未確定。",
+    "confidence": "partial",
+    "evidence": [
+      "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbe2c0",
+      "LifetimeData receiver x21 established at 0x29fcbdeb8-0x29fcbdebc"
+    ]
+  },
+  "last_value_MaximumPackVoltage": {
+    "meaning": "LifetimeDataの最大パック電圧。今日の最高電圧ではない。",
+    "unit": "アプリは原値をmV表示",
+    "timeBasis": "LifetimeData由来の最後の値。製造・交換・ゲージリセット等との起点対応は未確定。",
+    "confidence": "partial",
+    "evidence": [
+      "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbe170",
+      "LifetimeData receiver x21 established at 0x29fcbdeb8-0x29fcbdebc"
+    ]
+  },
+  "last_value_MinimumPackVoltage": {
+    "meaning": "LifetimeDataの最低パック電圧。今日の最低電圧ではない。",
+    "unit": "アプリは原値をmV表示",
+    "timeBasis": "LifetimeData由来の最後の値。製造・交換・ゲージリセット等との起点対応は未確定。",
+    "confidence": "partial",
+    "evidence": [
+      "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbe1a0",
+      "LifetimeData receiver x21 established at 0x29fcbdeb8-0x29fcbdebc"
+    ]
+  },
+  "last_value_TotalOperatingTime": {
+    "meaning": "LifetimeDataの稼働時間。端末購入後の利用時間・画面オン時間とは扱わない。",
+    "unit": "未確定。現行パーサーはデコード宣言のみ",
+    "timeBasis": "LifetimeData由来の最後の値。製造・交換・ゲージリセット等との起点対応は未確定。",
+    "confidence": "partial",
+    "evidence": [
+      "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbdf90",
+      "LifetimeData receiver x21 established at 0x29fcbdeb8-0x29fcbdebc"
+    ]
+  },
+  "last_value_DailyMaxSoc": {
+    "meaning": "BatteryData直下のDailyMaxSoc。日次最大SoCと読めるが、その日境界・リセット時刻は未確定。",
+    "unit": "アプリでは%",
+    "timeBasis": "元のゲージ側の日次項目の最後の値。Analyticsがmax/min集計した値ではない。",
+    "confidence": "partial",
+    "evidence": [
+      "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbf684-0x29fcbf6c0"
+    ]
+  },
+  "last_value_DailyMinSoc": {
+    "meaning": "BatteryData直下のDailyMinSoc。日次最小SoCと読めるが、その日境界・リセット時刻は未確定。",
+    "unit": "アプリでは%",
+    "timeBasis": "元のゲージ側の日次項目の最後の値。Analyticsがmax/min集計した値ではない。",
+    "confidence": "partial",
+    "evidence": [
+      "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbf6cc-0x29fcbf708"
+    ]
+  },
+  "last_value_DOFU": {
+    "meaning": "BatteryData.DateOfFirstUseから生成される初使用日の情報。購入日ではない。",
+    "unit": "アプリはUNIX秒としてDate化。元入力の時刻基準・補正は要確認",
+    "timeBasis": "初使用日のスナップショット。0・欠損は不明。",
+    "confidence": "partial",
+    "evidence": [
+      "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbf35c-0x29fcbf454",
+      "LogParser.swift Date(timeIntervalSince1970:)"
+    ]
+  },
+  "Count": {
+    "meaning": "集計に入ったイベント件数。充放電回数・測定秒数ではない。",
+    "unit": "件",
+    "timeBasis": "当該transformの集計期間。",
+    "confidence": "verified-configuration",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "BatteryPackID": {
+    "meaning": "送信側が付けるパック区分。255を渡す経路がある。個体UUIDではない。",
+    "unit": "内部区分",
+    "timeBasis": "イベントのディメンション。",
+    "confidence": "partial",
+    "evidence": [
+      "logBatteryConfigToCA:forBatteryPack:; aggdTimerFired 0x29fcba6f0"
+    ]
+  },
+  "last_value_UpdateTime": {
+    "meaning": "元データの更新時刻らしい内部値。UNIX秒解釈による比較は参考値に留める。",
+    "unit": "未確定（UNIX秒仮説）",
+    "timeBasis": "ファイル生成日時とは別。更新の古い値が今日のファイルに入る場合がある。",
+    "confidence": "partial",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_ChemID": {
+    "meaning": "電池化学特性の内部IDと考えられる。メーカー名ではない。",
+    "unit": "名前からの推定を含む。単位の一般化不可",
+    "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_AlgoChemID": {
+    "meaning": "推定アルゴリズム用の化学特性IDと考えられる。",
+    "unit": "名前からの推定を含む。単位の一般化不可",
+    "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_OriginalBattery": {
+    "meaning": "元電池を示す内部フラグらしい値。単独で純正品認証と断定しない。",
+    "unit": "名前からの推定を含む。単位の一般化不可",
+    "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_BatterySerialChanged": {
+    "meaning": "シリアル変更を示す内部値。修理履歴の確定情報として使わない。",
+    "unit": "名前からの推定を含む。単位の一般化不可",
+    "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_GasGaugeFirmwareVersion": {
+    "meaning": "電池ゲージのファームウェア版。iOS版ではない。",
+    "unit": "名前からの推定を含む。単位の一般化不可",
+    "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_WeekMfd": {
+    "meaning": "製造週らしい内部符号。年週のビット割当・日付変換は未確定。",
+    "unit": "名前からの推定を含む。単位の一般化不可",
+    "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_BatteryHealthMetric": {
+    "meaning": "内部の健康度指標。単位・閾値不明。Appleの最大容量%とは別。",
+    "unit": "名前からの推定を含む。単位の一般化不可",
+    "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_CycleCountLastQmax": {
+    "meaning": "最後のQmax更新時のサイクル数らしい値。更新条件は未確定。",
+    "unit": "名前からの推定を含む。単位の一般化不可",
+    "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_TemperatureSamples": {
+    "meaning": "平均温度等のサンプル数らしい値。1秒ごとの測定数とは限らない。",
+    "unit": "名前からの推定を含む。単位の一般化不可",
+    "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_LifetimeUPOCount": {
+    "meaning": "生涯UPOカウンターらしい値。UPOの判定条件・リセットは未確定。",
+    "unit": "名前からの推定を含む。単位の一般化不可",
+    "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_LastUPOTimestamp": {
+    "meaning": "最後のUPO時刻らしい内部値。単位・時刻基準不明。",
+    "unit": "名前からの推定を含む。単位の一般化不可",
+    "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_TimeAbove95Perc": {
+    "meaning": "95%超の滞在を示すと考えられる値。単位・リセット条件は未確定。",
+    "unit": "名前からの推定を含む。単位の一般化不可",
+    "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_KioskModeHighSocDays": {
+    "meaning": "キオスクモード高SoC滞在日数らしい内部値。一般利用の経過日数ではない。",
+    "unit": "名前からの推定を含む。単位の一般化不可",
+    "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_KioskModeHighSocSeconds": {
+    "meaning": "キオスクモード高SoC滞在秒数らしい内部値。閾値・起点未確認。",
+    "unit": "名前からの推定を含む。単位の一般化不可",
+    "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_KioskModeLastHighSocHours": {
+    "meaning": "キオスクモードの高SoC関連時間らしい内部値。意味・起点未確認。",
+    "unit": "名前からの推定を含む。単位の一般化不可",
+    "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_QmaxCell0": {
+    "meaning": "セル0のQmaxらしい値。MinimumQmaxや満充電容量と混同しない。",
+    "unit": "名前からの推定を含む。単位の一般化不可",
+    "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_SafetyEvent0": {
+    "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+    "unit": "未確定",
+    "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+    "confidence": "unknown",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_SafetyEvent1": {
+    "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+    "unit": "未確定",
+    "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+    "confidence": "unknown",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_SafetyEvent2": {
+    "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+    "unit": "未確定",
+    "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+    "confidence": "unknown",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_SafetyEvent3": {
+    "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+    "unit": "未確定",
+    "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+    "confidence": "unknown",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_SafetyEvent4": {
+    "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+    "unit": "未確定",
+    "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+    "confidence": "unknown",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_SafetyEvent5": {
+    "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+    "unit": "未確定",
+    "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+    "confidence": "unknown",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_SafetyEvent6": {
+    "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+    "unit": "未確定",
+    "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+    "confidence": "unknown",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_SafetyEvent7": {
+    "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+    "unit": "未確定",
+    "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+    "confidence": "unknown",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_SafetyEvent8": {
+    "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+    "unit": "未確定",
+    "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+    "confidence": "unknown",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_SafetyEvent9": {
+    "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+    "unit": "未確定",
+    "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+    "confidence": "unknown",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_SafetyEvent10": {
+    "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+    "unit": "未確定",
+    "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+    "confidence": "unknown",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_SafetyEvent11": {
+    "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+    "unit": "未確定",
+    "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+    "confidence": "unknown",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_SafetyEvent12": {
+    "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+    "unit": "未確定",
+    "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+    "confidence": "unknown",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_SafetyEvent13": {
+    "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+    "unit": "未確定",
+    "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+    "confidence": "unknown",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_SafetyEvent14": {
+    "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+    "unit": "未確定",
+    "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+    "confidence": "unknown",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_SafetyEvent15": {
+    "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+    "unit": "未確定",
+    "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+    "confidence": "unknown",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_SafetyEvent16": {
+    "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+    "unit": "未確定",
+    "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+    "confidence": "unknown",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_SafetyEvent17": {
+    "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+    "unit": "未確定",
+    "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+    "confidence": "unknown",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_SafetyEvent18": {
+    "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+    "unit": "未確定",
+    "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+    "confidence": "unknown",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_RaTable_1": {
+    "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+    "unit": "未確定。mΩへの変換不可",
+    "timeBasis": "lastスナップショット。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_RaTable_2": {
+    "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+    "unit": "未確定。mΩへの変換不可",
+    "timeBasis": "lastスナップショット。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_RaTable_3": {
+    "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+    "unit": "未確定。mΩへの変換不可",
+    "timeBasis": "lastスナップショット。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_RaTable_4": {
+    "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+    "unit": "未確定。mΩへの変換不可",
+    "timeBasis": "lastスナップショット。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_RaTable_5": {
+    "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+    "unit": "未確定。mΩへの変換不可",
+    "timeBasis": "lastスナップショット。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_RaTable_6": {
+    "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+    "unit": "未確定。mΩへの変換不可",
+    "timeBasis": "lastスナップショット。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_RaTable_7": {
+    "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+    "unit": "未確定。mΩへの変換不可",
+    "timeBasis": "lastスナップショット。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_RaTable_8": {
+    "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+    "unit": "未確定。mΩへの変換不可",
+    "timeBasis": "lastスナップショット。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_RaTable_9": {
+    "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+    "unit": "未確定。mΩへの変換不可",
+    "timeBasis": "lastスナップショット。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_RaTable_10": {
+    "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+    "unit": "未確定。mΩへの変換不可",
+    "timeBasis": "lastスナップショット。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_RaTable_11": {
+    "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+    "unit": "未確定。mΩへの変換不可",
+    "timeBasis": "lastスナップショット。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_RaTable_12": {
+    "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+    "unit": "未確定。mΩへの変換不可",
+    "timeBasis": "lastスナップショット。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_RaTable_13": {
+    "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+    "unit": "未確定。mΩへの変換不可",
+    "timeBasis": "lastスナップショット。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_RaTable_14": {
+    "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+    "unit": "未確定。mΩへの変換不可",
+    "timeBasis": "lastスナップショット。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  },
+  "last_value_RaTable_15": {
+    "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+    "unit": "未確定。mΩへの変換不可",
+    "timeBasis": "lastスナップショット。",
+    "confidence": "inferred-name",
+    "evidence": [
+      "LogParser.swift; 27.2 CoreAnalytics configuration"
+    ]
+  }
+}

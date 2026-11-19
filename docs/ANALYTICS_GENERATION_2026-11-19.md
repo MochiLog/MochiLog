@@ -7,6 +7,10 @@
 [継続調査: 生成されない・空・電池情報がない場合の条件](ANALYTICS_GENERATION_CAUSES_2026-11-19.md)で、
 電池側の保持データ・タイマー、集計期間、OptOutSink、EOF、実機の取得結果を追加確認した。
 
+続いて[既存項目の意味・単位・期間](BATTERY_FIELD_SEMANTICS_2026-11-19.md)と
+[追加取得候補の生成元](ANALYTICS_ADDITIONAL_METRICS_2026-11-19.md)を調査した。
+日次ファイル中のLifetimeData、last集計、時間帯・ビン番号の解釈を区別する。
+
 ## 結論
 
 - 27.0.1と27.2のIPSWにあるバッテリー集計の3定義は構造的に一致した。

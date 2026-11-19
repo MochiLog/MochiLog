@@ -1,0 +1,4086 @@
+{
+  "formatVersion": 1,
+  "researchDate": "2026-11-19",
+  "firmware": "iPhone14,4 / 27.2 / 24B119",
+  "configurationSHA256": "eeca92aaa238653cdd88253931cf27ddcd76c6197a9d2f0f907359a99a695394",
+  "scope": "All selected battery transform measures/dimensions and all parser-declared battery fields; no readings",
+  "parserDeclaredBatteryFieldCount": 15,
+  "transformCount": 3,
+  "transforms": [
+    {
+      "name": "BatteryConfigValueHistogramFinal_V2",
+      "inputEvents": [
+        "com.apple.power.battery.configValues"
+      ],
+      "measureCount": 87,
+      "dimensionCount": 1,
+      "explicitAggPeriod": null,
+      "explicitCollectionCadence": null,
+      "periodResolution": "collectionCadence > aggPeriod > Daily; outputs.sink is independent",
+      "conditional": false
+    },
+    {
+      "name": "BatteryConfigValueHistogram_Corrected",
+      "inputEvents": [
+        "com.apple.power.battery.configValues_DO_NOT_USE"
+      ],
+      "measureCount": 73,
+      "dimensionCount": 8,
+      "explicitAggPeriod": null,
+      "explicitCollectionCadence": null,
+      "periodResolution": "collectionCadence > aggPeriod > Daily; outputs.sink is independent",
+      "conditional": false
+    },
+    {
+      "name": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+      "inputEvents": [
+        "com.apple.power.battery.configValues"
+      ],
+      "measureCount": 106,
+      "dimensionCount": 0,
+      "explicitAggPeriod": null,
+      "explicitCollectionCadence": null,
+      "periodResolution": "collectionCadence > aggPeriod > Daily; outputs.sink is independent",
+      "conditional": true
+    }
+  ],
+  "fields": [
+    {
+      "name": "AlgoChemID",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "dimensions",
+          "type": "int",
+          "aggregation": null,
+          "inputFields": [
+            "AlgoChemID"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "BatteryPackID",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "dimensions",
+          "type": "int",
+          "aggregation": null,
+          "inputFields": [
+            "BatteryPackID"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "送信側が付けるパック区分。255を渡す経路がある。個体UUIDではない。",
+      "unit": "内部区分",
+      "timeBasis": "イベントのディメンション。",
+      "confidence": "partial",
+      "evidence": [
+        "logBatteryConfigToCA:forBatteryPack:; aggdTimerFired 0x29fcba6f0"
+      ]
+    },
+    {
+      "name": "BatterySerialChanged",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "dimensions",
+          "type": "int",
+          "aggregation": null,
+          "inputFields": [
+            "BatterySerialChanged"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "ChemID",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "dimensions",
+          "type": "int",
+          "aggregation": null,
+          "inputFields": [
+            "ChemID"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "Count",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "count",
+          "inputFields": []
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "count",
+          "inputFields": []
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "count",
+          "inputFields": []
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "集計に入ったイベント件数。充放電回数・測定秒数ではない。",
+      "unit": "件",
+      "timeBasis": "当該transformの集計期間。",
+      "confidence": "verified-configuration",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "Flags",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "dimensions",
+          "type": "int",
+          "aggregation": null,
+          "inputFields": [
+            "Flags"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "GasGaugeFirmwareVersion",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "dimensions",
+          "type": "int",
+          "aggregation": null,
+          "inputFields": [
+            "GasGaugeFirmwareVersion"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "OriginalBattery",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "dimensions",
+          "type": "int",
+          "aggregation": null,
+          "inputFields": [
+            "OriginalBattery"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "WeekMfd",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "dimensions",
+          "type": "int",
+          "aggregation": null,
+          "inputFields": [
+            "WeekMfd"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "Wom_1",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "dimensions",
+          "type": "int",
+          "aggregation": null,
+          "inputFields": [
+            "Wom_1"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_AlgoChemID",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "AlgoChemID"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "AlgoChemID"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "推定アルゴリズム用の化学特性IDと考えられる。",
+      "unit": "名前からの推定を含む。単位の一般化不可",
+      "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_AppleRawMaxCapacity",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "AppleRawMaxCapacity"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "AppleRawMaxCapacity"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "AppleRawMaxCapacity"
+          ]
+        }
+      ],
+      "parserDecoded": true,
+      "meaning": "ゲージが報告するAppleRawMaxCapacity。生の診断値という位置付けで、独立した実測試験ではない。",
+      "unit": "アプリではmAh。全モデルの内部スケールは未検証",
+      "timeBasis": "取得された推定容量の最後の値。日次消費量ではない。",
+      "confidence": "partial",
+      "evidence": [
+        "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbdf60-0x29fcbdf84"
+      ]
+    },
+    {
+      "name": "last_value_AverageTemperature",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "AverageTemperature"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "AverageTemperature"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "AverageTemperature"
+          ]
+        }
+      ],
+      "parserDecoded": true,
+      "meaning": "LifetimeDataの平均温度。平均の重み付け・対象期間の開始点は未確定。",
+      "unit": "アプリはそのまま°C表示",
+      "timeBasis": "LifetimeData由来の最後の値。製造・交換・ゲージリセット等との起点対応は未確定。",
+      "confidence": "partial",
+      "evidence": [
+        "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbdfc0",
+        "LifetimeData receiver x21 established at 0x29fcbdeb8-0x29fcbdebc"
+      ]
+    },
+    {
+      "name": "last_value_BatteryHealthMetric",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "BatteryHealthMetric"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "BatteryHealthMetric"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "BatteryHealthMetric"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部の健康度指標。単位・閾値不明。Appleの最大容量%とは別。",
+      "unit": "名前からの推定を含む。単位の一般化不可",
+      "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_BatterySerialChanged",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "BatterySerialChanged"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "BatterySerialChanged"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "シリアル変更を示す内部値。修理履歴の確定情報として使わない。",
+      "unit": "名前からの推定を含む。単位の一般化不可",
+      "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_ChemID",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ChemID"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ChemID"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "電池化学特性の内部IDと考えられる。メーカー名ではない。",
+      "unit": "名前からの推定を含む。単位の一般化不可",
+      "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_ChemicalWeightedRa",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ChemicalWeightedRa"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ChemicalWeightedRa"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ChemicalWeightedRa"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_CycleCount",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "CycleCount"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "CycleCount"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "CycleCount"
+          ]
+        }
+      ],
+      "parserDecoded": true,
+      "meaning": "充放電サイクル数。充電ケーブルの接続回数ではない。",
+      "unit": "回",
+      "timeBasis": "積算カウンターの最後の値。日次増分ではない。",
+      "confidence": "partial",
+      "evidence": [
+        "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbeb54-0x29fcbeb88",
+        "Apple charge-cycle guide"
+      ]
+    },
+    {
+      "name": "last_value_CycleCountLastQmax",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "CycleCountLastQmax"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "CycleCountLastQmax"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "CycleCountLastQmax"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "最後のQmax更新時のサイクル数らしい値。更新条件は未確定。",
+      "unit": "名前からの推定を含む。単位の一般化不可",
+      "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_DOFU",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "DOFU"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "DOFU"
+          ]
+        }
+      ],
+      "parserDecoded": true,
+      "meaning": "BatteryData.DateOfFirstUseから生成される初使用日の情報。購入日ではない。",
+      "unit": "アプリはUNIX秒としてDate化。元入力の時刻基準・補正は要確認",
+      "timeBasis": "初使用日のスナップショット。0・欠損は不明。",
+      "confidence": "partial",
+      "evidence": [
+        "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbf35c-0x29fcbf454",
+        "LogParser.swift Date(timeIntervalSince1970:)"
+      ]
+    },
+    {
+      "name": "last_value_DailyMaxSoc",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "DailyMaxSoc"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "DailyMaxSoc"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "DailyMaxSoc"
+          ]
+        }
+      ],
+      "parserDecoded": true,
+      "meaning": "BatteryData直下のDailyMaxSoc。日次最大SoCと読めるが、その日境界・リセット時刻は未確定。",
+      "unit": "アプリでは%",
+      "timeBasis": "元のゲージ側の日次項目の最後の値。Analyticsがmax/min集計した値ではない。",
+      "confidence": "partial",
+      "evidence": [
+        "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbf684-0x29fcbf6c0"
+      ]
+    },
+    {
+      "name": "last_value_DailyMinSoc",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "DailyMinSoc"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "DailyMinSoc"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "DailyMinSoc"
+          ]
+        }
+      ],
+      "parserDecoded": true,
+      "meaning": "BatteryData直下のDailyMinSoc。日次最小SoCと読めるが、その日境界・リセット時刻は未確定。",
+      "unit": "アプリでは%",
+      "timeBasis": "元のゲージ側の日次項目の最後の値。Analyticsがmax/min集計した値ではない。",
+      "confidence": "partial",
+      "evidence": [
+        "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbf6cc-0x29fcbf708"
+      ]
+    },
+    {
+      "name": "last_value_DesignCapacity",
+      "definitions": [],
+      "parserDecoded": true,
+      "meaning": "パーサーの受け入れ宣言あり。ただし今回の3 transformには定義なし。表示・比率の分母は現行コードでは機種カタログから取得する。",
+      "unit": "アプリではmAh",
+      "timeBasis": "機種基準値。今日の実測容量ではない。",
+      "confidence": "verified-implementation",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_Flags",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "Flags"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "Flags"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_FlashWriteCount",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "FlashWriteCount"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "FlashWriteCount"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "FlashWriteCount"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_GGUpdateStatus",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "GGUpdateStatus"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "GGUpdateStatus"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "GGUpdateStatus"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_GasGaugeFirmwareVersion",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "GasGaugeFirmwareVersion"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "GasGaugeFirmwareVersion"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "電池ゲージのファームウェア版。iOS版ではない。",
+      "unit": "名前からの推定を含む。単位の一般化不可",
+      "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_HighAvgCurrentLastRun",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "HighAvgCurrentLastRun"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "HighAvgCurrentLastRun"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "HighAvgCurrentLastRun"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_ITMiscStatus",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ITMiscStatus"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ITMiscStatus"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ITMiscStatus"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_KioskModeHighSocDays",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "KioskModeHighSocDays"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "KioskModeHighSocDays"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "KioskModeHighSocDays"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "キオスクモード高SoC滞在日数らしい内部値。一般利用の経過日数ではない。",
+      "unit": "名前からの推定を含む。単位の一般化不可",
+      "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_KioskModeHighSocSeconds",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "KioskModeHighSocSeconds"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "キオスクモード高SoC滞在秒数らしい内部値。閾値・起点未確認。",
+      "unit": "名前からの推定を含む。単位の一般化不可",
+      "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_KioskModeLastHighSocHours",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "KioskModeLastHighSocHours"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "KioskModeLastHighSocHours"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "KioskModeLastHighSocHours"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "キオスクモードの高SoC関連時間らしい内部値。意味・起点未確認。",
+      "unit": "名前からの推定を含む。単位の一般化不可",
+      "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_LTDataCorruptionOffset",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "LTDataCorruptionOffset"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_LastResetReason",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "LastResetReason"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_LastUPOTimestamp",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "float",
+          "aggregation": "last",
+          "inputFields": [
+            "LastUPOTimestamp"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "float",
+          "aggregation": "last",
+          "inputFields": [
+            "LastUPOTimestamp"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "float",
+          "aggregation": "last",
+          "inputFields": [
+            "LastUPOTimestamp"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "最後のUPO時刻らしい内部値。単位・時刻基準不明。",
+      "unit": "名前からの推定を含む。単位の一般化不可",
+      "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_LifetimeUPOCount",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "LifetimeUPOCount"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "LifetimeUPOCount"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "LifetimeUPOCount"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "生涯UPOカウンターらしい値。UPOの判定条件・リセットは未確定。",
+      "unit": "名前からの推定を含む。単位の一般化不可",
+      "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_LowAvgCurrentLastRun",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "LowAvgCurrentLastRun"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "LowAvgCurrentLastRun"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "LowAvgCurrentLastRun"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_MaximumCapacityPercent",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumCapacityPercent"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumCapacityPercent"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumCapacityPercent"
+          ]
+        }
+      ],
+      "parserDecoded": true,
+      "meaning": "PLBatteryAgent側で得た最大容量の百分率。設定アプリの表示と常に一致するという保証は未確認。",
+      "unit": "%",
+      "timeBasis": "最後の値。丸め・補正・更新遅延の詳細は未確定。",
+      "confidence": "partial",
+      "evidence": [
+        "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbed94-0x29fcbede8"
+      ]
+    },
+    {
+      "name": "last_value_MaximumChargeCurrent",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumChargeCurrent"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumChargeCurrent"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumChargeCurrent"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_MaximumDeltaVoltage",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumDeltaVoltage"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumDeltaVoltage"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumDeltaVoltage"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_MaximumDischargeCurrent",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumDischargeCurrent"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumDischargeCurrent"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumDischargeCurrent"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_MaximumFCC",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumFCC"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumFCC"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumFCC"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_MaximumOverChargedCapacity",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumOverChargedCapacity"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumOverChargedCapacity"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumOverChargedCapacity"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_MaximumOverDischargedCapacity",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumOverDischargedCapacity"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumOverDischargedCapacity"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumOverDischargedCapacity"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_MaximumPackVoltage",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumPackVoltage"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumPackVoltage"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumPackVoltage"
+          ]
+        }
+      ],
+      "parserDecoded": true,
+      "meaning": "LifetimeDataの最大パック電圧。今日の最高電圧ではない。",
+      "unit": "アプリは原値をmV表示",
+      "timeBasis": "LifetimeData由来の最後の値。製造・交換・ゲージリセット等との起点対応は未確定。",
+      "confidence": "partial",
+      "evidence": [
+        "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbe170",
+        "LifetimeData receiver x21 established at 0x29fcbdeb8-0x29fcbdebc"
+      ]
+    },
+    {
+      "name": "last_value_MaximumQmax",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumQmax"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumQmax"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumQmax"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_MaximumRa0_8",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumRa0_8"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumRa0_8"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumRa0_8"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_MaximumRa8",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumRa8"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumRa8"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumRa8"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_MaximumTemperature",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumTemperature"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumTemperature"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MaximumTemperature"
+          ]
+        }
+      ],
+      "parserDecoded": true,
+      "meaning": "LifetimeDataの最大温度。今日の最高温度ではない。",
+      "unit": "アプリは原値÷10を°C表示",
+      "timeBasis": "LifetimeData由来の最後の値。製造・交換・ゲージリセット等との起点対応は未確定。",
+      "confidence": "partial",
+      "evidence": [
+        "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbe290",
+        "LifetimeData receiver x21 established at 0x29fcbdeb8-0x29fcbdebc"
+      ]
+    },
+    {
+      "name": "last_value_MinimumDeltaVoltage",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MinimumDeltaVoltage"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MinimumDeltaVoltage"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MinimumDeltaVoltage"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_MinimumFCC",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MinimumFCC"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MinimumFCC"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MinimumFCC"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_MinimumPackVoltage",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MinimumPackVoltage"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MinimumPackVoltage"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MinimumPackVoltage"
+          ]
+        }
+      ],
+      "parserDecoded": true,
+      "meaning": "LifetimeDataの最低パック電圧。今日の最低電圧ではない。",
+      "unit": "アプリは原値をmV表示",
+      "timeBasis": "LifetimeData由来の最後の値。製造・交換・ゲージリセット等との起点対応は未確定。",
+      "confidence": "partial",
+      "evidence": [
+        "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbe1a0",
+        "LifetimeData receiver x21 established at 0x29fcbdeb8-0x29fcbdebc"
+      ]
+    },
+    {
+      "name": "last_value_MinimumQmax",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MinimumQmax"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MinimumQmax"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MinimumQmax"
+          ]
+        }
+      ],
+      "parserDecoded": true,
+      "meaning": "BatteryData.LifetimeDataのMinimumQmax。Qmaxの最小履歴値である可能性が高い。低レート放電容量と断定する根拠は未取得。",
+      "unit": "アプリではmAh。内部定義は未確定",
+      "timeBasis": "LifetimeData由来。日次最小値ではない。リセット条件は未確定。",
+      "confidence": "partial",
+      "evidence": [
+        "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbe200-0x29fcbe224",
+        "TI SLUA997 defines Qmax generally; not an Apple key specification"
+      ]
+    },
+    {
+      "name": "last_value_MinimumRa0_8",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MinimumRa0_8"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MinimumRa0_8"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MinimumRa0_8"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_MinimumRa8",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MinimumRa8"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MinimumRa8"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MinimumRa8"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_MinimumTemperature",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MinimumTemperature"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MinimumTemperature"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "MinimumTemperature"
+          ]
+        }
+      ],
+      "parserDecoded": true,
+      "meaning": "LifetimeDataの最低温度。今日の最低温度ではない。",
+      "unit": "アプリは原値÷10を°C表示",
+      "timeBasis": "LifetimeData由来の最後の値。製造・交換・ゲージリセット等との起点対応は未確定。",
+      "confidence": "partial",
+      "evidence": [
+        "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbe2c0",
+        "LifetimeData receiver x21 established at 0x29fcbdeb8-0x29fcbdebc"
+      ]
+    },
+    {
+      "name": "last_value_NCCMax",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "NCCMax"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "NCCMax"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "NCCMax"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_NCCMin",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "NCCMin"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "NCCMin"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "NCCMin"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_NominalChargeCapacity",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "NominalChargeCapacity"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "NominalChargeCapacity"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "NominalChargeCapacity"
+          ]
+        }
+      ],
+      "parserDecoded": true,
+      "meaning": "ゲージが報告するNominalChargeCapacity。製品仕様の固定容量や直接実測と同一視しない。",
+      "unit": "アプリではmAh。全モデルの内部スケールは未検証",
+      "timeBasis": "取得された推定容量の最後の値。日次消費量ではない。",
+      "confidence": "partial",
+      "evidence": [
+        "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbdf30-0x29fcbdf54"
+      ]
+    },
+    {
+      "name": "last_value_OriginalBattery",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "OriginalBattery"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "OriginalBattery"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "元電池を示す内部フラグらしい値。単独で純正品認証と断定しない。",
+      "unit": "名前からの推定を含む。単位の一般化不可",
+      "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_QmaxCell0",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "QmaxCell0"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "QmaxCell0"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "QmaxCell0"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "セル0のQmaxらしい値。MinimumQmaxや満充電容量と混同しない。",
+      "unit": "名前からの推定を含む。単位の一般化不可",
+      "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_QmaxUpdFailCount",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "QmaxUpdFailCount"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "QmaxUpdFailCount"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "QmaxUpdFailCount"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_QmaxUpdSuccessCount",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "QmaxUpdSuccessCount"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "QmaxUpdSuccessCount"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "QmaxUpdSuccessCount"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_RDISCnt",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RDISCnt"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RDISCnt"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RDISCnt"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_RSS",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RSS"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RSS"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RSS"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_RaTable_1",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_1"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_1"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_1"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+      "unit": "未確定。mΩへの変換不可",
+      "timeBasis": "lastスナップショット。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_RaTable_10",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_10"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_10"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_10"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+      "unit": "未確定。mΩへの変換不可",
+      "timeBasis": "lastスナップショット。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_RaTable_11",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_11"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_11"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_11"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+      "unit": "未確定。mΩへの変換不可",
+      "timeBasis": "lastスナップショット。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_RaTable_12",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_12"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_12"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_12"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+      "unit": "未確定。mΩへの変換不可",
+      "timeBasis": "lastスナップショット。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_RaTable_13",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_13"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_13"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_13"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+      "unit": "未確定。mΩへの変換不可",
+      "timeBasis": "lastスナップショット。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_RaTable_14",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_14"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_14"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_14"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+      "unit": "未確定。mΩへの変換不可",
+      "timeBasis": "lastスナップショット。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_RaTable_15",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_15"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_15"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_15"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+      "unit": "未確定。mΩへの変換不可",
+      "timeBasis": "lastスナップショット。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_RaTable_2",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_2"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_2"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_2"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+      "unit": "未確定。mΩへの変換不可",
+      "timeBasis": "lastスナップショット。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_RaTable_3",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_3"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_3"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_3"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+      "unit": "未確定。mΩへの変換不可",
+      "timeBasis": "lastスナップショット。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_RaTable_4",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_4"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_4"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_4"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+      "unit": "未確定。mΩへの変換不可",
+      "timeBasis": "lastスナップショット。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_RaTable_5",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_5"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_5"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_5"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+      "unit": "未確定。mΩへの変換不可",
+      "timeBasis": "lastスナップショット。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_RaTable_6",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_6"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_6"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_6"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+      "unit": "未確定。mΩへの変換不可",
+      "timeBasis": "lastスナップショット。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_RaTable_7",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_7"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_7"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_7"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+      "unit": "未確定。mΩへの変換不可",
+      "timeBasis": "lastスナップショット。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_RaTable_8",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_8"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_8"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_8"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+      "unit": "未確定。mΩへの変換不可",
+      "timeBasis": "lastスナップショット。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_RaTable_9",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_9"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_9"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "RaTable_9"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "Raテーブル要素。抵抗モデル関連と推測されるが、係数・スケール・要素の対応は未確定。",
+      "unit": "未確定。mΩへの変換不可",
+      "timeBasis": "lastスナップショット。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_ResetCnt",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ResetCnt"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ResetCnt"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ResetCnt"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_ResetDataComms",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ResetDataComms"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ResetDataComms"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ResetDataComms"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_ResetDataCorruption",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ResetDataCorruption"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ResetDataCorruption"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_ResetDataFirmware",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ResetDataFirmware"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ResetDataFirmware"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ResetDataFirmware"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_ResetDataHardFault",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ResetDataHardFault"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_ResetDataHardware",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ResetDataHardware"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ResetDataHardware"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ResetDataHardware"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_ResetDataSoftware",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ResetDataSoftware"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ResetDataSoftware"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ResetDataSoftware"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_ResetDataSwWatchDog",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ResetDataSwWatchDog"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_ResetDataWatchDog",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ResetDataWatchDog"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ResetDataWatchDog"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ResetDataWatchDog"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_SafetyEvent0",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "SafetyEvent0"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+      "unit": "未確定",
+      "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+      "confidence": "unknown",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_SafetyEvent1",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "SafetyEvent1"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+      "unit": "未確定",
+      "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+      "confidence": "unknown",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_SafetyEvent10",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "SafetyEvent10"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+      "unit": "未確定",
+      "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+      "confidence": "unknown",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_SafetyEvent11",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "SafetyEvent11"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+      "unit": "未確定",
+      "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+      "confidence": "unknown",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_SafetyEvent12",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "SafetyEvent12"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+      "unit": "未確定",
+      "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+      "confidence": "unknown",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_SafetyEvent13",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "SafetyEvent13"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+      "unit": "未確定",
+      "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+      "confidence": "unknown",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_SafetyEvent14",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "SafetyEvent14"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+      "unit": "未確定",
+      "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+      "confidence": "unknown",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_SafetyEvent15",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "SafetyEvent15"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+      "unit": "未確定",
+      "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+      "confidence": "unknown",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_SafetyEvent16",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "SafetyEvent16"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+      "unit": "未確定",
+      "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+      "confidence": "unknown",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_SafetyEvent17",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "SafetyEvent17"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+      "unit": "未確定",
+      "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+      "confidence": "unknown",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_SafetyEvent18",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "SafetyEvent18"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+      "unit": "未確定",
+      "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+      "confidence": "unknown",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_SafetyEvent2",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "SafetyEvent2"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+      "unit": "未確定",
+      "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+      "confidence": "unknown",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_SafetyEvent3",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "SafetyEvent3"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+      "unit": "未確定",
+      "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+      "confidence": "unknown",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_SafetyEvent4",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "SafetyEvent4"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+      "unit": "未確定",
+      "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+      "confidence": "unknown",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_SafetyEvent5",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "SafetyEvent5"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+      "unit": "未確定",
+      "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+      "confidence": "unknown",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_SafetyEvent6",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "SafetyEvent6"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+      "unit": "未確定",
+      "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+      "confidence": "unknown",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_SafetyEvent7",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "SafetyEvent7"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+      "unit": "未確定",
+      "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+      "confidence": "unknown",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_SafetyEvent8",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "SafetyEvent8"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+      "unit": "未確定",
+      "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+      "confidence": "unknown",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_SafetyEvent9",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "SafetyEvent9"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "安全イベントの内部項目。番号ごとの故障内容・ビット割当・カウント方式は未確定。",
+      "unit": "未確定",
+      "timeBasis": "lastスナップショット。0以外を直ちに故障扱いしない。",
+      "confidence": "unknown",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_ServiceOption",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ServiceOption"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ServiceOption"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "ServiceOption"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_TemperatureSamples",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "TemperatureSamples"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "TemperatureSamples"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "TemperatureSamples"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "平均温度等のサンプル数らしい値。1秒ごとの測定数とは限らない。",
+      "unit": "名前からの推定を含む。単位の一般化不可",
+      "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_TimeAbove95Perc",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "TimeAbove95Perc"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "95%超の滞在を示すと考えられる値。単位・リセット条件は未確定。",
+      "unit": "名前からの推定を含む。単位の一般化不可",
+      "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_TotalOperatingTime",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "TotalOperatingTime"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "TotalOperatingTime"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "TotalOperatingTime"
+          ]
+        }
+      ],
+      "parserDecoded": true,
+      "meaning": "LifetimeDataの稼働時間。端末購入後の利用時間・画面オン時間とは扱わない。",
+      "unit": "未確定。現行パーサーはデコード宣言のみ",
+      "timeBasis": "LifetimeData由来の最後の値。製造・交換・ゲージリセット等との起点対応は未確定。",
+      "confidence": "partial",
+      "evidence": [
+        "PowerlogLiteOperators 27.2 logEventNoneBatteryConfigWithRawData: 0x29fcbdf90",
+        "LifetimeData receiver x21 established at 0x29fcbdeb8-0x29fcbdebc"
+      ]
+    },
+    {
+      "name": "last_value_UpdateTime",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "UpdateTime"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "UpdateTime"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "UpdateTime"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "元データの更新時刻らしい内部値。UNIX秒解釈による比較は参考値に留める。",
+      "unit": "未確定（UNIX秒仮説）",
+      "timeBasis": "ファイル生成日時とは別。更新の古い値が今日のファイルに入る場合がある。",
+      "confidence": "partial",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_WeekMfd",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "WeekMfd"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "WeekMfd"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "製造週らしい内部符号。年週のビット割当・日付変換は未確定。",
+      "unit": "名前からの推定を含む。単位の一般化不可",
+      "timeBasis": "lastスナップショット。累積・日次・リセットは個別に未確定。",
+      "confidence": "inferred-name",
+      "evidence": [
+        "LogParser.swift; 27.2 CoreAnalytics configuration"
+      ]
+    },
+    {
+      "name": "last_value_WeightedRa",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "WeightedRa"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "WeightedRa"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "WeightedRa"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_Wom_1",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "Wom_1"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "Wom_1"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_Wom_2",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "Wom_2"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_batteryServiceFlags",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "batteryServiceFlags"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "batteryServiceFlags"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "batteryServiceFlags"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_calibrationFlags",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "calibrationFlags"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    },
+    {
+      "name": "last_value_xFlags",
+      "definitions": [
+        {
+          "transform": "BatteryConfigValueHistogramFinal_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "xFlags"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_Corrected",
+          "role": "measures",
+          "type": "float",
+          "aggregation": "last",
+          "inputFields": [
+            "xFlags"
+          ]
+        },
+        {
+          "transform": "BatteryConfigValueHistogram_WithAllSafetyKeys_V2",
+          "role": "measures",
+          "type": "int",
+          "aggregation": "last",
+          "inputFields": [
+            "xFlags"
+          ]
+        }
+      ],
+      "parserDecoded": false,
+      "meaning": "内部項目。名前以外に意味を確定する証拠は未取得。",
+      "unit": "未確定",
+      "timeBasis": "lastは集計入力の最後の値。値自体の日次・累積は未確定。",
+      "confidence": "unknown",
+      "evidence": [
+        "27.2 CoreAnalytics configuration: field definition only"
+      ]
+    }
+  ]
+}
