@@ -91,6 +91,41 @@ struct BatchLogParserTests {
       watchResult.failureDescription == nil && watchResult.cycleCount == 205
         && watchResult.nominalCapacity == 366 && watchResult.rawCapacity == 353,
       "A later Watch shutdown row must not replace a complete battery measurement")
+
+    // Generation research: model metadata and measurement availability are
+    // independent. Short, complete NDJSON must remain a valid parser input.
+    let generationHeader =
+      "{\"timestamp\":\"2026-11-19 09:00:00.00 +0900\",\"os_version\":\"iPhone OS 27.2\",\"bug_type\":\"211\"}"
+    let completeMessage: [String: Any] = [
+      "last_value_CycleCount": 0,
+      "last_value_NominalChargeCapacity": 3900,
+      "last_value_AppleRawMaxCapacity": 3950,
+    ]
+    for model in [nil, "iPhone99,1"] as [String?] {
+      var row: [String: Any] = ["message": completeMessage]
+      if let model { row["hardwareModel"] = model }
+      let json = String(decoding: try JSONSerialization.data(withJSONObject: row), as: UTF8.self)
+      for separator in ["\n", "\r\n"] {
+        let result = LogParser.parse(
+          text: generationHeader + separator + json, enableValidation: false)
+        assert(result.failureDescription == nil && result.cycleCount == 0)
+        assert(result.deviceModelCode == model && result.nominalCapacity == 3900)
+      }
+    }
+    for replacement in [NSNull(), "3900", 0] as [Any] {
+      var message = completeMessage
+      message["last_value_NominalChargeCapacity"] = replacement
+      let row: [String: Any] = ["hardwareModel": "iPhone99,1", "message": message]
+      let json = String(decoding: try JSONSerialization.data(withJSONObject: row), as: UTF8.self)
+      let result = LogParser.parse(text: generationHeader + "\n" + json, enableValidation: false)
+      assert(result.failureDescription == "import_invalid_battery_format")
+    }
+    let metadataOnly = LogParser.parse(
+      text: generationHeader + "\n{\"hardwareModel\":\"iPhone99,1\",\"message\":{\"Count\":1}}",
+      enableValidation: false)
+    assert(metadataOnly.failureDescription == "import_no_battery_measurements")
+    assert(metadataOnly.deviceModelCode == nil, "Battery failure precedes model assignment")
+    print("PASS: generation matrix: model present/absent, LF/CRLF, zero cycles, missing/invalid measurements")
     if let path = CommandLine.arguments.dropFirst().first {
       let result = LogParser.parse(text: try LogTextReader.read(URL(fileURLWithPath: path)))
       assert(result.failureDescription == "import_no_battery_measurements")
