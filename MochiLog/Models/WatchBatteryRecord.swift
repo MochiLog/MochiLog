@@ -2,7 +2,7 @@ import Foundation
 
 /// iPhoneとApple Watch間で共有するバッテリーレコードの軽量データモデル
 /// Codableに準拠してWatch Connectivity経由でシリアライズ可能
-struct WatchBatteryRecord: Codable, Identifiable, Hashable {
+nonisolated struct WatchBatteryRecord: Codable, Identifiable, Hashable, Sendable {
   // MARK: - 識別子
 
   /// 一意の識別子（デバイス名と日付から生成）
@@ -42,7 +42,7 @@ struct WatchBatteryRecord: Codable, Identifiable, Hashable {
   /// BatteryRecordから軽量なWatchBatteryRecordを生成
   /// - Parameter record: 変換元のBatteryRecord
   /// - Returns: Watch用の軽量レコード
-  init(from record: BatteryRecord) {
+  @MainActor init(from record: BatteryRecord) {
     self.deviceName = record.deviceName
     self.logDate = record.logDate
     self.cycleCount = record.cycleCount

@@ -20,16 +20,13 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
   /// nil until WatchConnectivity has reported the OS pairing state.
   @Published private(set) var isWatchPaired: Bool?
 
-  /// 最後の同期日時
-  @Published private(set) var lastSyncDate: Date?
-
   // MARK: - プライベートプロパティ
 
   private var session: WCSession?
   private let deliveryQueue = DispatchQueue(
     label: "net.ryuya-dev.MochiLog.watch-delivery", qos: .utility)
   // Accessed only on deliveryQueue. Keep data until activation/installation completes.
-  private var pendingSnapshot: (records: [WatchBatteryRecord], isSampleMode: Bool)?
+  private var pendingSnapshot: WatchRecordSnapshot<WatchBatteryRecord>?
 
   // MARK: - 初期化
 
@@ -53,22 +50,19 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
     print("[WatchConnectivity] セッションをアクティベート中...")
   }
 
-  /// バッテリーレコードをApple Watchに送信（バックグラウンドで実行）
-  /// - Parameters:
-  ///   - records: 送信するBatteryRecordの配列
-  ///   - isSampleMode: サンプルモードかどうか
-  func sendRecordsToWatch(_ records: [BatteryRecord], isSampleMode: Bool = false) {
+  /// Capture the published record contents in source order. Encoding and transfer
+  /// share one serial queue with manual replies.
+  func sendRecordsToWatch(_ records: [BatteryRecord], isSampleMode: Bool) {
     let watchRecords = records.map { WatchBatteryRecord(from: $0) }
-    sendWatchRecordsToWatch(watchRecords, isSampleMode: isSampleMode)
-  }
-
-  /// WatchBatteryRecordをApple Watchに送信（バックグラウンドで実行）
-  /// - Parameters:
-  ///   - records: 送信するWatchBatteryRecordの配列
-  ///   - isSampleMode: サンプルモードかどうか
-  func sendWatchRecordsToWatch(_ records: [WatchBatteryRecord], isSampleMode: Bool = false) {
     deliveryQueue.async {
-      self.pendingSnapshot = (records, isSampleMode)
+      let previous = self.pendingSnapshot ?? self.session.flatMap {
+        try? WatchRecordSnapshot<WatchBatteryRecord>(context: $0.applicationContext)
+      }
+      let snapshot = WatchRecordSnapshot.capture(
+        watchRecords, isSampleMode: isSampleMode, after: previous,
+        now: Date().timeIntervalSince1970)
+      if let pending = self.pendingSnapshot, snapshot.hasSameContent(as: pending) { return }
+      self.pendingSnapshot = snapshot
       self.deliverPendingSnapshot()
     }
   }
@@ -78,71 +72,21 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
     deliveryQueue.async { self.deliverPendingSnapshot() }
   }
 
-  private func deliverPendingSnapshot() {
-    guard let snapshot = pendingSnapshot, let session = session,
-      session.activationState == .activated, session.isWatchAppInstalled
-    else { return }
-    do {
-      let encoder = JSONEncoder()
-      encoder.dateEncodingStrategy = .iso8601
-      let data = try encoder.encode(snapshot.records)
-      let context: [String: Any] = [
-        "records": data,
-        "syncDate": Date().timeIntervalSince1970,
-        "appLanguage": UserDefaults.standard.string(forKey: L10n.preferenceKey) ?? "system",
-        "isSampleMode": snapshot.isSampleMode,
-      ]
-      try session.updateApplicationContext(context)
-      Task { @MainActor in self.lastSyncDate = Date() }
-      print("[WatchConnectivity] Sent \(snapshot.records.count) records")
-    } catch {
-      print("[WatchConnectivity] Failed to send records: \(error)")
-    }
+  private func snapshotContext() throws -> [String: Any]? {
+    try pendingSnapshot?.context(
+      appLanguage: UserDefaults.standard.string(forKey: L10n.preferenceKey) ?? "system")
   }
 
-  /// 即座にデータを送信（Watchが到達可能な場合のみ）
-  /// - Parameter records: 送信するBatteryRecordの配列
-  func sendRecordsImmediately(_ records: [BatteryRecord]) {
-    sendRecordsToWatch(records)
-    guard let session = session,
-      session.activationState == .activated,
-      session.isReachable
-    else {
-      // 到達不可能な場合はApplication Contextにフォールバック
-      sendRecordsToWatch(records)
-      return
-    }
-
-    let watchRecords = records.map { WatchBatteryRecord(from: $0) }
-
+  private func deliverPendingSnapshot() {
+    guard let session = session, session.activationState == .activated,
+      session.isWatchAppInstalled
+    else { return }
     do {
-      let encoder = JSONEncoder()
-      encoder.dateEncodingStrategy = .iso8601
-      let data = try encoder.encode(watchRecords)
-
-      let message: [String: Any] = [
-        "records": data,
-        "syncDate": Date().timeIntervalSince1970,
-        "appLanguage": UserDefaults.standard.string(forKey: L10n.preferenceKey) ?? "system",
-      ]
-
-      session.sendMessage(
-        message,
-        replyHandler: { reply in
-          Task { @MainActor in
-            self.lastSyncDate = Date()
-            print("[WatchConnectivity] Watchからの応答を受信: \(reply)")
-          }
-        },
-        errorHandler: { error in
-          print("[WatchConnectivity] メッセージ送信エラー: \(error)")
-          // エラー時はApplication Contextにフォールバック
-          Task { @MainActor in
-            self.resendLatestSnapshot()
-          }
-        })
+      guard let context = try snapshotContext() else { return }
+      try session.updateApplicationContext(context)
+      print("[WatchConnectivity] Queued \(pendingSnapshot?.records.count ?? 0) records")
     } catch {
-      print("[WatchConnectivity] データのエンコードに失敗: \(error)")
+      print("[WatchConnectivity] Failed to send records: \(error)")
     }
   }
 }
@@ -217,21 +161,20 @@ extension WatchConnectivityManager: WCSessionDelegate {
   ) {
     print("[WatchConnectivity] Watch側からメッセージを受信しました")
 
-    // 同期リクエストの場合、Application Contextを返す
-    if message["request"] as? String == "syncRecords" {
-      Task { @MainActor in
-        // 現在のApplication Contextを返す
-        let context = session.applicationContext
-        if !context.isEmpty {
-          print("[WatchConnectivity] Application Contextを返信します")
-          replyHandler(context)
-        } else {
-          print("[WatchConnectivity] Application Contextが空です")
-          replyHandler(["error": "No data available"])
-        }
-      }
-    } else {
+    guard message["request"] as? String == "syncRecords" else {
       replyHandler(["status": "ok"])
+      return
+    }
+
+    deliveryQueue.async {
+      do {
+        // applicationContext is only the last submitted payload. Reply with the
+        // current snapshot even if the background transfer has not caught up.
+        replyHandler(try self.snapshotContext() ?? ["error": "No data available"])
+      } catch {
+        print("[WatchConnectivity] Could not encode the current snapshot: \(error)")
+        replyHandler(["error": "No data available"])
+      }
     }
   }
 }

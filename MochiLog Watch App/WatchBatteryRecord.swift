@@ -2,7 +2,7 @@ import Foundation
 
 /// iPhoneとApple Watch間で共有するバッテリーレコードの軽量データモデル
 /// Watch側用（BatteryRecordへの依存なし）
-struct WatchBatteryRecord: Codable, Identifiable, Hashable {
+nonisolated struct WatchBatteryRecord: Codable, Identifiable, Hashable, Sendable {
   // MARK: - 識別子
 
   /// 一意の識別子（デバイス名と日付から生成）

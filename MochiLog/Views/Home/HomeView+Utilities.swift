@@ -119,53 +119,6 @@ extension HomeView {
       selectedRecord = record
     }
   }
-
-  /// Apple Watchにレコードを同期する（バックグラウンドで実行）
-  func syncRecordsToWatch() {
-    let startTime = CFAbsoluteTimeGetCurrent()
-    print("[Performance] syncRecordsToWatch開始")
-
-    Task { @MainActor in
-      // サンプルデータ表示中はサンプルデータを送信
-      let isSampleMode = AppSettings.shared.showingSampleData
-      if isSampleMode {
-        let sampleRecords = SampleDataProvider.generateSampleRecords()
-        let watchRecords = sampleRecords.map { WatchBatteryRecord(from: $0) }
-        Task.detached(priority: .utility) {
-          await WatchConnectivityManager.shared.sendWatchRecordsToWatch(
-            watchRecords, isSampleMode: true)
-          let elapsed = (CFAbsoluteTimeGetCurrent() - startTime) * 1000
-          print("[Performance] syncRecordsToWatch完了（サンプルモード）: \(String(format: "%.2f", elapsed))ms")
-        }
-        return
-      }
-
-      // レコードを取得
-      let currentRecords = self.records
-
-      // レコードがある場合のみ同期
-      guard !currentRecords.isEmpty else {
-        // レコードがない場合はサンプルモードをオフにして空で送信
-        Task.detached(priority: .utility) {
-          await WatchConnectivityManager.shared.sendWatchRecordsToWatch([], isSampleMode: false)
-          let elapsed = (CFAbsoluteTimeGetCurrent() - startTime) * 1000
-          print("[Performance] syncRecordsToWatch完了（空）: \(String(format: "%.2f", elapsed))ms")
-        }
-        return
-      }
-
-      let watchRecords = currentRecords.map { WatchBatteryRecord(from: $0) }
-      Task.detached(priority: .utility) {
-        // 通常モードでデータを送信
-        await WatchConnectivityManager.shared.sendWatchRecordsToWatch(
-          watchRecords, isSampleMode: false)
-        let elapsed = (CFAbsoluteTimeGetCurrent() - startTime) * 1000
-        print(
-          "[Performance] syncRecordsToWatch完了（\(watchRecords.count)件）: \(String(format: "%.2f", elapsed))ms"
-        )
-      }
-    }
-  }
 }
 
 // MARK: - 重複チェック

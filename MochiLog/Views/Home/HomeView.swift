@@ -706,13 +706,6 @@ struct HomeView: View {
         reconcileUnknownDeviceNames()
         reconcileMissingDesignCapacities()
         // UserDefaultsフォールバックは廃止（MochiLogAppから直接Notificationが送信される）
-
-        // Apple WatchにデータをNシンク
-        syncRecordsToWatch()
-      }
-      .onChange(of: records.count) { _ in
-        // レコード数が変更されたらWatchに同期
-        syncRecordsToWatch()
       }
       .onReceive(dataStore.$recordsDescending) { updatedRecords in
         selectedRecordIDs.formIntersection(Set(updatedRecords.map(\.id)))
@@ -720,9 +713,6 @@ struct HomeView: View {
       }
       .onChange(of: showingSampleData) { newValue in
         if newValue { endRecordSelection() }
-        // サンプルモードが変更されたらWatchに同期
-        syncRecordsToWatch()
-
         if appSettings.showingSampleData != newValue {
           appSettings.showingSampleData = newValue
         }

@@ -18,7 +18,7 @@ struct WatchRecordTests {
     assert(oldRecord.localizedDiagnosticResult == "localized:diag_normal")
     let current = WatchBatteryRecord(
       deviceName: oldRecord.deviceName, logDate: oldRecord.logDate,
-      cycleCount: oldRecord.cycleCount, nominalHealthPercent: 96, healthPercent: 97,
+      cycleCount: oldRecord.cycleCount + 1, nominalHealthPercent: 96, healthPercent: 97,
       diagnosticResult: "beliebiger übersetzter Text", diagnosticCode: "diag_replace_recommended")
     assert(
       current.localizedDiagnosticResult == "localized:diag_replace_recommended",
@@ -48,8 +48,37 @@ struct WatchRecordTests {
     assert(
       oversizedRecord.displayedHealthPercent == nil && oversizedRecord.healthPercentText == "—")
     assert(current.healthPercentText == "97%" && current.nominalHealthPercentText == "96%")
+    try testSnapshotFreshness(oldRecord, current)
     print(
       "PASS: Watch legacy payloads, stable diagnostics across languages, record identity, Codable round-trip"
     )
+  }
+
+  private static func testSnapshotFreshness(_ oldRecord: WatchBatteryRecord, _ changed: WatchBatteryRecord)
+    throws
+  {
+    typealias Snapshot = WatchRecordSnapshot<WatchBatteryRecord>
+    let original = Snapshot.capture([oldRecord], isSampleMode: false, after: nil, now: 100)
+    let cachedContext = try original.context(appLanguage: "ja")
+    let recalled = try Snapshot(context: cachedContext)
+    let retried = Snapshot.capture([oldRecord], isSampleMode: false, after: recalled, now: 200)
+    assert(retried.syncTimestamp == 100, "Do not refresh the timestamp when resending the same records")
+
+    // The newest record can change without the number of records changing.
+    let updated = Snapshot.capture([changed], isSampleMode: false, after: retried, now: 300)
+    let freshReply = try Snapshot(context: updated.context(appLanguage: "en"))
+    assert(freshReply.syncTimestamp == 300 && freshReply.records == [changed])
+    assert(freshReply.records.first?.cycleCount == oldRecord.cycleCount + 1)
+    assert(freshReply.canFollow(recalled))
+    assert(!recalled.canFollow(freshReply), "A delayed background context cannot undo a manual reply")
+    assert(freshReply.canFollow(freshReply) && freshReply.hasSameContent(as: updated))
+
+    let cleared = Snapshot.capture([], isSampleMode: false, after: updated, now: 299)
+    assert(cleared.records.isEmpty && cleared.canFollow(updated), "An intentional deletion must sync")
+    let legacy = try Snapshot(context: ["records": cachedContext["records"]!])
+    assert(legacy.syncTimestamp == nil && legacy.canFollow(nil) && !legacy.canFollow(freshReply))
+    let legacyResend = Snapshot(records: [changed], isSampleMode: false, syncTimestamp: 400)
+    assert(legacyResend.canFollow(freshReply) && legacyResend.hasSameContent(as: freshReply))
+    print("PASS: Watch snapshots keep retry timestamps, include same-count changes and reject late data")
   }
 }

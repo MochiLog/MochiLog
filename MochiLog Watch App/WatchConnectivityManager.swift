@@ -31,6 +31,7 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
   // MARK: - プライベートプロパティ
 
   private var session: WCSession?
+  private var receivedSnapshot: WatchRecordSnapshot<WatchBatteryRecord>?
 
   // MARK: - 初期化
 
@@ -110,38 +111,32 @@ final class WatchConnectivityManager: NSObject, ObservableObject {
 
   /// 受信したデータを処理
   private func handleReceivedData(_ data: [String: Any]) {
-    if let language = data["appLanguage"] as? String,
-      let selection = AppLanguage(rawValue: language)
-    {
-      LanguageSettings.shared.selection = selection
-    }
     if data["error"] != nil {
       syncError = L10n.string("watch_no_data", table: "Language")
-    }
-    guard let recordsData = data["records"] as? Data else {
-      print("[WatchConnectivity] レコードデータが見つかりません")
       return
     }
+    guard !data.isEmpty else { return } // No cached context on the first activation.
 
     do {
-      let decoder = JSONDecoder()
-      decoder.dateDecodingStrategy = .iso8601
-      let decodedRecords = try decoder.decode([WatchBatteryRecord].self, from: recordsData)
-      records = decodedRecords.sorted { $0.logDate > $1.logDate }
-
-      if let syncTimestamp = data["syncDate"] as? TimeInterval {
-        lastSyncDate = Date(timeIntervalSince1970: syncTimestamp)
-      } else {
-        lastSyncDate = Date()
+      let snapshot = try WatchRecordSnapshot<WatchBatteryRecord>(context: data)
+      guard snapshot.canFollow(receivedSnapshot) else {
+        print("[WatchConnectivity] Ignored a superseded record snapshot")
+        return
       }
-
-      // サンプルモードの状態を更新
-      if let sampleMode = data["isSampleMode"] as? Bool {
-        isSampleMode = sampleMode
+      let unchanged = receivedSnapshot.map { snapshot.hasSameContent(as: $0) } ?? false
+      receivedSnapshot = snapshot
+      if !unchanged {
+        records = snapshot.records.sorted { $0.logDate > $1.logDate }
+        isSampleMode = snapshot.isSampleMode
+        lastSyncDate = snapshot.syncTimestamp.map { Date(timeIntervalSince1970: $0) }
+        print("[WatchConnectivity] Applied \(snapshot.records.count) records")
       }
-
+      if let language = data["appLanguage"] as? String,
+        let selection = AppLanguage(rawValue: language)
+      {
+        LanguageSettings.shared.selection = selection
+      }
       syncError = nil
-      print("[WatchConnectivity] \(decodedRecords.count)件のレコードを受信しました（サンプルモード: \(isSampleMode)）")
     } catch {
       syncError = L10n.string("watch_load_failed", table: "Language")
       print("[WatchConnectivity] データのデコードに失敗: \(error)")

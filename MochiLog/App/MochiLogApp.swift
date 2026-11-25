@@ -282,7 +282,6 @@ struct MochiLogRootView: View {
     _dataStore = StateObject(wrappedValue: store)
     // CloudKitのインポートイベント完了時に自動refreshできるよう登録
     ICloudSyncManager.shared.register(dataStore: store)
-    WatchConnectivityManager.shared.sendRecordsToWatch(store.recordsDescending)
   }
 
   var body: some View {
@@ -306,6 +305,12 @@ struct MochiLogRootView: View {
           if #available(iOS 17, *) {
             MacTransferManager.shared.observeSavedRecords(records)
           }
+        }
+        .onReceive(dataStore.$recordsDescending.combineLatest(
+          appSettings.$showingSampleData.removeDuplicates())
+        ) { records, sampleMode in
+          let watchRecords = sampleMode ? SampleDataProvider.generateSampleRecords() : records
+          WatchConnectivityManager.shared.sendRecordsToWatch(watchRecords, isSampleMode: sampleMode)
         }
 
       // ローディングオーバーレイ
