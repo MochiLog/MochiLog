@@ -1,23 +1,5 @@
-4.1.1
+4.1.2
 
-Also fixed crashes when importing certain data or displaying it on Apple Watch, and improved the layout with larger text.
+Fixed an issue where Apple Watch could continue to show older records even after the sync time advanced.
 
-Additional checks:
-• Receive and reconnect using existing PC pairings, including receiving from multiple computers.
-• Open the device list, record list and details on Apple Watch.
-
-Fixed an issue that could close MochiLog when switching to another app after an update.
-
-Please check:
-• Update over an earlier version and confirm that your existing records appear.
-• Open Home, record details and sharing, then switch to another app and return.
-• Import analytics logs from the share menu or Files and check the results and saved records.
-• Close and reopen MochiLog and confirm that your records remain available.
-
-Please test on iPhone, iPad and iPhone Duo.
-
-• When enabling an unconfigured collection method, follow its setup guidance. Cancelling should leave the method off.
-• Confirm that the reason is shown when pairing-file selection is unavailable.
-
-• Check guidance when local network or camera access is unavailable, including returning from Settings.
-• Check reconnection when a paired PC is unavailable or a transfer is interrupted.
+Import a battery log on your iPhone and check that the latest record and values appear on Apple Watch. After reconnecting or syncing again, check that the display does not revert to older records.
